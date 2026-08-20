@@ -20,6 +20,7 @@ Output:
     </section>
     <section class="workspace">
       <div class="steps"><b class="active">1 输入材料</b><b>2 证据诊断</b><b>3 补充事实</b><b>4 定制输出</b></div>
+      <div class="purpose-picker" id="purposePicker"><p>先选用途分类 <small id="purposeHint">不同用途会生成不同的简历结构与补充重点。</small></p><div class="purpose-groups"><div><small>申学</small><button class="purpose-card" data-purpose="recommendation" type="button">保研 / 夏令营</button><button class="purpose-card" data-purpose="masters" type="button">考研复试</button><button class="purpose-card" data-purpose="phd" type="button">考博</button></div><div><small>求职</small><button class="purpose-card selected" data-purpose="campus" type="button">校招</button><button class="purpose-card" data-purpose="experienced" type="button">社招</button></div><div><small>基础</small><button class="purpose-card" data-purpose="general" type="button">通用简历</button></div></div></div>
       <div class="form-grid">
         <label>姓名（用于预览）<input id="name" placeholder="例如：张三"></label>
         <label>联系方式（用于预览）<input id="contact" placeholder="邮箱 · 手机 · 所在城市"></label>
@@ -39,8 +40,8 @@ Output:
       <article class="wide"><span>请补充真实事实</span><div id="questions"></div></article>
       <article class="wide"><span>受约束的大模型改写</span><p>先回答上面的必要问题；只有简历原文和你确认的事实可以进入改写。</p><button id="rewriteButton">生成修改对照 →</button><p class="error" id="rewriteError"></p></article>
       <article class="wide"><span>原文 / 改写 / 理由</span><div id="draft"></div><button class="copy" data-copy="draft">复制结果</button></article>
-      <article class="wide"><span>最终简历（手动确认后编辑）</span><p>可从原始简历开始，也可载入 MSL / 医学事务模板。模板只提供结构和待填项，不会填造你的经历。</p><button id="buildDocument">创建可编辑成稿 →</button><button id="loadMslTemplate">载入 MSL 模板 →</button><label class="document-editor hidden" id="documentWrap">最终简历<textarea id="document" rows="24" placeholder="创建后可在这里编辑你的最终简历。"></textarea></label></article>
-      <article class="wide"><span>投递版简历预览</span><p>将已确认的最终文本排成一份单栏、ATS 友好的医学求职简历。预览仅重组排版，不新增任何事实。</p><button id="previewResume">生成投递版预览 →</button></article>
+      <article class="wide"><span>最终简历（手动确认后编辑）</span><p>用途分类决定内容结构；视觉版式只决定呈现方式。两者互不绑定，也不会填造你的经历。</p><div class="template-picker" id="templatePicker"><button class="template-card selected" data-template="clinical" type="button"><b>经典蓝</b><small>清晰分区，适合大多数正式投递</small></button><button class="template-card" data-template="research" type="button"><b>沉静绿</b><small>低饱和、克制的文字阅读体验</small></button><button class="template-card" data-template="minimal" type="button"><b>极简黑</b><small>黑白、无装饰，适合 ATS 投递</small></button></div><div class="form-grid structured-fields"><label>个人概述（可选）<textarea id="summary" rows="3" placeholder="留空则根据已确认的岗位证据生成保守概述"></textarea></label><label>核心能力（每行一项，可选）<textarea id="capabilities" rows="3" placeholder="例如：医学文献检索与证据转译"></textarea></label></div><button id="buildTailoredDocument">生成定制成稿 →</button><button id="buildDocument">仅载入原始简历</button><button id="loadMslTemplate">载入 MSL 模板</button><label class="document-editor hidden" id="documentWrap">最终简历<textarea id="document" rows="28" placeholder="创建后可在这里编辑你的最终简历。"></textarea></label></article>
+      <article class="wide"><span>投递版简历预览</span><p>将已确认的最终文本排成单栏、ATS 友好的医学求职简历。可在三个模板间切换；预览仅重组排版，不新增任何事实。</p><button id="previewResume">更新投递版预览 →</button></article>
       <article class="wide"><span>导出前审校</span><p>检查未确认数字、可能扩大的职责范围，以及仍无证据支持的 JD 要求。审校只提示风险，不会替你改动简历。</p><button id="reviewButton">审校最终简历 →</button><p class="error" id="reviewError"></p><div id="review"></div></article>
       <article class="wide"><span>30 秒 HR 自我介绍</span><div id="intro"></div><button class="copy" data-copy="intro">复制自我介绍</button></article>
       <div class="actions"><button id="download">导出文本</button><button id="restart">修改材料重新诊断</button></div>

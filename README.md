@@ -12,13 +12,12 @@
 ## 本地运行
 
 ```powershell
-python -m pip install -e .
 Copy-Item .env.example .env
 # 可选：在 .env 填入自己的 DeepSeek 配置
-python -m medical_resume_agent
+.\start.ps1
 ```
 
-打开 `http://127.0.0.1:5000/`。
+打开 `http://127.0.0.1:5001/`。
 
 `.env` 仅保留在本机，不能提交到 GitHub。
 

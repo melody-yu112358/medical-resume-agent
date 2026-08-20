@@ -1,5 +1,17 @@
 const $ = (selector) => document.querySelector(selector);
 let result = null;
+let selectedTemplate = "clinical";
+let selectedPurpose = "campus";
+
+const SECTION_HEADINGS = ["个人概述", "核心能力", "教育背景", "相关经历", "实践与项目经历", "研究 / 学术成果", "与目标岗位相关的已确认表述", "科研 / 学术经历", "临床 / 实践经历", "竞赛与能力", "科研 / 实践经历", "补充材料", "研究方向与科研经历", "论文 / 会议 / 成果", "方法与技能", "校园 / 科研经历", "工作与项目经历", "教育与证书"];
+const PURPOSES = {
+  recommendation: { label: "保研 / 夏令营", focus: "教育表现、科研潜力、课题经历与学术兴趣", sections: ["教育背景", "科研 / 学术经历", "临床 / 实践经历", "竞赛与能力"] },
+  masters: { label: "考研复试", focus: "教育基础、科研训练、临床实践与复试可讲述经历", sections: ["教育背景", "科研 / 实践经历", "竞赛与能力", "补充材料"] },
+  phd: { label: "考博", focus: "研究方向、论文成果、方法能力与长期研究计划", sections: ["教育背景", "研究方向与科研经历", "论文 / 会议 / 成果", "方法与技能"] },
+  campus: { label: "校招", focus: "实习、项目、校园经历与可迁移能力", sections: ["教育背景", "实践与项目经历", "校园 / 科研经历", "技能与证书"] },
+  experienced: { label: "社招", focus: "岗位职责、可核实成果、行业工具与角色匹配", sections: ["个人概述", "核心能力", "工作与项目经历", "教育与证书"] },
+  general: { label: "通用简历", focus: "可迁移经历、基础能力与后续定制空间", sections: ["个人概述", "教育背景", "相关经历", "技能与证书"] },
+};
 
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -52,6 +64,7 @@ function parseExperiences(text) {
   for (const rawLine of text.split("\n")) {
     const line = rawLine.trim();
     if (!line) continue;
+    if (SECTION_HEADINGS.includes(line)) { current = null; continue; }
     const date = line.match(datePattern);
     if (date) {
       const rest = line.slice(date[0].length).trim();
@@ -64,6 +77,39 @@ function parseExperiences(text) {
     if (current) current.bullets.push(bullet);
   }
   return experiences;
+}
+
+function confirmedFacts() {
+  return [...document.querySelectorAll("[data-fact]")].map((item) => item.value.trim()).filter(Boolean);
+}
+
+function selectedCapabilities() {
+  const entered = $("#capabilities").value.split("\n").map((item) => item.trim()).filter(Boolean);
+  const matched = (result?.evidence_matches || []).filter((item) => item.strength !== "none").map((item) => item.requirement);
+  return [...new Set(entered.length ? entered : matched)].slice(0, 6);
+}
+
+function tailoredSummary() {
+  const manual = $("#summary").value.trim();
+  if (manual) return manual;
+  const role = $("#role").value.trim() || PURPOSES[selectedPurpose].label;
+  const evidence = (result?.evidence_matches || []).filter((item) => item.strength !== "none");
+  return evidence.length
+    ? `医学背景求职者，申请${role}。以下经历已与岗位要求进行证据匹配，所有表述均须以本人可核实的原始材料为准。`
+    : `医学背景求职者，申请${role}。以下内容均须以本人可核实的原始材料为准。`;
+}
+
+function choosePurpose(purpose) {
+  selectedPurpose = purpose;
+  document.querySelectorAll("[data-purpose]").forEach((item) => item.classList.toggle("selected", item.dataset.purpose === purpose));
+  const config = PURPOSES[purpose];
+  $("#purposeHint").textContent = `当前为“${config.label}”：成稿会优先组织${config.focus}。`;
+}
+
+function chooseTemplate(template) {
+  selectedTemplate = template;
+  document.querySelectorAll("[data-template]").forEach((item) => item.classList.toggle("selected", item.dataset.template === template));
+  if (!$("#resumePreview").classList.contains("hidden")) renderPrintableResume();
 }
 
 function extractNamedSection(text, heading, nextHeadings) {
@@ -101,7 +147,7 @@ function renderPrintableResume() {
     </article>`).join("") : `<p class="resume-empty">未能从文本中识别出日期开头的经历。请使用“2024.01-2024.06  单位  职位”的格式。</p>`;
   $("#resumePreview").innerHTML = `
     <div class="resume-toolbar"><p>投递版预览 · 仅重组排版，不新增事实</p><button id="printResume">打印 / 保存为 PDF</button></div>
-    <article class="resume-sheet">
+    <article class="resume-sheet template-${selectedTemplate}">
       <header class="resume-header"><div><h1 class="resume-name">${esc(name)}</h1><p class="resume-contact">${esc(contact)}</p><p class="resume-target">医学背景 · ${esc(role)}</p></div><div class="resume-photo">证件照<br>可选</div></header>
       <section class="resume-section"><h2>个人概述</h2><p class="resume-summary">${esc(summary)}</p></section>
       ${(capabilities.length || skills.length) ? `<section class="resume-section"><h2>核心能力</h2>${capabilities.length ? `<ul class="resume-list">${capabilities.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : `<div>${skills.map((skill) => `<span class="resume-skill">${esc(skill)}</span>`).join("")}</div>`}</section>` : ""}
@@ -144,6 +190,8 @@ $("#analyze").onclick = async () => {
 };
 document.addEventListener("click", (event) => {
   if (event.target.matches(".copy")) navigator.clipboard.writeText($("#" + event.target.dataset.copy).innerText);
+  if (event.target.closest("[data-template]")) chooseTemplate(event.target.closest("[data-template]").dataset.template);
+  if (event.target.closest("[data-purpose]")) choosePurpose(event.target.closest("[data-purpose]").dataset.purpose);
   if (event.target.matches(".insert-rewrite")) {
     const item = result.rewrites?.[Number(event.target.dataset.index)];
     const editor = $("#document");
@@ -190,6 +238,27 @@ $("#buildDocument").onclick = () => {
   $("#documentWrap").classList.remove("hidden");
   editor.focus();
   editor.setSelectionRange(editor.value.length, editor.value.length);
+};
+
+$("#buildTailoredDocument").onclick = () => {
+  const editor = $("#document");
+  const source = $("#resume").value.trim();
+  if (!source) { $("#error").textContent = "请先填写原始简历。"; return; }
+  const capabilities = selectedCapabilities();
+  const evidenceNotes = (result?.rewrites || []).map((item) => item.rewritten).filter(Boolean);
+  const config = PURPOSES[selectedPurpose];
+  const role = $("#role").value.trim() || config.label;
+  const evidenceBlock = evidenceNotes.map((item) => `• ${item}`).join("\n") || "• [完成受约束改写后，可在此保留已确认表述]";
+  const sectionContent = (heading) => {
+    if (heading.includes("教育")) return "• [请补充学校、学位、专业和起止时间]";
+    if (heading.includes("技能") || heading.includes("能力")) return capabilities.map((item) => `• ${item}`).join("\n") || "• [仅保留实际使用过的工具、方法或证书]";
+    if (heading.includes("论文") || heading.includes("成果")) return "• [论文、会议、专利、竞赛或研究项目；仅保留真实角色和状态]";
+    if (heading.includes("概述")) return tailoredSummary();
+    return `${source}\n\n与目标相关的已确认表述\n${evidenceBlock}`;
+  };
+  editor.value = `求职 / 申请目标｜${role}\n用途分类｜${config.label}\n\n${config.sections.map((heading) => `${heading}\n${sectionContent(heading)}`).join("\n\n")}`;
+  $("#documentWrap").classList.remove("hidden");
+  editor.focus();
 };
 
 $("#loadMslTemplate").onclick = () => {
@@ -248,3 +317,4 @@ $("#download").onclick = () => {
 };
 
 // End of resume interactions.
+choosePurpose(selectedPurpose);

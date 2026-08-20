@@ -16,7 +16,9 @@ class ResumeRewriteRejectedError(RuntimeError):
 REWRITE_TASK = """
 你是医学生求职简历的受约束改写层。只使用输入 JSON 中的 resume_quote 和
 confirmed_facts，不得新增经历、技能、数字、结果、职级或职责范围。只改写已有证据，
-没有证据的 JD 要求必须跳过。输出严格 JSON，不要 Markdown：
+没有证据的 JD 要求必须跳过。rewritten 应是一条适合中文投递简历的简洁表述：以行动或
+交付物开头，保留全部原有数字和限定词，不使用“我”，不堆叠 JD 关键词。输出严格 JSON，
+不要 Markdown：
 {"items":[{"requirement_id":"req-01","source_quote":"原文逐字复制",
 "rewritten":"改写后的单条简历表述","reason":"为何更对应JD"}]}
 source_quote 必须逐字复制输入证据或 confirmed_facts。不要输出其他字段。

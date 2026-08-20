@@ -132,6 +132,17 @@ function loadProfile() {
 }
 function deleteProfile() { const name = $("#savedProfiles").value; if (!name || !window.confirm(`删除本机经历库“${name}”？`)) return; const bank = readBank(); delete bank[name]; localStorage.setItem(bankKey, JSON.stringify(bank)); refreshBank(); $("#bankStatus").textContent = "已从当前浏览器删除。"; }
 
+const versionsKey = "medicalResumeVersions.v1";
+function readVersions() { try { return JSON.parse(localStorage.getItem(versionsKey) || "{}"); } catch (_) { return {}; } }
+function refreshVersions() { const versions = readVersions(); $("#savedVersions").innerHTML = '<option value="">载入已保存版本</option>' + Object.keys(versions).map((name) => `<option value="${esc(name)}">${esc(name)}</option>`).join(""); }
+function saveVersion() {
+  const name = $("#versionName").value.trim(); const documentText = $("#document").value.trim();
+  if (!name || !documentText) { $("#versionStatus").textContent = "请先填写版本名称并生成/编辑最终简历。"; return; }
+  const versions = readVersions(); versions[name] = { documentText, purpose: selectedPurpose, template: selectedTemplate, role: $("#role").value, savedAt: new Date().toLocaleString(), rewriteCount: result?.rewrites?.length || 0 };
+  localStorage.setItem(versionsKey, JSON.stringify(versions)); refreshVersions(); $("#savedVersions").value = name; $("#versionStatus").textContent = `已保存版本：${name}（含 ${versions[name].rewriteCount} 条已生成改写）。`;
+}
+function loadVersion() { const item = readVersions()[$("#savedVersions").value]; if (!item) return; selectedPurpose = item.purpose || selectedPurpose; selectedTemplate = item.template || selectedTemplate; $("#role").value = item.role || ""; $("#document").value = item.documentText; $("#documentWrap").classList.remove("hidden"); choosePurpose(selectedPurpose); chooseTemplate(selectedTemplate); $("#versionStatus").textContent = `已载入 ${item.savedAt} 保存的版本。`; }
+
 function extractNamedSection(text, heading, nextHeadings) {
   const lines = text.split("\n").map((line) => line.trim());
   const start = lines.findIndex((line) => line === heading);
@@ -301,6 +312,8 @@ $("#previewResume").onclick = renderPrintableResume;
 $("#saveProfile").onclick = saveProfile;
 $("#loadProfile").onclick = loadProfile;
 $("#deleteProfile").onclick = deleteProfile;
+$("#saveVersion").onclick = saveVersion;
+$("#loadVersion").onclick = loadVersion;
 
 $("#reviewButton").onclick = async () => {
   const error = $("#reviewError");
@@ -347,3 +360,4 @@ $("#download").onclick = () => {
 // End of resume interactions.
 choosePurpose(selectedPurpose);
 refreshBank();
+refreshVersions();

@@ -1,0 +1,13 @@
+[project]
+name = "medical-resume-agent"
+version = "0.1.0"
+description = "Evidence-grounded resume tailoring agent for medical students"
+requires-python = ">=3.11"
+dependencies = ["flask>=3.0,<4"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

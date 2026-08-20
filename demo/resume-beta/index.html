@@ -1,0 +1,52 @@
+Exit code: 0
+Wall time: 2.1 seconds
+Output:
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Medical Resume Agent · 医学生 JD 定制简历助手</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="resume-preview.css">
+</head>
+<body>
+  <header><a href="/">MEDICAL RESUME</a><span>医学生 JD 定制简历助手 · Beta</span></header>
+  <main>
+    <section class="intro">
+      <small>FROM MEDICINE, TOWARD POSSIBILITY</small>
+      <h1>不是美化简历，<br>是让医学经历被岗位看见。</h1>
+      <p>从职业探索结果进入时，系统会自动载入目标岗位画像；具体公司的 JD 仍可选填覆盖。不会替你编造经历。</p>
+    </section>
+    <section class="workspace">
+      <div class="steps"><b class="active">1 输入材料</b><b>2 证据诊断</b><b>3 补充事实</b><b>4 定制输出</b></div>
+      <div class="form-grid">
+        <label>姓名（用于预览）<input id="name" placeholder="例如：张三"></label>
+        <label>联系方式（用于预览）<input id="contact" placeholder="邮箱 · 手机 · 所在城市"></label>
+        <label>目标岗位（可选）<input id="role" placeholder="例如：医学联络官 MSL"></label>
+        <label class="full">目标岗位画像 / 具体 JD（自动载入，可修改）<textarea id="jd" rows="9" placeholder="从职业方向进入会自动载入；也可粘贴具体公司的 JD。"></textarea></label>
+        <label class="full">你的原始简历<textarea id="resume" rows="12" placeholder="粘贴简历全文。请先删除姓名、电话、身份证号等敏感信息。"></textarea></label>
+      </div>
+      <div class="privacy"><input id="consent" type="checkbox"><label for="consent">我已删除不必要的个人敏感信息，并理解文本会发送到本机的未界服务进行诊断；仅在点击“生成修改对照”且已配置模型时，才会发送给该模型。</label></div>
+      <button id="analyze">开始诊断 →</button>
+      <p class="error" id="error"></p>
+    </section>
+    <section class="results hidden" id="results">
+      <div class="score"><span>证据覆盖度</span><strong id="score">0</strong><i>/100</i><p>它不是录用概率，只表示当前简历对这份 JD 的可见证据覆盖。</p></div>
+      <article><span>已经能证明</span><div id="matched"></div></article>
+      <article><span>还不能证明</span><div id="missing"></div></article>
+      <article class="wide"><span>JD 结构化结果</span><div id="requirements"></div></article>
+      <article class="wide"><span>请补充真实事实</span><div id="questions"></div></article>
+      <article class="wide"><span>受约束的大模型改写</span><p>先回答上面的必要问题；只有简历原文和你确认的事实可以进入改写。</p><button id="rewriteButton">生成修改对照 →</button><p class="error" id="rewriteError"></p></article>
+      <article class="wide"><span>原文 / 改写 / 理由</span><div id="draft"></div><button class="copy" data-copy="draft">复制结果</button></article>
+      <article class="wide"><span>最终简历（手动确认后编辑）</span><p>可从原始简历开始，也可载入 MSL / 医学事务模板。模板只提供结构和待填项，不会填造你的经历。</p><button id="buildDocument">创建可编辑成稿 →</button><button id="loadMslTemplate">载入 MSL 模板 →</button><label class="document-editor hidden" id="documentWrap">最终简历<textarea id="document" rows="24" placeholder="创建后可在这里编辑你的最终简历。"></textarea></label></article>
+      <article class="wide"><span>投递版简历预览</span><p>将已确认的最终文本排成一份单栏、ATS 友好的医学求职简历。预览仅重组排版，不新增任何事实。</p><button id="previewResume">生成投递版预览 →</button></article>
+      <article class="wide"><span>导出前审校</span><p>检查未确认数字、可能扩大的职责范围，以及仍无证据支持的 JD 要求。审校只提示风险，不会替你改动简历。</p><button id="reviewButton">审校最终简历 →</button><p class="error" id="reviewError"></p><div id="review"></div></article>
+      <article class="wide"><span>30 秒 HR 自我介绍</span><div id="intro"></div><button class="copy" data-copy="intro">复制自我介绍</button></article>
+      <div class="actions"><button id="download">导出文本</button><button id="restart">修改材料重新诊断</button></div>
+    </section>
+    <section class="resume-preview hidden" id="resumePreview"></section>
+  </main>
+  <footer>Beta 说明：结果用于求职材料准备，不代表录用承诺。所有经历、数字和成果必须由本人核实。</footer>
+  <script src="app.js"></script>
+</body></html>

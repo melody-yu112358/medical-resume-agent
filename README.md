@@ -1,12 +1,41 @@
-# 未界｜医学简历 Agent
+<p align="center">
+  <img src="assets/brand/hero.svg" alt="未界医学简历 Agent 主视觉：把真实医学经历整理成岗位看得懂的能力证明" width="100%" />
+</p>
 
-[English](README.en.md) | **简体中文**
+<p align="center">
+  <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
+  <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
+  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
+</p>
+
+<p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
 一个可在自己电脑上运行的医学经历编译器，面向医学生的申学与秋招场景。
 
-它不会把经历直接“润色得更厉害”。它先帮助用户确认真实事实，再把同一段医学经历整理成不同目标方向看得懂、经得起追问的简历要点。
+它不会把一段经历直接“润色得更厉害”。它先帮助用户确认真实事实，再把同一段医学经历整理成不同目标方向看得懂、经得起追问的简历要点。
 
 > 真实经历 → 方法 / 工具 / 角色 / 研究对象 / 交付物 → 可迁移能力 → 目标方向的表达重点
+
+<p align="center">
+  <img src="assets/brand/experience-flow.svg" alt="真实经历到可信简历要点的四步流程" width="100%" />
+</p>
+
+| 你提供什么 | 系统如何处理 | 你拿到什么 |
+| --- | --- | --- |
+| 一段真实的医学经历 | 提取事实、追问缺失信息、等待确认 | 按目标方向生成的候选简历要点 |
+| MR / Meta / R / qPCR 等线索 | 区分方法、工具、实验技术与证据资源 | 可解释的能力结构，而不是关键词堆砌 |
+| 你的目标路径 | 改变表达重点，不改写真实经历 | 可追溯、可编辑、可核查的材料 |
+
+## 30 秒体验
+
+```powershell
+.\start-local.ps1
+```
+
+然后打开：`http://127.0.0.1:5000/demo/experience-compiler/index.html`
+
+第一次可直接载入内置的脱敏 Meta 分析示例。完整步骤见[在自己的电脑上运行](#在自己的电脑上运行)。
 
 ## 为什么做这个？
 

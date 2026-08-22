@@ -671,3 +671,12 @@ temporary until the user-facing pages are updated in a later change.
 - Added a Windows installer for Skill Lite. It copies only the bundled Skill
   files into the current user's local Codex skills directory and does not read
   or upload resume content, environment files, or model credentials.
+
+## 2026-08-22 — repository visual showcase
+
+- Added a repository-owned SVG hero and experience-compilation flow graphic.
+  Both use synthetic, abstract resume content only and do not contain a real
+  person's resume or personal information.
+- Reorganized Chinese and English README first screens around the local Beta
+  workflow, four-role positioning, evidence boundaries, and a 30-second local
+  start path.

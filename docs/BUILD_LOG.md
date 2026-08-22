@@ -665,3 +665,9 @@ temporary until the user-facing pages are updated in a later change.
   ships four target-path references plus explicit anti-fabrication rules.
 - Skill Lite is a prompt/workflow companion only; it does not claim to replace
   the web application's deterministic Claim Gate or audit ledger.
+
+### Distribution follow-up
+
+- Added a Windows installer for Skill Lite. It copies only the bundled Skill
+  files into the current user's local Codex skills directory and does not read
+  or upload resume content, environment files, or model credentials.

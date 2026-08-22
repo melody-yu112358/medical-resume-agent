@@ -1,12 +1,14 @@
 [project]
-name = "medical-resume-agent"
+name = "medical-career-agent"
 version = "0.1.0"
-description = "Evidence-grounded resume tailoring agent for medical students"
+description = "Evidence-based career transition agent for medical students"
 requires-python = ">=3.11"
-dependencies = ["flask>=3.0,<4"]
+dependencies = ["flask>=3.0,<4", "gunicorn>=23,<24"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]
+resume_extract = ["pypdf>=5.0,<6", "python-docx>=1.1,<2"]
+schema_validation = ["jsonschema>=4.20,<5"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

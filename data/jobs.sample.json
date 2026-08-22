@@ -1,0 +1,28 @@
+[
+  {
+    "job_id": "synthetic-medical-affairs-sh-001",
+    "title": "医学事务专员（合成测试岗位）",
+    "company": "示例医药企业",
+    "location": "上海",
+    "description": "支持医学资料、证据解读和跨团队沟通。",
+    "requirements": [
+      "医学相关专业背景",
+      "能够开展医学文献检索与解读",
+      "具备医学材料写作能力",
+      "具备跨团队沟通协作能力",
+      "具备基础数据分析能力"
+    ],
+    "salary": {
+      "minimum": null,
+      "maximum": null,
+      "months_per_year": null,
+      "raw_text": "合成数据不提供薪资"
+    },
+    "source": {
+      "url": "https://example.invalid/synthetic-job",
+      "collected_at": "2026-08-16",
+      "label": "synthetic_fixture"
+    },
+    "synthetic": true
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "schema_version": "resume-document-v1",
+  "resume_id": "synthetic-medical-resume-001",
+  "source_documents": [{"document_id": "source-1", "source_type": "pasted_text", "display_name": "synthetic resume", "imported_at": null}],
+  "target": {"purpose": "phd", "role": "临床医学博士研究生", "organization": null, "jd_reference": null},
+  "basics": {"name": "示例同学", "phone": null, "email": null, "location": "上海", "summary": null, "evidence_ids": ["ev-1"]},
+  "education": [{"item_id": "edu-1", "institution": "示例医学院", "degree": "医学硕士", "major": "临床医学", "period": {"start": "2023.09", "end": null, "ongoing": true}, "ranking_or_gpa": null, "highlights": [], "evidence_ids": ["ev-1"]}],
+  "clinical_experience": [],
+  "professional_experience": [],
+  "research_experience": [{"item_id": "research-1", "organization": "示例医学院", "title": "课题组成员", "department_or_field": "临床研究", "period": {"start": "2024.01", "end": null, "ongoing": true}, "bullets": [{"text": "完成医学文献检索与证据整理。", "evidence_ids": ["ev-2"]}], "evidence_ids": ["ev-2"]}],
+  "projects": [],
+  "publications": [],
+  "awards": [],
+  "skills": [{"name": "PubMed", "category": "medical_information", "level": "实际使用", "evidence_ids": ["ev-2"]}],
+  "languages": [{"language": "英语", "level_or_score": "CET-6", "evidence_ids": ["ev-3"]}],
+  "evidence": [
+    {"evidence_id": "ev-1", "statement": "临床医学硕士在读。", "source_document_id": "source-1", "source_locator": "paragraph 1", "status": "user_confirmed", "confirmed_at": null},
+    {"evidence_id": "ev-2", "statement": "负责课题文献检索，使用 PubMed 筛选医学文献。", "source_document_id": "source-1", "source_locator": "paragraph 2", "status": "user_confirmed", "confirmed_at": null},
+    {"evidence_id": "ev-3", "statement": "英语 CET-6。", "source_document_id": "source-1", "source_locator": "paragraph 3", "status": "user_confirmed", "confirmed_at": null}
+  ],
+  "review_events": []
+}

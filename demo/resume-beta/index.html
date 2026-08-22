@@ -6,12 +6,12 @@ Output:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Medical Resume Agent · 医学生 JD 定制简历助手</title>
+  <title>未界 · 医学生 JD 定制简历助手</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="resume-preview.css">
 </head>
 <body>
-  <header><a href="/">MEDICAL RESUME</a><span>医学生 JD 定制简历助手 · Beta</span></header>
+  <header><a href="../index.html">未界</a><span>医学生 JD 定制简历助手 · Beta</span></header>
   <main>
     <section class="intro">
       <small>FROM MEDICINE, TOWARD POSSIBILITY</small>
@@ -19,33 +19,45 @@ Output:
       <p>从职业探索结果进入时，系统会自动载入目标岗位画像；具体公司的 JD 仍可选填覆盖。不会替你编造经历。</p>
     </section>
     <section class="workspace">
-      <div class="steps"><b class="active">1 输入材料</b><b>2 证据诊断</b><b>3 补充事实</b><b>4 定制输出</b></div>
-      <div class="purpose-picker" id="purposePicker"><p>先选用途分类 <small id="purposeHint">不同用途会生成不同的简历结构与补充重点。</small></p><div class="purpose-groups"><div><small>申学</small><button class="purpose-card" data-purpose="recommendation" type="button">保研 / 夏令营</button><button class="purpose-card" data-purpose="masters" type="button">考研复试</button><button class="purpose-card" data-purpose="phd" type="button">考博</button></div><div><small>求职</small><button class="purpose-card selected" data-purpose="hospital" type="button">医院 / 规培校招</button><button class="purpose-card" data-purpose="industry" type="button">医药健康行业校招</button><button class="purpose-card" data-purpose="experienced" type="button">社招</button></div><div><small>基础</small><button class="purpose-card" data-purpose="general" type="button">通用简历</button></div></div><div class="purpose-checklist" id="purposeChecklist"></div></div>
-      <div class="evidence-bank"><p><b>主经历库</b> <small>仅保存在当前浏览器；可将一份真实经历复用于多个用途与岗位。</small></p><div><input id="profileName" placeholder="主经历库名称，例如：医学本科-科研与实习"><button id="saveProfile" type="button">保存当前材料</button></div><div><select id="savedProfiles"><option value="">选择已保存的主经历库</option></select><button id="loadProfile" type="button">载入</button><button id="deleteProfile" class="quiet" type="button">删除</button></div><p class="bank-status" id="bankStatus"></p></div>
+      <div class="steps"><b class="active">1 输入材料</b><b>2 结构确认</b><b>3 证据诊断</b><b>4 定制输出</b></div>
+      <div class="quick-start"><div><b>第一次体验？</b><span>载入一份脱敏示例，约 2 分钟走完整流程。</span></div><button id="loadExample" type="button">使用示例体验 →</button></div>
+      <div class="purpose-picker" id="purposePicker"><p>先选用途分类 <small id="purposeHint">不同用途会生成不同的简历结构与补充重点。</small></p><div class="purpose-groups"><div><small>申学</small><button class="purpose-card" data-purpose="recommendation" type="button">保研 / 夏令营</button><button class="purpose-card" data-purpose="masters" type="button">考研复试</button><button class="purpose-card" data-purpose="phd" type="button">考博</button></div><div><small>求职</small><button class="purpose-card selected" data-purpose="campus" type="button">校招</button><button class="purpose-card" data-purpose="experienced" type="button">社招</button></div><div><small>基础</small><button class="purpose-card" data-purpose="general" type="button">通用简历</button></div></div></div>
       <div class="form-grid">
         <label>姓名（用于预览）<input id="name" placeholder="例如：张三"></label>
         <label>联系方式（用于预览）<input id="contact" placeholder="邮箱 · 手机 · 所在城市"></label>
         <label>目标岗位（可选）<input id="role" placeholder="例如：医学联络官 MSL"></label>
         <label class="full">目标岗位画像 / 具体 JD（自动载入，可修改）<textarea id="jd" rows="9" placeholder="从职业方向进入会自动载入；也可粘贴具体公司的 JD。"></textarea></label>
-        <label class="full">你的原始简历<textarea id="resume" rows="12" placeholder="粘贴简历全文。请先删除姓名、电话、身份证号等敏感信息。"></textarea></label>
+        <label class="full">你的原始简历
+          <span class="upload-row"><input id="resumeFile" type="file" accept=".txt,.md,.pdf,.docx"><small id="uploadStatus">支持 TXT、Markdown、PDF、DOCX；也可以直接粘贴。</small></span>
+          <textarea id="resume" rows="12" placeholder="粘贴简历全文。请先删除姓名、电话、身份证号等敏感信息。"></textarea>
+        </label>
       </div>
+      <section class="structure-review hidden" id="structureReview" aria-live="polite">
+        <div><b>先确认简历结构</b><small>系统只按明确栏目归类；请勾选允许进入定制简历的真实内容。</small></div>
+        <div id="structureSections"></div>
+        <div id="structureUnclassified"></div>
+        <div class="structure-actions"><button id="selectAllStructured" class="secondary" type="button">全选已识别内容</button><button id="openDocumentEditor" class="secondary" type="button">编辑为结构化简历 →</button><small id="structureStatus">尚未选择任何内容。</small></div>
+      </section>
+      <section class="document-model hidden" id="documentModel" aria-live="polite"><div><b>医学简历字段确认</b><small>字段只会保存到当前浏览器。原始勾选内容仍保留为证据；缺失信息请手动补充，不会由系统猜测。</small></div><div id="documentModelFields"></div><button id="saveDocumentModel" class="secondary" type="button">保存本机结构化草稿</button><small id="documentModelStatus"></small><section class="capability-profile hidden" id="capabilityProfile"><div><b>医学科研能力画像</b><small>仅从你已确认的原文中识别候选能力；请选择真实熟练度，未确认项目不会写进简历。</small></div><div id="capabilityCandidates"></div><small id="capabilityProfileStatus"></small></section></section>
       <div class="privacy"><input id="consent" type="checkbox"><label for="consent">我已删除不必要的个人敏感信息，并理解文本会发送到本机的未界服务进行诊断；仅在点击“生成修改对照”且已配置模型时，才会发送给该模型。</label></div>
+      <button id="structureResume" class="secondary" type="button">识别并确认简历结构 →</button>
       <button id="analyze">开始诊断 →</button>
       <p class="error" id="error"></p>
     </section>
     <section class="results hidden" id="results">
       <div class="score"><span>证据覆盖度</span><strong id="score">0</strong><i>/100</i><p>它不是录用概率，只表示当前简历对这份 JD 的可见证据覆盖。</p></div>
+      <article class="wide translation-panel"><span>岗位能力翻译器</span><p>选择目标市场后，只把已确认的医学能力翻译成招聘方能判断的价值和推荐位置；不会新增事实。</p><div class="translation-picker" id="translationPicker"><button class="translation-card" data-translation-target="doctoral" type="button">考博 / 保研</button><button class="translation-card selected" data-translation-target="clinical_research" type="button">临床科研</button><button class="translation-card" data-translation-target="medical_affairs" type="button">MSL / 医学事务</button><button class="translation-card" data-translation-target="health_data" type="button">医疗数据 / 健康科技</button></div><button id="translateCapabilities" class="secondary" type="button">生成岗位能力翻译 →</button><p class="error" id="translationError"></p><div id="translationResult"></div></article>
       <article><span>已经能证明</span><div id="matched"></div></article>
       <article><span>还不能证明</span><div id="missing"></div></article>
       <article class="wide"><span>JD 结构化结果</span><div id="requirements"></div></article>
       <article class="wide"><span>请补充真实事实</span><div id="questions"></div></article>
       <article class="wide"><span>受约束的大模型改写</span><p>先回答上面的必要问题；只有简历原文和你确认的事实可以进入改写。</p><button id="rewriteButton">生成修改对照 →</button><p class="error" id="rewriteError"></p></article>
-      <article class="wide"><span>原文 / 改写 / 理由</span><div id="draft"></div><button class="copy" data-copy="draft">复制结果</button></article>
-      <article class="wide"><span>最终简历（手动确认后编辑）</span><p>用途分类决定内容结构；视觉版式只决定呈现方式。两者互不绑定，也不会填造你的经历。</p><div class="template-picker" id="templatePicker"><button class="template-card selected" data-template="clinical" type="button"><b>经典蓝</b><small>清晰分区，适合大多数正式投递</small></button><button class="template-card" data-template="research" type="button"><b>沉静绿</b><small>低饱和、克制的文字阅读体验</small></button><button class="template-card" data-template="minimal" type="button"><b>极简黑</b><small>黑白、无装饰，适合 ATS 投递</small></button></div><div class="form-grid structured-fields"><label>个人概述（可选）<textarea id="summary" rows="3" placeholder="留空则根据已确认的岗位证据生成保守概述"></textarea></label><label>核心能力（每行一项，可选）<textarea id="capabilities" rows="3" placeholder="例如：医学文献检索与证据转译"></textarea></label></div><button id="buildTailoredDocument">生成定制成稿 →</button><button id="buildDocument">仅载入原始简历</button><button id="loadMslTemplate">载入 MSL 模板</button><label class="document-editor hidden" id="documentWrap">最终简历<textarea id="document" rows="28" placeholder="创建后可在这里编辑你的最终简历。"></textarea></label><div class="version-controls"><input id="versionName" placeholder="版本名称，例如：药企校招-MSL"><button id="saveVersion">保存此版本</button><select id="savedVersions"><option value="">载入已保存版本</option></select><button id="loadVersion" class="quiet">载入版本</button><p id="versionStatus"></p></div></article>
-      <article class="wide"><span>投递版简历预览</span><p>将已确认的最终文本排成单栏、ATS 友好的医学求职简历。可在三个模板间切换；预览仅重组排版，不新增任何事实。</p><button id="previewResume">更新投递版预览 →</button></article>
+      <article class="wide"><span>原文 / 改写 / 理由</span><div id="draft"></div><small class="audit-status" id="rewriteAuditStatus">改写建议不会自动进入最终简历。</small><button class="copy" data-copy="draft">复制结果</button></article>
+      <article class="wide"><span>最终简历（手动确认后编辑）</span><p>用途分类决定内容结构；视觉版式只决定呈现方式。两者互不绑定，也不会填造你的经历。</p><div class="template-picker" id="templatePicker"><button class="template-card selected" data-template="clinical" type="button"><b>临床蓝</b><small>时间线优先，适合医院 / 医药求职</small></button><button class="template-card" data-template="research" type="button"><b>学术绿</b><small>科研与教育主体，侧栏呈现能力</small></button><button class="template-card" data-template="minimal" type="button"><b>ATS 极简</b><small>单栏黑白、无照片，适合系统投递</small></button></div><div class="form-grid structured-fields"><label>个人概述（可选）<textarea id="summary" rows="3" placeholder="留空则根据已确认的岗位证据生成保守概述"></textarea></label><label>核心能力（每行一项，可选）<textarea id="capabilities" rows="3" placeholder="例如：医学文献检索与证据转译"></textarea></label></div><button id="buildTailoredDocument">生成定制成稿 →</button><button id="buildDocument">仅载入原始简历</button><button id="loadMslTemplate">载入 MSL 模板</button><label class="document-editor hidden" id="documentWrap">最终简历<textarea id="document" rows="28" placeholder="创建后可在这里编辑你的最终简历。"></textarea></label><div class="version-control"><label>版本名称（可选）<input id="versionName" placeholder="例如：MSL 校招 · 第一版"></label><button id="saveResumeVersion" class="secondary" type="button">保存本机版本</button><button id="loadLatestVersion" class="secondary" type="button">载入最近版本</button><small id="versionStatus">版本仅保存在当前浏览器；不会上传。</small><div id="versionList"></div></div></article>
+      <article class="wide"><span>投递版简历预览</span><p>将已确认的最终文本排成一份单栏、ATS 友好的医学求职简历。预览仅重组排版，不新增任何事实。</p><button id="previewResume">生成投递版预览 →</button></article>
       <article class="wide"><span>导出前审校</span><p>检查未确认数字、可能扩大的职责范围，以及仍无证据支持的 JD 要求。审校只提示风险，不会替你改动简历。</p><button id="reviewButton">审校最终简历 →</button><p class="error" id="reviewError"></p><div id="review"></div></article>
       <article class="wide"><span>30 秒 HR 自我介绍</span><div id="intro"></div><button class="copy" data-copy="intro">复制自我介绍</button></article>
-      <div class="actions"><button id="download">导出文本</button><button id="restart">修改材料重新诊断</button></div>
+      <div class="actions"><button id="download">导出文本</button><button id="previewAndPrint">预览并保存 PDF</button><button id="restart">修改材料重新诊断</button></div>
     </section>
     <section class="resume-preview hidden" id="resumePreview"></section>
   </main>

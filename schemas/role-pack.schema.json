@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/role-pack.schema.json",
+  "title": "Medical Career Role Pack Configuration",
+  "description": "Configuration for translating canonical experiences to role-specific resume bullets.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["role_pack", "label", "priorities", "value_mappings", "preferred_actions", "allowed_verbs", "restricted_verbs", "forbidden_claims", "required_evidence", "sentence_patterns", "evaluation_cases"],
+  "properties": {
+    "role_pack": {
+      "type": "string",
+      "pattern": "^[a-z_][a-z0-9_]*_v[0-9]+$"
+    },
+    "label": { "type": "string" },
+    "priorities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "value_mappings": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 2,
+        "maxItems": 2
+      }
+    },
+    "preferred_actions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "allowed_verbs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "restricted_verbs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "forbidden_claims": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "required_evidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" },
+        "uniqueItems": true
+      }
+    },
+    "sentence_patterns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "evaluation_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input", "expected_output"],
+        "properties": {
+          "input": { "type": "object" },
+          "expected_output": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

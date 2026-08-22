@@ -1,0 +1,134 @@
+{
+  "user_input": "负责实验室的数据分析工作",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_007",
+      "source_text": "负责实验室的数据分析工作",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "data_analysis",
+      "setting": "research_project",
+      "topic": "laboratory data analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "unknown"
+    },
+    "actions": ["analyze_data"],
+    "methods": ["data_analysis"],
+    "tools": [],
+    "objects": ["laboratory_data"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["analysis_scope", "data_volume", "methods_used", "deliverables", "supervision_level", "ownership_level"]
+  },
+  "clarifying_questions": [
+    "具体负责哪些数据的分析？",
+    "是独立负责还是在指导下完成？",
+    "分析结果用于什么目的？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_007",
+    "evidence_ids": ["ev_007"],
+    "context": {
+      "domain": "data_analysis",
+      "setting": "research_project",
+      "topic": "laboratory data analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "unknown"
+    },
+    "actions": ["analyze_data"],
+    "methods": ["data_analysis"],
+    "tools": [],
+    "objects": ["laboratory_data"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["analysis_scope", "data_volume", "methods_used", "deliverables", "supervision_level", "ownership_level"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_025",
+        "experience_id": "exp_007",
+        "role_pack": "doctoral_v1",
+        "wording": "参与实验室数据分析工作，在指导下完成数据处理任务。",
+        "used_facts": ["analyze_data", "data_analysis", "laboratory_data"],
+        "evidence_ids": ["ev_007"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["analysis_scope", "data_volume", "methods_used", "deliverables", "supervision_level", "ownership_level"],
+        "risk_flags": ["responsibility_ambiguity"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_026",
+        "experience_id": "exp_007",
+        "role_pack": "clinical_research_v1",
+        "wording": "参与实验室数据的分析处理，支持研究项目数据需求。",
+        "used_facts": ["analyze_data", "data_analysis", "laboratory_data"],
+        "evidence_ids": ["ev_007"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["analysis_scope", "data_volume", "methods_used", "deliverables", "supervision_level", "ownership_level"],
+        "risk_flags": ["responsibility_ambiguity"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_027",
+        "experience_id": "exp_007",
+        "role_pack": "medical_affairs_v1",
+        "wording": "参与实验室数据分析工作，了解数据处理流程和方法。",
+        "used_facts": ["analyze_data", "data_analysis", "laboratory_data"],
+        "evidence_ids": ["ev_007"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["analysis_scope", "data_volume", "methods_used", "deliverables", "supervision_level", "ownership_level"],
+        "risk_flags": ["responsibility_ambiguity"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_028",
+        "experience_id": "exp_007",
+        "role_pack": "health_ai_data_v1",
+        "wording": "参与实验室数据处理与分析，为AI模型开发提供数据支持。",
+        "used_facts": ["analyze_data", "data_analysis"],
+        "evidence_ids": ["ev_007"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["analysis_scope", "data_volume", "methods_used", "deliverables", "supervision_level", "ownership_level"],
+        "risk_flags": ["responsibility_ambiguity"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立负责整个实验室的数据分析体系",
+    "主导数据分析策略制定",
+    "完全自主完成所有数据处理工作",
+    "负责关键数据分析决策",
+    "拥有数据分析工作的完全所有权"
+  ]
+}

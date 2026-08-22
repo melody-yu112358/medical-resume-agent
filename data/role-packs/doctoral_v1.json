@@ -1,0 +1,74 @@
+{
+  "role_pack": "doctoral_v1",
+  "label": "考博 / 保研",
+  "priorities": ["research_method", "data_analysis", "wet_lab", "clinical_research", "medical_information"],
+  "value_mappings": {
+    "research_method": ["因果推断与循证研究方法", "核心能力 + 科研经历首条"],
+    "data_analysis": ["研究数据处理与统计分析", "方法与技能 + 科研经历首条"],
+    "wet_lab": ["实验技术与机制研究执行", "实验技术 + 科研经历首条"],
+    "clinical_research": ["临床研究设计与证据转化", "科研经历首条"],
+    "medical_information": ["系统检索与证据综合", "科研方法 + 文献成果"]
+  },
+  "preferred_actions": ["design", "implement", "analyze", "interpret", "synthesize", "validate"],
+  "allowed_verbs": ["参与", "协助", "负责", "主导", "完成", "实现", "分析", "解释", "综合"],
+  "restricted_verbs": ["独立设计", "创新开发", "领导团队", "管理项目"],
+  "forbidden_claims": [
+    "独立设计课题",
+    "形成创新方法",
+    "主导发表",
+    "领导研究团队",
+    "管理研究中心"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_module", "deliverable"],
+    "led_delivery": ["planning_evidence", "coordination_evidence", "delivery_evidence"],
+    "project_owner": ["goal_setting", "resource_allocation", "overall_responsibility"]
+  },
+  "sentence_patterns": [
+    "{action} {object}，{method} {constraint} {deliverable}",
+    "{responsibility} {scope} {action}，{outcome}",
+    "{method} {object} {constraint}，{value}"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "context": {"domain": "clinical_research", "setting": "research_project", "topic": "systematic review"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["retrieve_literature", "screen_studies"],
+        "methods": ["systematic_review", "meta_analysis"],
+        "objects": ["clinical_studies", "medical_literature"]
+      },
+      "expected_output": [
+        "参与系统综述的文献检索与筛选工作，掌握循证研究方法。",
+        "协助临床研究证据的系统检索，支持Meta分析项目执行。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "data_analysis", "setting": "research_project", "topic": "statistical analysis"},
+        "role": {"responsibility_level": "owned_component"},
+        "actions": ["analyze_data", "interpret_results"],
+        "methods": ["statistical_analysis", "regression_modeling"],
+        "objects": ["clinical_data", "research_outcomes"],
+        "evidence_ids": ["ev_001", "ev_002"]
+      },
+      "expected_output": [
+        "负责临床数据的统计分析与结果解释，运用回归模型支持科研结论。",
+        "完成研究数据的处理与分析工作，为课题提供统计学支持。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "wet_lab", "setting": "lab_experiment", "topic": "molecular biology"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["perform_experiments", "collect_samples"],
+        "methods": ["pcr", "western_blot"],
+        "objects": ["cell_samples", "protein_extracts"]
+      },
+      "expected_output": [
+        "参与分子生物学实验操作，完成PCR和Western Blot等基础实验技术。",
+        "协助细胞样本收集与蛋白提取工作，支持实验室研究进展。"
+      ]
+    }
+  ]
+}

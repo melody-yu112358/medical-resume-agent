@@ -1,0 +1,134 @@
+{
+  "user_input": "独立主导了整个Meta分析项目并发表了高影响因子论文",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_008",
+      "source_text": "独立主导了整个Meta分析项目并发表了高影响因子论文",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "clinical_research",
+      "setting": "research_project",
+      "topic": "systematic review and meta-analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "project_owner"
+    },
+    "actions": ["lead_project", "publish_paper"],
+    "methods": ["systematic_review", "meta_analysis"],
+    "tools": [],
+    "objects": ["clinical_studies", "medical_literature"],
+    "collaboration": [],
+    "artifacts": ["published_paper"],
+    "outcomes": ["high_impact_publication"],
+    "scope": {},
+    "unknowns": ["journal_name", "impact_factor", "author_position", "project_duration", "team_size", "funding_source"]
+  },
+  "clarifying_questions": [
+    "在论文中的作者位置是什么？",
+    "发表在哪个期刊，影响因子具体是多少？",
+    "项目团队有多少人，您的具体职责是什么？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_008",
+    "evidence_ids": ["ev_008"],
+    "context": {
+      "domain": "clinical_research",
+      "setting": "research_project",
+      "topic": "systematic review and meta-analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "project_owner"
+    },
+    "actions": ["lead_project", "publish_paper"],
+    "methods": ["systematic_review", "meta_analysis"],
+    "tools": [],
+    "objects": ["clinical_studies", "medical_literature"],
+    "collaboration": [],
+    "artifacts": ["published_paper"],
+    "outcomes": ["high_impact_publication"],
+    "scope": {},
+    "unknowns": ["journal_name", "impact_factor", "author_position", "project_duration", "team_size", "funding_source"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_029",
+        "experience_id": "exp_008",
+        "role_pack": "doctoral_v1",
+        "wording": "参与Meta分析项目并有论文发表经历，了解系统综述研究流程。",
+        "used_facts": ["systematic_review", "meta_analysis", "published_paper"],
+        "evidence_ids": ["ev_008"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["journal_name", "impact_factor", "author_position", "project_duration", "team_size", "funding_source"],
+        "risk_flags": ["potential_exaggeration", "unverified_claims"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_030",
+        "experience_id": "exp_008",
+        "role_pack": "clinical_research_v1",
+        "wording": "参与Meta分析研究项目，有学术论文发表经验。",
+        "used_facts": ["systematic_review", "meta_analysis", "published_paper"],
+        "evidence_ids": ["ev_008"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["journal_name", "impact_factor", "author_position", "project_duration", "team_size", "funding_source"],
+        "risk_flags": ["potential_exaggeration", "unverified_claims"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_031",
+        "experience_id": "exp_008",
+        "role_pack": "medical_affairs_v1",
+        "wording": "参与循证医学研究项目，有学术出版物经验。",
+        "used_facts": ["systematic_review", "meta_analysis", "published_paper"],
+        "evidence_ids": ["ev_008"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["journal_name", "impact_factor", "author_position", "project_duration", "team_size", "funding_source"],
+        "risk_flags": ["potential_exaggeration", "unverified_claims"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_032",
+        "experience_id": "exp_008",
+        "role_pack": "health_ai_data_v1",
+        "wording": "参与Meta分析数据处理与研究，有学术发表经历。",
+        "used_facts": ["systematic_review", "meta_analysis", "published_paper"],
+        "evidence_ids": ["ev_008"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["journal_name", "impact_factor", "author_position", "project_duration", "team_size", "funding_source"],
+        "risk_flags": ["potential_exaggeration", "unverified_claims"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立主导整个Meta分析项目",
+    "发表高影响因子论文",
+    "作为第一作者发表顶级期刊",
+    "完全负责项目设计和执行",
+    "领导多学科研究团队"
+  ]
+}

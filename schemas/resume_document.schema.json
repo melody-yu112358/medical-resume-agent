@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/resume_document.schema.json",
+  "title": "Traceable medical resume document",
+  "description": "A confirmed resume record. Every displayable item must cite user-owned evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "resume_id", "target", "basics", "evidence"],
+  "properties": {
+    "schema_version": { "const": "resume-document-v1" },
+    "resume_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "source_documents": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/sourceDocument" },
+      "uniqueItems": true
+    },
+    "target": { "$ref": "#/$defs/target" },
+    "basics": { "$ref": "#/$defs/basics" },
+    "education": { "type": "array", "items": { "$ref": "#/$defs/educationItem" } },
+    "clinical_experience": { "type": "array", "items": { "$ref": "#/$defs/experienceItem" } },
+    "professional_experience": { "type": "array", "items": { "$ref": "#/$defs/experienceItem" } },
+    "research_experience": { "type": "array", "items": { "$ref": "#/$defs/experienceItem" } },
+    "projects": { "type": "array", "items": { "$ref": "#/$defs/experienceItem" } },
+    "publications": { "type": "array", "items": { "$ref": "#/$defs/publicationItem" } },
+    "awards": { "type": "array", "items": { "$ref": "#/$defs/achievementItem" } },
+    "skills": { "type": "array", "items": { "$ref": "#/$defs/skillItem" } },
+    "languages": { "type": "array", "items": { "$ref": "#/$defs/languageItem" } },
+    "capability_profile": { "type": "array", "items": { "$ref": "#/$defs/capabilityItem" } },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" }, "minItems": 1 },
+    "review_events": { "type": "array", "items": { "$ref": "#/$defs/reviewEvent" } }
+  },
+  "$defs": {
+    "sourceDocument": {
+      "type": "object", "additionalProperties": false,
+      "required": ["document_id", "source_type"],
+      "properties": {
+        "document_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "source_type": { "enum": ["pasted_text", "txt", "markdown", "pdf", "docx", "user_entry"] },
+        "display_name": { "type": ["string", "null"] },
+        "imported_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["purpose"],
+      "properties": {
+        "purpose": { "enum": ["recommendation", "graduate_retest", "phd", "hospital_campus", "health_industry_campus", "experienced_hire", "general"] },
+        "role": { "type": ["string", "null"] },
+        "organization": { "type": ["string", "null"] },
+        "jd_reference": { "type": ["string", "null"] }
+      }
+    },
+    "basics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "phone": { "type": ["string", "null"] },
+        "email": { "type": ["string", "null"] },
+        "location": { "type": ["string", "null"] },
+        "summary": { "type": ["string", "null"] },
+        "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "evidenceIds": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+    "period": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "start": { "type": ["string", "null"] },
+        "end": { "type": ["string", "null"] },
+        "ongoing": { "type": "boolean", "default": false }
+      }
+    },
+    "educationItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["item_id", "institution", "evidence_ids"],
+      "properties": {
+        "item_id": { "type": "string" }, "institution": { "type": "string" },
+        "degree": { "type": ["string", "null"] }, "major": { "type": ["string", "null"] },
+        "period": { "$ref": "#/$defs/period" }, "ranking_or_gpa": { "type": ["string", "null"] },
+        "highlights": { "type": "array", "items": { "type": "string" } },
+        "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "experienceItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["item_id", "organization", "title", "evidence_ids"],
+      "properties": {
+        "item_id": { "type": "string" }, "organization": { "type": "string" }, "title": { "type": "string" },
+        "department_or_field": { "type": ["string", "null"] }, "period": { "$ref": "#/$defs/period" },
+        "bullets": { "type": "array", "items": { "$ref": "#/$defs/bulletItem" } },
+        "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "bulletItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["text", "evidence_ids"],
+      "properties": { "text": { "type": "string", "minLength": 1 }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
+    },
+    "publicationItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["item_id", "title", "evidence_ids"],
+      "properties": {
+        "item_id": { "type": "string" }, "title": { "type": "string" }, "venue": { "type": ["string", "null"] },
+        "status": { "enum": ["published", "accepted", "under_review", "in_preparation", "unknown"] },
+        "author_position": { "type": ["string", "null"] }, "year": { "type": ["integer", "null"] },
+        "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "achievementItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["item_id", "name", "evidence_ids"],
+      "properties": { "item_id": { "type": "string" }, "name": { "type": "string" }, "issuer": { "type": ["string", "null"] }, "year": { "type": ["integer", "null"] }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
+    },
+    "skillItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "category", "evidence_ids"],
+      "properties": { "name": { "type": "string" }, "category": { "enum": ["clinical", "research", "data", "medical_information", "communication", "certificate", "other"] }, "level": { "type": ["string", "null"] }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
+    },
+    "languageItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["language", "evidence_ids"],
+      "properties": { "language": { "type": "string" }, "level_or_score": { "type": ["string", "null"] }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
+    },
+    "capabilityItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "category", "proficiency", "evidence_ids"],
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "enum": ["research_method", "data_analysis", "wet_lab", "clinical_research", "medical_information"] },
+        "proficiency": { "enum": ["aware", "supervised", "independent", "advanced"] },
+        "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
+      }
+    },
+    "evidenceItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evidence_id", "statement", "status"],
+      "properties": {
+        "evidence_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "statement": { "type": "string", "minLength": 1 }, "source_document_id": { "type": ["string", "null"] },
+        "source_locator": { "type": ["string", "null"], "description": "Page, paragraph, or character range in the user-provided source." },
+        "status": { "enum": ["extracted", "user_confirmed", "rejected", "model_draft"] },
+        "confirmed_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "reviewEvent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["event_id", "action", "created_at"],
+      "properties": { "event_id": { "type": "string" }, "action": { "enum": ["accepted", "rejected", "edited", "exported"] }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" }, "created_at": { "type": "string", "format": "date-time" } }
+    }
+  }
+}

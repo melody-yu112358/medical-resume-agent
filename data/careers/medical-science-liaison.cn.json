@@ -1,0 +1,215 @@
+{
+  "career_id": "medical-science-liaison",
+  "name": "医学科学联络官（MSL）",
+  "aliases": [
+    "医学联络官",
+    "Medical Science Liaison"
+  ],
+  "market": "中国大陆；首批观察来自广东、南京和上海的公开招聘信息",
+  "summary": "在特定治疗领域开展合规的科学交流，连接医疗专业人士与企业医学团队，并把外部洞见带回医学策略、研究和教育活动。",
+  "daily_tasks": [
+    {
+      "claim": "与医疗专业人士或区域专家开展科学交流，解读临床证据、回应医学问题并了解未满足需求。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "收集并整理外部专家洞见，将其反馈给内部医学团队以支持区域医学策略或研究规划。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "组织或支持医学教育活动，并为内部市场、销售或其他合作团队提供医学培训。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "支持研究者发起研究或其他医学项目，跟踪研究进展、文件和跨团队沟通。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.85
+    }
+  ],
+  "required_education": [
+    {
+      "claim": "首批样本的学历要求存在差异：康方和恒瑞样本要求医学、药学或相关方向硕士及以上，GSK转载样本接受医疗相关本科背景。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "required_skills": [
+    {
+      "claim": "能够持续学习一个治疗领域并准确解读临床研究、医学文献和产品证据。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "具备面对医疗专业人士进行沟通、演讲、讨论和培训的能力。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "能够在公司流程、行业准则和当地法规边界内提供平衡且可核查的医学信息。",
+      "source_ids": [
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.85
+    },
+    {
+      "claim": "具备医学项目推进、材料整理和跨职能协作能力。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "preferred_experience": [
+    {
+      "claim": "入门要求因雇主和级别而异：康方样本面向相关专业应届硕博，恒瑞样本标注三至五年经验，GSK转载样本偏好至少一年外部沟通经验。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "治疗领域经验、临床研究经历或既往药企医学工作可能成为加分项。",
+      "source_ids": [
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.85
+    }
+  ],
+  "medical_transferable_skills": [
+    {
+      "claim": "临床或科研训练可能支持治疗领域学习、证据解读、病例讨论和与医疗专业人士使用共同语言。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "claim": "论文或学历不能单独证明外部科学交流、洞见提炼、合规判断和区域项目执行能力。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    }
+  ],
+  "work_environment": [
+    {
+      "claim": "工作包含区域内外部拜访或现场科学交流，并需要与医学、市场、销售和研究团队协作；出差强度因区域和公司而异。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    }
+  ],
+  "entry_barriers": [
+    {
+      "claim": "岗位通常要求较强的治疗领域证据理解、公开表达和关系沟通能力，这些能力不能由医学学历自动推定。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026",
+        "gsk-msl-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "claim": "虽然存在应届生岗位样本，但其他样本要求既往经验和出差适应性，因此入门路径不能按单一岗位概括。",
+      "source_ids": [
+        "akeso-msl-2026",
+        "hengrui-msl-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    }
+  ],
+  "validation_actions": [
+    "选择一个熟悉的治疗领域，用五分钟向非本专业同学解释一项临床证据，并请对方复述核心结论和疑问。",
+    "阅读三个当前 MSL 岗位，区分科学交流、医学项目、内部培训和合规要求，记录共同项与差异项。",
+    "为一次虚拟专家交流准备一页证据摘要、三个开放问题和一份会后洞见记录。",
+    "访谈一名医学事务从业者，核对出差、沟通频率、绩效方式和医学与商业边界。"
+  ],
+  "sources": [
+    {
+      "source_id": "akeso-msl-2026",
+      "title": "MSL—中山康方生物医药有限公司",
+      "url": "https://career.nankai.edu.cn/correcruit/content/id/114744.html",
+      "publisher": "南开大学学生就业指导中心（康方生物招聘信息）",
+      "published_at": "2026-03-30",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "hengrui-msl-2026",
+      "title": "医学科学联络官 MSL—南京（MJ016261）",
+      "url": "https://www.zhaopin.com/jobdetail/CC120989510J40856755313.htm",
+      "publisher": "智联招聘（恒瑞医药认证职位）",
+      "published_at": "2026-07-21",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "gsk-msl-market-observation",
+      "title": "医学联络官/MSL—上海",
+      "url": "https://www.jobuy.com/jobs/113980.html",
+      "publisher": "猎才医药网（转载GSK中国职位）",
+      "published_at": null,
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    }
+  ],
+  "review_status": "draft",
+  "reviewed_by": null,
+  "updated_at": "2026-08-17"
+}

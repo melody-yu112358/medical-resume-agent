@@ -1,0 +1,73 @@
+{
+  "role_pack": "clinical_research_v1",
+  "label": "临床科研",
+  "priorities": ["clinical_research", "research_method", "data_analysis", "medical_information", "wet_lab"],
+  "value_mappings": {
+    "research_method": ["研究设计与循证分析", "核心能力 + 科研经历首条"],
+    "data_analysis": ["临床数据分析与结果解释", "核心能力 + 科研经历首条"],
+    "wet_lab": ["实验执行与质量控制", "实验技术栏目"],
+    "clinical_research": ["临床研究执行与研究设计理解", "相关经历首条"],
+    "medical_information": ["临床证据检索与综合", "核心能力 + 科研经历"]
+  },
+  "preferred_actions": ["execute", "implement", "support", "assist", "contribute", "participate"],
+  "allowed_verbs": ["参与", "协助", "支持", "执行", "完成", "贡献", "实施"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成"],
+  "forbidden_claims": [
+    "负责临床试验运营",
+    "确保合规",
+    "管理研究中心",
+    "独立设计研究方案",
+    "主导数据收集"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_task", "deliverable"],
+    "led_delivery": ["execution_evidence", "coordination_evidence", "completion_evidence"]
+  },
+  "sentence_patterns": [
+    "参与{object}的{action}，{method} {purpose}",
+    "协助{scope} {action}，支持{outcome}",
+    "{action} {object} {constraint}，{value}"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "context": {"domain": "clinical_research", "setting": "research_project", "topic": "observational study"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["collect_data", "screen_patients"],
+        "methods": ["cohort_study", "data_collection"],
+        "objects": ["patient_records", "clinical_variables"]
+      },
+      "expected_output": [
+        "参与队列研究的数据收集与患者筛选，支持临床研究项目执行。",
+        "协助临床变量的系统收集工作，为观察性研究提供数据基础。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "data_analysis", "setting": "research_project", "topic": "clinical trial analysis"},
+        "role": {"responsibility_level": "owned_component"},
+        "actions": ["analyze_data", "validate_results"],
+        "methods": ["statistical_analysis", "quality_control"],
+        "objects": ["trial_data", "clinical_outcomes"],
+        "evidence_ids": ["ev_003", "ev_004"]
+      },
+      "expected_output": [
+        "负责临床试验数据的统计分析与结果验证，确保数据质量符合研究要求。",
+        "完成临床结局指标的数据处理工作，支持研究结果的可靠性评估。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "medical_information", "setting": "literature_work", "topic": "guideline review"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["retrieve_guidelines", "summarize_evidence"],
+        "methods": ["systematic_review", "evidence_synthesis"],
+        "objects": ["clinical_guidelines", "medical_evidence"]
+      },
+      "expected_output": [
+        "参与临床指南的系统检索与证据总结，支持循证医学实践。",
+        "协助医学证据的综合整理工作，为指南解读提供信息支持。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "career_id": "medical-writer",
+  "name": "医学写作",
+  "aliases": [
+    "医学撰写",
+    "医学编辑",
+    "Medical Writer"
+  ],
+  "market": "中国大陆；本卡首先聚焦临床开发与注册医学写作，而非健康科普或品牌内容写作",
+  "summary": "把临床研究证据、数据和监管要求组织成准确、清晰、可审阅的方案、报告、研究者手册及申报相关文件。",
+  "daily_tasks": [
+    {
+      "claim": "撰写、总结、编辑或审阅临床试验方案、临床研究报告、研究者手册、综述和申报相关文件。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "检索、筛选和整合医学文献、临床数据、安全性信息与不同团队的审阅意见。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "协调作者、临床运营、医学、统计、药物警戒、注册或外部客户，在时限内完成版本审阅和质量控制。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "维护或遵循模板、标准操作程序、文档结构、版本和质量要求。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "required_education": [
+    {
+      "claim": "样本普遍偏好医学、药学或生命科学相关高等教育背景；赛诺菲样本偏好博士，普瑞盛和泰格岗位样本要求硕士及以上。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    }
+  ],
+  "required_skills": [
+    {
+      "claim": "能够以清晰、准确、简洁和逻辑一致的方式呈现临床数据与科学论证。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "具备中英文医学阅读与写作能力；部分岗位需要独立完成双语临床文件。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "理解临床研究流程以及适用的 GCP、ICH 和监管文件要求。",
+      "source_ids": [
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "能够规划时间、管理审阅意见、主动沟通并执行文档质量控制。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "preferred_experience": [
+    {
+      "claim": "当前全职样本偏向有经验候选人：赛诺菲将二至四年行业经验或第一作者国际论文列为加分项，普瑞盛和泰格岗位样本列出约三年相关经验。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "独立完成方案、研究者手册、临床研究报告或申报模块的证据在有经验岗位中受到重视。",
+      "source_ids": [
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.85
+    }
+  ],
+  "medical_transferable_skills": [
+    {
+      "claim": "医学科研训练可能支持文献检索、证据判断、临床术语理解、科学论证和与研究团队沟通。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "claim": "发表论文不能自动证明注册文件结构、跨团队审阅、版本控制、双语交付和法规写作能力。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "work_environment": [
+    {
+      "claim": "工作通常以长篇文档、反复审阅、质量控制和交付时限为中心，并需要与医学、统计、运营、药物警戒和注册等角色协作。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "entry_barriers": [
+    {
+      "claim": "临床开发与注册医学写作不是一般科普写作；它要求文档类型、法规、数据解释和质量体系知识。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "tigermed-medical-writing-current",
+        "clinplus-medical-writing-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.98
+    },
+    {
+      "claim": "当前全职样本多要求高级学历、行业经验或可核查写作成果，初学者需要另行验证实习、助理岗位和作品样本路径。",
+      "source_ids": [
+        "sanofi-medical-writer-2026",
+        "clinplus-medical-writing-2026",
+        "tigermed-writer-market-observation"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "validation_actions": [
+    "选择一篇公开临床研究摘要，分别写一版专业摘要和一版面向普通读者的说明，并标注每个事实来源。",
+    "阅读公开的临床试验方案模板，列出方案、研究者手册和临床研究报告在目的与结构上的差异。",
+    "制作一份两页合成医学写作样本，邀请一名医学读者检查科学准确性、一名非专业读者检查清晰度。",
+    "访谈一名医学写作者，核对每天独立写作、会议、审阅修改、英语和法规工作的真实占比。"
+  ],
+  "sources": [
+    {
+      "source_id": "sanofi-medical-writer-2026",
+      "title": "R&D—CSO—Medical Writer—CD",
+      "url": "https://jobs.sanofi.cn/zh-hans/%E5%B7%A5%E4%BD%9C/%E6%88%90%E9%83%BD/r-and-d-cso-medical-writer-cd/3036/41659508672",
+      "publisher": "赛诺菲招聘",
+      "published_at": "2026-07-22",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "tigermed-medical-writing-current",
+      "title": "医学撰写：贯穿临床研究全流程的医学撰写解决方案",
+      "url": "https://www.tigermedgrp.com/zh-hant/clinical-development/medical-writing",
+      "publisher": "泰格医药",
+      "published_at": null,
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "clinplus-medical-writing-2026",
+      "title": "社会招聘：医学经理—医学撰写职责",
+      "url": "https://www.gcp-clinplus.com/enrollment.aspx?nid=27&typeid=67",
+      "publisher": "普瑞盛（杭州）医药科技开发股份有限公司",
+      "published_at": "2026-04-16",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "tigermed-writer-market-observation",
+      "title": "医学写作（3年+经验）",
+      "url": "https://www.zhaopin.com/jobdetail/CC245090110J40857041302.htm",
+      "publisher": "智联招聘（泰格医药认证职位，访问时已失效）",
+      "published_at": null,
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    }
+  ],
+  "review_status": "draft",
+  "reviewed_by": null,
+  "updated_at": "2026-08-17"
+}

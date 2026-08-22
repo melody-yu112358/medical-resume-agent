@@ -1,0 +1,134 @@
+{
+  "user_input": "参与了一些医学研究工作",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_006",
+      "source_text": "参与了一些医学研究工作",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "clinical_research",
+      "setting": "research_project",
+      "topic": null
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": [],
+    "methods": [],
+    "tools": [],
+    "objects": [],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["research_type", "specific_tasks", "methods_used", "duration", "team_size", "outcomes"]
+  },
+  "clarifying_questions": [
+    "具体参与了什么类型的研究工作？",
+    "在研究中承担了哪些具体任务？",
+    "使用了什么研究方法或技术？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_006",
+    "evidence_ids": ["ev_006"],
+    "context": {
+      "domain": "clinical_research",
+      "setting": "research_project",
+      "topic": null
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": [],
+    "methods": [],
+    "tools": [],
+    "objects": [],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["research_type", "specific_tasks", "methods_used", "duration", "team_size", "outcomes"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_021",
+        "experience_id": "exp_006",
+        "role_pack": "doctoral_v1",
+        "wording": "参与医学研究项目，积累科研工作经验。",
+        "used_facts": ["participated"],
+        "evidence_ids": ["ev_006"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["research_type", "specific_tasks", "methods_used", "duration", "team_size", "outcomes"],
+        "risk_flags": ["insufficient_detail"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_022",
+        "experience_id": "exp_006",
+        "role_pack": "clinical_research_v1",
+        "wording": "参与临床研究工作，了解科研项目基本流程。",
+        "used_facts": ["participated"],
+        "evidence_ids": ["ev_006"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["research_type", "specific_tasks", "methods_used", "duration", "team_size", "outcomes"],
+        "risk_flags": ["insufficient_detail"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_023",
+        "experience_id": "exp_006",
+        "role_pack": "medical_affairs_v1",
+        "wording": "参与医学研究相关工作，初步了解科研实践。",
+        "used_facts": ["participated"],
+        "evidence_ids": ["ev_006"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["research_type", "specific_tasks", "methods_used", "duration", "team_size", "outcomes"],
+        "risk_flags": ["insufficient_detail"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_024",
+        "experience_id": "exp_006",
+        "role_pack": "health_ai_data_v1",
+        "wording": "参与医学研究相关工作，接触科研实践环境。",
+        "used_facts": ["participated"],
+        "evidence_ids": ["ev_006"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["research_type", "specific_tasks", "methods_used", "duration", "team_size", "outcomes"],
+        "risk_flags": ["insufficient_detail"],
+        "verification_status": "needs_confirmation",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "负责具体的实验操作或数据分析",
+    "掌握特定的研究方法或技术",
+    "完成明确的研究任务或产出",
+    "独立承担研究责任",
+    "获得具体的研究成果"
+  ]
+}

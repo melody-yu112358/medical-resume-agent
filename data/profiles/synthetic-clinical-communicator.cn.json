@@ -1,0 +1,114 @@
+{
+  "profile_id": "synthetic-clinical-communicator-001",
+  "profile_type": "synthetic",
+  "scenario_note": "完全虚构的产品测试画像，不对应任何真实个人，也不能作为某类医学生的代表。",
+  "education": {
+    "field": "临床医学",
+    "stage": "专业型硕士在读",
+    "degree": "硕士（预计）",
+    "graduation_year": 2027
+  },
+  "transition_motivation": [
+    "希望继续使用医学知识，但想探索临床路径以外的工作方式",
+    "比起只以论文数量评价自己，更想验证解释证据和与人沟通能否形成职业能力"
+  ],
+  "interests": [
+    "临床证据解读",
+    "医学沟通",
+    "患者教育"
+  ],
+  "work_preferences": [
+    "希望工作中既有独立准备也有面对面沟通",
+    "可接受偶尔出差，但尚未验证对高频出差的适应性"
+  ],
+  "constraints": {
+    "locations": [
+      "广州",
+      "深圳"
+    ],
+    "minimum_income": null,
+    "weekly_learning_hours": 8,
+    "transition_deadline": "2027-06-30",
+    "non_negotiables": [
+      "希望工作内容仍与医学知识相关",
+      "不把以销售业绩为唯一核心的岗位作为当前探索重点"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "clinical-comm-01",
+      "statement": "在临床轮转中准备并完成一次十分钟病例汇报，根据带教老师追问补充了鉴别诊断依据。",
+      "context": "临床轮转病例讨论",
+      "task": "向科室小组解释病例判断和证据",
+      "action": "整理病史、指南和鉴别诊断，并根据听众问题调整说明顺序",
+      "result": "完成汇报并补充了被追问的证据依据",
+      "artifact_reference": "虚构案例中的病例汇报提纲",
+      "capabilities": [
+        "临床证据解读",
+        "口头表达",
+        "回应问题"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.75
+    },
+    {
+      "evidence_id": "clinical-comm-02",
+      "statement": "在带教监督下把一份出院用药说明改写成一页患者教育材料，并根据两名同学的复述结果修改术语。",
+      "context": "临床教学练习",
+      "task": "把专业医学信息转换成患者能够理解的说明",
+      "action": "删减术语、重组重点，并用复述反馈检查理解情况",
+      "result": "形成一页修订版患者教育材料",
+      "artifact_reference": "虚构案例中的患者教育材料",
+      "capabilities": [
+        "医学写作",
+        "受众适配",
+        "反馈迭代"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    },
+    {
+      "evidence_id": "clinical-comm-03",
+      "statement": "围绕一个治疗问题检索并比较八篇中英文文献，在组会上说明了证据差异和局限。",
+      "context": "研究生组会",
+      "task": "回答一个治疗相关文献问题",
+      "action": "制定检索词、筛选文献并比较研究设计与结论",
+      "result": "完成带局限说明的组会汇报",
+      "artifact_reference": "虚构案例中的文献汇报幻灯片",
+      "capabilities": [
+        "文献检索",
+        "证据比较",
+        "不确定性表达"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    },
+    {
+      "evidence_id": "clinical-comm-04",
+      "statement": "协调四名同学完成一次跨专业读书会，拆分任务、确认时间并汇总会后问题。",
+      "context": "学生读书会",
+      "task": "组织一次跨专业学习活动",
+      "action": "拆分准备任务、跟进截止时间并整理问题清单",
+      "result": "活动按计划完成并留下会后问题记录",
+      "artifact_reference": "虚构案例中的活动计划和问题清单",
+      "capabilities": [
+        "项目协调",
+        "跨专业沟通",
+        "信息整理"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.7
+    }
+  ],
+  "unknowns": [
+    "尚无药企医学事务或合规沟通经历",
+    "尚未验证高频区域出差是否可持续",
+    "尚未验证英文会议交流能力",
+    "患者教育练习不能自动证明与外部医学专家沟通的能力"
+  ],
+  "consent_recorded": false
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "canonical-experience-v1",
+  "experience_id": "exp_001",
+  "evidence_ids": ["ev_001"],
+  "context": {
+    "domain": "clinical_research",
+    "setting": "research_project",
+    "topic": "systematic review and meta-analysis"
+  },
+  "role": {
+    "title": null,
+    "responsibility_level": "participated"
+  },
+  "actions": ["retrieve_literature", "screen_studies", "extract_data", "create_flowchart"],
+  "methods": ["systematic_review", "meta_analysis"],
+  "tools": [],
+  "objects": ["clinical_studies", "medical_literature"],
+  "collaboration": [],
+  "artifacts": ["prisma_flowchart", "data_extraction_sheet"],
+  "outcomes": [],
+  "scope": {},
+  "unknowns": ["database_count", "study_count", "publication_status"],
+  "status": "user_confirmed"
+}

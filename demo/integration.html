@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>未界 · 职业比较验证页</title>
+  <link rel="stylesheet" href="integration.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">BACKEND INTEGRATION · 合成数据</p>
+      <h1>职业比较验证页</h1>
+      <p class="intro">这里用于验证“画像 → 职业假设”的后端链路。所有人物均为虚构案例，证据覆盖率不是适合度或成功概率。</p>
+    </header>
+
+    <section class="control-panel">
+      <label for="profileSelect">选择一份合成画像</label>
+      <select id="profileSelect" disabled>
+        <option>正在读取后端……</option>
+      </select>
+      <button id="compareButton" disabled>生成可解释的职业假设</button>
+      <button id="explainButton" class="secondary" disabled>让大模型解释已有结果</button>
+      <p id="status" role="status"></p>
+    </section>
+
+    <section id="summary" class="summary hidden"></section>
+    <section id="modelPanel" class="model-panel hidden">
+      <p class="eyebrow">BOUNDED LLM EXPLANATION</p>
+      <h2>大模型语言解释</h2>
+      <pre id="modelText"></pre>
+      <p id="modelMeta"></p>
+    </section>
+    <section id="results" class="results"></section>
+  </main>
+  <script src="integration.js"></script>
+</body>
+</html>

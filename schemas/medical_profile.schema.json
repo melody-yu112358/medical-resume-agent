@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/medical_profile.schema.json",
+  "title": "Medical career transition profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile_id", "profile_type", "education", "transition_motivation", "constraints", "evidence"],
+  "properties": {
+    "profile_id": { "type": "string", "minLength": 1 },
+    "profile_type": { "enum": ["synthetic", "anonymized", "consented"] },
+    "scenario_note": { "type": ["string", "null"] },
+    "education": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "stage"],
+      "properties": {
+        "field": { "type": "string" },
+        "stage": { "type": "string" },
+        "degree": { "type": ["string", "null"] },
+        "graduation_year": { "type": ["integer", "null"] }
+      }
+    },
+    "clinical_experience": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+    "research_experience": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+    "other_experience": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+    "transition_motivation": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "interests": { "type": "array", "items": { "type": "string" } },
+    "work_preferences": { "type": "array", "items": { "type": "string" } },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "locations": { "type": "array", "items": { "type": "string" } },
+        "minimum_income": { "type": ["number", "null"], "minimum": 0 },
+        "weekly_learning_hours": { "type": ["number", "null"], "minimum": 0 },
+        "transition_deadline": { "type": ["string", "null"], "format": "date" },
+        "non_negotiables": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+    "unknowns": { "type": "array", "items": { "type": "string" } },
+    "consent_recorded": { "type": "boolean", "default": false }
+  },
+  "$defs": {
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "statement", "source_type"],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "statement": { "type": "string", "minLength": 1 },
+        "context": { "type": ["string", "null"] },
+        "task": { "type": ["string", "null"] },
+        "action": { "type": ["string", "null"] },
+        "result": { "type": ["string", "null"] },
+        "artifact_reference": { "type": ["string", "null"] },
+        "capabilities": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "source_type": { "enum": ["user_statement", "document", "assessment", "observation"] },
+        "source_reference": { "type": ["string", "null"] },
+        "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

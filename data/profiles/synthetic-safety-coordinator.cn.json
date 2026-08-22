@@ -1,0 +1,115 @@
+{
+  "profile_id": "synthetic-safety-coordinator-003",
+  "profile_type": "synthetic",
+  "scenario_note": "完全虚构的产品测试画像，不对应任何真实个人；其中项目和数字均为测试设定。",
+  "education": {
+    "field": "临床药学",
+    "stage": "硕士毕业年级",
+    "degree": "硕士（预计）",
+    "graduation_year": 2027
+  },
+  "transition_motivation": [
+    "希望探索能够使用医学与药学知识、同时重视流程质量的岗位",
+    "想验证临床研究中的记录和协调经验能否转换成市场能力"
+  ],
+  "interests": [
+    "药物安全",
+    "临床研究运营",
+    "医学文件"
+  ],
+  "work_preferences": [
+    "偏好职责边界和质量标准相对清楚的工作",
+    "愿意与研究者和跨部门成员沟通",
+    "未来一年不接受频繁过夜出差"
+  ],
+  "constraints": {
+    "locations": [
+      "北京",
+      "天津"
+    ],
+    "minimum_income": null,
+    "weekly_learning_hours": 10,
+    "transition_deadline": "2027-06-30",
+    "non_negotiables": [
+      "未来一年不接受频繁过夜出差",
+      "希望岗位能够继续使用医学或药学知识"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "safety-coord-01",
+      "statement": "在虚构的临床研究训练项目中维护三十名受试者的访视清单，发现两处日期不一致并发起核对。",
+      "context": "临床研究训练项目",
+      "task": "维护访视记录并检查一致性",
+      "action": "按照检查表核对日期、标记差异并跟进更正依据",
+      "result": "两处差异均得到说明并保留核对记录",
+      "artifact_reference": "虚构案例中的访视清单和核对记录",
+      "capabilities": [
+        "数据核对",
+        "文件追踪",
+        "问题升级"
+      ],
+      "source_type": "observation",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.85
+    },
+    {
+      "evidence_id": "safety-coord-02",
+      "statement": "在带教练习中依据给定 SOP 整理六条不良事件信息，区分缺失字段并把需要医学判断的问题升级给带教者。",
+      "context": "药物安全课程练习",
+      "task": "按流程整理不良事件信息",
+      "action": "核对必填项、记录原始信息并标记需要上级判断的问题",
+      "result": "形成六份结构化练习记录和缺失信息清单",
+      "artifact_reference": "虚构案例中的不良事件练习记录",
+      "capabilities": [
+        "安全信息整理",
+        "SOP执行",
+        "医学判断边界识别"
+      ],
+      "source_type": "assessment",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    },
+    {
+      "evidence_id": "safety-coord-03",
+      "statement": "协调研究者、检验人员和同学确认四个访视时间冲突，并用共享表记录责任人和截止时间。",
+      "context": "临床研究训练项目",
+      "task": "解决访视安排冲突",
+      "action": "逐项确认限制条件、安排责任人并跟进截止时间",
+      "result": "四个冲突均在计划访视前得到处理",
+      "artifact_reference": "虚构案例中的问题跟踪表",
+      "capabilities": [
+        "项目协调",
+        "跨角色沟通",
+        "进度跟踪"
+      ],
+      "source_type": "observation",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    },
+    {
+      "evidence_id": "safety-coord-04",
+      "statement": "把一次训练项目的偏差情况整理成一页摘要，区分事实、原因假设、影响和待确认项。",
+      "context": "临床研究训练项目",
+      "task": "形成可供复核的偏差摘要",
+      "action": "核对记录并把事实与尚未证实的解释分开书写",
+      "result": "摘要被用于下一次项目复盘",
+      "artifact_reference": "虚构案例中的偏差摘要",
+      "capabilities": [
+        "结构化写作",
+        "事实与推断区分",
+        "质量复盘"
+      ],
+      "source_type": "observation",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    }
+  ],
+  "unknowns": [
+    "训练项目不等于真实申办方、CRO 或药企工作经验",
+    "尚未验证英文安全报告和法规检索能力",
+    "CRA 岗位的真实出差强度需要按公司和项目核对",
+    "尚未处理真实个例安全报告或监管递交"
+  ],
+  "consent_recorded": false
+}

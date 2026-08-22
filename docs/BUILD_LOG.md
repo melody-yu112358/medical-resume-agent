@@ -666,6 +666,12 @@ temporary until the user-facing pages are updated in a later change.
 - Skill Lite is a prompt/workflow companion only; it does not claim to replace
   the web application's deterministic Claim Gate or audit ledger.
 
+### Distribution follow-up
+
+- Added a Windows installer for Skill Lite. It copies only the bundled Skill
+  files into the current user's local Codex skills directory and does not read
+  or upload resume content, environment files, or model credentials.
+
 ## 2026-08-22 — repository visual showcase
 
 - Added a repository-owned SVG hero and experience-compilation flow graphic.

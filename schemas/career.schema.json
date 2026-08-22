@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/career.schema.json",
+  "title": "Verified career record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["career_id", "name", "market", "daily_tasks", "required_skills", "sources", "review_status"],
+  "properties": {
+    "career_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "market": { "type": "string", "minLength": 1 },
+    "summary": { "type": ["string", "null"] },
+    "daily_tasks": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "required_education": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "required_skills": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "preferred_experience": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "medical_transferable_skills": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "work_environment": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "entry_barriers": { "type": "array", "items": { "$ref": "#/$defs/sourcedClaim" } },
+    "validation_actions": { "type": "array", "items": { "type": "string" } },
+    "sources": { "type": "array", "items": { "$ref": "#/$defs/source" }, "minItems": 1 },
+    "review_status": { "enum": ["draft", "reviewed", "approved", "retired"] },
+    "reviewed_by": { "type": ["string", "null"] },
+    "updated_at": { "type": "string", "format": "date" }
+  },
+  "$defs": {
+    "sourcedClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "source_ids", "claim_type"],
+      "properties": {
+        "claim": { "type": "string", "minLength": 1 },
+        "source_ids": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "claim_type": { "enum": ["quoted", "summarized", "inferred", "ai_proposed"] },
+        "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "title", "url", "publisher", "accessed_at"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "url": { "type": "string", "format": "uri" },
+        "publisher": { "type": "string", "minLength": 1 },
+        "published_at": { "type": ["string", "null"], "format": "date" },
+        "accessed_at": { "type": "string", "format": "date" },
+        "jurisdiction": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

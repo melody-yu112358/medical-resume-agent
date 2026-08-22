@@ -1,0 +1,215 @@
+{
+  "career_id": "healthcare-ai-product-manager",
+  "name": "医疗 AI 产品经理",
+  "aliases": [
+    "健康 AI 产品经理",
+    "AI 产品经理（医疗方向）",
+    "AI 产品经理（医药方向）"
+  ],
+  "market": "中国大陆；首批观察来自北京、上海和济南的公开招聘信息",
+  "summary": "连接医疗或医药场景、用户需求与 AI 技术团队，推动产品从问题定义、原型或验证走向落地和迭代。",
+  "daily_tasks": [
+    {
+      "claim": "调研医疗健康用户或业务场景，将需求转化为产品规划、流程、原型或需求文档。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "协调算法、工程、设计或业务团队，推进产品开发、项目交付和后续迭代。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "设计或推动概念验证与效果评估，并结合用户反馈和数据改进产品。",
+      "source_ids": [
+        "fosun-ai-pm-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "跟踪 AI 技术和行业变化，判断技术在具体医疗或医药场景中的落地价值。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "required_education": [
+    {
+      "claim": "首批样本的学历要求并不一致：百度样本要求本科及以上，复星医药样本要求硕士及以上并接受计算机、化学、医学等相关专业。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    }
+  ],
+  "required_skills": [
+    {
+      "claim": "能够进行需求拆解、产品设计、原型制作或需求文档撰写。",
+      "source_ids": [
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "理解 AI 产品的基本原理和应用边界，并能与技术团队讨论可行性。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "具备跨职能沟通、项目推进和问题解决能力。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "部分岗位要求使用数据分析支持产品评估和决策。",
+      "source_ids": [
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.85
+    }
+  ],
+  "preferred_experience": [
+    {
+      "claim": "首批样本普遍重视产品、项目落地或相关行业经验，但具体年限和场景因岗位而异。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "制药研发、消费健康和医院信息化岗位分别偏好对应的业务流程经验，不能将其中一种要求推广到全部医疗 AI 产品岗位。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.85
+    }
+  ],
+  "medical_transferable_skills": [
+    {
+      "claim": "医学训练可能帮助理解临床或医药业务场景、识别专业风险，并在业务人员与技术团队之间翻译需求。",
+      "source_ids": [
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.8
+    },
+    {
+      "claim": "医学背景本身不能替代产品设计、AI 基础、项目推进或可展示的落地证据。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    }
+  ],
+  "work_environment": [
+    {
+      "claim": "工作通常处在医疗或医药业务、产品、算法和工程等多方之间，需要反复协调需求、技术可行性和交付结果。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    }
+  ],
+  "entry_barriers": [
+    {
+      "claim": "当前样本多为有经验岗位，常要求既往产品、项目或行业落地经历，因此不能把该方向描述为医学毕业生无需准备即可进入。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "claim": "候选人通常需要用原型、需求文档、概念验证或已交付项目证明产品与技术协作能力。",
+      "source_ids": [
+        "baidu-health-ai-pm-2026",
+        "fosun-ai-pm-2026",
+        "qilu-ai-project-pm-2025"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.85
+    }
+  ],
+  "validation_actions": [
+    "选择一个熟悉的临床或科研流程，访谈两名潜在用户并记录问题、现有替代方案和风险边界。",
+    "用流程图和一页需求说明定义一个医疗 AI 功能，明确用户、输入、输出、失败情形和人工复核点。",
+    "使用低代码或 AI 编程工具制作可点击原型，并请至少一名医学用户和一名技术用户分别反馈。",
+    "复盘过程中哪些工作带来能量、哪些造成消耗，以及尚未验证的产品或技术能力。"
+  ],
+  "sources": [
+    {
+      "source_id": "baidu-health-ai-pm-2026",
+      "title": "健康AI产品经理（J101199）",
+      "url": "https://talent.baidu.com/jobs/detail/SOCIAL/40f97291-9468-4c96-9a2e-c8a358328984",
+      "publisher": "百度招聘",
+      "published_at": "2026-07-21",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "fosun-ai-pm-2026",
+      "title": "AI产品经理（J14295）",
+      "url": "https://fosunpharma.zhiye.com/socialxq?jobId=561232830",
+      "publisher": "复星医药集团招聘",
+      "published_at": "2026-03-23",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "qilu-ai-project-pm-2025",
+      "title": "项目制人员岗位职责及要求：人工智能相关岗位",
+      "url": "https://www.qiluhospital.com/uploadfile/2025/0930/20250930213731996.pdf",
+      "publisher": "山东大学齐鲁医院",
+      "published_at": "2025-09-30",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    }
+  ],
+  "review_status": "draft",
+  "reviewed_by": null,
+  "updated_at": "2026-08-17"
+}

@@ -1,0 +1,186 @@
+{
+  "evaluation_set_id": "synthetic-profiles-v0.1",
+  "purpose": "检查系统能否从虚构画像提出可修订的职业假设，同时展示反证、未知信息和低成本验证行动。",
+  "interpretation": "expected_hypotheses 是可接受的探索边界，不是唯一正确排名，也不是对虚构用户的适合度判决。",
+  "cases": [
+    {
+      "profile_id": "synthetic-clinical-communicator-001",
+      "why_this_case": "检查系统能否把临床解释和受众适配经历转换成职业证据，同时不把医学学历自动等同于外部专家沟通能力。",
+      "expected_hypotheses": [
+        {
+          "career_id": "medical-science-liaison",
+          "supporting_evidence_ids": [
+            "clinical-comm-01",
+            "clinical-comm-03",
+            "clinical-comm-04"
+          ],
+          "counter_evidence": [
+            "没有药企医学事务、合规科学交流或外部专家关系管理经历"
+          ],
+          "unknowns": [
+            "高频区域出差是否可持续",
+            "英文会议交流能力"
+          ],
+          "validation_action": "用熟悉的治疗领域完成一次五分钟证据讲解，请两名非本专业听众复述结论和疑问，并访谈一名 MSL 核对真实出差与合规边界。"
+        },
+        {
+          "career_id": "medical-writer",
+          "supporting_evidence_ids": [
+            "clinical-comm-02",
+            "clinical-comm-03"
+          ],
+          "counter_evidence": [
+            "现有作品以教学材料和组会汇报为主，尚不能证明商业或注册医学写作能力"
+          ],
+          "unknowns": [
+            "长篇英文医学文件写作和多轮审阅适应性"
+          ],
+          "validation_action": "选择一篇临床研究，同时制作一页患者版摘要和一页专业版证据摘要，记录修改时间并请目标读者反馈。"
+        },
+        {
+          "career_id": "clinical-research-associate",
+          "supporting_evidence_ids": [
+            "clinical-comm-01",
+            "clinical-comm-04"
+          ],
+          "counter_evidence": [
+            "没有临床试验文件、监查、GCP 或中心管理证据"
+          ],
+          "unknowns": [
+            "对流程检查和频繁项目跟进的兴趣",
+            "具体岗位出差强度"
+          ],
+          "validation_action": "阅读三个当前 CRA 岗位和一份公开 GCP 入门材料，制作一次模拟中心文件检查清单，并记录是否愿意持续做此类工作。"
+        }
+      ],
+      "constraint_checks": [
+        {
+          "constraint": "高频出差适应性未知",
+          "career_id": "medical-science-liaison",
+          "expected_effect": "flag_unknown"
+        }
+      ],
+      "forbidden_conclusions": [
+        "不得因临床医学硕士身份直接判断适合 MSL",
+        "不得承诺转行成功、薪资或岗位匹配结果"
+      ]
+    },
+    {
+      "profile_id": "synthetic-research-builder-002",
+      "why_this_case": "检查系统能否识别产品探索证据，同时不把会 Python 和 R 推断成算法工程师能力。",
+      "expected_hypotheses": [
+        {
+          "career_id": "healthcare-ai-product-manager",
+          "supporting_evidence_ids": [
+            "research-builder-01",
+            "research-builder-02",
+            "research-builder-03"
+          ],
+          "counter_evidence": [
+            "没有真实产品路线图、上线指标、商业目标或医疗软件合规经验"
+          ],
+          "unknowns": [
+            "能否在真实工程约束下确定优先级",
+            "对医院采购、隐私和监管流程的理解"
+          ],
+          "validation_action": "选一个真实而低风险的医学生工作流问题，完成五次用户访谈、一页需求说明和可点击原型，并记录至少一项被反馈推翻的假设。"
+        },
+        {
+          "career_id": "medical-writer",
+          "supporting_evidence_ids": [
+            "research-builder-04",
+            "research-builder-03"
+          ],
+          "counter_evidence": [
+            "只有一篇中文研究解读，尚无多类型医学文件和正式审阅记录"
+          ],
+          "unknowns": [
+            "是否愿意长期进行精细核对和多轮文字修改"
+          ],
+          "validation_action": "把同一项研究分别写成三百字专业摘要和三百字公众解释，邀请两类读者反馈并完成一次修订记录。"
+        }
+      ],
+      "constraint_checks": [
+        {
+          "constraint": "当前不接受长期高频出差",
+          "career_id": "clinical-research-associate",
+          "expected_effect": "downrank_or_exclude_after_role_check"
+        },
+        {
+          "constraint": "当前不接受长期高频出差",
+          "career_id": "medical-science-liaison",
+          "expected_effect": "downrank_or_exclude_after_role_check"
+        }
+      ],
+      "forbidden_conclusions": [
+        "不得把 Python 和 R 经历解释为已经具备算法工程师能力",
+        "不得把对医疗 AI 感兴趣当作胜任产品经理的证据",
+        "不得忽略不接受高频出差的硬约束"
+      ]
+    },
+    {
+      "profile_id": "synthetic-safety-coordinator-003",
+      "why_this_case": "检查系统能否区分药物安全与 CRA 的共用能力，并让出差约束真实影响假设。",
+      "expected_hypotheses": [
+        {
+          "career_id": "pharmacovigilance-specialist",
+          "supporting_evidence_ids": [
+            "safety-coord-01",
+            "safety-coord-02",
+            "safety-coord-04"
+          ],
+          "counter_evidence": [
+            "练习记录不等于真实个例处理、医学编码、信号管理或监管递交经验"
+          ],
+          "unknowns": [
+            "英文安全叙述和法规检索能力",
+            "对重复核对和时限压力的长期适应性"
+          ],
+          "validation_action": "使用公开模板完成一个虚构不良事件案例的信息完整性检查、追问清单和中文叙述，并请有安全或临床研究经验的人复核。"
+        },
+        {
+          "career_id": "clinical-research-associate",
+          "supporting_evidence_ids": [
+            "safety-coord-01",
+            "safety-coord-03",
+            "safety-coord-04"
+          ],
+          "counter_evidence": [
+            "没有真实中心监查、源数据核查或申办方沟通经验",
+            "未来一年不接受频繁过夜出差"
+          ],
+          "unknowns": [
+            "目标地区初级 CRA 岗位的实际出差频率"
+          ],
+          "validation_action": "比较三个北京或天津 CRA 岗位的出差说明，并完成一次虚构中心问题清单；如果真实出差要求与约束冲突，则暂停该假设。"
+        },
+        {
+          "career_id": "medical-writer",
+          "supporting_evidence_ids": [
+            "safety-coord-04",
+            "safety-coord-02"
+          ],
+          "counter_evidence": [
+            "现有摘要很短，尚无完整医学文件、文献综述或正式审阅经验"
+          ],
+          "unknowns": [
+            "对长篇写作和多轮修改的兴趣与速度"
+          ],
+          "validation_action": "根据一组虚构研究材料写一页结构化安全摘要，保留事实、推断、缺失项和修改记录。"
+        }
+      ],
+      "constraint_checks": [
+        {
+          "constraint": "未来一年不接受频繁过夜出差",
+          "career_id": "clinical-research-associate",
+          "expected_effect": "downrank_or_exclude_after_role_check"
+        }
+      ],
+      "forbidden_conclusions": [
+        "不得把课程练习描述成真实药物警戒工作经验",
+        "不得为了提高匹配分数隐藏 CRA 的出差冲突",
+        "不得把偏好清晰流程解释为固定人格标签"
+      ]
+    }
+  ]
+}

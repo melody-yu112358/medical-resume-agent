@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: medical-career-agent
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit

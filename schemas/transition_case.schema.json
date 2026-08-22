@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/transition_case.schema.json",
+  "title": "Anonymized career transition case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "medical_background", "target_career", "actions", "source", "authorization_status"],
+  "properties": {
+    "case_id": { "type": "string", "minLength": 1 },
+    "medical_background": { "type": "string", "minLength": 1 },
+    "transition_motivation": { "type": "array", "items": { "type": "string" } },
+    "target_career": { "type": "string", "minLength": 1 },
+    "transferable_evidence": { "type": "array", "items": { "type": "string" } },
+    "skills_developed": { "type": "array", "items": { "type": "string" } },
+    "actions": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "duration_months": { "type": ["number", "null"], "minimum": 0 },
+    "outcome": { "type": ["string", "null"] },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "reference"],
+      "properties": {
+        "source_type": { "enum": ["consented_interview", "public_first_party", "public_secondary", "synthetic"] },
+        "reference": { "type": "string", "minLength": 1 },
+        "accessed_at": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "authorization_status": { "enum": ["synthetic", "public_reuse_checked", "consent_recorded", "restricted"] },
+    "review_status": { "enum": ["draft", "reviewed", "approved", "retired"] }
+  }
+}

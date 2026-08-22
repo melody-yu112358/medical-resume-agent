@@ -1,0 +1,134 @@
+{
+  "user_input": "撰写医学文献综述和临床指南摘要",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_005",
+      "source_text": "撰写医学文献综述和临床指南摘要",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "medical_information",
+      "setting": "literature_work",
+      "topic": "medical literature review and guideline summarization"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "owned_component"
+    },
+    "actions": ["write_review", "summarize_guidelines"],
+    "methods": ["literature_synthesis", "evidence_summarization"],
+    "tools": [],
+    "objects": ["medical_literature", "clinical_guidelines"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["document_count", "word_count", "publication_status", "target_audience", "review_scope"]
+  },
+  "clarifying_questions": [
+    "撰写了多少篇文献综述？",
+    "综述的字数或页数是多少？",
+    "这些内容是否已发表或用于什么用途？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_005",
+    "evidence_ids": ["ev_005"],
+    "context": {
+      "domain": "medical_information",
+      "setting": "literature_work",
+      "topic": "medical literature review and guideline summarization"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "owned_component"
+    },
+    "actions": ["write_review", "summarize_guidelines"],
+    "methods": ["literature_synthesis", "evidence_summarization"],
+    "tools": [],
+    "objects": ["medical_literature", "clinical_guidelines"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["document_count", "word_count", "publication_status", "target_audience", "review_scope"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_017",
+        "experience_id": "exp_005",
+        "role_pack": "doctoral_v1",
+        "wording": "负责医学文献综述与临床指南摘要撰写，掌握循证医学信息整合方法。",
+        "used_facts": ["write_review", "summarize_guidelines", "literature_synthesis", "evidence_summarization", "medical_literature", "clinical_guidelines"],
+        "evidence_ids": ["ev_005"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["document_count", "word_count", "publication_status", "target_audience", "review_scope"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_018",
+        "experience_id": "exp_005",
+        "role_pack": "clinical_research_v1",
+        "wording": "负责临床指南与医学文献的系统性总结，支持循证研究证据整合。",
+        "used_facts": ["write_review", "summarize_guidelines", "literature_synthesis", "clinical_guidelines", "medical_literature"],
+        "evidence_ids": ["ev_005"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["document_count", "word_count", "publication_status", "target_audience", "review_scope"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_019",
+        "experience_id": "exp_005",
+        "role_pack": "medical_affairs_v1",
+        "wording": "负责医学文献综述与临床指南摘要撰写，为医学信息传递提供专业内容支持。",
+        "used_facts": ["write_review", "summarize_guidelines", "literature_synthesis", "medical_literature", "clinical_guidelines"],
+        "evidence_ids": ["ev_005"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["document_count", "word_count", "publication_status", "target_audience", "review_scope"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_020",
+        "experience_id": "exp_005",
+        "role_pack": "health_ai_data_v1",
+        "wording": "负责医学文献与临床指南的信息提取与总结，为医疗AI知识库构建提供结构化内容。",
+        "used_facts": ["write_review", "summarize_guidelines", "literature_synthesis", "evidence_summarization"],
+        "evidence_ids": ["ev_005"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["document_count", "word_count", "publication_status", "target_audience", "review_scope"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立发表多篇高质量综述",
+    "撰写超过XX字的详细指南解读",
+    "主导医学写作项目",
+    "创建行业标准文档",
+    "独立负责内容审核与发布"
+  ]
+}

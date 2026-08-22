@@ -1,0 +1,235 @@
+{
+  "career_id": "pharmacovigilance-specialist",
+  "name": "药物警戒专员",
+  "aliases": [
+    "药物安全运营专员",
+    "Pharmacovigilance Specialist",
+    "PV Specialist"
+  ],
+  "market": "中国大陆；首批观察来自北京、上海、广州及现行监管文件",
+  "summary": "围绕临床试验和上市后药品安全信息开展收集、评估、报告、信号与风险管理，并确保流程、数据和文件符合药物警戒规范。",
+  "daily_tasks": [
+    {
+      "claim": "接收、随访、录入、核查和评估临床试验或上市后安全性事件，并按监管时限完成报告或分发。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "准备或支持 DSUR、PBRER、PSUR、风险管理计划及其他聚合安全性文件。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "维护药物警戒流程、SOP、项目文件和数据库，并支持审计、稽查、培训或质量改进。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "参与风险信号识别、评估、沟通和控制，并与临床、医学、注册、数据或外部伙伴协作。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    }
+  ],
+  "required_education": [
+    {
+      "claim": "复星和康方样本接受医学、药学等相关本科及以上背景，康方也列出护理学和流行病学；博济样本针对医学审阅型岗位要求临床医学硕士和执业医师资格。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    }
+  ],
+  "required_skills": [
+    {
+      "claim": "理解 GVP、GCP、药品安全报告要求以及药物研发和上市后风险管理流程。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "能够使用或理解安全数据库及其数据质量、权限、审计追踪和可追溯要求。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "具备结构化医学判断、合规写作、细节核对和在时限内完成报告的能力。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    },
+    {
+      "claim": "多个样本要求英语阅读、写作或沟通能力，并强调跨职能合作。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "preferred_experience": [
+    {
+      "claim": "复星和康方样本要求至少一年相关经验；不同岗位可能偏向运营处理、医学审阅、上市前或国际多中心经验。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "Argus、ArisG 等数据库经验在部分岗位中被明确列出，但具体系统不是全部岗位的统一要求。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    }
+  ],
+  "medical_transferable_skills": [
+    {
+      "claim": "临床训练可能支持梳理病例时间线、判断严重性和医学相关性、识别缺失信息并进行风险沟通。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "claim": "医学背景不能替代 GVP 时限、标准化编码、数据库操作、质量体系和监管文件经验。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "work_environment": [
+    {
+      "claim": "工作以高可追溯的安全数据、文档、报告时限和跨部门沟通为中心，流程化程度较高且需要持续质量控制。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "entry_barriers": [
+    {
+      "claim": "对法规时限、医学评估和文件质量的错误可能直接影响合规与患者安全，因此岗位强调准确性、复核和审计准备。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "boji-pv-current",
+        "jjj-pv-inspection-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    },
+    {
+      "claim": "部分岗位要求既往 PV 经验、特定数据库或执业医师资格，但这些要求随运营型和医学审阅型岗位而变化。",
+      "source_ids": [
+        "fosun-pv-2026",
+        "akeso-pv-2026",
+        "boji-pv-current"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "validation_actions": [
+    "使用完全合成的药品安全案例，整理事件、用药、时间线、严重性、相关性线索和缺失信息。",
+    "阅读 GVP 和一份药物警戒检查指南，画出个例报告、聚合报告、信号和风险控制之间的关系。",
+    "比较三个 PV 招聘岗位，区分运营处理、医学审阅和体系质量岗位的共同能力与专门门槛。",
+    "访谈一名药物警戒从业者，核对重复性、时限压力、英语使用、数据库工作和医学判断所占比例。"
+  ],
+  "sources": [
+    {
+      "source_id": "fosun-pv-2026",
+      "title": "药物警戒专员（J14072）",
+      "url": "https://fosunpharma.zhiye.com/socialxq?jobId=561212606",
+      "publisher": "复星医药集团招聘",
+      "published_at": "2026-01-22",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "akeso-pv-2026",
+      "title": "药物安全运营专员—中山康方生物医药有限公司",
+      "url": "https://career.nankai.edu.cn/correcruit/content/id/114746.html",
+      "publisher": "南开大学学生就业指导中心（康方生物招聘信息）",
+      "published_at": "2026-03-30",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "boji-pv-current",
+      "title": "招贤纳士：药物警戒专员",
+      "url": "https://www.gzboji.com/job/",
+      "publisher": "博济医药科技股份有限公司",
+      "published_at": null,
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "jjj-pv-inspection-2026",
+      "title": "京津冀药品上市许可持有人药物警戒检查指南",
+      "url": "https://yjj.beijing.gov.cn/yjj/zwgk20/zcwj91/744079412/index.html",
+      "publisher": "北京市、天津市、河北省药品监督管理局",
+      "published_at": "2026-07-27",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    }
+  ],
+  "review_status": "draft",
+  "reviewed_by": null,
+  "updated_at": "2026-08-17"
+}

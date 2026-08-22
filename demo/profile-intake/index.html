@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>未界 · 个人画像验证页</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="site-nav" aria-label="主导航">
+    <a class="brand" href="/demo/">未界<span>CAREER EXPLORATION</span></a>
+    <div class="nav-links">
+      <a href="/demo/journey/glimpse.html">3 分钟速览</a>
+      <a aria-current="page" href="/demo/profile-intake/index.html">15 分钟探索</a>
+      <a href="/demo/journey/experiment.html">七天验证</a>
+    </div>
+  </nav>
+  <main>
+    <header>
+      <p class="eyebrow">LEVEL 02 · 15 MIN CAREER EXPLORATION</p>
+      <h1>先把经历说清楚，<br>再讨论职业方向。</h1>
+      <p class="intro">大模型只负责从你的原话中提出能力证据草稿。你可以更正或拒绝；未经确认的内容不会进入职业比较。</p>
+    </header>
+
+    <div class="journey-progress" aria-label="探索过程">
+      <a href="/demo/journey/glimpse.html"><span>01</span>可能性</a>
+      <strong><span>02</span>能力证据</strong>
+      <strong><span>03</span>职业假设</strong>
+      <a href="/demo/journey/experiment.html"><span>04</span>行动验证</a>
+    </div>
+
+    <section class="panel" aria-labelledby="intakeTitle">
+      <div class="step-label">STEP 01 · 讲述经历</div>
+      <h2 id="intakeTitle">写一件你真正做过的事</h2>
+      <p class="help">尽量包含情境、任务、你的行动和结果。不要填写患者姓名、住院号、电话等可识别信息。</p>
+
+      <form id="intakeForm">
+        <div class="two-columns">
+          <label>医学专业
+            <input id="educationField" required value="临床医学" maxlength="80">
+          </label>
+          <label>当前阶段
+            <input id="educationStage" required placeholder="例如：硕士二年级" maxlength="80">
+          </label>
+        </div>
+
+        <label>具体经历
+          <textarea id="experienceText" required minlength="30" maxlength="5000" rows="8" placeholder="例如：在研究生组会中，我检索并比较了十二篇临床研究，整理出结论、局限和待确认问题；随后面向不同专业的同学完成了一次汇报，并根据提问修改了材料……"></textarea>
+        </label>
+
+        <div class="two-columns">
+          <label>希望工作的城市（可选）
+            <input id="locations" placeholder="例如：上海、杭州">
+          </label>
+          <label>每周可用于探索的小时数（可选）
+            <input id="weeklyHours" type="number" min="0" max="168" step="0.5" placeholder="例如：8">
+          </label>
+        </div>
+
+        <label>不能接受的条件（可选）
+          <input id="nonNegotiables" placeholder="例如：长期高频出差、长期夜班">
+        </label>
+
+        <label class="consent-row">
+          <input id="consent" type="checkbox" required>
+          <span>我理解这段文字会发送给本机配置的大模型用于提取草稿；当前后端不保存它，也不会写入 Git。我已删除患者或其他人的可识别信息。</span>
+        </label>
+
+        <button id="draftButton" type="submit">提取待确认的能力证据</button>
+      </form>
+      <p id="status" role="status"></p>
+    </section>
+
+    <section id="draftPanel" class="panel hidden" aria-labelledby="draftTitle">
+      <div class="step-label">STEP 02 · 人工确认</div>
+      <h2 id="draftTitle">这只是草稿，请逐条判断</h2>
+      <p class="help">绿色标签是大模型从原话推断的能力。删除不准确的标签、补充遗漏标签，并勾选你认可的证据。</p>
+      <div id="evidenceList" class="evidence-list"></div>
+      <div id="unknownPanel" class="unknown-panel"></div>
+      <button id="compareButton" type="button">确认所选证据并生成职业假设</button>
+    </section>
+
+    <section id="comparisonPanel" class="hidden" aria-labelledby="comparisonTitle">
+      <div class="section-heading">
+        <div>
+          <div class="step-label">STEP 03 · 可修订的职业假设</div>
+          <h2 id="comparisonTitle">不是判决，而是下一步值得验证的方向</h2>
+        </div>
+        <button id="explainButton" class="secondary" type="button">让大模型解释比较结果</button>
+      </div>
+      <p id="comparisonSummary" class="summary"></p>
+      <section id="modelPanel" class="model-panel hidden">
+        <p class="eyebrow">BOUNDED LLM EXPLANATION</p>
+        <h3>大模型语言解释</h3>
+        <pre id="modelText"></pre>
+        <p id="modelMeta"></p>
+      </section>
+      <div id="results" class="results"></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

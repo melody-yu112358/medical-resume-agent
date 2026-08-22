@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/bullet-claim.schema.json",
+  "title": "Resume Bullet Claim Record",
+  "description": "A candidate resume bullet claim with full traceability and audit trail.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "claim_id", "experience_id", "role_pack", "wording", "used_facts", "evidence_ids", "responsibility_level", "omitted_unknowns", "risk_flags", "verification_status", "user_disposition"],
+  "properties": {
+    "schema_version": { "const": "bullet-claim-v1" },
+    "claim_id": { "type": "string", "pattern": "^claim_[0-9]+$" },
+    "experience_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*_[0-9]+$" },
+    "role_pack": { "type": "string" },
+    "wording": { "type": "string", "minLength": 1 },
+    "used_facts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^ev_[0-9]+$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "responsibility_level": {
+      "enum": ["participated", "owned_component", "led_delivery", "project_owner", "unknown"]
+    },
+    "omitted_unknowns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "risk_flags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "verification_status": {
+      "enum": ["candidate", "needs_confirmation", "ready", "rejected", "superseded"]
+    },
+    "user_disposition": {
+      "enum": ["accepted", "edited", "rejected", null]
+    }
+  }
+}

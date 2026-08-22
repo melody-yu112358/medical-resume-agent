@@ -1,0 +1,73 @@
+{
+  "role_pack": "medical_affairs_v1",
+  "label": "MSL / 医学事务",
+  "priorities": ["medical_information", "clinical_research", "research_method", "data_analysis", "wet_lab"],
+  "value_mappings": {
+    "research_method": ["研究证据解读能力", "核心能力 + 研究成果"],
+    "data_analysis": ["医学数据结果解读", "核心能力 + 项目经历"],
+    "wet_lab": ["疾病机制与实验背景", "专业背景 / 项目经历"],
+    "clinical_research": ["临床研究理解与医学沟通基础", "相关经历首条"],
+    "medical_information": ["医学信息检索与证据转译", "核心能力 + 项目经历首条"]
+  },
+  "preferred_actions": ["retrieve", "interpret", "translate", "communicate", "support", "analyze"],
+  "allowed_verbs": ["参与", "协助", "检索", "解读", "转译", "支持", "分析"],
+  "restricted_verbs": ["管理", "制定", "主导", "负责", "领导"],
+  "forbidden_claims": [
+    "KOL管理",
+    "制定医学策略",
+    "支持商业决策",
+    "独立负责医学信息",
+    "主导医学沟通"
+  ],
+  "required_evidence": {
+    "owned_component": ["information_source", "communication_evidence"],
+    "led_delivery": ["translation_evidence", "support_evidence"]
+  },
+  "sentence_patterns": [
+    "参与{object}的{action}，{value}",
+    "协助{purpose} {action}，{outcome}",
+    "{action} {object} {constraint}，支持{value}"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "context": {"domain": "medical_information", "setting": "literature_work", "topic": "drug safety review"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["retrieve_literature", "analyze_safety_data"],
+        "methods": ["systematic_review", "safety_analysis"],
+        "objects": ["safety_reports", "adverse_events"]
+      },
+      "expected_output": [
+        "参与药物安全性文献的系统检索与数据分析，支持医学信息转译工作。",
+        "协助不良事件数据的分析整理，为药物安全评估提供证据支持。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "clinical_research", "setting": "research_project", "topic": "clinical trial support"},
+        "role": {"responsibility_level": "owned_component"},
+        "actions": ["interpret_results", "translate_findings"],
+        "methods": ["evidence_interpretation", "medical_communication"],
+        "objects": ["trial_results", "clinical_data"],
+        "evidence_ids": ["ev_005", "ev_006"]
+      },
+      "expected_output": [
+        "负责临床试验结果的医学解读与发现转译，支持医学沟通材料准备。",
+        "完成临床数据的医学意义解释工作，为研究结果传播提供专业支持。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "data_analysis", "setting": "data_project", "topic": "real world evidence"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["review_data", "support_analysis"],
+        "methods": ["real_world_evidence", "data_interpretation"],
+        "objects": ["patient_data", "treatment_outcomes"]
+      },
+      "expected_output": [
+        "参与真实世界证据数据的医学审查，支持数据分析的临床相关性评估。",
+        "协助治疗结局数据的医学解读工作，为真实世界研究提供专业视角。"
+      ]
+    }
+  ]
+}

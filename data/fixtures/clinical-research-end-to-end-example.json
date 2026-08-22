@@ -1,0 +1,134 @@
+{
+  "user_input": "参与临床试验数据收集和患者随访工作",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_002",
+      "source_text": "参与临床试验数据收集和患者随访工作",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "clinical_research",
+      "setting": "clinical_trial",
+      "topic": "patient data collection and follow-up"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": ["collect_data", "follow_up_patients"],
+    "methods": ["clinical_trial_protocol", "data_collection"],
+    "tools": [],
+    "objects": ["patient_data", "clinical_outcomes"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["trial_phase", "patient_count", "follow_up_duration", "data_fields", "protocol_details"]
+  },
+  "clarifying_questions": [
+    "这是哪个阶段的临床试验？",
+    "随访了多少名患者？",
+    "随访周期是多长时间？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_002",
+    "evidence_ids": ["ev_002"],
+    "context": {
+      "domain": "clinical_research",
+      "setting": "clinical_trial",
+      "topic": "patient data collection and follow-up"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": ["collect_data", "follow_up_patients"],
+    "methods": ["clinical_trial_protocol", "data_collection"],
+    "tools": [],
+    "objects": ["patient_data", "clinical_outcomes"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["trial_phase", "patient_count", "follow_up_duration", "data_fields", "protocol_details"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_005",
+        "experience_id": "exp_002",
+        "role_pack": "doctoral_v1",
+        "wording": "参与临床试验患者数据收集与随访工作，掌握临床研究数据管理方法。",
+        "used_facts": ["collect_data", "follow_up_patients", "clinical_trial_protocol", "patient_data"],
+        "evidence_ids": ["ev_002"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["trial_phase", "patient_count", "follow_up_duration", "data_fields", "protocol_details"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_006",
+        "experience_id": "exp_002",
+        "role_pack": "clinical_research_v1",
+        "wording": "参与临床试验数据收集与患者随访，确保研究数据的完整性和准确性。",
+        "used_facts": ["collect_data", "follow_up_patients", "clinical_trial_protocol", "clinical_outcomes"],
+        "evidence_ids": ["ev_002"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["trial_phase", "patient_count", "follow_up_duration", "data_fields", "protocol_details"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_007",
+        "experience_id": "exp_002",
+        "role_pack": "medical_affairs_v1",
+        "wording": "参与临床研究数据收集与患者管理，支持循证医学证据生成。",
+        "used_facts": ["collect_data", "follow_up_patients", "patient_data", "clinical_trial_protocol"],
+        "evidence_ids": ["ev_002"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["trial_phase", "patient_count", "follow_up_duration", "data_fields", "protocol_details"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_008",
+        "experience_id": "exp_002",
+        "role_pack": "health_ai_data_v1",
+        "wording": "参与临床试验数据采集与患者随访，为医疗AI模型提供高质量标注数据。",
+        "used_facts": ["collect_data", "follow_up_patients", "clinical_trial_protocol"],
+        "evidence_ids": ["ev_002"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["trial_phase", "patient_count", "follow_up_duration", "data_fields", "protocol_details"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立负责临床试验数据管理",
+    "完成XX名患者的长期随访",
+    "主导临床试验数据收集工作",
+    "负责III期临床试验的患者管理",
+    "独立设计随访方案并执行"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "user_input": "使用R语言分析临床数据，进行统计建模",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_003",
+      "source_text": "使用R语言分析临床数据，进行统计建模",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "data_analysis",
+      "setting": "data_project",
+      "topic": "statistical modeling of clinical data"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "owned_component"
+    },
+    "actions": ["analyze_data", "build_models"],
+    "methods": ["statistical_analysis", "regression_modeling"],
+    "tools": ["r_language"],
+    "objects": ["clinical_data", "statistical_models"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["dataset_size", "model_type", "performance_metrics", "variables_count", "analysis_purpose"]
+  },
+  "clarifying_questions": [
+    "分析的数据集包含多少样本？",
+    "使用了什么类型的统计模型？",
+    "分析结果的性能指标如何？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_003",
+    "evidence_ids": ["ev_003"],
+    "context": {
+      "domain": "data_analysis",
+      "setting": "data_project",
+      "topic": "statistical modeling of clinical data"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "owned_component"
+    },
+    "actions": ["analyze_data", "build_models"],
+    "methods": ["statistical_analysis", "regression_modeling"],
+    "tools": ["r_language"],
+    "objects": ["clinical_data", "statistical_models"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["dataset_size", "model_type", "performance_metrics", "variables_count", "analysis_purpose"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_009",
+        "experience_id": "exp_003",
+        "role_pack": "doctoral_v1",
+        "wording": "负责临床数据的统计分析与建模工作，运用R语言实现回归模型构建。",
+        "used_facts": ["analyze_data", "build_models", "statistical_analysis", "regression_modeling", "r_language", "clinical_data"],
+        "evidence_ids": ["ev_003"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["dataset_size", "model_type", "performance_metrics", "variables_count", "analysis_purpose"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_010",
+        "experience_id": "exp_003",
+        "role_pack": "clinical_research_v1",
+        "wording": "负责临床研究数据的统计建模分析，运用R语言支持科研结论验证。",
+        "used_facts": ["analyze_data", "build_models", "statistical_analysis", "r_language", "clinical_data"],
+        "evidence_ids": ["ev_003"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["dataset_size", "model_type", "performance_metrics", "variables_count", "analysis_purpose"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_011",
+        "experience_id": "exp_003",
+        "role_pack": "medical_affairs_v1",
+        "wording": "负责医学数据的统计分析工作，运用R语言构建模型支持循证决策。",
+        "used_facts": ["analyze_data", "build_models", "statistical_analysis", "r_language", "clinical_data"],
+        "evidence_ids": ["ev_003"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["dataset_size", "model_type", "performance_metrics", "variables_count", "analysis_purpose"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_012",
+        "experience_id": "exp_003",
+        "role_pack": "health_ai_data_v1",
+        "wording": "负责医疗数据的统计建模与分析，运用R语言开发预测模型支持AI应用。",
+        "used_facts": ["analyze_data", "build_models", "statistical_analysis", "regression_modeling", "r_language"],
+        "evidence_ids": ["ev_003"],
+        "responsibility_level": "owned_component",
+        "omitted_unknowns": ["dataset_size", "model_type", "performance_metrics", "variables_count", "analysis_purpose"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立开发创新的统计模型",
+    "分析包含XX个变量的大型数据集",
+    "主导整个数据分析项目",
+    "构建准确率达到XX%的预测模型",
+    "独立负责AI算法开发"
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "career_id": "clinical-research-associate",
+  "name": "临床监查员（CRA）",
+  "aliases": [
+    "临床研究监查员",
+    "Clinical Research Associate"
+  ],
+  "market": "中国大陆；首批观察来自北京、上海及全国性 CRO 的公开招聘信息",
+  "summary": "代表申办方或 CRO 管理研究中心的临床试验执行与质量，依据方案、GCP 和标准操作程序完成启动、监查、问题跟进与关闭。",
+  "daily_tasks": [
+    {
+      "claim": "开展研究中心调研或筛选，并完成启动、常规监查和关闭访视。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "依据试验方案、GCP、法规和公司 SOP 检查研究中心执行质量，并形成访视或进展报告。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "跟踪受试者入组和随访、病例报告表或数据质疑、不良事件以及试验文件和物资。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "培训并持续沟通研究中心人员，推动问题整改，并支持质量检查、稽查或监管核查。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    }
+  ],
+  "required_education": [
+    {
+      "claim": "三个样本均要求本科及以上；常见相关专业包括临床医学和药学，部分 CRO 样本也接受护理专业。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    }
+  ],
+  "required_skills": [
+    {
+      "claim": "理解 GCP、临床试验方案、适用法规和公司 SOP，并能将要求落实到研究中心管理。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.98
+    },
+    {
+      "claim": "具备细致的文件审阅、原始数据核查、问题识别和跟踪关闭能力。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    },
+    {
+      "claim": "具备时间管理、组织协调以及与研究者和跨职能团队沟通的能力。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.95
+    },
+    {
+      "claim": "部分样本明确要求良好的英文读写能力。",
+      "source_ids": [
+        "fosun-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.8
+    }
+  ],
+  "preferred_experience": [
+    {
+      "claim": "复星和普瑞盛样本要求至少一年的 CRA 或临床监查经验；天广实样本未在页面中列出固定工作年限。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.9
+    },
+    {
+      "claim": "特定治疗领域或复杂项目经验可能成为加分项，但不能推广为全部 CRA 岗位的共同门槛。",
+      "source_ids": [
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "summarized",
+      "confidence": 0.75
+    }
+  ],
+  "medical_transferable_skills": [
+    {
+      "claim": "医学训练可能支持理解试验方案、疾病与治疗信息、不良事件以及研究中心的临床工作语境。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "claim": "临床或科研经历不能自动证明 GCP 监查、原始数据核查、访视报告和多中心进度管理能力。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "work_environment": [
+    {
+      "claim": "工作围绕多个研究中心、项目节点和质量问题展开，通常需要现场访视、持续记录和跨组织沟通。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    }
+  ],
+  "entry_barriers": [
+    {
+      "claim": "岗位要求把法规、方案和 SOP 转化为可审计的执行证据，细节遗漏可能影响数据质量与受试者权益。",
+      "source_ids": [
+        "mabworks-cra-2026",
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.95
+    },
+    {
+      "claim": "当前样本中多条岗位偏好或要求既往监查经验，因此需要核对 CTA、实习或培训等真实入门路径，不能承诺直接转入。",
+      "source_ids": [
+        "fosun-cra-2026",
+        "clinplus-cra-2026"
+      ],
+      "claim_type": "inferred",
+      "confidence": 0.9
+    }
+  ],
+  "validation_actions": [
+    "阅读一份公开临床试验登记，整理研究问题、主要终点、中心执行难点和可能的质量风险。",
+    "学习研究中心启动、监查和关闭的基本流程，制作一页流程图并标注每一步的证据文件。",
+    "用一个合成病例练习区分方案偏离、数据质疑和不良事件跟踪，不使用真实患者资料。",
+    "访谈一名 CRA 或 CTA，核对出差频率、文档工作量、时间压力和常见入门路径。"
+  ],
+  "sources": [
+    {
+      "source_id": "mabworks-cra-2026",
+      "title": "临床监查员 CRA",
+      "url": "https://www.mab-works.com/join/detail/45.html",
+      "publisher": "北京天广实生物技术股份有限公司",
+      "published_at": "2026-07-29",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "fosun-cra-2026",
+      "title": "临床监查员 CRA—上海（J14447）",
+      "url": "https://fosunpharma.zhiye.com/socialxq?jobId=561270805",
+      "publisher": "复星医药集团招聘",
+      "published_at": "2026-07-03",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    },
+    {
+      "source_id": "clinplus-cra-2026",
+      "title": "社会招聘：临床监查员 CRA",
+      "url": "https://www.gcp-clinplus.com/enrollment.aspx?nid=27&typeid=67",
+      "publisher": "普瑞盛（杭州）医药科技开发股份有限公司",
+      "published_at": "2026-04-16",
+      "accessed_at": "2026-08-17",
+      "jurisdiction": "中国大陆"
+    }
+  ],
+  "review_status": "draft",
+  "reviewed_by": null,
+  "updated_at": "2026-08-17"
+}

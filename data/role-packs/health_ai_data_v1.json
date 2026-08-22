@@ -1,0 +1,73 @@
+{
+  "role_pack": "health_ai_data_v1",
+  "label": "医疗数据 / 健康科技",
+  "priorities": ["data_analysis", "research_method", "clinical_research", "medical_information", "wet_lab"],
+  "value_mappings": {
+    "research_method": ["因果推断与分析框架", "核心能力 + 项目经历首条"],
+    "data_analysis": ["医疗数据处理与统计建模", "核心能力 + 项目经历首条"],
+    "wet_lab": ["医学问题与机制理解", "专业背景"],
+    "clinical_research": ["临床数据与研究场景理解", "项目经历"],
+    "medical_information": ["医学证据与需求转译", "项目经历 + 核心能力"]
+  },
+  "preferred_actions": ["process", "analyze", "model", "translate", "support", "collaborate"],
+  "allowed_verbs": ["参与", "协助", "处理", "分析", "支持", "协作"],
+  "restricted_verbs": ["开发", "训练", "主导", "负责", "独立完成"],
+  "forbidden_claims": [
+    "训练AI模型",
+    "开发算法",
+    "独立负责数据科学项目",
+    "主导产品设计",
+    "负责AI系统架构"
+  ],
+  "required_evidence": {
+    "owned_component": ["data_processing", "analysis_evidence"],
+    "led_delivery": ["modeling_evidence", "collaboration_evidence"]
+  },
+  "sentence_patterns": [
+    "参与{object}的{action}，{method} {purpose}",
+    "协助{scope} {action}，支持{outcome}",
+    "{action} {object} {constraint}，{value}"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "context": {"domain": "data_analysis", "setting": "data_project", "topic": "predictive modeling"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["process_data", "clean_dataset"],
+        "methods": ["data_preprocessing", "feature_engineering"],
+        "objects": ["electronic_health_records", "clinical_variables"]
+      },
+      "expected_output": [
+        "参与电子健康记录的数据处理与清洗工作，支持预测模型开发。",
+        "协助临床变量的特征工程处理，为数据分析项目提供数据基础。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "clinical_research", "setting": "research_project", "topic": "machine learning application"},
+        "role": {"responsibility_level": "owned_component"},
+        "actions": ["analyze_data", "collaborate_researchers"],
+        "methods": ["statistical_analysis", "machine_learning"],
+        "objects": ["research_data", "model_outputs"],
+        "evidence_ids": ["ev_007", "ev_008"]
+      },
+      "expected_output": [
+        "负责研究数据的统计分析与机器学习应用，协作完成医疗AI项目。",
+        "完成模型输出结果的数据分析工作，支持医疗人工智能研究进展。"
+      ]
+    },
+    {
+      "input": {
+        "context": {"domain": "medical_information", "setting": "literature_work", "topic": "AI in healthcare review"},
+        "role": {"responsibility_level": "participated"},
+        "actions": ["retrieve_literature", "support_review"],
+        "methods": ["systematic_review", "technology_assessment"],
+        "objects": ["ai_applications", "healthcare_technologies"]
+      },
+      "expected_output": [
+        "参与医疗人工智能应用的文献检索工作，支持技术评估项目执行。",
+        "协助健康科技文献的系统回顾，为AI在医疗领域的应用研究提供信息支持。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/canonical-experience.schema.json",
+  "title": "Canonical Medical Experience Record",
+  "description": "A confirmed, role-agnostic medical experience record. Every field must cite user-owned evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "experience_id", "evidence_ids", "context", "role", "actions", "methods", "tools", "objects", "collaboration", "artifacts", "outcomes", "scope", "unknowns", "status"],
+  "properties": {
+    "schema_version": { "const": "canonical-experience-v1" },
+    "experience_id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*_[0-9]+$" },
+    "evidence_ids": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^ev_[0-9]+$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "setting"],
+      "properties": {
+        "domain": {
+          "enum": ["clinical_research", "wet_lab", "data_analysis", "medical_information", "industry_collaboration", "education", "other"]
+        },
+        "setting": {
+          "enum": ["research_project", "clinical_trial", "lab_experiment", "data_project", "literature_work", "product_development", "academic_course", "other"]
+        },
+        "topic": { "type": ["string", "null"] }
+      }
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["responsibility_level"],
+      "properties": {
+        "title": { "type": ["string", "null"] },
+        "responsibility_level": {
+          "enum": ["participated", "owned_component", "led_delivery", "project_owner", "unknown"]
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "methods": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "tools": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "objects": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "collaboration": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "outcomes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "status": {
+      "enum": ["user_confirmed", "rejected", "superseded"]
+    }
+  }
+}

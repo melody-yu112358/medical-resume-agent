@@ -1,0 +1,134 @@
+{
+  "user_input": "在实验室进行细胞培养和Western Blot实验",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_004",
+      "source_text": "在实验室进行细胞培养和Western Blot实验",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "wet_lab",
+      "setting": "lab_experiment",
+      "topic": "cell culture and protein analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": ["culture_cells", "perform_western_blot"],
+    "methods": ["cell_culture", "western_blot"],
+    "tools": [],
+    "objects": ["cell_lines", "protein_samples"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["cell_type", "experiment_count", "antibody_details", "protocol_variations", "results_interpretation"]
+  },
+  "clarifying_questions": [
+    "使用的是什么类型的细胞系？",
+    "进行了多少次Western Blot实验？",
+    "使用了哪些一抗和二抗？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_004",
+    "evidence_ids": ["ev_004"],
+    "context": {
+      "domain": "wet_lab",
+      "setting": "lab_experiment",
+      "topic": "cell culture and protein analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": ["culture_cells", "perform_western_blot"],
+    "methods": ["cell_culture", "western_blot"],
+    "tools": [],
+    "objects": ["cell_lines", "protein_samples"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["cell_type", "experiment_count", "antibody_details", "protocol_variations", "results_interpretation"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_013",
+        "experience_id": "exp_004",
+        "role_pack": "doctoral_v1",
+        "wording": "参与细胞培养与Western Blot实验操作，掌握基础分子生物学实验技术。",
+        "used_facts": ["culture_cells", "perform_western_blot", "cell_culture", "western_blot", "cell_lines", "protein_samples"],
+        "evidence_ids": ["ev_004"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["cell_type", "experiment_count", "antibody_details", "protocol_variations", "results_interpretation"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_014",
+        "experience_id": "exp_004",
+        "role_pack": "clinical_research_v1",
+        "wording": "参与基础实验操作包括细胞培养和蛋白检测，支持临床前研究工作。",
+        "used_facts": ["culture_cells", "perform_western_blot", "cell_culture", "western_blot", "protein_samples"],
+        "evidence_ids": ["ev_004"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["cell_type", "experiment_count", "antibody_details", "protocol_variations", "results_interpretation"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_015",
+        "experience_id": "exp_004",
+        "role_pack": "medical_affairs_v1",
+        "wording": "参与实验室基础操作包括细胞培养和蛋白分析，理解实验数据生成过程。",
+        "used_facts": ["culture_cells", "perform_western_blot", "cell_culture", "western_blot", "cell_lines"],
+        "evidence_ids": ["ev_004"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["cell_type", "experiment_count", "antibody_details", "protocol_variations", "results_interpretation"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_016",
+        "experience_id": "exp_004",
+        "role_pack": "health_ai_data_v1",
+        "wording": "参与湿实验操作包括细胞培养和蛋白检测，为生物医学数据分析提供实验基础。",
+        "used_facts": ["culture_cells", "perform_western_blot", "cell_culture", "western_blot"],
+        "evidence_ids": ["ev_004"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["cell_type", "experiment_count", "antibody_details", "protocol_variations", "results_interpretation"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立负责细胞实验项目",
+    "完成XX次Western Blot实验并获得清晰结果",
+    "主导分子机制研究",
+    "优化实验protocol提高效率",
+    "独立设计实验方案"
+  ]
+}

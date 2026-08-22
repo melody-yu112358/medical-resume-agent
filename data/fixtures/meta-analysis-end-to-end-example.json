@@ -1,0 +1,134 @@
+{
+  "user_input": "在课题组参与Meta分析，负责文献检索和筛选",
+  "evidence_records": [
+    {
+      "evidence_id": "ev_001",
+      "source_text": "在课题组参与Meta分析，负责文献检索和筛选",
+      "source_locator": "user_input:1",
+      "status": "extracted",
+      "confirmed_at": null
+    }
+  ],
+  "extracted_facts": {
+    "context": {
+      "domain": "clinical_research",
+      "setting": "research_project",
+      "topic": "systematic review and meta-analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": ["retrieve_literature", "screen_studies"],
+    "methods": ["systematic_review", "meta_analysis"],
+    "tools": [],
+    "objects": ["clinical_studies", "medical_literature"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["database_count", "study_count", "publication_status", "screening_criteria", "data_extraction"]
+  },
+  "clarifying_questions": [
+    "使用了哪些数据库进行文献检索？",
+    "筛选标准是什么（如PRISMA）？",
+    "最终纳入了多少篇研究？"
+  ],
+  "canonical_experience": {
+    "schema_version": "canonical-experience-v1",
+    "experience_id": "exp_001",
+    "evidence_ids": ["ev_001"],
+    "context": {
+      "domain": "clinical_research",
+      "setting": "research_project",
+      "topic": "systematic review and meta-analysis"
+    },
+    "role": {
+      "title": null,
+      "responsibility_level": "participated"
+    },
+    "actions": ["retrieve_literature", "screen_studies"],
+    "methods": ["systematic_review", "meta_analysis"],
+    "tools": [],
+    "objects": ["clinical_studies", "medical_literature"],
+    "collaboration": [],
+    "artifacts": [],
+    "outcomes": [],
+    "scope": {},
+    "unknowns": ["database_count", "study_count", "publication_status", "screening_criteria", "data_extraction"],
+    "status": "user_confirmed"
+  },
+  "bullet_claims": {
+    "doctoral_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_001",
+        "experience_id": "exp_001",
+        "role_pack": "doctoral_v1",
+        "wording": "参与Meta分析的文献检索与筛选工作，掌握系统综述与循证研究方法。",
+        "used_facts": ["retrieve_literature", "screen_studies", "systematic_review", "meta_analysis"],
+        "evidence_ids": ["ev_001"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["database_count", "study_count", "publication_status", "screening_criteria", "data_extraction"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "clinical_research_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_002",
+        "experience_id": "exp_001",
+        "role_pack": "clinical_research_v1",
+        "wording": "参与临床研究证据的系统检索与筛选，支持Meta分析项目执行。",
+        "used_facts": ["retrieve_literature", "screen_studies", "clinical_studies", "meta_analysis"],
+        "evidence_ids": ["ev_001"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["database_count", "study_count", "publication_status", "screening_criteria", "data_extraction"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "medical_affairs_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_003",
+        "experience_id": "exp_001",
+        "role_pack": "medical_affairs_v1",
+        "wording": "参与医学文献的系统检索与证据筛选，为Meta分析提供可靠数据基础。",
+        "used_facts": ["retrieve_literature", "screen_studies", "medical_literature", "meta_analysis"],
+        "evidence_ids": ["ev_001"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["database_count", "study_count", "publication_status", "screening_criteria", "data_extraction"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ],
+    "health_ai_data_v1": [
+      {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_004",
+        "experience_id": "exp_001",
+        "role_pack": "health_ai_data_v1",
+        "wording": "参与医疗研究数据的文献检索与筛选，支持循证医学分析项目。",
+        "used_facts": ["retrieve_literature", "screen_studies", "meta_analysis"],
+        "evidence_ids": ["ev_001"],
+        "responsibility_level": "participated",
+        "omitted_unknowns": ["database_count", "study_count", "publication_status", "screening_criteria", "data_extraction"],
+        "risk_flags": [],
+        "verification_status": "ready",
+        "user_disposition": null
+      }
+    ]
+  },
+  "forbidden_outputs": [
+    "独立负责Meta分析的文献检索策略制定",
+    "使用PRISMA标准完成XX篇文献的筛选",
+    "主导Meta分析项目并发表论文",
+    "负责多个数据库的系统检索",
+    "独立完成数据提取和统计分析"
+  ]
+}

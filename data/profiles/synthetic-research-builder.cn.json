@@ -1,0 +1,117 @@
+{
+  "profile_id": "synthetic-research-builder-002",
+  "profile_type": "synthetic",
+  "scenario_note": "完全虚构的产品测试画像，不对应任何真实个人，也不表示会编程的医学生必然适合医疗 AI。",
+  "education": {
+    "field": "临床医学（学术型）",
+    "stage": "硕士二年级",
+    "degree": "硕士（预计）",
+    "graduation_year": 2028
+  },
+  "transition_motivation": [
+    "喜欢把模糊问题拆成可执行步骤，希望探索医疗与数字产品交叉方向",
+    "不想仅凭论文结果判断自己是否有市场价值"
+  ],
+  "interests": [
+    "医疗 AI 产品",
+    "用户研究",
+    "数据分析",
+    "医学信息表达"
+  ],
+  "work_preferences": [
+    "偏好上海或杭州的稳定工作地点",
+    "希望同时接触医学用户、数据和产品迭代",
+    "当前不接受长期高频出差"
+  ],
+  "constraints": {
+    "locations": [
+      "上海",
+      "杭州"
+    ],
+    "minimum_income": null,
+    "weekly_learning_hours": 12,
+    "transition_deadline": "2027-12-31",
+    "non_negotiables": [
+      "当前不接受长期高频出差",
+      "不把没有证据支持的算法工程师方向当作默认结论"
+    ]
+  },
+  "evidence": [
+    {
+      "evidence_id": "research-builder-01",
+      "statement": "使用 Python 和 R 清洗一份约五千行的虚构科研数据，并为变量处理和缺失值规则编写说明。",
+      "context": "科研数据练习",
+      "task": "把原始数据整理成可复查的分析输入",
+      "action": "编写清洗脚本、检查异常值并记录处理规则",
+      "result": "形成可重复运行的清洗脚本和数据字典",
+      "artifact_reference": "虚构案例中的代码仓库和数据字典",
+      "capabilities": [
+        "数据处理",
+        "规则记录",
+        "可复现工作"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.85
+    },
+    {
+      "evidence_id": "research-builder-02",
+      "statement": "访谈六名同学了解文献筛选中的重复操作，把需求整理成三条优先级，并制作一个低代码原型。",
+      "context": "实验室效率工具练习",
+      "task": "理解使用者问题并验证一个工具想法",
+      "action": "进行半结构访谈、归纳需求、确定优先级并制作原型",
+      "result": "两名同学试用后指出一个流程假设错误，随后完成修订",
+      "artifact_reference": "虚构案例中的访谈提纲、需求清单和原型",
+      "capabilities": [
+        "用户访谈",
+        "需求拆解",
+        "原型制作",
+        "反馈迭代"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    },
+    {
+      "evidence_id": "research-builder-03",
+      "statement": "在一次医学与工程联合讨论中，把临床同学提出的问题整理成输入、输出、错误风险和待确认项。",
+      "context": "跨专业课程项目",
+      "task": "帮助医学与工程成员形成共同问题定义",
+      "action": "澄清术语、记录假设并拆分待确认问题",
+      "result": "团队使用同一页问题定义继续讨论",
+      "artifact_reference": "虚构案例中的问题定义页",
+      "capabilities": [
+        "跨职能沟通",
+        "问题定义",
+        "风险识别"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.75
+    },
+    {
+      "evidence_id": "research-builder-04",
+      "statement": "为组会写过一篇两千字的中文研究解读，区分研究结论、局限和仍待验证的问题。",
+      "context": "研究生组会",
+      "task": "向非本课题成员解释一项研究",
+      "action": "阅读原文、核对关键数字并按受众调整结构",
+      "result": "形成带来源和局限说明的研究解读",
+      "artifact_reference": "虚构案例中的研究解读文稿",
+      "capabilities": [
+        "医学写作",
+        "证据核对",
+        "不确定性表达"
+      ],
+      "source_type": "user_statement",
+      "source_reference": "synthetic scenario",
+      "confidence": 0.8
+    }
+  ],
+  "unknowns": [
+    "尚未负责真实产品的路线图、上线指标或商业结果",
+    "Python 和 R 经历不能自动证明算法工程能力",
+    "尚不了解医疗软件监管、隐私和医院采购流程",
+    "低代码原型的使用者数量很少，不能证明市场需求"
+  ],
+  "consent_recorded": false
+}

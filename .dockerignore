@@ -1,0 +1,12 @@
+.git
+.github
+.env
+.env.*
+.venv
+__pycache__
+*.pyc
+private_data
+user_data
+uploads
+data/.sessions
+data/.uploads

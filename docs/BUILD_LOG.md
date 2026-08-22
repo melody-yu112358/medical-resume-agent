@@ -665,3 +665,12 @@ temporary until the user-facing pages are updated in a later change.
   ships four target-path references plus explicit anti-fabrication rules.
 - Skill Lite is a prompt/workflow companion only; it does not claim to replace
   the web application's deterministic Claim Gate or audit ledger.
+
+## 2026-08-22 — repository visual showcase
+
+- Added a repository-owned SVG hero and experience-compilation flow graphic.
+  Both use synthetic, abstract resume content only and do not contain a real
+  person's resume or personal information.
+- Reorganized Chinese and English README first screens around the local Beta
+  workflow, four-role positioning, evidence boundaries, and a 30-second local
+  start path.

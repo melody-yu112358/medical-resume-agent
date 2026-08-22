@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">未界医学简历 Agent</title>
+  <desc id="desc">本地运行、以证据为基础的医学经历编译器主视觉</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f8faf7"/><stop offset="1" stop-color="#e9f2ed"/></linearGradient>
+    <linearGradient id="paper" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#f6f8f5"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#244638" flood-opacity=".16"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1035" cy="80" r="190" fill="#dbece1" opacity=".55"/>
+  <circle cx="88" cy="566" r="180" fill="#d8e9df" opacity=".52"/>
+  <g font-family="Arial, 'Microsoft YaHei', sans-serif">
+    <text x="82" y="96" fill="#245a47" font-size="22" font-weight="700" letter-spacing="3">UNBOUNDED · 未界</text>
+    <text x="82" y="173" fill="#172b22" font-size="55" font-weight="700">医学简历 Agent</text>
+    <text x="82" y="221" fill="#4d6257" font-size="24">把真实医学经历，整理成岗位看得懂的能力证明</text>
+    <g transform="translate(82 266)">
+      <rect width="132" height="36" rx="18" fill="#245a47"/><text x="66" y="24" fill="#fff" text-anchor="middle" font-size="15" font-weight="700">本地运行</text>
+      <rect x="145" width="160" height="36" rx="18" fill="#d9ebe0"/><text x="225" y="24" fill="#245a47" text-anchor="middle" font-size="15" font-weight="700">事实先确认</text>
+      <rect x="318" width="150" height="36" rx="18" fill="#d9ebe0"/><text x="393" y="24" fill="#245a47" text-anchor="middle" font-size="15" font-weight="700">医学专用</text>
+    </g>
+    <g transform="translate(82 370)">
+      <text y="0" fill="#597066" font-size="17" font-weight="700">真实经历</text>
+      <path d="M0 20H355" stroke="#9bb8a8" stroke-width="2"/>
+      <text y="57" fill="#284737" font-size="21" font-weight="700">方法 · 工具 · 角色 · 交付物</text>
+      <text y="92" fill="#597066" font-size="18">确认后，再按目标方向翻译</text>
+      <text y="139" fill="#245a47" font-size="20" font-weight="700">科研 / 临床研究 / MSL / 医疗数据</text>
+    </g>
+  </g>
+  <g filter="url(#shadow)" transform="translate(763 72) rotate(3 180 245)">
+    <rect width="350" height="488" rx="9" fill="url(#paper)"/>
+    <rect x="30" y="31" width="9" height="61" rx="4" fill="#245a47"/>
+    <text x="56" y="57" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="25" font-weight="700" fill="#1c3026">医学简历</text>
+    <text x="56" y="82" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="12" fill="#779084">Evidence-bound resume</text>
+    <rect x="30" y="122" width="290" height="2" fill="#b8d2c3"/>
+    <text x="30" y="157" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#245a47">科研经历</text>
+    <rect x="30" y="172" width="138" height="9" rx="4.5" fill="#dbe8df"/>
+    <rect x="30" y="191" width="244" height="7" rx="3.5" fill="#e9efeb"/>
+    <rect x="30" y="206" width="219" height="7" rx="3.5" fill="#e9efeb"/>
+    <rect x="30" y="221" width="260" height="7" rx="3.5" fill="#e9efeb"/>
+    <text x="30" y="268" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#245a47">能力证据</text>
+    <g font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="12" font-weight="700">
+      <rect x="30" y="284" width="52" height="25" rx="12" fill="#e2f0e7"/><text x="56" y="301" text-anchor="middle" fill="#245a47">MR</text>
+      <rect x="89" y="284" width="62" height="25" rx="12" fill="#e2f0e7"/><text x="120" y="301" text-anchor="middle" fill="#245a47">Meta</text>
+      <rect x="158" y="284" width="42" height="25" rx="12" fill="#e2f0e7"/><text x="179" y="301" text-anchor="middle" fill="#245a47">R</text>
+      <rect x="207" y="284" width="59" height="25" rx="12" fill="#e2f0e7"/><text x="236" y="301" text-anchor="middle" fill="#245a47">qPCR</text>
+    </g>
+    <rect x="30" y="340" width="290" height="2" fill="#b8d2c3"/>
+    <text x="30" y="375" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#245a47">目标表达</text>
+    <rect x="30" y="394" width="236" height="8" rx="4" fill="#d7e7dc"/>
+    <rect x="30" y="412" width="278" height="8" rx="4" fill="#e7eee9"/>
+    <rect x="30" y="430" width="199" height="8" rx="4" fill="#e7eee9"/>
+  </g>
+  <text x="82" y="579" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="16" fill="#6f8478">LOCAL FIRST · EVIDENCE BOUND · MEDICAL CAREER</text>
+</svg>

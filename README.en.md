@@ -1,12 +1,39 @@
-# Unbounded | Medical Resume Agent
+<p align="center">
+  <img src="assets/brand/hero.svg" alt="Unbounded Medical Resume Agent" width="100%" />
+</p>
 
-**English** | [简体中文](README.md)
+<p align="center">
+  <a href="#run-locally"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
+  <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
+  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
+</p>
+
+<p align="center"><a href="README.md">简体中文</a> · <b>English</b> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
 An evidence-based medical experience compiler that runs on your own computer, built for medical students preparing graduate-school applications and early-career job applications.
 
 It does not simply make an experience sound stronger. It first asks the user to confirm the underlying facts, then turns the same medical experience into resume bullets that different target paths can understand and challenge.
 
 > Real experience → method / tool / role / research object / deliverable → transferable capability → target-specific emphasis
+
+<p align="center">
+  <img src="assets/brand/experience-flow.svg" alt="Four-step medical experience compiler workflow" width="100%" />
+</p>
+
+| What you provide | What the system does | What you receive |
+| --- | --- | --- |
+| A real medical experience | Extracts facts, asks about missing information, and waits for confirmation | Candidate bullets for a chosen target path |
+| Clues such as MR, Meta, R, or qPCR | Separates methods, tools, techniques, and evidence resources | An explainable capability structure rather than keyword stuffing |
+| A target path | Changes emphasis without changing what happened | Traceable, editable, reviewable material |
+
+## Try it in 30 seconds
+
+```powershell
+.\start-local.ps1
+```
+
+Then open `http://127.0.0.1:5000/demo/experience-compiler/index.html`. The included de-identified Meta-analysis example is ready for a first test. See [Run locally](#run-locally) for details.
 
 ## Why this project?
 

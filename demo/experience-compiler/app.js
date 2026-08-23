@@ -199,7 +199,8 @@ function getMethodLabel(method) {
     'mendelian_randomization': '孟德尔随机化（MR）',
     'randomized_trial': '随机对照试验',
     'cohort_study': '队列研究',
-    'case_control': '病例对照研究'
+    'case_control': '病例对照研究',
+    'sensitivity_analysis': '敏感性分析'
   };
   return labels[method] || method;
 }
@@ -697,7 +698,6 @@ function handoffCapabilities() {
     ...(facts.methods || []).map(getMethodLabel),
     ...(facts.techniques || []).map(getTechniqueLabel),
     ...(facts.tools || []).map(getToolLabel),
-    ...(facts.actions || []).map(getActionLabel),
   ];
   return [...new Set(items.filter(Boolean))].slice(0, 8);
 }
@@ -707,7 +707,7 @@ function handoffPurpose() {
 }
 
 $('#openResumePreview').onclick = () => {
-  const bullets = Object.values(generatedBullets).flat().map((bullet) => bullet.wording).filter(Boolean);
+  const bullets = [...new Set(Object.values(generatedBullets).flat().map((bullet) => bullet.wording).filter(Boolean))];
   if (!bullets.length) {
     $('#step8Error').textContent = '请先至少生成并接受一条简历要点。';
     return;

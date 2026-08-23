@@ -6,6 +6,22 @@ let currentCanonicalExperience = null;
 let selectedRolePacks = ['doctoral_v1', 'clinical_research_v1', 'medical_affairs_v1', 'health_ai_data_v1'];
 let generatedBullets = {};
 
+const SAMPLE_EXPERIENCES = Object.freeze({
+  meta: `在导师指导下参与某疾病风险因素与临床结局的 Meta 分析。使用 PubMed、Embase 检索文献，按预设入排标准完成文献筛选与数据提取；使用 R 进行效应量合并和敏感性分析，整理结果图表并参与组会汇报。`,
+  wetLab: `在课题组参与炎症相关细胞实验。负责细胞培养、RNA 提取和 qPCR 检测，记录原始实验数据并协助整理结果图表；在导师指导下参与组会讨论。`,
+  casePresentation: `参加院内临床病例汇报比赛，围绕一例不明原因发热病例，查阅指南和文献，梳理鉴别诊断、检查结果和诊疗思路，制作病例汇报材料并完成现场汇报。`,
+});
+
+$$('.sample-button').forEach((button) => {
+  button.addEventListener('click', () => {
+    const sample = SAMPLE_EXPERIENCES[button.dataset.sample];
+    if (!sample) return;
+    $('#experienceInput').value = sample;
+    $('#experienceInput').focus();
+    $('#step1Error').textContent = '';
+  });
+});
+
 // Utility functions
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -102,8 +118,13 @@ function renderExtractedFacts(draft) {
 
   // Tools
   $('#toolsDisplay').innerHTML = facts.tools.length > 0
-    ? facts.tools.map(tool => `<span class="fact-tag">${esc(tool)}</span>`).join(' ')
+    ? facts.tools.map(tool => `<span class="fact-tag">${esc(getToolLabel(tool))}</span>`).join(' ')
     : '<em>未识别到工具</em>';
+
+  // Laboratory techniques
+  $('#techniquesDisplay').innerHTML = facts.techniques && facts.techniques.length > 0
+    ? facts.techniques.map(technique => `<span class="fact-tag">${esc(getTechniqueLabel(technique))}</span>`).join(' ')
+    : '<em>未识别到实验技术</em>';
 
   // Objects
   $('#objectsDisplay').innerHTML = facts.objects.length > 0
@@ -159,7 +180,13 @@ function getActionLabel(action) {
     'extract_data': '数据提取',
     'create_flowchart': '流程图制作',
     'perform_analysis': '数据分析',
-    'write_manuscript': '论文撰写'
+    'write_manuscript': '论文撰写',
+    'culture_cells': '细胞培养',
+    'perform_qpcr': 'qPCR 检测',
+    'perform_western_blot': 'Western Blot 检测',
+    'review_clinical_case': '病例分析',
+    'prepare_case_presentation': '病例汇报准备',
+    'retrieve_guidelines': '指南检索'
   };
   return labels[action] || action;
 }
@@ -168,6 +195,7 @@ function getMethodLabel(method) {
   const labels = {
     'systematic_review': '系统综述',
     'meta_analysis': 'Meta分析',
+    'mendelian_randomization': '孟德尔随机化（MR）',
     'randomized_trial': '随机对照试验',
     'cohort_study': '队列研究',
     'case_control': '病例对照研究'
@@ -175,11 +203,30 @@ function getMethodLabel(method) {
   return labels[method] || method;
 }
 
+function getToolLabel(tool) {
+  const labels = {
+    r: 'R', python: 'Python', spss: 'SPSS', sql: 'SQL',
+    pubmed: 'PubMed', embase: 'Embase', cochrane: 'Cochrane',
+    graphpad_prism: 'GraphPad Prism',
+  };
+  return labels[tool] || tool;
+}
+
+function getTechniqueLabel(technique) {
+  const labels = {
+    cell_culture: '细胞培养', qpcr: 'qPCR', western_blot: 'Western Blot',
+    flow_cytometry: '流式细胞术', elisa: 'ELISA', animal_experiment: '动物实验',
+  };
+  return labels[technique] || technique;
+}
+
 function getObjectLabel(obj) {
   const labels = {
     'medical_literature': '医学文献',
     'clinical_studies': '临床研究',
-    'research_data': '研究数据'
+    'research_data': '研究数据',
+    'clinical_case': '临床病例',
+    'laboratory_samples': '实验样本',
   };
   return labels[obj] || obj;
 }
@@ -196,7 +243,8 @@ function getArtifactLabel(artifact) {
   const labels = {
     'prisma_flowchart': 'PRISMA流程图',
     'data_extraction_sheet': '数据提取表',
-    'research_paper': '研究论文'
+    'research_paper': '研究论文',
+    'case_presentation_material': '病例汇报材料',
   };
   return labels[artifact] || artifact;
 }

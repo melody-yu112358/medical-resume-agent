@@ -331,6 +331,7 @@ class ConfirmationGateService:
             "actions": extracted_facts.get("actions", []),
             "methods": extracted_facts.get("methods", []),
             "tools": extracted_facts.get("tools", []),
+            "techniques": extracted_facts.get("techniques", []),
             "objects": extracted_facts.get("objects", []),
             "collaboration": extracted_facts.get("collaboration", []),
             "artifacts": extracted_facts.get("artifacts", []),
@@ -394,7 +395,7 @@ class ConfirmationGateService:
             errors.append(f"Invalid status: {canonical.get('status')}")
 
         # List field validation
-        list_fields = ["actions", "methods", "tools", "objects", "collaboration", "artifacts", "outcomes", "unknowns"]
+        list_fields = ["actions", "methods", "tools", "techniques", "objects", "collaboration", "artifacts", "outcomes", "unknowns"]
         for field in list_fields:
             if not isinstance(canonical.get(field, []), list):
                 errors.append(f"{field} must be a list")

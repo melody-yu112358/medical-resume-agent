@@ -6,6 +6,7 @@ let selectedTemplate = "clinical";
 let selectedPurpose = "campus";
 let selectedTranslationTarget = "clinical_research";
 let experienceCompilerHandoffMode = false;
+let compilerProfilePhoto = "";
 const VERSION_STORAGE_KEY = "unbounded.resume-versions.v1";
 const REWRITE_AUDIT_STORAGE_KEY = "unbounded.resume-rewrite-audit.v1";
 const EXPERIENCE_COMPILER_HANDOFF_STORAGE_KEY = "unbounded.experience-compiler-handoff.v1";
@@ -102,16 +103,12 @@ function loadExperienceCompilerHandoff() {
   document.body.classList.add("experience-compiler-handoff");
   choosePurpose(handoff.purpose || "campus");
   $("header span").textContent = "医学经历编译器 · A4 简历草稿";
-  $("#resumeFieldLabel").textContent = "简历文字（可直接编辑）";
-  const capabilities = (handoff.capabilities || []).map((item) => `• ${item}`).join("\n") || "• [请补充本人实际掌握的方法、工具或实验技术]";
-  const bullets = handoff.bullets.map((item) => `• ${item}`).join("\n");
-  const resumeText = `个人概述\n医学背景候选人，申请${handoff.target_role || "医学相关目标方向"}。以下内容来自本人确认的经历，请在投递前补全教育背景、联系方式与具体经历时间。\n\n核心能力\n${capabilities}\n\n科研 / 学术经历\n已确认医学经历\n${bullets}\n\n技能与证书\n• [请仅保留本人实际使用过的工具、培训或语言能力]`;
-  $("#role").value = handoff.target_role || "医学相关目标方向";
-  $("#resume").value = resumeText;
-  $("#document").value = resumeText;
-  $("#documentWrap").classList.remove("hidden");
-  $("#error").textContent = "已载入经历编译器生成的要点。点击预览工具栏中的“编辑文字”可修改材料，再点击“刷新预览”。";
-  renderPrintableResume();
+  $("#compilerTarget").value = handoff.target_role || "医学相关目标方向";
+  $("#compilerSummary").value = `医学背景候选人，申请${handoff.target_role || "医学相关目标方向"}。以下内容来自本人确认的经历。`;
+  $("#compilerCapabilities").value = [...new Set(handoff.capabilities || [])].join("\n");
+  $("#compilerBullets").value = [...new Set(handoff.bullets)].join("\n");
+  $("#compilerHandoffEditor").classList.remove("hidden");
+  renderCompilerHandoffResume(true);
 }
 
 function loadExample() {
@@ -581,7 +578,11 @@ function choosePurpose(purpose) {
 function chooseTemplate(template) {
   selectedTemplate = template;
   document.querySelectorAll("[data-template]").forEach((item) => item.classList.toggle("selected", item.dataset.template === template));
-  if (!$("#resumePreview").classList.contains("hidden")) renderPrintableResume();
+  document.querySelectorAll("[data-compiler-template]").forEach((item) => item.classList.toggle("selected", item.dataset.compilerTemplate === template));
+  if (!$("#resumePreview").classList.contains("hidden")) {
+    if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+    else renderPrintableResume();
+  }
 }
 
 function extractNamedSection(text, heading, nextHeadings) {
@@ -625,6 +626,46 @@ async function translateCapabilities() {
     output.innerHTML = body.recommendations.length ? `<div class="translation-result"><b>${esc(body.target_label)}：建议前置的真实能力</b>${body.recommendations.map((item) => `<div class="item"><b>${esc(item.capability)}</b> → ${esc(item.market_value)}<br><small>推荐位置：${esc(item.placement)}<br>${esc(item.rationale)}</small></div>`).join("")}</div>` : `<div class="item miss">${esc(body.gaps.join("；"))}</div>`;
   } catch (requestError) { error.textContent = requestError.message; }
   finally { button.disabled = false; button.textContent = "生成岗位能力翻译 →"; }
+}
+
+function splitEditorLines(selector) {
+  return $(selector).value.split("\n").map((item) => item.trim().replace(/^[•●▪◦\-*\s]+/, "")).filter(Boolean);
+}
+
+function renderCompilerHandoffResume(scrollToPreview = false) {
+  const name = $("#compilerName").value.trim() || "候选人姓名";
+  const contact = $("#compilerContact").value.trim() || "联系方式请在提交前补充";
+  const target = $("#compilerTarget").value.trim() || "医学相关目标方向";
+  const summary = $("#compilerSummary").value.trim();
+  const education = splitEditorLines("#compilerEducation");
+  const capabilities = splitEditorLines("#compilerCapabilities");
+  const skills = splitEditorLines("#compilerSkills");
+  const bullets = splitEditorLines("#compilerBullets");
+  const period = $("#compilerExperiencePeriod").value.trim();
+  const organization = $("#compilerExperienceOrganization").value.trim() || "科研 / 临床经历";
+  const title = $("#compilerExperienceTitle").value.trim();
+  const section = (titleText, content, className = "") => content ? `<section class="resume-section ${className}"><h2>${titleText}</h2>${content}</section>` : "";
+  const list = (items) => items.length ? `<ul class="resume-list">${items.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : "";
+  const educationSection = section("教育背景", list(education), "resume-education-section");
+  const experienceContent = bullets.length ? `<article class="resume-entry"><div class="resume-entry-head"><span class="resume-date">${esc(period)}</span><strong class="resume-org">${esc(organization)}</strong><span class="resume-role">${esc(title)}</span></div><ul>${bullets.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article>` : "";
+  const experienceSection = section("实践与项目经历", experienceContent, "resume-experience-section");
+  const capabilitiesSection = section("核心能力", capabilities.length ? `<div>${capabilities.map((item) => `<span class="resume-skill">${esc(item)}</span>`).join("")}</div>` : "", "resume-capabilities-section");
+  const skillsSection = section("技能与证书", skills.length ? `<div>${skills.map((item) => `<span class="resume-skill">${esc(item)}</span>`).join("")}</div>` : "", "resume-skills-section");
+  const summarySection = section("个人概述", summary ? `<p class="resume-summary">${esc(summary)}</p>` : "", "resume-summary-section");
+  const photo = compilerProfilePhoto ? `<img src="${compilerProfilePhoto}" alt="个人头像">` : "证件照<br>可选";
+  const identity = `<div><h1 class="resume-name">${esc(name)}</h1><p class="resume-contact">${esc(contact)}</p><p class="resume-target">医学背景 · ${esc(target)}</p></div>`;
+  const templateBody = selectedTemplate === "research"
+    ? `<header class="resume-header resume-header-research">${identity}<p class="resume-document-label">MEDICAL CURRICULUM VITAE</p></header><div class="research-layout"><main class="resume-main">${educationSection}${experienceSection}</main><aside class="resume-aside">${summarySection}${capabilitiesSection}${skillsSection}</aside></div>`
+    : selectedTemplate === "minimal"
+      ? `<header class="resume-header resume-header-minimal">${identity}</header>${summarySection}${educationSection}${experienceSection}${capabilitiesSection}${skillsSection}`
+      : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">${photo}</div></header>${summarySection}${educationSection}${experienceSection}${capabilitiesSection}${skillsSection}`;
+  $("#resumePreview").innerHTML = `<div class="resume-toolbar"><p>投递版预览 · 修改上方字段会实时更新</p><span><button data-compiler-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-compiler-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-compiler-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button><button id="printResume">打印 / 保存 PDF</button></span></div><article class="resume-sheet template-${selectedTemplate}">${templateBody}</article>`;
+  $("#resumePreview").classList.remove("hidden");
+  if (scrollToPreview) $("#resumePreview").scrollIntoView({ behavior: "smooth" });
+  $("#printResume").onclick = () => window.print();
+  document.querySelectorAll("[data-compiler-template]").forEach((button) => {
+    button.onclick = () => chooseTemplate(button.dataset.compilerTemplate);
+  });
 }
 
 function renderStructuredResumePreview(documentModel) {
@@ -846,6 +887,24 @@ $("#previewAndPrint").onclick = () => {
 $("#loadExample").onclick = loadExample;
 $("#resumeFile").onchange = (event) => uploadResume(event.target.files[0]);
 $("#resume").addEventListener("input", resetStructureReview);
+[
+  "#compilerName", "#compilerContact", "#compilerTarget", "#compilerSummary", "#compilerEducation",
+  "#compilerExperiencePeriod", "#compilerExperienceOrganization", "#compilerExperienceTitle",
+  "#compilerBullets", "#compilerCapabilities", "#compilerSkills",
+].forEach((selector) => $(selector).addEventListener("input", () => {
+  if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+}));
+$("#compilerPhoto").onchange = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    compilerProfilePhoto = String(reader.result || "");
+    if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+  };
+  reader.readAsDataURL(file);
+};
+$("#compilerPrintResume").onclick = () => window.print();
 $("#structureResume").onclick = identifyResumeStructure;
 $("#selectAllStructured").onclick = () => { document.querySelectorAll(".structure-evidence").forEach((item) => { item.checked = true; }); updateStructureStatus(); };
 $("#openDocumentEditor").onclick = openDocumentEditor;

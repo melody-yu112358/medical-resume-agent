@@ -6,6 +6,7 @@ let currentCanonicalExperience = null;
 let selectedRolePacks = [];
 let generatedBullets = {};
 const RESUME_HANDOFF_STORAGE_KEY = 'unbounded.experience-compiler-handoff.v1';
+const EXPERIENCE_DRAFTS_STORAGE_KEY = 'unbounded.experience-compiler-drafts.v1';
 
 const SAMPLE_EXPERIENCES = Object.freeze({
   meta: `在导师指导下参与某疾病风险因素与临床结局的 Meta 分析。使用 PubMed、Embase 检索文献，按预设入排标准完成文献筛选与数据提取；使用 R 进行效应量合并和敏感性分析，整理结果图表并参与组会汇报。`,
@@ -641,6 +642,7 @@ $('#rejectBullets').onclick = () => {
 
 // Step 9: Completion
 $('#startNewExperience').onclick = () => {
+  saveCompletedExperience();
   showStep(1);
   // Reset form
   $('#experienceInput').value = '';
@@ -706,20 +708,54 @@ function handoffPurpose() {
   return selectedRolePacks.includes('doctoral_v1') ? 'phd' : 'campus';
 }
 
+function bulletsForResumeHandoff() {
+  const activeRolePack = selectedRolePacks[0];
+  return [...new Set((generatedBullets[activeRolePack] || []).map((bullet) => bullet.wording).filter(Boolean))];
+}
+
+function completedExperience() {
+  const facts = currentCanonicalExperience?.extracted_facts || currentExperienceDraft?.extracted_facts || {};
+  const bullets = bulletsForResumeHandoff();
+  return {
+    source_text: $('#experienceInput').value.trim(),
+    period: '',
+    organization: '',
+    title: facts.context?.topic || '',
+    bullets,
+  };
+}
+
+function savedExperiences() {
+  try {
+    const value = JSON.parse(sessionStorage.getItem(EXPERIENCE_DRAFTS_STORAGE_KEY) || '[]');
+    return Array.isArray(value) ? value : [];
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveCompletedExperience() {
+  const experience = completedExperience();
+  if (!experience.source_text || !experience.bullets.length) return savedExperiences();
+  const experiences = [...savedExperiences().filter((item) => item.source_text !== experience.source_text), experience];
+  sessionStorage.setItem(EXPERIENCE_DRAFTS_STORAGE_KEY, JSON.stringify(experiences));
+  return experiences;
+}
+
 $('#openResumePreview').onclick = () => {
-  const bullets = [...new Set(Object.values(generatedBullets).flat().map((bullet) => bullet.wording).filter(Boolean))];
-  if (!bullets.length) {
+  const experiences = saveCompletedExperience();
+  if (!experiences.length) {
     $('#step8Error').textContent = '请先至少生成并接受一条简历要点。';
     return;
   }
-  const selectedLabels = selectedRolePacks.map(rolePackLabel).filter(Boolean);
+  const activeRolePack = selectedRolePacks[0];
   sessionStorage.setItem(RESUME_HANDOFF_STORAGE_KEY, JSON.stringify({
     schema_version: 'experience-compiler-handoff-v1',
     created_at: new Date().toISOString(),
-    target_role: selectedLabels.join(' / ') || '医学相关目标方向',
+    target_role: rolePackLabel(activeRolePack) || '医学相关目标方向',
     purpose: handoffPurpose(),
     capabilities: handoffCapabilities(),
-    bullets,
+    experiences,
   }));
   window.location.href = '../resume-beta/index.html?from=experience-compiler';
 };

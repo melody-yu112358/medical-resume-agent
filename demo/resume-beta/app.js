@@ -95,7 +95,8 @@ function loadExperienceCompilerHandoff() {
     $("#error").textContent = "未能读取刚才生成的经历要点；请返回经历编译器后重新打开预览。";
     return;
   }
-  if (!handoff?.bullets?.length) {
+  const handoffExperiences = Array.isArray(handoff?.experiences) ? handoff.experiences : [];
+  if (!handoffExperiences.length && !handoff?.bullets?.length) {
     $("#error").textContent = "没有可载入的经历要点；请先在经历编译器中完成一段经历。";
     return;
   }
@@ -105,7 +106,14 @@ function loadExperienceCompilerHandoff() {
   $("header span").textContent = "医学经历编译器 · A4 简历草稿";
   $("#compilerTarget").value = handoff.target_role || "医学相关目标方向";
   $("#compilerCapabilities").value = [...new Set(handoff.capabilities || [])].join("\n");
-  addCompilerExperience({ bullets: [...new Set(handoff.bullets)] });
+  (handoffExperiences.length ? handoffExperiences : [{ bullets: handoff.bullets }]).forEach((experience) => {
+    addCompilerExperience({
+      period: experience.period || "",
+      organization: experience.organization || "",
+      title: experience.title || "",
+      bullets: [...new Set(experience.bullets || [])],
+    });
+  });
   $("#compilerHandoffEditor").classList.remove("hidden");
   renderCompilerHandoffResume(true);
 }
@@ -649,6 +657,19 @@ function compilerExperiences() {
   })).filter((item) => item.period || item.organization || item.title || item.bullets.length);
 }
 
+function compilerEducation(items) {
+  if (!items.length) return "";
+  const rows = items.map((item) => {
+    const parts = item.split(/[｜|]/).map((part) => part.trim()).filter(Boolean);
+    if (parts.length >= 3) {
+      const [period, institution, ...program] = parts;
+      return `<article class="resume-education-row"><span class="resume-education-period">${esc(period)}</span><strong>${esc(institution)}</strong><span>${esc(program.join("｜"))}</span></article>`;
+    }
+    return `<article class="resume-education-row resume-education-row-simple">${esc(item)}</article>`;
+  }).join("");
+  return `<div class="resume-education-list">${rows}</div>`;
+}
+
 function renderCompilerHandoffResume(scrollToPreview = false) {
   const name = $("#compilerName").value.trim() || "候选人姓名";
   const contact = $("#compilerContact").value.trim() || "联系方式请在提交前补充";
@@ -661,7 +682,7 @@ function renderCompilerHandoffResume(scrollToPreview = false) {
   const fontFamily = $("#compilerFontFamily").value;
   const section = (titleText, content, className = "") => content ? `<section class="resume-section ${className}"><h2>${titleText}</h2>${content}</section>` : "";
   const list = (items) => items.length ? `<ul class="resume-list">${items.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : "";
-  const educationSection = section("教育背景", list(education), "resume-education-section");
+  const educationSection = section("教育背景", compilerEducation(education), "resume-education-section");
   const experienceContent = experiences.map((item) => `<article class="resume-entry"><div class="resume-entry-head"><span class="resume-date">${esc(item.period)}</span><strong class="resume-org">${esc(item.organization || "科研 / 临床经历")}</strong><span class="resume-role">${esc(item.title)}</span></div>${item.bullets.length ? `<ul>${item.bullets.map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>` : ""}</article>`).join("");
   const experienceSection = section("实践与项目经历", experienceContent, "resume-experience-section");
   const capabilitiesSection = section("核心能力", list(capabilities), "resume-capabilities-section");

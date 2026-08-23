@@ -669,10 +669,10 @@ function renderCompilerHandoffResume(scrollToPreview = false) {
   const photo = compilerProfilePhoto ? `<img src="${compilerProfilePhoto}" alt="个人头像">` : "证件照<br>可选";
   const identity = `<div><h1 class="resume-name">${esc(name)}</h1><p class="resume-contact">${esc(contact)}</p><p class="resume-target">医学背景 · ${esc(target)}</p></div>`;
   const templateBody = selectedTemplate === "research"
-    ? `<header class="resume-header resume-header-research">${identity}<p class="resume-document-label">MEDICAL CURRICULUM VITAE</p></header><div class="research-layout"><main class="resume-main">${experienceSection}${educationSection}</main><aside class="resume-aside">${capabilitiesSection}${skillsSection}</aside></div>`
+    ? `<header class="resume-header resume-header-research">${identity}<p class="resume-document-label">MEDICAL CURRICULUM VITAE</p></header><div class="research-layout"><main class="resume-main">${educationSection}${experienceSection}</main><aside class="resume-aside">${capabilitiesSection}${skillsSection}</aside></div>`
     : selectedTemplate === "minimal"
-      ? `<header class="resume-header resume-header-minimal">${identity}</header>${experienceSection}${educationSection}${capabilitiesSection}${skillsSection}`
-      : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">${photo}</div></header>${experienceSection}${educationSection}${capabilitiesSection}${skillsSection}`;
+      ? `<header class="resume-header resume-header-minimal">${identity}</header>${educationSection}${experienceSection}${capabilitiesSection}${skillsSection}`
+      : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">${photo}</div></header>${educationSection}${experienceSection}${capabilitiesSection}${skillsSection}`;
   $("#resumePreview").innerHTML = `<div class="resume-toolbar"><p>投递版预览 · 修改上方字段会实时更新</p><span><button data-compiler-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-compiler-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-compiler-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button><button id="printResume">打印 / 保存 PDF</button></span></div><article class="resume-sheet template-${selectedTemplate}" data-font-size="${esc(fontSize)}" data-font-family="${esc(fontFamily)}">${templateBody}</article>`;
   $("#resumePreview").classList.remove("hidden");
   if (scrollToPreview) $("#resumePreview").scrollIntoView({ behavior: "smooth" });

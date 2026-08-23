@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/brand/hero.svg" alt="Unbounded Medical Resume Agent" width="100%" />
-</p>
+# Unbounded Medical Resume Assistant
 
 <p align="center">
   <a href="#run-locally"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
@@ -11,21 +9,17 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <b>English</b> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
-An evidence-based medical experience compiler that runs on your own computer, built for medical students preparing graduate-school applications and early-career job applications.
+A local medical experience compiler for medical students preparing academic applications and medical-sector roles.
 
-It does not simply make an experience sound stronger. It first asks the user to confirm the underlying facts, then turns the same medical experience into resume bullets that different target paths can understand and challenge.
+The user submits one experience, reviews the extracted facts, and selects a target direction. The application then drafts editable resume bullets and shows the confirmed information that supports them.
 
-> Real experience → method / tool / role / research object / deliverable → transferable capability → target-specific emphasis
-
-<p align="center">
-  <img src="assets/brand/experience-flow.svg" alt="Four-step medical experience compiler workflow" width="100%" />
-</p>
+It is useful when a broad statement such as “participated in research” or “assisted with data analysis” needs to be separated into research object, method, tool, personal role, and deliverable before deciding what belongs in a resume.
 
 | What you provide | What the system does | What you receive |
 | --- | --- | --- |
 | A real medical experience | Extracts facts, asks about missing information, and waits for confirmation | Candidate bullets for a chosen target path |
-| Clues such as MR, Meta, R, or qPCR | Separates methods, tools, techniques, and evidence resources | An explainable capability structure rather than keyword stuffing |
-| A target path | Changes emphasis without changing what happened | Traceable, editable, reviewable material |
+| Clues such as MR, Meta, R, or qPCR | Separates methods, tools, laboratory techniques, and retrieval resources | An explainable capability structure rather than keyword stuffing |
+| A target direction | Adjusts emphasis without changing the underlying experience | Traceable, editable, reviewable material |
 
 ## Try it in 30 seconds
 

@@ -269,8 +269,16 @@ $('#backToStep1').onclick = () => {
 // Step 3: Render Questions
 function renderQuestions() {
   const questions = currentExperienceDraft.clarifying_questions;
+  const topic = currentExperienceDraft?.extracted_facts?.context?.topic;
+  const topicField = topic ? '' : `
+    <div class="question-item">
+      <label for="confirmedTopic"><strong>研究对象 / 疾病方向（可选）</strong></label>
+      <input id="confirmedTopic" type="text" placeholder="例如：2 型糖尿病与心血管结局；不确定可留空" />
+      <small>仅填写你能从经历或项目材料中确认的信息；它会用于让不同岗位版本更具体。</small>
+    </div>
+  `;
   if (questions.length === 0) {
-    $('#questionsContainer').innerHTML = '<p>无需额外问题，可以直接确认经历。</p>';
+    $('#questionsContainer').innerHTML = `${topicField}<p>无需额外问题，可以直接确认经历。</p>`;
     return;
   }
 
@@ -281,13 +289,14 @@ function renderQuestions() {
     </div>
   `).join('');
 
-  $('#questionsContainer').innerHTML = questionsHtml;
+  $('#questionsContainer').innerHTML = `${topicField}${questionsHtml}`;
 }
 
 // Step 3 Navigation
 $('#confirmExperience').onclick = () => {
   const confirmedFacts = [];
   $$('.question-item input').forEach(input => {
+    if (input.id === 'confirmedTopic') return;
     const value = input.value.trim();
     if (value) {
       confirmedFacts.push(value);
@@ -307,6 +316,17 @@ $('#confirmExperience').onclick = () => {
     confirmed_facts: confirmedFacts
   };
 
+  const confirmedTopic = $('#confirmedTopic')?.value.trim();
+  if (confirmedTopic) {
+    userActions.modified_facts = { 'context.topic': confirmedTopic };
+  }
+  if (confirmedFacts.length > 0 || confirmedTopic) {
+    userActions.new_evidence = [
+      confirmedTopic ? `研究对象 / 疾病方向：${confirmedTopic}` : '',
+      ...confirmedFacts.map((fact, index) => `问题 ${index + 1} 的确认：${fact}`),
+    ].filter(Boolean).join('\n');
+  }
+
   confirmExperienceWithBackend(userActions, evidenceRecords);
 };
 
@@ -322,6 +342,8 @@ async function confirmExperienceWithBackend(userActions, evidenceRecords) {
   const button = $('#confirmExperience');
   button.disabled = true;
   button.textContent = '正在确认...';
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 12000);
 
   try {
     const response = await fetch('/api/experience-confirmations', {
@@ -332,9 +354,10 @@ async function confirmExperienceWithBackend(userActions, evidenceRecords) {
         user_actions: userActions,
         evidence_records: evidenceRecords,
         previous_experience_id: null
-      })
+      }),
+      signal: controller.signal,
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
       throw new Error(data.error || '确认经历失败');
     }
@@ -344,9 +367,7 @@ async function confirmExperienceWithBackend(userActions, evidenceRecords) {
 
       // Check confirmation status
       if (data.confirmation_status.status === 'needs_more_info') {
-        errorElement.textContent = data.confirmation_status.validation_errors.join('; ');
-        button.disabled = false;
-        button.textContent = '确认经历 →';
+        errorElement.textContent = (data.confirmation_status.validation_errors || ['仍需要补充确认']).join('; ');
         return;
       }
 
@@ -355,7 +376,11 @@ async function confirmExperienceWithBackend(userActions, evidenceRecords) {
       showStep(4); // Show modification options
     }
   } catch (error) {
-    errorElement.textContent = error.message;
+    errorElement.textContent = error.name === 'AbortError'
+      ? '确认请求超过 12 秒，请检查本地服务是否仍在运行后重试。'
+      : error.message;
+  } finally {
+    window.clearTimeout(timeoutId);
     button.disabled = false;
     button.textContent = '确认经历 →';
   }

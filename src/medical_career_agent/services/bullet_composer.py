@@ -238,6 +238,8 @@ class BulletComposerService:
         )
         has_meta = "meta_analysis" in methods
         has_case = "review_clinical_case" in actions
+        topic = (facts.get("context") or {}).get("topic")
+        topic_scope = f"围绕{topic}的" if topic else ""
         responsibility_verb = {
             "participated": "参与",
             "owned_component": "负责",
@@ -246,7 +248,7 @@ class BulletComposerService:
         }.get(responsibility_level, "参与")
 
         if has_case:
-            wording = f"{responsibility_verb}围绕临床病例梳理鉴别诊断、检查结果与诊疗思路"
+            wording = f"{responsibility_verb}{topic_scope}临床病例鉴别诊断、检查结果与诊疗思路梳理"
             if "retrieve_guidelines" in actions:
                 wording += "，检索相关指南与文献"
             if "case_presentation_material" in artifacts:
@@ -257,19 +259,25 @@ class BulletComposerService:
                 action_labels,
             )
             if role_pack_name == "health_ai_data_v1" and analysis_tools:
-                wording = f"使用 {analysis_tools} 完成 {method_text}"
+                wording = f"{responsibility_verb}{topic_scope}{method_text}的数据整理与分析，使用 {analysis_tools} 完成统计计算"
                 if workflow:
-                    wording += f"的数据准备：{workflow}"
+                    wording += f"，覆盖{workflow}"
             elif role_pack_name == "medical_affairs_v1":
-                wording = "基于临床研究文献完成证据整理"
+                wording = f"{responsibility_verb}{topic_scope}医学证据整理"
                 if literature_tools:
                     wording += f"，使用 {literature_tools} 进行检索"
                 if workflow:
-                    wording += f"并参与{workflow}"
+                    wording += f"，完成{workflow}"
                 if analysis_tools:
                     wording += f"，使用 {analysis_tools} 完成 {method_text}"
+            elif role_pack_name == "clinical_research_v1":
+                wording = f"{responsibility_verb}{topic_scope}{method_text}的证据分析"
+                if workflow:
+                    wording += f"，完成{workflow}"
+                if analysis_tools:
+                    wording += f"，使用 {analysis_tools} 完成统计分析"
             else:
-                wording = f"{responsibility_verb}{method_text}"
+                wording = f"{responsibility_verb}{topic_scope}{method_text}"
                 if workflow:
                     wording += f"，完成{workflow}"
                 if literature_tools:
@@ -281,7 +289,7 @@ class BulletComposerService:
             if "group_presentation" in artifacts:
                 wording += "，参与组会汇报"
         elif technique_text:
-            wording = f"{responsibility_verb}实验执行，完成{technique_text}"
+            wording = f"{responsibility_verb}{topic_scope}实验执行，完成{technique_text}"
             if "analysis_figures" in artifacts:
                 wording += "，记录原始数据并整理结果图表"
             if "group_presentation" in artifacts:
@@ -299,6 +307,8 @@ class BulletComposerService:
 
         claim_id = f"claim_{uuid4().hex[:8]}"
         used_facts = []
+        if topic:
+            used_facts.append("context:topic")
         for category in ("actions", "methods", "tools", "techniques", "artifacts"):
             used_facts.extend(f"{category}:{item}" for item in facts.get(category, []))
 

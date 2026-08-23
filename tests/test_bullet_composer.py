@@ -190,6 +190,44 @@ class BulletComposerServiceTest(unittest.TestCase):
             self.assertIn(expected, wording)
         self.assertNotIn("支持相关研究工作", wording)
 
+    def test_meta_analysis_changes_emphasis_for_medical_roles(self):
+        experience = {
+            "schema_version": "canonical-experience-v1",
+            "experience_id": "meta_analysis_role_angles",
+            "status": "user_confirmed",
+            "evidence_ids": ["ev_001", "ev_002"],
+            "context": {"domain": "clinical_research", "setting": "research_project", "topic": "2 型糖尿病与心血管结局"},
+            "role": {"responsibility_level": "participated"},
+            "actions": ["retrieve_literature", "screen_studies", "extract_data"],
+            "methods": ["meta_analysis", "sensitivity_analysis"],
+            "tools": ["pubmed", "embase", "r"],
+            "techniques": [],
+            "objects": ["medical_literature"],
+            "collaboration": [],
+            "artifacts": ["analysis_figures"],
+            "outcomes": [],
+            "scope": {},
+            "unknowns": [],
+        }
+
+        doctoral = self.service.compose_bullets(
+            canonical_experience=experience, role_pack_name="doctoral_v1"
+        )[0].wording
+        medical_affairs = self.service.compose_bullets(
+            canonical_experience=experience, role_pack_name="medical_affairs_v1"
+        )[0].wording
+        health_data = self.service.compose_bullets(
+            canonical_experience=experience, role_pack_name="health_ai_data_v1"
+        )[0].wording
+
+        for wording in (doctoral, medical_affairs, health_data):
+            self.assertIn("2 型糖尿病与心血管结局", wording)
+            self.assertIn("参与", wording)
+            self.assertNotIn("独立", wording)
+        self.assertIn("医学证据整理", medical_affairs)
+        self.assertIn("数据整理与分析", health_data)
+        self.assertNotEqual(doctoral, medical_affairs)
+
     def test_fallback_bullet_creation(self):
         """Should create fallback bullet when patterns fail."""
         # Create experience with minimal facts that won't match patterns well

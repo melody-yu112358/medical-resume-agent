@@ -96,8 +96,16 @@ class BulletComposerService:
         facts = self._extract_facts(canonical_experience)
         responsibility_level = canonical_experience["role"]["responsibility_level"]
 
-        # Generate bullet claims using role pack patterns
-        bullets = self._generate_bullets(
+        # Prefer a medical-specific composition when methods, tools, techniques,
+        # or concrete deliverables are available. The generic pattern fallback is
+        # kept for sparse input only.
+        bullets = self._compose_medical_resume_bullet(
+            facts=facts,
+            responsibility_level=responsibility_level,
+            experience_id=experience_id,
+            evidence_ids=evidence_ids,
+            role_pack_name=role_pack_name,
+        ) or self._generate_bullets(
             facts=facts,
             responsibility_level=responsibility_level,
             role_pack=role_pack,
@@ -140,7 +148,7 @@ class BulletComposerService:
 
         # Extract all array fields that contain facts
         array_fields = [
-            "actions", "methods", "tools", "objects", "collaboration",
+            "actions", "methods", "tools", "techniques", "objects", "collaboration",
             "artifacts", "outcomes"
         ]
 
@@ -154,6 +162,157 @@ class BulletComposerService:
         facts["unknowns"] = canonical_experience.get("unknowns", [])
 
         return facts
+
+    def _compose_medical_resume_bullet(
+        self,
+        *,
+        facts: Dict[str, Any],
+        responsibility_level: str,
+        experience_id: str,
+        evidence_ids: Tuple[str, ...],
+        role_pack_name: str,
+    ) -> List[BulletClaim]:
+        """Build one dense, evidence-bound bullet for common medical experiences.
+
+        Role packs change the ordering and emphasis, but never upgrade the
+        user's responsibility or introduce a result absent from the facts.
+        """
+        methods = facts.get("methods", [])
+        techniques = facts.get("techniques", [])
+        actions = facts.get("actions", [])
+        tools = facts.get("tools", [])
+        artifacts = facts.get("artifacts", [])
+
+        action_labels = {
+            "retrieve_literature": "文献检索", "screen_studies": "文献筛选",
+            "extract_data": "数据提取", "perform_analysis": "数据分析",
+            "culture_cells": "细胞培养", "perform_qpcr": "qPCR 检测",
+            "perform_western_blot": "Western Blot 检测",
+            "review_clinical_case": "病例分析",
+            "prepare_case_presentation": "病例汇报材料制作",
+            "retrieve_guidelines": "指南与文献检索",
+        }
+        method_labels = {
+            "meta_analysis": "Meta 分析",
+            "mendelian_randomization": "孟德尔随机化（MR）",
+            "systematic_review": "系统综述",
+            "randomized_trial": "随机对照试验",
+            "cohort_study": "队列研究",
+            "case_control": "病例对照研究",
+            "sensitivity_analysis": "敏感性分析",
+        }
+        technique_labels = {
+            "cell_culture": "细胞培养", "qpcr": "qPCR",
+            "western_blot": "Western Blot", "flow_cytometry": "流式细胞术",
+            "elisa": "ELISA", "animal_experiment": "动物实验",
+        }
+        tool_labels = {
+            "r": "R", "python": "Python", "spss": "SPSS", "sql": "SQL",
+            "pubmed": "PubMed", "embase": "Embase", "cochrane": "Cochrane",
+            "graphpad_prism": "GraphPad Prism",
+        }
+
+        known_facts = (
+            set(actions).intersection(action_labels)
+            or set(methods).intersection(method_labels)
+            or set(techniques).intersection(technique_labels)
+            or set(tools).intersection(tool_labels)
+        )
+        if not known_facts:
+            return []
+
+        def labels(items: List[str], mapping: Dict[str, str]) -> str:
+            return "、".join(mapping.get(item, item) for item in items)
+
+        action_text = labels(actions, action_labels)
+        method_text = labels(methods, method_labels).replace("、", "及")
+        technique_text = labels(techniques, technique_labels)
+        tool_text = labels(tools, tool_labels)
+        literature_tools = labels(
+            [tool for tool in tools if tool in {"pubmed", "embase", "cochrane"}],
+            tool_labels,
+        )
+        analysis_tools = labels(
+            [tool for tool in tools if tool not in {"pubmed", "embase", "cochrane"}],
+            tool_labels,
+        )
+        has_meta = "meta_analysis" in methods
+        has_case = "review_clinical_case" in actions
+        responsibility_verb = {
+            "participated": "参与",
+            "owned_component": "负责",
+            "led_delivery": "主导",
+            "project_owner": "负责",
+        }.get(responsibility_level, "参与")
+
+        if has_case:
+            wording = f"{responsibility_verb}围绕临床病例梳理鉴别诊断、检查结果与诊疗思路"
+            if "retrieve_guidelines" in actions:
+                wording += "，检索相关指南与文献"
+            if "case_presentation_material" in artifacts:
+                wording += "，制作病例汇报材料并完成现场汇报"
+        elif has_meta:
+            workflow = labels(
+                [item for item in actions if item in {"retrieve_literature", "screen_studies", "extract_data"}],
+                action_labels,
+            )
+            if role_pack_name == "health_ai_data_v1" and analysis_tools:
+                wording = f"使用 {analysis_tools} 完成 {method_text}"
+                if workflow:
+                    wording += f"的数据准备：{workflow}"
+            elif role_pack_name == "medical_affairs_v1":
+                wording = "基于临床研究文献完成证据整理"
+                if literature_tools:
+                    wording += f"，使用 {literature_tools} 进行检索"
+                if workflow:
+                    wording += f"并参与{workflow}"
+                if analysis_tools:
+                    wording += f"，使用 {analysis_tools} 完成 {method_text}"
+            else:
+                wording = f"{responsibility_verb}{method_text}"
+                if workflow:
+                    wording += f"，完成{workflow}"
+                if literature_tools:
+                    wording += f"，使用 {literature_tools} 进行证据检索"
+                if analysis_tools:
+                    wording += f"，使用 {analysis_tools} 完成分析"
+            if "analysis_figures" in artifacts:
+                wording += "并整理结果图表"
+            if "group_presentation" in artifacts:
+                wording += "，参与组会汇报"
+        elif technique_text:
+            wording = f"{responsibility_verb}实验执行，完成{technique_text}"
+            if "analysis_figures" in artifacts:
+                wording += "，记录原始数据并整理结果图表"
+            if "group_presentation" in artifacts:
+                wording += "，参与组会讨论"
+        else:
+            wording = f"{responsibility_verb}医学研究工作"
+            if action_text:
+                wording += f"，完成{action_text}"
+            if method_text:
+                wording += f"，采用{method_text}"
+            if tool_text:
+                wording += f"，使用{tool_text}"
+
+        wording = wording.rstrip("，。") + "。"
+
+        claim_id = f"claim_{uuid4().hex[:8]}"
+        used_facts = []
+        for category in ("actions", "methods", "tools", "techniques", "artifacts"):
+            used_facts.extend(f"{category}:{item}" for item in facts.get(category, []))
+
+        return [BulletClaim(
+            claim_id=claim_id,
+            experience_id=experience_id,
+            role_pack=role_pack_name,
+            wording=wording,
+            used_facts=tuple(used_facts),
+            evidence_ids=evidence_ids,
+            responsibility_level=responsibility_level,
+            omitted_unknowns=tuple(facts.get("unknowns", [])),
+            risk_flags=(),
+        )]
 
     def _generate_bullets(
         self,

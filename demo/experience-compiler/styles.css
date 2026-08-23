@@ -259,12 +259,16 @@ button.secondary:hover {
 }
 
 .role-pack-card {
+  appearance: none;
+  display: block;
+  width: 100%;
+  background: #fff;
   border: 2px solid #dee2e6;
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
 .role-pack-card.selected {
@@ -334,4 +338,13 @@ button.secondary:hover {
   .workspace {
     padding: 1rem;
   }
+}
+
+.role-pack-card.selected::after {
+  content: "✓ 已选择";
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: #0a5b3e;
+  font-size: 0.9rem;
+  font-weight: 700;
 }

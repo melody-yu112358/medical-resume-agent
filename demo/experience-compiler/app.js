@@ -308,7 +308,7 @@ $('#backToStep2').onclick = () => {
 };
 
 // Step 4: Confirmation
-function confirmExperienceWithBackend(userActions, evidenceRecords) {
+async function confirmExperienceWithBackend(userActions, evidenceRecords) {
   const errorElement = $('#step3Error');
   errorElement.textContent = '';
 
@@ -316,18 +316,18 @@ function confirmExperienceWithBackend(userActions, evidenceRecords) {
   button.disabled = true;
   button.textContent = '正在确认...';
 
-  fetch('/api/experience-confirmations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      experience_draft: currentExperienceDraft,
-      user_actions: userActions,
-      evidence_records: evidenceRecords,
-      previous_experience_id: null
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
+  try {
+    const response = await fetch('/api/experience-confirmations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        experience_draft: currentExperienceDraft,
+        user_actions: userActions,
+        evidence_records: evidenceRecords,
+        previous_experience_id: null
+      })
+    });
+    const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || '确认经历失败');
     }
@@ -347,12 +347,11 @@ function confirmExperienceWithBackend(userActions, evidenceRecords) {
     } else {
       showStep(4); // Show modification options
     }
-  })
-  .catch(error => {
+  } catch (error) {
     errorElement.textContent = error.message;
     button.disabled = false;
     button.textContent = '确认经历 →';
-  });
+  }
 }
 
 // Step 4: Handle confirmation options

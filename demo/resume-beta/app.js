@@ -104,9 +104,8 @@ function loadExperienceCompilerHandoff() {
   choosePurpose(handoff.purpose || "campus");
   $("header span").textContent = "医学经历编译器 · A4 简历草稿";
   $("#compilerTarget").value = handoff.target_role || "医学相关目标方向";
-  $("#compilerSummary").value = `医学背景候选人，申请${handoff.target_role || "医学相关目标方向"}。以下内容来自本人确认的经历。`;
   $("#compilerCapabilities").value = [...new Set(handoff.capabilities || [])].join("\n");
-  $("#compilerBullets").value = [...new Set(handoff.bullets)].join("\n");
+  addCompilerExperience({ bullets: [...new Set(handoff.bullets)] });
   $("#compilerHandoffEditor").classList.remove("hidden");
   renderCompilerHandoffResume(true);
 }
@@ -632,34 +631,48 @@ function splitEditorLines(selector) {
   return $(selector).value.split("\n").map((item) => item.trim().replace(/^[•●▪◦\-*\s]+/, "")).filter(Boolean);
 }
 
+function createCompilerExperienceCard(experience = {}) {
+  const bullets = Array.isArray(experience.bullets) ? experience.bullets.join("\n") : (experience.bullets || "");
+  return `<article class="compiler-experience-card"><button class="remove-compiler-experience" type="button">删除</button><div class="form-grid"><label>经历时间<small class="field-example">例如：2023.03–2024.06</small><input data-compiler-experience="period" value="${esc(experience.period || "")}"></label><label>单位 / 课题组<small class="field-example">例如：某附属医院课题组</small><input data-compiler-experience="organization" value="${esc(experience.organization || "")}"></label><label class="full">经历身份 / 项目名称<small class="field-example">例如：科研助理｜某疾病 Meta 分析</small><input data-compiler-experience="title" value="${esc(experience.title || "")}"></label><label class="full">简历要点（每行一条）<small class="field-example">例如：使用 R 完成 Meta 分析与敏感性分析，整理结果图表并参与组会汇报。</small><textarea data-compiler-experience="bullets" rows="5">${esc(bullets)}</textarea></label></div></article>`;
+}
+
+function addCompilerExperience(experience = {}) {
+  $("#compilerExperiences").insertAdjacentHTML("beforeend", createCompilerExperienceCard(experience));
+}
+
+function compilerExperiences() {
+  return [...document.querySelectorAll(".compiler-experience-card")].map((card) => ({
+    period: card.querySelector('[data-compiler-experience="period"]').value.trim(),
+    organization: card.querySelector('[data-compiler-experience="organization"]').value.trim(),
+    title: card.querySelector('[data-compiler-experience="title"]').value.trim(),
+    bullets: card.querySelector('[data-compiler-experience="bullets"]').value.split("\n").map((item) => item.trim().replace(/^[•●▪◦\-*\s]+/, "")).filter(Boolean),
+  })).filter((item) => item.period || item.organization || item.title || item.bullets.length);
+}
+
 function renderCompilerHandoffResume(scrollToPreview = false) {
   const name = $("#compilerName").value.trim() || "候选人姓名";
   const contact = $("#compilerContact").value.trim() || "联系方式请在提交前补充";
   const target = $("#compilerTarget").value.trim() || "医学相关目标方向";
-  const summary = $("#compilerSummary").value.trim();
   const education = splitEditorLines("#compilerEducation");
   const capabilities = splitEditorLines("#compilerCapabilities");
   const skills = splitEditorLines("#compilerSkills");
-  const bullets = splitEditorLines("#compilerBullets");
-  const period = $("#compilerExperiencePeriod").value.trim();
-  const organization = $("#compilerExperienceOrganization").value.trim() || "科研 / 临床经历";
-  const title = $("#compilerExperienceTitle").value.trim();
+  const experiences = compilerExperiences();
+  const fontSize = $("#compilerFontSize").value;
   const section = (titleText, content, className = "") => content ? `<section class="resume-section ${className}"><h2>${titleText}</h2>${content}</section>` : "";
   const list = (items) => items.length ? `<ul class="resume-list">${items.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : "";
   const educationSection = section("教育背景", list(education), "resume-education-section");
-  const experienceContent = bullets.length ? `<article class="resume-entry"><div class="resume-entry-head"><span class="resume-date">${esc(period)}</span><strong class="resume-org">${esc(organization)}</strong><span class="resume-role">${esc(title)}</span></div><ul>${bullets.map((item) => `<li>${esc(item)}</li>`).join("")}</ul></article>` : "";
+  const experienceContent = experiences.map((item) => `<article class="resume-entry"><div class="resume-entry-head"><span class="resume-date">${esc(item.period)}</span><strong class="resume-org">${esc(item.organization || "科研 / 临床经历")}</strong><span class="resume-role">${esc(item.title)}</span></div>${item.bullets.length ? `<ul>${item.bullets.map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>` : ""}</article>`).join("");
   const experienceSection = section("实践与项目经历", experienceContent, "resume-experience-section");
-  const capabilitiesSection = section("核心能力", capabilities.length ? `<div>${capabilities.map((item) => `<span class="resume-skill">${esc(item)}</span>`).join("")}</div>` : "", "resume-capabilities-section");
-  const skillsSection = section("技能与证书", skills.length ? `<div>${skills.map((item) => `<span class="resume-skill">${esc(item)}</span>`).join("")}</div>` : "", "resume-skills-section");
-  const summarySection = section("个人概述", summary ? `<p class="resume-summary">${esc(summary)}</p>` : "", "resume-summary-section");
+  const capabilitiesSection = section("核心能力", list(capabilities), "resume-capabilities-section");
+  const skillsSection = section("技能与证书", list(skills), "resume-skills-section");
   const photo = compilerProfilePhoto ? `<img src="${compilerProfilePhoto}" alt="个人头像">` : "证件照<br>可选";
   const identity = `<div><h1 class="resume-name">${esc(name)}</h1><p class="resume-contact">${esc(contact)}</p><p class="resume-target">医学背景 · ${esc(target)}</p></div>`;
   const templateBody = selectedTemplate === "research"
-    ? `<header class="resume-header resume-header-research">${identity}<p class="resume-document-label">MEDICAL CURRICULUM VITAE</p></header><div class="research-layout"><main class="resume-main">${educationSection}${experienceSection}</main><aside class="resume-aside">${summarySection}${capabilitiesSection}${skillsSection}</aside></div>`
+    ? `<header class="resume-header resume-header-research">${identity}<p class="resume-document-label">MEDICAL CURRICULUM VITAE</p></header><div class="research-layout"><main class="resume-main">${experienceSection}${educationSection}</main><aside class="resume-aside">${capabilitiesSection}${skillsSection}</aside></div>`
     : selectedTemplate === "minimal"
-      ? `<header class="resume-header resume-header-minimal">${identity}</header>${summarySection}${educationSection}${experienceSection}${capabilitiesSection}${skillsSection}`
-      : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">${photo}</div></header>${summarySection}${educationSection}${experienceSection}${capabilitiesSection}${skillsSection}`;
-  $("#resumePreview").innerHTML = `<div class="resume-toolbar"><p>投递版预览 · 修改上方字段会实时更新</p><span><button data-compiler-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-compiler-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-compiler-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button><button id="printResume">打印 / 保存 PDF</button></span></div><article class="resume-sheet template-${selectedTemplate}">${templateBody}</article>`;
+      ? `<header class="resume-header resume-header-minimal">${identity}</header>${experienceSection}${educationSection}${capabilitiesSection}${skillsSection}`
+      : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">${photo}</div></header>${experienceSection}${educationSection}${capabilitiesSection}${skillsSection}`;
+  $("#resumePreview").innerHTML = `<div class="resume-toolbar"><p>投递版预览 · 修改上方字段会实时更新</p><span><button data-compiler-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-compiler-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-compiler-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button><button id="printResume">打印 / 保存 PDF</button></span></div><article class="resume-sheet template-${selectedTemplate}" data-font-size="${esc(fontSize)}">${templateBody}</article>`;
   $("#resumePreview").classList.remove("hidden");
   if (scrollToPreview) $("#resumePreview").scrollIntoView({ behavior: "smooth" });
   $("#printResume").onclick = () => window.print();
@@ -888,12 +901,26 @@ $("#loadExample").onclick = loadExample;
 $("#resumeFile").onchange = (event) => uploadResume(event.target.files[0]);
 $("#resume").addEventListener("input", resetStructureReview);
 [
-  "#compilerName", "#compilerContact", "#compilerTarget", "#compilerSummary", "#compilerEducation",
-  "#compilerExperiencePeriod", "#compilerExperienceOrganization", "#compilerExperienceTitle",
-  "#compilerBullets", "#compilerCapabilities", "#compilerSkills",
+  "#compilerName", "#compilerContact", "#compilerTarget", "#compilerEducation",
+  "#compilerCapabilities", "#compilerSkills",
 ].forEach((selector) => $(selector).addEventListener("input", () => {
   if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
 }));
+$("#compilerFontSize").onchange = () => {
+  if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+};
+$("#addCompilerExperience").onclick = () => {
+  addCompilerExperience();
+  if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+};
+$("#compilerExperiences").addEventListener("input", () => {
+  if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+});
+$("#compilerExperiences").addEventListener("click", (event) => {
+  if (!event.target.matches(".remove-compiler-experience")) return;
+  event.target.closest(".compiler-experience-card").remove();
+  if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+});
 $("#compilerPhoto").onchange = (event) => {
   const file = event.target.files[0];
   if (!file) return;

@@ -3,7 +3,7 @@ const $$ = (selector) => document.querySelectorAll(selector);
 
 let currentExperienceDraft = null;
 let currentCanonicalExperience = null;
-let selectedRolePacks = ['doctoral_v1', 'clinical_research_v1', 'medical_affairs_v1', 'health_ai_data_v1'];
+let selectedRolePacks = [];
 let generatedBullets = {};
 
 const SAMPLE_EXPERIENCES = Object.freeze({
@@ -201,6 +201,10 @@ function getMethodLabel(method) {
     'case_control': '病例对照研究'
   };
   return labels[method] || method;
+}
+
+function updateRolePackCount() {
+  $('#rolePackCount').textContent = selectedRolePacks.length;
 }
 
 function getToolLabel(tool) {
@@ -432,6 +436,8 @@ $$('#role-pack-selector .role-pack-card').forEach(card => {
     } else {
       selectedRolePacks = selectedRolePacks.filter(rp => rp !== rolePack);
     }
+    card.setAttribute('aria-pressed', String(card.classList.contains('selected')));
+    updateRolePackCount();
   };
 });
 
@@ -489,10 +495,10 @@ function renderBulletsPreview() {
 
   Object.entries(generatedBullets).forEach(([rolePack, bullets]) => {
     const rolePackLabels = {
-      'doctoral_v1': '考博 / 保研',
-      'clinical_research_v1': '临床科研',
+      'doctoral_v1': '学术升学 / 科研申请',
+      'clinical_research_v1': '临床研究 / 医院科研',
       'medical_affairs_v1': 'MSL / 医学事务',
-      'health_ai_data_v1': '医疗数据 / 健康科技'
+      'health_ai_data_v1': '医疗数据 / 数字健康'
     };
 
     bulletsHtml += `<div class="bullet-category">
@@ -524,10 +530,10 @@ function renderBulletDetails() {
 
   Object.entries(generatedBullets).forEach(([rolePack, bullets]) => {
     const rolePackLabels = {
-      'doctoral_v1': '考博 / 保研',
-      'clinical_research_v1': '临床科研',
+      'doctoral_v1': '学术升学 / 科研申请',
+      'clinical_research_v1': '临床研究 / 医院科研',
       'medical_affairs_v1': 'MSL / 医学事务',
-      'health_ai_data_v1': '医疗数据 / 健康科技'
+      'health_ai_data_v1': '医疗数据 / 数字健康'
     };
 
     detailsHtml += `<div class="bullet-category">
@@ -542,10 +548,10 @@ function renderBulletDetails() {
             ? bullet.used_facts.map(fact => `<span class="fact-tag">${esc(fact)}</span>`).join(' ')
             : '<em>无</em>'}</p>
 
-          <h4>证据引用</h4>
+          <h4>事实依据</h4>
           <p>${bullet.evidence_ids.length > 0
-            ? bullet.evidence_ids.map(id => `<code>${esc(id)}</code>`).join(', ')
-            : '<em>无</em>'}</p>
+            ? '可追溯到本段已确认的原始经历。'
+            : '<em>未绑定原始经历，不能用于成稿。</em>'}</p>
 
           <h4>责任等级</h4>
           <p>${getResponsibilityLabel(bullet.responsibility_level)}</p>
@@ -583,10 +589,10 @@ function renderFinalBullets() {
 
   Object.entries(generatedBullets).forEach(([rolePack, bullets]) => {
     const rolePackLabels = {
-      'doctoral_v1': '考博 / 保研',
-      'clinical_research_v1': '临床科研',
+      'doctoral_v1': '学术升学 / 科研申请',
+      'clinical_research_v1': '临床研究 / 医院科研',
       'medical_affairs_v1': 'MSL / 医学事务',
-      'health_ai_data_v1': '医疗数据 / 健康科技'
+      'health_ai_data_v1': '医疗数据 / 数字健康'
     };
 
     finalHtml += `<div class="bullet-category">
@@ -622,10 +628,12 @@ $('#rejectBullets').onclick = () => {
     currentExperienceDraft = null;
     currentCanonicalExperience = null;
     generatedBullets = {};
-    selectedRolePacks = ['doctoral_v1', 'clinical_research_v1', 'medical_affairs_v1', 'health_ai_data_v1'];
+    selectedRolePacks = [];
     $$('#role-pack-selector .role-pack-card').forEach(card => {
-      card.classList.add('selected');
+      card.classList.remove('selected');
+      card.setAttribute('aria-pressed', 'false');
     });
+    updateRolePackCount();
   }
 };
 
@@ -639,10 +647,12 @@ $('#startNewExperience').onclick = () => {
   currentExperienceDraft = null;
   currentCanonicalExperience = null;
   generatedBullets = {};
-  selectedRolePacks = ['doctoral_v1', 'clinical_research_v1', 'medical_affairs_v1', 'health_ai_data_v1'];
-  $$('#role-pack-selector .role-pack-card').forEach(card => {
-    card.classList.add('selected');
-  });
+    selectedRolePacks = [];
+    $$('#role-pack-selector .role-pack-card').forEach(card => {
+      card.classList.remove('selected');
+      card.setAttribute('aria-pressed', 'false');
+    });
+    updateRolePackCount();
 };
 
 $('#copyAllBullets').onclick = () => {
@@ -650,10 +660,10 @@ $('#copyAllBullets').onclick = () => {
 
   Object.entries(generatedBullets).forEach(([rolePack, bullets]) => {
     const rolePackLabels = {
-      'doctoral_v1': '考博 / 保研',
-      'clinical_research_v1': '临床科研',
+      'doctoral_v1': '学术升学 / 科研申请',
+      'clinical_research_v1': '临床研究 / 医院科研',
       'medical_affairs_v1': 'MSL / 医学事务',
-      'health_ai_data_v1': '医疗数据 / 健康科技'
+      'health_ai_data_v1': '医疗数据 / 数字健康'
     };
 
     allBullets += `${rolePackLabels[rolePack] || rolePack}:\n`;
@@ -676,10 +686,10 @@ $('#downloadBullets').onclick = () => {
 
   Object.entries(generatedBullets).forEach(([rolePack, bullets]) => {
     const rolePackLabels = {
-      'doctoral_v1': '考博 / 保研',
-      'clinical_research_v1': '临床科研',
+      'doctoral_v1': '学术升学 / 科研申请',
+      'clinical_research_v1': '临床研究 / 医院科研',
       'medical_affairs_v1': 'MSL / 医学事务',
-      'health_ai_data_v1': '医疗数据 / 健康科技'
+      'health_ai_data_v1': '医疗数据 / 数字健康'
     };
 
     content += `${rolePackLabels[rolePack] || rolePack}:\n`;
@@ -703,4 +713,5 @@ $('#downloadBullets').onclick = () => {
 };
 
 // Initialize
+updateRolePackCount();
 showStep(1);

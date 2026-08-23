@@ -94,6 +94,9 @@ class ExperienceDraftService:
         "mendelian_randomization": [
             r"孟德尔随机化", r"\bMR\b", r"mendelian randomization"
         ],
+        "sensitivity_analysis": [
+            r"敏感性分析", r"sensitivity analysis"
+        ],
     }
 
     def draft(
@@ -295,6 +298,10 @@ class ExperienceDraftService:
             artifacts.append("data_extraction_sheet")
         if re.search(r"论文|paper|manuscript", text, re.IGNORECASE):
             artifacts.append("research_paper")
+        if re.search(r"结果图表|森林图|图表", text, re.IGNORECASE):
+            artifacts.append("analysis_figures")
+        if re.search(r"组会汇报|组会讨论", text, re.IGNORECASE):
+            artifacts.append("group_presentation")
         if re.search(r"病例汇报材料|制作.*PPT|现场汇报", text, re.IGNORECASE):
             artifacts.append("case_presentation_material")
         return artifacts

@@ -161,6 +161,35 @@ class BulletComposerServiceTest(unittest.TestCase):
         # Should contain some reasonable action words
         self.assertTrue(any(word in bullet.wording for word in ["完成", "执行", "支持", "贡献", "实施"]))
 
+    def test_meta_analysis_uses_methods_tools_and_deliverables(self):
+        experience = {
+            "schema_version": "canonical-experience-v1",
+            "experience_id": "meta_analysis_2",
+            "status": "user_confirmed",
+            "evidence_ids": ["ev_001"],
+            "context": {"domain": "clinical_research", "setting": "research_project"},
+            "role": {"responsibility_level": "participated"},
+            "actions": ["retrieve_literature", "screen_studies", "extract_data"],
+            "methods": ["meta_analysis", "sensitivity_analysis"],
+            "tools": ["pubmed", "embase", "r"],
+            "techniques": [],
+            "objects": ["medical_literature"],
+            "collaboration": [],
+            "artifacts": ["analysis_figures", "group_presentation"],
+            "outcomes": [],
+            "scope": {},
+            "unknowns": [],
+        }
+
+        wording = self.service.compose_bullets(
+            canonical_experience=experience,
+            role_pack_name="doctoral_v1",
+        )[0].wording
+
+        for expected in ("Meta", "敏感性分析", "PubMed", "Embase", "R", "结果图表", "组会汇报"):
+            self.assertIn(expected, wording)
+        self.assertNotIn("支持相关研究工作", wording)
+
     def test_fallback_bullet_creation(self):
         """Should create fallback bullet when patterns fail."""
         # Create experience with minimal facts that won't match patterns well

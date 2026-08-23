@@ -147,24 +147,24 @@
       <!-- Step 5: Select Role Packs -->
       <div class="step-section hidden" id="step5">
         <h2>5. 选择目标岗位方向</h2>
-        <p>请选择一个或多个目标岗位方向，我们将为每个方向生成1-3条简历要点：</p>
+        <p>请选择一个或多个目标方向（未选择时不会生成）。已选 <strong id="rolePackCount">0</strong> 个方向：</p>
         <div class="role-pack-selector">
-          <div class="role-pack-card selected" data-role-pack="doctoral_v1">
-            <h3>考博 / 保研</h3>
+          <button class="role-pack-card" data-role-pack="doctoral_v1" type="button" aria-pressed="false">
+            <h3>学术升学 / 科研申请</h3>
             <p>学术研究能力、科研潜力展示</p>
-          </div>
-          <div class="role-pack-card selected" data-role-pack="clinical_research_v1">
-            <h3>临床科研</h3>
+          </button>
+          <button class="role-pack-card" data-role-pack="clinical_research_v1" type="button" aria-pressed="false">
+            <h3>临床研究 / 医院科研</h3>
             <p>临床研究执行、数据分析能力</p>
-          </div>
-          <div class="role-pack-card selected" data-role-pack="medical_affairs_v1">
+          </button>
+          <button class="role-pack-card" data-role-pack="medical_affairs_v1" type="button" aria-pressed="false">
             <h3>MSL / 医学事务</h3>
             <p>医学信息沟通、证据转译能力</p>
-          </div>
-          <div class="role-pack-card selected" data-role-pack="health_ai_data_v1">
-            <h3>医疗数据 / 健康科技</h3>
+          </button>
+          <button class="role-pack-card" data-role-pack="health_ai_data_v1" type="button" aria-pressed="false">
+            <h3>医疗数据 / 数字健康</h3>
             <p>数据处理、技术应用能力</p>
-          </div>
+          </button>
         </div>
         <button id="generateBullets" class="primary" type="button">生成简历要点 →</button>
         <p class="error" id="step5Error"></p>

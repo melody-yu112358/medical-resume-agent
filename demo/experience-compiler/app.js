@@ -426,7 +426,7 @@ $('#rejectExperience').onclick = () => {
 };
 
 // Step 5: Role Pack Selection
-$$('#role-pack-selector .role-pack-card').forEach(card => {
+$$('.role-pack-selector .role-pack-card').forEach(card => {
   card.onclick = () => {
     card.classList.toggle('selected');
     const rolePack = card.dataset.rolePack;
@@ -630,7 +630,7 @@ $('#rejectBullets').onclick = () => {
     currentCanonicalExperience = null;
     generatedBullets = {};
     selectedRolePacks = [];
-    $$('#role-pack-selector .role-pack-card').forEach(card => {
+    $$('.role-pack-selector .role-pack-card').forEach(card => {
       card.classList.remove('selected');
       card.setAttribute('aria-pressed', 'false');
     });
@@ -649,7 +649,7 @@ $('#startNewExperience').onclick = () => {
   currentCanonicalExperience = null;
   generatedBullets = {};
     selectedRolePacks = [];
-    $$('#role-pack-selector .role-pack-card').forEach(card => {
+    $$('.role-pack-selector .role-pack-card').forEach(card => {
       card.classList.remove('selected');
       card.setAttribute('aria-pressed', 'false');
     });

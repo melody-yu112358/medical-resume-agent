@@ -55,7 +55,23 @@ class ExperienceDraftService:
         "write_manuscript": [
             r"撰写", r"写作", r"写论文", r"撰写论文",
             r"write", r"manuscript", r"paper writing"
-        ]
+        ],
+        "culture_cells": [r"细胞培养", r"cell culture"],
+        "perform_qpcr": [r"qPCR", r"RT[- ]?qPCR", r"实时定量PCR"],
+        "perform_western_blot": [r"Western[ -]?Blot", r"蛋白印迹"],
+        "review_clinical_case": [r"病例汇报", r"病例讨论", r"病例分析", r"case presentation"],
+        "prepare_case_presentation": [r"病例汇报材料", r"制作.*PPT", r"现场汇报", r"presentation"],
+        "retrieve_guidelines": [r"查阅指南", r"临床指南", r"guideline"]
+    }
+
+    # Experimental techniques are distinct from research methods and software tools.
+    TECHNIQUE_PATTERNS = {
+        "cell_culture": [r"细胞培养", r"cell culture"],
+        "qpcr": [r"qPCR", r"RT[- ]?qPCR", r"实时定量PCR"],
+        "western_blot": [r"Western[ -]?Blot", r"蛋白印迹"],
+        "flow_cytometry": [r"流式细胞", r"flow cytometry"],
+        "elisa": [r"ELISA", r"酶联免疫"],
+        "animal_experiment": [r"动物实验", r"animal study"],
     }
 
     # Medical research method patterns
@@ -64,7 +80,7 @@ class ExperienceDraftService:
             r"系统综述", r"系统评价", r"systematic review"
         ],
         "meta_analysis": [
-            r"Meta分析", r"荟萃分析", r"meta[- ]?analysis"
+            r"Meta\s*分析", r"荟萃分析", r"meta[- ]?analysis"
         ],
         "randomized_trial": [
             r"随机对照试验", r"RCT", r"randomized trial", r"RCT"
@@ -74,7 +90,10 @@ class ExperienceDraftService:
         ],
         "case_control": [
             r"病例对照", r"case[- ]?control"
-        ]
+        ],
+        "mendelian_randomization": [
+            r"孟德尔随机化", r"\bMR\b", r"mendelian randomization"
+        ],
     }
 
     def draft(
@@ -117,6 +136,7 @@ class ExperienceDraftService:
             "actions": self._extract_actions(text),
             "methods": self._extract_methods(text),
             "tools": self._extract_tools(text),
+            "techniques": self._extract_techniques(text),
             "objects": self._extract_objects(text),
             "collaboration": self._extract_collaboration(text),
             "artifacts": self._extract_artifacts(text),
@@ -132,8 +152,8 @@ class ExperienceDraftService:
 
         # Check for domain patterns in order of specificity
         domain_patterns = [
-            ("clinical_research", [r"临床研究", r"临床试验", r"clinical research", r"clinical trial", r"Meta分析", r"meta[- ]?analysis", r"系统综述"]),
-            ("wet_lab", [r"实验", r"实验室", r"lab", r"wet lab", r"分子实验"]),
+            ("clinical_research", [r"临床研究", r"临床试验", r"病例汇报", r"病例讨论", r"clinical research", r"clinical trial", r"Meta分析", r"meta[- ]?analysis", r"系统综述"]),
+            ("wet_lab", [r"实验", r"实验室", r"细胞培养", r"qPCR", r"Western[ -]?Blot", r"lab", r"wet lab", r"分子实验"]),
             ("data_analysis", [r"数据分析", r"统计分析", r"data analysis", r"statistical analysis"]),
             ("medical_information", [r"文献", r"医学信息", r"medical information", r"literature"])
         ]
@@ -209,20 +229,33 @@ class ExperienceDraftService:
                 methods.append(method)
         return methods
 
+    def _extract_techniques(self, text: str) -> list[str]:
+        """Extract laboratory techniques without treating them as research methods."""
+        techniques = []
+        for technique, patterns in self.TECHNIQUE_PATTERNS.items():
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns):
+                techniques.append(technique)
+        return techniques
+
     def _extract_tools(self, text: str) -> list[str]:
         """Extract tools (software, equipment, etc.)."""
         tools = []
         # Common medical research tools
         tool_patterns = [
             (r"SPSS", "spss"),
-            (r"R语言|R[- ]?script", "r"),
+            (r"R语言|R[- ]?script|(?<![A-Za-z])R(?![A-Za-z])", "r"),
             (r"Python", "python"),
+            (r"SQL", "sql"),
             (r"Stata", "stata"),
             (r"SAS", "sas"),
             (r"Excel", "excel"),
             (r"RevMan", "revman"),
             (r"EndNote", "endnote"),
-            (r"NoteExpress", "noteexpress")
+            (r"NoteExpress", "noteexpress"),
+            (r"PubMed", "pubmed"),
+            (r"Embase", "embase"),
+            (r"Cochrane", "cochrane"),
+            (r"GraphPad(?: Prism)?", "graphpad_prism"),
         ]
         for pattern, tool_name in tool_patterns:
             if re.search(pattern, text, re.IGNORECASE):
@@ -238,6 +271,10 @@ class ExperienceDraftService:
             objects.append("clinical_studies")
         if re.search(r"数据|data", text, re.IGNORECASE):
             objects.append("research_data")
+        if re.search(r"病例", text, re.IGNORECASE):
+            objects.append("clinical_case")
+        if re.search(r"细胞|RNA|蛋白", text, re.IGNORECASE):
+            objects.append("laboratory_samples")
         return objects
 
     def _extract_collaboration(self, text: str) -> list[str]:
@@ -258,6 +295,8 @@ class ExperienceDraftService:
             artifacts.append("data_extraction_sheet")
         if re.search(r"论文|paper|manuscript", text, re.IGNORECASE):
             artifacts.append("research_paper")
+        if re.search(r"病例汇报材料|制作.*PPT|现场汇报", text, re.IGNORECASE):
+            artifacts.append("case_presentation_material")
         return artifacts
 
     def _extract_outcomes(self, text: str) -> list[str]:
@@ -277,13 +316,12 @@ class ExperienceDraftService:
 
         # If actions include literature retrieval, ask about databases
         if "retrieve_literature" in facts["actions"]:
-            unknowns.append("database_count")
-            unknowns.append("search_strategy")
+            unknowns.append("databases_used")
 
-        # If methods include meta_analysis, ask about standards
+        # If methods include meta_analysis, ask about the workflow rather than
+        # requiring a remembered study count.
         if "meta_analysis" in facts["methods"]:
             unknowns.append("screening_criteria")
-            unknowns.append("study_count")
 
         # If no outcomes are specified, ask about results
         if not facts["outcomes"]:
@@ -320,14 +358,11 @@ class ExperienceDraftService:
         questions = []
 
         # Prioritize questions that would most impact resume expression
-        if "database_count" in unknowns:
+        if "databases_used" in unknowns:
             questions.append("使用了哪些数据库进行文献检索？")
 
         if "screening_criteria" in unknowns:
-            questions.append("筛选标准是什么（如PRISMA）？")
-
-        if "study_count" in unknowns:
-            questions.append("最终纳入了多少篇研究？")
+            questions.append("你负责了文献筛选、数据提取或质量评价中的哪些环节？")
 
         if "specific_responsibilities" in unknowns:
             questions.append("你在项目中具体负责哪些任务？")

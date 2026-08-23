@@ -42,15 +42,15 @@ class ExperienceDraftServiceTest(unittest.TestCase):
         # Note: clinical_studies is not extracted because the input text doesn't mention clinical studies explicitly
 
         # Check unknowns
-        self.assertIn("database_count", draft.unknown_items)
+        self.assertIn("databases_used", draft.unknown_items)
         self.assertIn("screening_criteria", draft.unknown_items)
-        self.assertIn("study_count", draft.unknown_items)
+        self.assertNotIn("study_count", draft.unknown_items)
 
         # Check clarifying questions (limited to 3)
         self.assertEqual(len(draft.clarifying_questions), 3)
         self.assertIn("使用了哪些数据库进行文献检索？", draft.clarifying_questions)
-        self.assertIn("筛选标准是什么（如PRISMA）？", draft.clarifying_questions)
-        self.assertIn("最终纳入了多少篇研究？", draft.clarifying_questions)
+        self.assertIn("你负责了文献筛选、数据提取或质量评价中的哪些环节？", draft.clarifying_questions)
+        self.assertIn("你在项目中具体负责哪些任务？", draft.clarifying_questions)
 
         # Check value angles
         self.assertTrue(any("循证研究方法" in angle for angle in draft.possible_value_angles))
@@ -90,6 +90,32 @@ class ExperienceDraftServiceTest(unittest.TestCase):
         self.assertEqual(facts["context"]["domain"], "data_analysis")
         self.assertIn("r", facts["tools"])
         self.assertIn("perform_analysis", facts["actions"])
+
+    def test_keeps_methods_tools_and_techniques_separate(self):
+        draft = self.service.draft(
+            experience_text="使用 R 完成孟德尔随机化和Meta分析，并进行细胞培养、qPCR和Western Blot实验",
+            consent_confirmed=True,
+        )
+
+        facts = draft.extracted_facts
+        self.assertIn("mendelian_randomization", facts["methods"])
+        self.assertIn("meta_analysis", facts["methods"])
+        self.assertIn("r", facts["tools"])
+        self.assertIn("cell_culture", facts["techniques"])
+        self.assertIn("qpcr", facts["techniques"])
+        self.assertIn("western_blot", facts["techniques"])
+
+    def test_case_presentation_extraction(self):
+        draft = self.service.draft(
+            experience_text="参加病例汇报比赛，查阅临床指南并制作病例汇报材料，完成现场汇报",
+            consent_confirmed=True,
+        )
+
+        facts = draft.extracted_facts
+        self.assertIn("review_clinical_case", facts["actions"])
+        self.assertIn("retrieve_guidelines", facts["actions"])
+        self.assertIn("clinical_case", facts["objects"])
+        self.assertIn("case_presentation_material", facts["artifacts"])
 
     def test_risk_flags_identification(self):
         """Should identify potential risks."""

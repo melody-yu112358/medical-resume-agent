@@ -111,6 +111,33 @@ main {
   margin-top: 0.25rem;
 }
 
+.sample-experiences {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.sample-experiences small {
+  width: 100%;
+  color: #6c757d;
+}
+
+button.sample-button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #a8c7b7;
+  border-radius: 999px;
+  background: #f6fbf8;
+  color: #245a47;
+  font-size: 0.85rem;
+}
+
+button.sample-button:hover {
+  background: #e7f3ec;
+}
+
 .privacy {
   margin: 1.5rem 0;
   padding: 1rem;

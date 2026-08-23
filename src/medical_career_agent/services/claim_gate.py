@@ -198,7 +198,7 @@ class ClaimGateService:
         facts = {}
 
         # Copy all top-level fields that contain facts
-        array_fields = ["actions", "methods", "tools", "objects", "collaboration", "artifacts", "outcomes"]
+        array_fields = ["actions", "methods", "tools", "techniques", "objects", "collaboration", "artifacts", "outcomes"]
         for field in array_fields:
             facts[field] = canonical_experience.get(field, [])
 

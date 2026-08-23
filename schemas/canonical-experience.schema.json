@@ -55,6 +55,12 @@
       "items": { "type": "string" },
       "uniqueItems": true
     },
+    "techniques": {
+      "description": "Laboratory techniques, kept separate from research methods and software tools.",
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
     "objects": {
       "type": "array",
       "items": { "type": "string" },

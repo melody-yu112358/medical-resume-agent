@@ -5,6 +5,7 @@ let currentExperienceDraft = null;
 let currentCanonicalExperience = null;
 let selectedRolePacks = [];
 let generatedBullets = {};
+const RESUME_HANDOFF_STORAGE_KEY = 'unbounded.experience-compiler-handoff.v1';
 
 const SAMPLE_EXPERIENCES = Object.freeze({
   meta: `在导师指导下参与某疾病风险因素与临床结局的 Meta 分析。使用 PubMed、Embase 检索文献，按预设入排标准完成文献筛选与数据提取；使用 R 进行效应量合并和敏感性分析，整理结果图表并参与组会汇报。`,
@@ -615,7 +616,7 @@ $('#acceptBullets').onclick = () => {
 };
 
 $('#editBullets').onclick = () => {
-  alert('编辑功能将在后续版本中实现。');
+  $('#step8Error').textContent = '可先接受要点，再在 A4 简历版式中直接修改文字。';
 };
 
 $('#rejectBullets').onclick = () => {
@@ -679,6 +680,43 @@ $('#copyAllBullets').onclick = () => {
     console.error('复制失败:', err);
     alert('复制失败，请手动复制。');
   });
+};
+
+function rolePackLabel(rolePack) {
+  return {
+    doctoral_v1: '学术升学 / 科研申请',
+    clinical_research_v1: '临床研究 / 医院科研',
+    medical_affairs_v1: 'MSL / 医学事务',
+    health_ai_data_v1: '医疗数据 / 数字健康',
+  }[rolePack] || rolePack;
+}
+
+function handoffCapabilities() {
+  const facts = currentCanonicalExperience?.extracted_facts || currentExperienceDraft?.extracted_facts || {};
+  const items = [
+    ...(facts.methods || []).map(getMethodLabel),
+    ...(facts.techniques || []).map(getTechniqueLabel),
+    ...(facts.tools || []).map(getToolLabel),
+    ...(facts.actions || []).map(getActionLabel),
+  ];
+  return [...new Set(items.filter(Boolean))].slice(0, 8);
+}
+
+$('#openResumePreview').onclick = () => {
+  const bullets = Object.values(generatedBullets).flat().map((bullet) => bullet.wording).filter(Boolean);
+  if (!bullets.length) {
+    $('#step8Error').textContent = '请先至少生成并接受一条简历要点。';
+    return;
+  }
+  const selectedLabels = selectedRolePacks.map(rolePackLabel).filter(Boolean);
+  sessionStorage.setItem(RESUME_HANDOFF_STORAGE_KEY, JSON.stringify({
+    schema_version: 'experience-compiler-handoff-v1',
+    created_at: new Date().toISOString(),
+    target_role: selectedLabels.join(' / ') || '医学相关目标方向',
+    capabilities: handoffCapabilities(),
+    bullets,
+  }));
+  window.location.href = '../resume-beta/index.html?from=experience-compiler';
 };
 
 $('#downloadBullets').onclick = () => {

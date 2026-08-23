@@ -1,14 +1,25 @@
 # 未界医学简历助手
 
-[English](README.en.md) · [Skill Lite](skill-lite/README.md)
+<p align="center">
+  <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
+  <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
+  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
+</p>
 
-<img src="assets/brand/hero.svg" alt="未界医学简历助手" width="100%" />
+<p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
-这是一个在本机运行的医学简历辅助项目。当前核心页面是“医学经历编译器”：用户输入一段经历，核对系统提取出的事实，再按不同目标方向生成可继续编辑的简历要点。
+一个可在自己电脑上运行的医学经历编译器，面向医学生的申学与医学相关求职场景。
 
-项目面向保研考研、申博、医学事务和医疗数据等医学相关申请或求职场景。关注把已有经历写清楚，而不是替用户补充没有发生过的成果。
+用户先提交一段经历，核对系统提取出的事实，再选择目标方向。系统据此生成可以继续编辑的简历要点，并显示该要点使用了哪些已确认信息。
 
-<img src="assets/brand/experience-flow.svg" alt="经历处理流程：真实经历、确认事实、选择方向、生成要点" width="100%" />
+它适合把“参与科研”“协助数据分析”这类概括性描述，拆成研究对象、方法、工具、个人角色和交付物，再确定应在简历中优先呈现什么。
+
+| 你提供什么 | 系统如何处理 | 你拿到什么 |
+| --- | --- | --- |
+| 一段真实的医学经历 | 提取事实、提出缺失信息问题并等待确认 | 按目标方向生成的候选简历要点 |
+| MR / Meta / R / qPCR 等线索 | 区分方法、工具、实验技术与检索资源 | 可解释的能力结构，而不是关键词堆砌 |
+| 你的目标方向 | 调整表达重点，不改写真实经历 | 可追溯、可编辑、可核查的材料 |
 
 ## 当前功能
 

@@ -1,14 +1,25 @@
 # Unbounded Medical Resume Assistant
 
-[简体中文](README.md) · [Skill Lite](skill-lite/README.md)
+<p align="center">
+  <a href="#run-locally"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
+  <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
+  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
+</p>
 
-<img src="assets/brand/hero.svg" alt="Unbounded Medical Resume Assistant" width="100%" />
+<p align="center"><a href="README.md">简体中文</a> · <b>English</b> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
-This repository contains a local medical-resume assistant. Its main interface, the Medical Experience Compiler, accepts one experience at a time, lets the user review extracted facts, and drafts editable resume bullets for a selected career direction.
+A local medical experience compiler for medical students preparing academic applications and medical-sector roles.
 
-It is intended for medical students and early-career applicants preparing doctoral applications, clinical-research roles, medical-affairs roles, or health-data roles. The project is designed to clarify existing experience, not to fill gaps with invented achievements.
+The user submits one experience, reviews the extracted facts, and selects a target direction. The application then drafts editable resume bullets and shows the confirmed information that supports them.
 
-<img src="assets/brand/experience-flow.svg" alt="Experience workflow: experience, fact confirmation, target selection, and resume bullets" width="100%" />
+It is useful when a broad statement such as “participated in research” or “assisted with data analysis” needs to be separated into research object, method, tool, personal role, and deliverable before deciding what belongs in a resume.
+
+| What you provide | What the system does | What you receive |
+| --- | --- | --- |
+| A real medical experience | Extracts facts, asks about missing information, and waits for confirmation | Candidate bullets for a chosen target direction |
+| Clues such as MR, Meta, R, or qPCR | Separates methods, tools, laboratory techniques, and retrieval resources | An explainable capability structure rather than keyword stuffing |
+| A target direction | Adjusts emphasis without changing the underlying experience | Traceable, editable, reviewable material |
 
 ## What is available
 

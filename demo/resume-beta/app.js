@@ -5,6 +5,7 @@ let resumeDocument = null;
 let selectedTemplate = "clinical";
 let selectedPurpose = "campus";
 let selectedTranslationTarget = "clinical_research";
+let experienceCompilerHandoffMode = false;
 const VERSION_STORAGE_KEY = "unbounded.resume-versions.v1";
 const REWRITE_AUDIT_STORAGE_KEY = "unbounded.resume-rewrite-audit.v1";
 const EXPERIENCE_COMPILER_HANDOFF_STORAGE_KEY = "unbounded.experience-compiler-handoff.v1";
@@ -97,6 +98,11 @@ function loadExperienceCompilerHandoff() {
     $("#error").textContent = "没有可载入的经历要点；请先在经历编译器中完成一段经历。";
     return;
   }
+  experienceCompilerHandoffMode = true;
+  document.body.classList.add("experience-compiler-handoff");
+  choosePurpose(handoff.purpose || "campus");
+  $("header span").textContent = "医学经历编译器 · A4 简历草稿";
+  $("#resumeFieldLabel").textContent = "简历文字（可直接编辑）";
   const capabilities = (handoff.capabilities || []).map((item) => `• ${item}`).join("\n") || "• [请补充本人实际掌握的方法、工具或实验技术]";
   const bullets = handoff.bullets.map((item) => `• ${item}`).join("\n");
   const resumeText = `个人概述\n医学背景候选人，申请${handoff.target_role || "医学相关目标方向"}。以下内容来自本人确认的经历，请在投递前补全教育背景、联系方式与具体经历时间。\n\n核心能力\n${capabilities}\n\n科研 / 学术经历\n已确认医学经历\n${bullets}\n\n技能与证书\n• [请仅保留本人实际使用过的工具、培训或语言能力]`;
@@ -684,8 +690,11 @@ function renderPrintableResume() {
     : selectedTemplate === "minimal"
       ? `<header class="resume-header resume-header-minimal">${identity}</header>${summarySection}${educationSection}${experienceSection}${researchSection}${capabilitiesSection}${skillsSection}`
       : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">证件照<br>可选</div></header>${summarySection}${capabilitiesSection}${educationSection}${experienceSection}${researchSection}${skillsSection}`;
+  const handoffTemplatePicker = experienceCompilerHandoffMode
+    ? `<button data-preview-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-preview-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-preview-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button>`
+    : "";
   $("#resumePreview").innerHTML = `
-    <div class="resume-toolbar"><p>投递版预览 · 仅重组排版，不新增事实</p><span><button id="refreshResume">刷新预览</button><button id="editResume">编辑文字</button><button id="printResume">打印 / 保存为 PDF</button></span></div>
+    <div class="resume-toolbar"><p>${experienceCompilerHandoffMode ? "经历已载入 · 仅需补全基本信息后即可导出" : "投递版预览 · 仅重组排版，不新增事实"}</p><span>${handoffTemplatePicker}<button id="refreshResume">刷新预览</button><button id="editResume">编辑文字</button><button id="printResume">打印 / 保存为 PDF</button></span></div>
     <article class="resume-sheet template-${selectedTemplate}">
       ${templateBody}
     </article>`;
@@ -693,6 +702,9 @@ function renderPrintableResume() {
   $("#resumePreview").scrollIntoView({ behavior: "smooth" });
   $("#printResume").onclick = () => window.print();
   $("#refreshResume").onclick = renderPrintableResume;
+  document.querySelectorAll("[data-preview-template]").forEach((button) => {
+    button.onclick = () => chooseTemplate(button.dataset.previewTemplate);
+  });
   $("#editResume").onclick = () => {
     $("#resume").scrollIntoView({ behavior: "smooth", block: "center" });
     $("#resume").focus();

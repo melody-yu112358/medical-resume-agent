@@ -26,8 +26,8 @@ Output:
         <label>姓名（用于预览）<input id="name" placeholder="例如：张三"></label>
         <label>联系方式（用于预览）<input id="contact" placeholder="邮箱 · 手机 · 所在城市"></label>
         <label>目标岗位（可选）<input id="role" placeholder="例如：医学联络官 MSL"></label>
-        <label class="full">目标岗位画像 / 具体 JD（自动载入，可修改）<textarea id="jd" rows="9" placeholder="从职业方向进入会自动载入；也可粘贴具体公司的 JD。"></textarea></label>
-        <label class="full">你的原始简历
+        <label class="full" id="jdField">目标岗位画像 / 具体 JD（自动载入，可修改）<textarea id="jd" rows="9" placeholder="从职业方向进入会自动载入；也可粘贴具体公司的 JD。"></textarea></label>
+        <label class="full" id="resumeField"><span id="resumeFieldLabel">你的原始简历</span>
           <span class="upload-row"><input id="resumeFile" type="file" accept=".txt,.md,.pdf,.docx"><small id="uploadStatus">支持 TXT、Markdown、PDF、DOCX；也可以直接粘贴。</small></span>
           <textarea id="resume" rows="12" placeholder="粘贴简历全文。请先删除姓名、电话、身份证号等敏感信息。"></textarea>
         </label>

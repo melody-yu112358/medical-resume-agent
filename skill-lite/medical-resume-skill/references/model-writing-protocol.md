@@ -14,6 +14,8 @@ Pass the model:
 
 Do not pass unconfirmed notes as if they were facts. If the source material is incomplete, ask questions before requesting final resume bullets.
 
+If JD/public-evidence assistance is enabled, label role terminology separately from the confirmed fact card. It may guide emphasis and gap analysis only; it must not be used as a source for personal claims.
+
 ## Instruction contract
 
 Use an instruction equivalent to the following:
@@ -52,7 +54,8 @@ Ask the model for JSON in this shape before rendering prose:
       "question": ""
     }
   ],
-  "missing_information": ["Only questions needed for a stronger, factual version"]
+  "missing_information": ["Only questions needed for a stronger, factual version"],
+  "role_alignment": "Optional explanation of which supplied-JD language influenced ordering; never a personal claim"
 }
 ```
 

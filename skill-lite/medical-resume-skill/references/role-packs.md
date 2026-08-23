@@ -1,10 +1,12 @@
-# Target-path emphasis
+# Target paths
 
-## Doctoral / academic application
+The first release supports these four common directions. It does not yet provide separate role packs for registration, market access, pharmacovigilance, commercial roles, or pure clinical practice.
 
-Prioritize research question, study design, methods, methodological rigor, independent contribution where confirmed, scholarly outputs, and research potential. Do not replace evidence with generic claims such as “strong scientific research ability”.
+## Academic progression and research application
 
-## Clinical research
+This covers recommendation-based admission, summer camps, postgraduate re-examination, direct doctoral study, application-based assessment, and doctoral applications. Prioritize research question, study design, methods, methodological rigor, independent contribution where confirmed, scholarly outputs, and research potential. Do not replace evidence with generic claims such as “strong scientific research ability”.
+
+## Clinical research and hospital research
 
 Prioritize clinical question, study design, cohort or participant workflow, data quality, analysis, ethics/compliance where confirmed, and collaboration across clinical roles.
 

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{name}} · Resume</title>
+  <style>
+    @page { size: A4; margin: 15mm 16mm; }
+    :root { --ink: #1c2733; --muted: #657282; --accent: #17664e; --line: #dce4e5; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f5f7f7; color: var(--ink); font: 10.5pt/1.58 "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif; }
+    main { width: 210mm; min-height: 297mm; margin: 12mm auto; padding: 15mm 16mm 17mm; background: #fff; box-shadow: 0 1px 12px rgba(25, 42, 45, .12); }
+    header { display: flex; justify-content: space-between; gap: 16mm; padding-bottom: 7mm; border-bottom: 2px solid var(--accent); }
+    h1 { margin: 0; font-size: 25pt; line-height: 1.15; letter-spacing: .04em; }
+    .target { margin: 4px 0 0; color: var(--accent); font-weight: 700; }
+    .contact { margin: 0; min-width: 60mm; color: var(--muted); text-align: right; font-size: 9.5pt; }
+    section { margin-top: 6mm; }
+    h2 { margin: 0 0 3mm; color: var(--accent); font-size: 12pt; letter-spacing: .07em; }
+    .education, .entry { padding: 3mm 0; border-top: 1px solid var(--line); }
+    .education:first-of-type, .entry:first-of-type { border-top: 0; }
+    .row { display: flex; justify-content: space-between; gap: 8mm; }
+    .organisation { font-weight: 700; }
+    .date { flex: 0 0 auto; color: var(--muted); white-space: nowrap; }
+    .subline { margin-top: 1mm; color: var(--muted); }
+    ul { margin: 2mm 0 0; padding-left: 4.7mm; }
+    li { margin: 1.3mm 0; }
+    .skills { margin: 0; color: var(--ink); }
+    .skills strong { color: var(--accent); }
+    @media print { body { background: #fff; } main { width: auto; min-height: auto; margin: 0; padding: 0; box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>{{name}}</h1>
+        <p class="target">{{target_direction}}</p>
+      </div>
+      <p class="contact">{{email}} · {{phone}} · {{city}}<br>{{optional_link}}</p>
+    </header>
+
+    <section>
+      <h2>教育背景</h2>
+      <div class="education">
+        <div class="row"><span class="organisation">{{school}}</span><span class="date">{{education_dates}}</span></div>
+        <div class="subline">{{degree}} · {{major}}</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>实践与项目经历</h2>
+      <article class="entry">
+        <div class="row"><span class="organisation">{{organisation_or_project}}</span><span class="date">{{experience_dates}}</span></div>
+        <div class="subline">{{role}} · {{research_context_or_topic}}</div>
+        <ul>
+          <li>{{confirmed_bullet_1}}</li>
+          <li>{{confirmed_bullet_2}}</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>方法与技能</h2>
+      <p class="skills"><strong>研究设计与方法：</strong>{{methods}}<br><strong>数据与工具：</strong>{{tools}}<br><strong>实验技术：</strong>{{techniques}}<br><strong>医学证据与研究执行：</strong>{{evidence_and_operations}}</p>
+    </section>
+
+    <section>
+      <h2>证书与其他信息</h2>
+      <p class="skills">{{certificates_or_languages}}</p>
+    </section>
+  </main>
+</body>
+</html>

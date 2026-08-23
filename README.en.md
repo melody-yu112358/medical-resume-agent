@@ -55,12 +55,14 @@ The project currently uses the following categories to organize medical experien
 4. Select a target direction and generate one to three candidate resume bullets.
 5. Review evidence links, risk notices, and audit records before copying or exporting the result.
 
-The current release provides four target directions:
+The initial release provides four focus directions:
 
-- **Doctoral / academic applications**: research question, methodological depth, and research potential.
-- **Clinical research**: study design, clinical context, execution, and collaboration.
+- **Academic progression and research applications** (recommendation-based admission, graduate interview, direct PhD, and doctoral applications): research question, methodological depth, and research potential.
+- **Clinical research and hospital research**: study design, clinical context, research execution, and collaboration.
 - **Medical affairs / MSL**: evidence interpretation, disease-area knowledge, and medical-information translation.
-- **Health AI / medical data**: data handling, analytical framing, and communication of findings.
+- **Medical data and digital health**: data handling, analytical framing, and communication of findings.
+
+The project does not yet provide separate role packs for regulatory affairs, market access, pharmacovigilance, commercialization, or purely clinical practice. Those directions can be added after user testing.
 
 ## Rules and known limitations
 
@@ -151,4 +153,4 @@ tests/                     synthetic, API, and boundary tests
 
 ## Feedback
 
-We welcome de-identified testing from medical students, researchers, clinical-research practitioners, MSLs, and medical-data practitioners. Do not submit real names, contact information, clinical records, participant information, unpublished research data, or keys.
+We welcome de-identified testing from medical students, graduate students in related fields, and anyone interested in medical research, academic progression, or healthcare careers. Do not submit real names, contact information, clinical records, participant information, unpublished research data, or keys.

@@ -702,6 +702,10 @@ function handoffCapabilities() {
   return [...new Set(items.filter(Boolean))].slice(0, 8);
 }
 
+function handoffPurpose() {
+  return selectedRolePacks.includes('doctoral_v1') ? 'phd' : 'campus';
+}
+
 $('#openResumePreview').onclick = () => {
   const bullets = Object.values(generatedBullets).flat().map((bullet) => bullet.wording).filter(Boolean);
   if (!bullets.length) {
@@ -713,6 +717,7 @@ $('#openResumePreview').onclick = () => {
     schema_version: 'experience-compiler-handoff-v1',
     created_at: new Date().toISOString(),
     target_role: selectedLabels.join(' / ') || '医学相关目标方向',
+    purpose: handoffPurpose(),
     capabilities: handoffCapabilities(),
     bullets,
   }));

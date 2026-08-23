@@ -15,27 +15,39 @@ The user submits one experience, reviews the extracted facts, and selects a targ
 
 It is useful when a broad statement such as “participated in research” or “assisted with data analysis” needs to be separated into research object, method, tool, personal role, and deliverable before deciding what belongs in a resume.
 
+> Real experience → confirmed research object, method, tool, role, and deliverable → transferable capability → value expression for a target direction
+
 | What you provide | What the system does | What you receive |
 | --- | --- | --- |
 | A real medical experience | Extracts facts, asks about missing information, and waits for confirmation | Candidate bullets for a chosen target path |
-| Clues such as MR, Meta, R, or qPCR | Separates methods, tools, laboratory techniques, and retrieval resources | An explainable capability structure rather than keyword stuffing |
+| An experience containing methods, tools, or laboratory techniques | Separates research methods such as MR/Meta, analytical tools such as R/Python, laboratory techniques such as qPCR/WB, and retrieval resources such as PubMed/Embase | An explainable capability structure rather than keyword stuffing |
 | A target direction | Adjusts emphasis without changing the underlying experience | Traceable, editable, reviewable material |
 
-## Try it in 30 seconds
+## Quick start
 
 ```powershell
 .\start-local.ps1
 ```
 
-Then open `http://127.0.0.1:5000/demo/experience-compiler/index.html`. The included de-identified Meta-analysis example is ready for a first test. See [Run locally](#run-locally) for details.
+Then open `http://127.0.0.1:5000/demo/experience-compiler/index.html`. For a first run, load the included de-identified Meta-analysis example. See [Run locally](#run-locally) for full setup instructions.
 
-## Why this project?
+## Intended use
 
-“Participated in research”, “conducted literature retrieval”, and “assisted with data analysis” rarely show what a candidate actually did or where their responsibility ends.
+Medical research and clinical experience often combine a research question, methods, software tools, laboratory techniques, and operational work. Broad statements such as “participated in research”, “conducted literature retrieval”, or “assisted with data analysis” make it difficult for a reader to identify the work completed or the boundary of responsibility.
 
-Unbounded separates an experience into confirmable facts: study design, analytical method, tools, wet-lab techniques, clinical-research operations, personal role, data or literature sources, and deliverables. Only after the user confirms those facts does it generate target-specific candidate bullets.
+The application organizes raw experience into confirmable facts: study design, analytical method, tools, laboratory techniques, clinical-research operations, personal role, data or literature sources, and deliverables. It drafts target-specific candidate bullets only after the user has reviewed those facts.
 
-## Current workflow
+## Initial medical capability taxonomy
+
+The project currently uses the following categories to organize medical experience. They support fact confirmation and drafting decisions; a keyword alone does not establish proficiency.
+
+1. **Study design and methods**: cohort studies, RCTs, Meta-analysis, Mendelian randomization (MR), GWAS, bioinformatics, and machine learning.
+2. **Data and tools**: R, Python, SPSS, SQL, data cleaning, statistical analysis, and visualization.
+3. **Clinical-research design and operations**: inclusion and exclusion criteria, follow-up, CRFs, ethics, GCP, real-world research, and data quality control.
+4. **Laboratory techniques**: cell culture, qPCR, Western Blot, flow cytometry, ELISA, and animal studies.
+5. **Medical evidence and information**: PubMed, Embase, and Cochrane searching, guideline interpretation, evidence grading, and medical writing.
+
+## Workflow
 
 1. Enter a real medical experience, or load the included de-identified Meta-analysis example.
 2. Review extracted candidate facts and up to three clarifying questions.
@@ -43,20 +55,19 @@ Unbounded separates an experience into confirmable facts: study design, analytic
 4. Select a target direction and generate one to three candidate resume bullets.
 5. Review evidence links, risk notices, and audit records before copying or exporting the result.
 
-The launch Beta supports four directions:
+The current release provides four target directions:
 
 - **Doctoral / academic applications**: research question, methodological depth, and research potential.
 - **Clinical research**: study design, clinical context, execution, and collaboration.
 - **Medical affairs / MSL**: evidence interpretation, disease-area knowledge, and medical-information translation.
 - **Health AI / medical data**: data handling, analytical framing, and communication of findings.
 
-## Truth boundaries
+## Rules and known limitations
 
-- It does not turn “participated” into “led”, or invent numbers, methods, tools, or outcomes.
-- R/Python are tools; MR/Meta are methods; qPCR/WB are experimental techniques; PubMed/Embase are evidence-retrieval resources. They are not collapsed into a vague single “research skills” label.
-- Strong claims must point back to user-confirmed facts and evidence. Missing information becomes a question, not a guess.
-- The current Beta works best with ordinary DOCX, TXT, Markdown, and text-based PDFs. Complex two-column, table-heavy, or scanned PDFs may need correction on the confirmation screen.
-- It does not promise employment, salary, role fit, or pixel-perfect reproduction of arbitrary resume layouts.
+- Candidate bullets use user-confirmed facts only. The application does not turn “participated” into “led”, or add unstated numbers, methods, tools, or outcomes.
+- The taxonomy explains an experience; it does not infer proficiency from a keyword. R/Python, MR/Meta, qPCR/WB, and PubMed/Embase belong to different categories and require user confirmation in context.
+- File extraction works best with ordinary DOCX, TXT, Markdown, and text-based PDFs. Text order may be unreliable in two-column, table-heavy, or scanned PDFs and should be corrected on the confirmation screen.
+- The local Beta does not provide employment, salary, or role-fit conclusions, and it does not reproduce arbitrary resume layouts pixel-for-pixel.
 
 ## Run locally
 

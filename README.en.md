@@ -57,7 +57,7 @@ The project currently uses the following categories to organize medical experien
 
 The initial release provides four focus directions:
 
-- **Academic progression and research applications** (recommendation-based admission, graduate interview, direct PhD, application-based doctoral admission, and doctoral applications): research question, methodological depth, and research potential.
+- **Academic progression and research applications** (recommendation-based admission, graduate interview, direct PhD, and doctoral applications): research question, methodological depth, and research potential.
 - **Clinical research and hospital research**: study design, clinical context, research execution, and collaboration.
 - **Medical affairs / MSL**: evidence interpretation, disease-area knowledge, and medical-information translation.
 - **Medical data and digital health**: data handling, analytical framing, and communication of findings.

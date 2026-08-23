@@ -7,6 +7,7 @@ let selectedPurpose = "campus";
 let selectedTranslationTarget = "clinical_research";
 const VERSION_STORAGE_KEY = "unbounded.resume-versions.v1";
 const REWRITE_AUDIT_STORAGE_KEY = "unbounded.resume-rewrite-audit.v1";
+const EXPERIENCE_COMPILER_HANDOFF_STORAGE_KEY = "unbounded.experience-compiler-handoff.v1";
 const CAPABILITY_PROFICIENCY_LABELS = { aware: "了解方法与基本概念", supervised: "可在指导下完成", independent: "可独立完成", advanced: "可设计、优化或指导他人" };
 const MEDICAL_CAPABILITY_CATALOG = [
   { name: "孟德尔随机化", category: "research_method", patterns: [/孟德尔随机化/i, /mendelian\s+randomi[sz]ation/i, /\bIVW\b/, /MR[-\s]?Egger/i] },
@@ -80,6 +81,31 @@ async function loadCareerHandoff() {
     $("#jd").value = body.generated_jd_text;
     $("#error").textContent = `已从有来源的职业卡载入“${body.career_name}”目标岗位画像；职业卡状态：${body.review_status}。`;
   } catch (error) { $("#error").textContent = error.message; }
+}
+
+function loadExperienceCompilerHandoff() {
+  const params = new URLSearchParams(location.search);
+  if (params.get("from") !== "experience-compiler") return;
+  let handoff;
+  try {
+    handoff = JSON.parse(sessionStorage.getItem(EXPERIENCE_COMPILER_HANDOFF_STORAGE_KEY) || "");
+  } catch (_) {
+    $("#error").textContent = "未能读取刚才生成的经历要点；请返回经历编译器后重新打开预览。";
+    return;
+  }
+  if (!handoff?.bullets?.length) {
+    $("#error").textContent = "没有可载入的经历要点；请先在经历编译器中完成一段经历。";
+    return;
+  }
+  const capabilities = (handoff.capabilities || []).map((item) => `• ${item}`).join("\n") || "• [请补充本人实际掌握的方法、工具或实验技术]";
+  const bullets = handoff.bullets.map((item) => `• ${item}`).join("\n");
+  const resumeText = `个人概述\n医学背景候选人，申请${handoff.target_role || "医学相关目标方向"}。以下内容来自本人确认的经历，请在投递前补全教育背景、联系方式与具体经历时间。\n\n核心能力\n${capabilities}\n\n科研 / 学术经历\n已确认医学经历\n${bullets}\n\n技能与证书\n• [请仅保留本人实际使用过的工具、培训或语言能力]`;
+  $("#role").value = handoff.target_role || "医学相关目标方向";
+  $("#resume").value = resumeText;
+  $("#document").value = resumeText;
+  $("#documentWrap").classList.remove("hidden");
+  $("#error").textContent = "已载入经历编译器生成的要点。点击预览工具栏中的“编辑文字”可修改材料，再点击“刷新预览”。";
+  renderPrintableResume();
 }
 
 function loadExample() {
@@ -507,6 +533,11 @@ function parseExperiences(text) {
     const line = rawLine.trim();
     if (!line) continue;
     if (SECTION_HEADINGS.includes(line)) { current = null; continue; }
+    if (line === "已确认医学经历") {
+      current = { date: "", organization: "已确认医学经历", role: "", bullets: [] };
+      experiences.push(current);
+      continue;
+    }
     const date = line.match(datePattern);
     if (date) {
       const rest = line.slice(date[0].length).trim();
@@ -654,13 +685,18 @@ function renderPrintableResume() {
       ? `<header class="resume-header resume-header-minimal">${identity}</header>${summarySection}${educationSection}${experienceSection}${researchSection}${capabilitiesSection}${skillsSection}`
       : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">证件照<br>可选</div></header>${summarySection}${capabilitiesSection}${educationSection}${experienceSection}${researchSection}${skillsSection}`;
   $("#resumePreview").innerHTML = `
-    <div class="resume-toolbar"><p>投递版预览 · 仅重组排版，不新增事实</p><button id="printResume">打印 / 保存为 PDF</button></div>
+    <div class="resume-toolbar"><p>投递版预览 · 仅重组排版，不新增事实</p><span><button id="refreshResume">刷新预览</button><button id="editResume">编辑文字</button><button id="printResume">打印 / 保存为 PDF</button></span></div>
     <article class="resume-sheet template-${selectedTemplate}">
       ${templateBody}
     </article>`;
   $("#resumePreview").classList.remove("hidden");
   $("#resumePreview").scrollIntoView({ behavior: "smooth" });
   $("#printResume").onclick = () => window.print();
+  $("#refreshResume").onclick = renderPrintableResume;
+  $("#editResume").onclick = () => {
+    $("#resume").scrollIntoView({ behavior: "smooth", block: "center" });
+    $("#resume").focus();
+  };
 }
 
 $("#analyze").onclick = async () => {
@@ -853,3 +889,4 @@ $("#download").onclick = () => {
 choosePurpose(selectedPurpose);
 
 loadCareerHandoff();
+loadExperienceCompilerHandoff();

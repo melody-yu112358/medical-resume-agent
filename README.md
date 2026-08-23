@@ -1,96 +1,127 @@
-# 未界医学简历助手
+<p align="center">
+  <img src="assets/brand/hero.svg" alt="未界医学简历 Agent 主视觉：把真实医学经历整理成岗位看得懂的能力证明" width="100%" />
+</p>
 
-[English](README.en.md) · [Skill Lite](skill-lite/README.md)
+<p align="center">
+  <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
+  <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
+  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
+</p>
 
-<img src="assets/brand/hero.svg" alt="未界医学简历助手" width="100%" />
+<p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
-这是一个在本机运行的医学简历辅助项目。当前核心页面是“医学经历编译器”：用户输入一段经历，核对系统提取出的事实，再按不同目标方向生成可继续编辑的简历要点。
+一个可在自己电脑上运行的医学经历编译器，面向医学生的申学与秋招场景。
 
-项目面向保研考研、申博、医学事务和医疗数据等医学相关申请或求职场景。关注把已有经历写清楚，而不是替用户补充没有发生过的成果。
+它不会把一段经历直接“润色得更厉害”。它先帮助用户确认真实事实，再把同一段医学经历整理成不同目标方向看得懂、经得起追问的简历要点。
 
-<img src="assets/brand/experience-flow.svg" alt="经历处理流程：真实经历、确认事实、选择方向、生成要点" width="100%" />
+> 真实经历 → 方法 / 工具 / 角色 / 研究对象 / 交付物 → 可迁移能力 → 目标方向的表达重点
 
-## 当前功能
+<p align="center">
+  <img src="assets/brand/experience-flow.svg" alt="真实经历到可信简历要点的四步流程" width="100%" />
+</p>
 
-- 输入一段医学经历，或载入内置的脱敏 Meta 分析示例；
-- 提取研究方法、软件工具、实验技术、研究流程、个人角色和交付物等候选事实；
-- 对信息不足之处提出最多三个澄清问题；
-- 允许用户确认、修改或拒绝候选事实；
-- 面向四类方向生成候选简历要点，并保留相应的依据和风险提示；
-- 复制或导出生成结果；
-- 使用本仓库附带的 Skill Lite，在 Codex 中进行相同的事实确认与经历整理流程。
+| 你提供什么 | 系统如何处理 | 你拿到什么 |
+| --- | --- | --- |
+| 一段真实的医学经历 | 提取事实、追问缺失信息、等待确认 | 按目标方向生成的候选简历要点 |
+| MR / Meta / R / qPCR 等线索 | 区分方法、工具、实验技术与证据资源 | 可解释的能力结构，而不是关键词堆砌 |
+| 你的目标路径 | 改变表达重点，不改写真实经历 | 可追溯、可编辑、可核查的材料 |
 
-目前提供的目标方向如下：
-
-| 方向 | 写作时优先呈现的内容 |
-| --- | --- |
-| 保研 / 考博 | 研究问题、方法学基础、研究潜力 |
-| 临床科研 | 研究设计、临床研究执行、数据与协作 |
-| 医学事务 / MSL | 证据解读、疾病领域信息、医学沟通 |
-| 医疗 AI / 医学数据 | 数据处理、分析思路、结果呈现 |
-
-这些方向只影响同一段真实经历的呈现重点，不会改变用户确认过的事实。
-
-## 使用方式
-
-在 Windows PowerShell 中进入项目目录，运行：
+## 30 秒体验
 
 ```powershell
 .\start-local.ps1
 ```
 
-服务启动后，打开：
+然后打开：`http://127.0.0.1:5000/demo/experience-compiler/index.html`
 
-```text
-http://127.0.0.1:5000/demo/experience-compiler/index.html
-```
+第一次可直接载入内置的脱敏 Meta 分析示例。完整步骤见[在自己的电脑上运行](#在自己的电脑上运行)。
 
-首次体验建议直接载入页面中的脱敏 Meta 分析示例，依次完成事实确认、目标方向选择和要点生成。
+## 为什么做这个？
 
-### 首次运行
+“参与科研”“负责文献检索”“协助数据分析”并不能说明你实际会什么，也难以让导师、医院科研岗或医药行业岗位判断你的能力边界。
 
-需要 Windows 10/11 和 Python 3.11 或更高版本。首次运行时，脚本会安装缺失的 Python 依赖；后续处理在本机完成。
+未界先把原始经历拆成可确认事实：研究设计、分析方法、工具、湿实验技术、临床研究流程、个人角色、数据/文献来源与交付物。用户确认后，系统才会生成对应方向的候选要点。
 
-如果尚未下载项目，可以使用：
+## 当前可用流程
 
-```powershell
-git clone https://github.com/melody-yu112358/medical-resume-agent.git
-cd medical-resume-agent
-.\start-local.ps1
-```
+1. 输入一段真实医学经历，或载入内置的脱敏 Meta 分析示例。
+2. 查看候选事实与最多 3 个澄清问题。
+3. 确认、修改或拒绝事实；未确认信息不会被静默升级成经历。
+4. 选择目标方向，生成 1–3 条候选简历要点。
+5. 查看依据事实、风险提示和审计记录，再复制或导出使用。
 
-如果 PowerShell 阻止脚本执行，只对当前窗口执行：
+首发 Beta 支持四个方向：
 
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\start-local.ps1
-```
+- **科研 / 考博与学术申请**：研究问题、方法深度与科研潜力。
+- **临床研究**：研究设计、临床问题、执行与协作。
+- **医学事务 / MSL**：证据解读、疾病领域知识与医学信息转译。
+- **医疗 AI / 医学数据**：数据处理、分析框架与结果沟通。
 
-服务结束后，在 PowerShell 按 `Ctrl + C` 即可停止。
+## 保真边界
 
-## 事实与表达边界
+- 不把“参与”写成“主导”，不编造数字、工具、方法或结果。
+- R/Python 是工具；MR/Meta 是方法；qPCR/WB 是实验技术；PubMed/Embase 是证据检索资源。系统不会把它们混成一类泛泛的“科研技能”。
+- 强表达必须回到用户确认的事实与证据；信息不足时，系统提示补充，而不是猜测。
+- 目前适合普通电子版 DOCX、TXT、Markdown 和带可复制文字的 PDF。复杂双栏、表格化或扫描件 PDF 可能需要在确认页人工校正。
+- 本地 Beta 不承诺录用、薪资、岗位匹配或任意简历版式复刻。
 
-系统将“工具、方法、技术和研究资源”分别处理。例如 R/Python 属于软件工具，MR/Meta 属于研究方法，qPCR/WB 属于实验技术，PubMed/Embase 属于文献检索资源。它们在简历中的含义不同，不应简单合并成一项笼统的“科研能力”。
+## 在自己的电脑上运行
 
-生成较强的简历表述前，用户需要确认个人承担的环节和可核实的产出。对于缺少依据的信息，页面会保留风险提示或提出补充问题；不会自动加入“主导”“独立完成”、数字化结果或未提供的方法。
+### 需要什么
 
-当前上传与解析功能适合普通 DOCX、TXT、Markdown 和带可复制文字的 PDF。双栏、复杂表格和扫描件 PDF 的文本顺序可能不可靠，建议在确认页人工校正。项目不承诺岗位匹配、录用结果，也不复刻任意已有简历的视觉版式。
+- Windows 10/11（首发启动脚本面向 Windows）
+- Python 3.11 或更高版本
+- 网络仅用于首次安装 Python 依赖；之后网页和经历处理在本机运行
 
-## 可选：配置模型
+### 最快启动
 
-不配置模型也可以使用事实提取、确认、目标方向表达和审计流程。若要启用 OpenAI-compatible 模型（如 DeepSeek）进行受约束的文字优化，先创建本地配置文件：
+1. 下载仓库 ZIP 并解压，或执行：
+
+   ```powershell
+   git clone https://github.com/melody-yu112358/medical-resume-agent.git
+   cd medical-resume-agent
+   ```
+
+2. 在项目目录打开 PowerShell 后运行：
+
+   ```powershell
+   .\start-local.ps1
+   ```
+
+   首次运行会安装所需依赖。若 PowerShell 阻止脚本，请只对当前窗口执行：
+
+   ```powershell
+   Set-ExecutionPolicy -Scope Process Bypass
+   .\start-local.ps1
+   ```
+
+3. 看到服务启动提示后，在浏览器打开：
+
+   ```text
+   http://127.0.0.1:5000/demo/experience-compiler/index.html
+   ```
+
+4. 用完后回到 PowerShell，按 `Ctrl + C` 停止本地服务。
+
+### 可选：模型表达优化
+
+不配置模型也可体验确定性事实提取、确认、岗位要点生成和审计流程。若希望启用 OpenAI-compatible 模型（例如 DeepSeek）的受约束表达优化，先执行：
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-随后按[模型配置说明](docs/LLM_INTEGRATION.md)填写本机 `.env`。不要把密钥提交到 Git、贴到网页代码中，或放入截图和 Issue。
+再按照 [模型配置说明](docs/LLM_INTEGRATION.md) 在本机 `.env` 中填写自己的密钥。`.env` 已被 Git 忽略，绝不要把密钥粘贴到网页、截图或 GitHub Issue 中。
 
-## Skill Lite
+## 面向 Codex/Claude 用户的 Skill Lite
 
-`skill-lite/` 包含一个面向 Codex 的轻量工作流包。它适合希望在对话中逐步梳理经历的用户，流程同样要求先确认事实，再生成针对目标方向的表达。
+网页适合不想配置 AI 工具的用户；仓库也提供轻量 Skill，适合在 Codex 或 Claude 中进行更深入的“经历问诊”：
 
-安装与使用方式见：[Skill Lite 使用说明](skill-lite/README.md)。Skill Lite 是提示词和工作流包，不会替代网页中的事实确认、Claim Gate 和审计记录。
+- [Skill Lite 使用说明](skill-lite/README.md)
+- [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
+
+Skill Lite 复用了本项目的核心方法：先拆事实、再确认、最后按目标方向翻译。它是提示词与工作流包，不替代网页中的 Claim Gate 和审计能力。
 
 ## 验证
 
@@ -99,20 +130,20 @@ python -m pip install -e ".[resume_extract,dev,schema_validation]"
 python -m pytest -q
 ```
 
-当前发布源包含 205 项单元、接口和端到端测试。发布或演示前，仍建议手动走一遍页面：载入示例、确认事实、选择方向、生成要点、检查依据和导出结果。
+当前共享发布源包含 205 项单元、接口与端到端测试。发布前还应完成浏览器冒烟测试：载入示例、提取事实、确认、选择方向、生成要点、查看证据并导出。
 
-## 目录说明
+## 仓库结构
 
 ```text
-demo/experience-compiler/  医学经历编译器页面
+demo/experience-compiler/  可直接体验的医学经历编译器页面
 src/medical_career_agent/  经历提取、确认、要点生成、Claim Gate 与账本服务
-schemas/                   Canonical Experience、Role Pack、Bullet Claim 的数据契约
-data/role-packs/           四类目标方向的表达策略
-skill-lite/                Codex Skill Lite
-docs/                      架构、边界、模型配置和验收材料
-tests/                     合成案例、接口和边界测试
+schemas/                   canonical experience、role pack、bullet claim 数据契约
+data/role-packs/           四个目标方向的表达策略
+skill-lite/                面向 Codex/Claude 用户的轻量工作流包
+docs/                      架构、边界、模型配置与验收材料
+tests/                     合成案例、接口与边界测试
 ```
 
-## 反馈与隐私
+## 贡献与测试
 
-欢迎使用已脱敏的经历进行测试。请不要提交真实姓名、联系方式、病历、受试者信息、未公开研究数据或任何密钥。
+欢迎医学生、科研生、临床研究从业者、MSL 与医疗数据方向同学使用真实但已脱敏的经历测试。请勿提交真实姓名、联系方式、病历、受试者信息、未公开研究数据或任何密钥。

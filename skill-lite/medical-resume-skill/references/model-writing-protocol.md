@@ -14,6 +14,8 @@ Pass the model:
 
 Do not pass unconfirmed notes as if they were facts. If the source material is incomplete, ask questions before requesting final resume bullets.
 
+If JD/public-evidence assistance is enabled, label role terminology separately from the confirmed fact card. It may guide emphasis and gap analysis only; it must not be used as a source for personal claims.
+
 ## Instruction contract
 
 Use an instruction equivalent to the following:
@@ -29,6 +31,12 @@ facts. If a stronger statement needs an unconfirmed detail, return a question or
 
 Every bullet must identify which fact-card fields it uses. Prefer:
 context or problem + personal action + method/tool/technique + confirmed deliverable.
+Use an owner-level verb only when the fact card explicitly confirms that the user
+made a decision, designed a bounded module, resolved a problem, or coordinated a
+workstream. Otherwise use contribution-level wording such as completed, conducted,
+prepared, maintained, or assisted with. Place keywords inside a grounded sentence;
+never turn a tools list into a claim of expertise. Use numbers only when their
+source and meaning are confirmed.
 ```
 
 ## Required structured response
@@ -37,7 +45,7 @@ Ask the model for JSON in this shape before rendering prose:
 
 ```json
 {
-  "positioning": "A conservative one-line candidate positioning, or an empty string",
+  "positioning": "A conservative one-line candidate positioning, or an empty string when evidence is insufficient",
   "bullets": [
     {
       "text": "Candidate-facing resume bullet",
@@ -46,11 +54,14 @@ Ask the model for JSON in this shape before rendering prose:
       "question": ""
     }
   ],
-  "missing_information": ["Only questions needed for a stronger, factual version"]
+  "missing_information": ["Only questions needed for a stronger, factual version"],
+  "role_alignment": "Optional explanation of which supplied-JD language influenced ordering; never a personal claim"
 }
 ```
 
 Validate every returned bullet against the fact card before showing it. Reject or rewrite a bullet if it upgrades responsibility, invents a number or result, changes a method into a tool, or introduces a claim not grounded in a confirmed field.
+
+Do not ask the model to manufacture a candidate positioning. It may return one only if at least two confirmed facts support the proposed domain, capability, and target direction.
 
 ## Target-specific emphasis
 

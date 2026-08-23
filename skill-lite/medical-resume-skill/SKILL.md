@@ -13,9 +13,16 @@ Choose one working mode before asking detailed questions:
 - **Polish an existing resume** — let the user select one to three existing entries; preserve their content and improve only the selected entries.
 - **Deliver a resume** — after content is accepted, assemble it into a printable HTML resume. Read [HTML delivery](references/html-delivery.md).
 
+Then select an evidence mode:
+
+- **Local facts only (default)** — use only material the user provides in the conversation or files they provide.
+- **JD / public-evidence assistance (opt-in)** — use a user-provided JD, job URL, paper DOI, project page, or explicit permission to browse. Read [web evidence protocol](references/web-evidence-protocol.md) before browsing.
+
 ## Non-negotiable boundary
 
 Use only confirmed personal facts. Missing information becomes a question, a `[待补]` item, or a conservative sentence; it must not become a stronger claim. Never write visible internal evidence IDs into a candidate-facing resume.
+
+External information can improve the wording of a target role, but it cannot become evidence of the user's own experience.
 
 ## Intake
 
@@ -27,6 +34,8 @@ Ask for the raw experience or the selected existing entry, then one target path.
 - health data / digital health.
 
 For an existing resume, do not re-interview the entire person. First ask which one to three entries need work, the intended direction, and whether the user wants a light edit or a fuller fact check.
+
+Ask whether the user wants the default local-facts mode or JD/public-evidence assistance. Do not browse without a user-provided link or explicit permission.
 
 Extract an **experience fact card** before writing bullets. Keep the following categories distinct:
 
@@ -55,9 +64,9 @@ Read [evidence rules](references/evidence-rules.md) whenever a claim is ambiguou
 
 After confirmation, write one to three concise bullets tailored to the selected target path. Each bullet should normally contain the strongest confirmed combination of context, action or responsibility, method or technique, and verifiable deliverable. Use metrics only when the user supplies them; a method, material, scope, or named deliverable is often stronger than an invented number.
 
-Read [role packs](references/role-packs.md) before tailoring the output. Translate the same facts by changing emphasis and ordering, not by changing what happened.
+Read the [resume translation method](references/resume-translation-method.md) and [role packs](references/role-packs.md) before tailoring the output. Translate the same facts by changing emphasis and ordering, not by changing what happened. Create a candidate-positioning line only when the confirmed material supports one.
 
-If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md). The model may improve wording and propose alternatives, but the fact card and validation rules remain the source of truth.
+If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md). The model may improve wording and propose alternatives, but the fact card and validation rules remain the source of truth. In JD/public-evidence mode, keep role language and public-source notes separate from personal facts in the final comparison.
 
 ## Output format
 
@@ -69,6 +78,11 @@ Use this structure:
 
 ### Resume bullets for <target path>
 1. ...
+
+### Rewrite comparison
+- Original: ...
+- Proposed: ...
+- Why this is stronger: ...
 
 ### Evidence and boundaries
 - Uses: ...

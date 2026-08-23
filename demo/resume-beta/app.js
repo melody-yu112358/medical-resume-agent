@@ -658,6 +658,7 @@ function renderCompilerHandoffResume(scrollToPreview = false) {
   const skills = splitEditorLines("#compilerSkills");
   const experiences = compilerExperiences();
   const fontSize = $("#compilerFontSize").value;
+  const fontFamily = $("#compilerFontFamily").value;
   const section = (titleText, content, className = "") => content ? `<section class="resume-section ${className}"><h2>${titleText}</h2>${content}</section>` : "";
   const list = (items) => items.length ? `<ul class="resume-list">${items.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>` : "";
   const educationSection = section("教育背景", list(education), "resume-education-section");
@@ -672,7 +673,7 @@ function renderCompilerHandoffResume(scrollToPreview = false) {
     : selectedTemplate === "minimal"
       ? `<header class="resume-header resume-header-minimal">${identity}</header>${experienceSection}${educationSection}${capabilitiesSection}${skillsSection}`
       : `<header class="resume-header resume-header-clinical">${identity}<div class="resume-photo">${photo}</div></header>${experienceSection}${educationSection}${capabilitiesSection}${skillsSection}`;
-  $("#resumePreview").innerHTML = `<div class="resume-toolbar"><p>投递版预览 · 修改上方字段会实时更新</p><span><button data-compiler-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-compiler-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-compiler-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button><button id="printResume">打印 / 保存 PDF</button></span></div><article class="resume-sheet template-${selectedTemplate}" data-font-size="${esc(fontSize)}">${templateBody}</article>`;
+  $("#resumePreview").innerHTML = `<div class="resume-toolbar"><p>投递版预览 · 修改上方字段会实时更新</p><span><button data-compiler-template="clinical" class="${selectedTemplate === "clinical" ? "selected" : ""}">临床蓝</button><button data-compiler-template="research" class="${selectedTemplate === "research" ? "selected" : ""}">学术绿</button><button data-compiler-template="minimal" class="${selectedTemplate === "minimal" ? "selected" : ""}">ATS 极简</button><button id="printResume">打印 / 保存 PDF</button></span></div><article class="resume-sheet template-${selectedTemplate}" data-font-size="${esc(fontSize)}" data-font-family="${esc(fontFamily)}">${templateBody}</article>`;
   $("#resumePreview").classList.remove("hidden");
   if (scrollToPreview) $("#resumePreview").scrollIntoView({ behavior: "smooth" });
   $("#printResume").onclick = () => window.print();
@@ -907,6 +908,9 @@ $("#resume").addEventListener("input", resetStructureReview);
   if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
 }));
 $("#compilerFontSize").onchange = () => {
+  if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
+};
+$("#compilerFontFamily").onchange = () => {
   if (experienceCompilerHandoffMode) renderCompilerHandoffResume();
 };
 $("#addCompilerExperience").onclick = () => {

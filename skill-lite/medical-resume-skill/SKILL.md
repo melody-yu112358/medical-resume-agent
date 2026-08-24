@@ -24,6 +24,17 @@ Use only confirmed personal facts. Missing information becomes a question, a `[�
 
 External information can improve the wording of a target role, but it cannot become evidence of the user's own experience.
 
+## Mandatory workflow gates
+
+Track the current stage explicitly: `intake → fact confirmation → representative sample → full composition → factual audit → delivery`. Do not skip a stage because the user asks for a file or because the source already resembles a resume.
+
+- During intake, read all supplied material once, preserve facts already present, list every material gap, and ask only the three highest-value unanswered questions in the current round.
+- Before confirmation, split responsibility into project-level role, task-level responsibility, independently completed scope, collaborative scope, and ownership of final outputs. A general statement such as “I completed all of it” does not settle these fields.
+- After confirmation, draft one representative flagship entry and ask the user to approve its density, tone and responsibility boundary before expanding the whole resume.
+- Selecting professional or high-impact wording never confirms a new fact. Any new factual meaning returns to fact confirmation.
+- Do not generate files until the full candidate-facing text is accepted and the factual audit is `ready`.
+- After a user edits Markdown, mark it `user-edited` and rerun the factual audit before calling it ready to submit.
+
 ## Intake
 
 Ask for the raw experience or the selected existing entry, then one target path. If the target is unclear, offer only these initial paths:
@@ -50,6 +61,8 @@ Extract an **experience fact card** before writing bullets. Keep the following c
 - deliverables, results, and evidence sources;
 - missing or ambiguous information.
 
+Within personal role, always record these as separate fields: project-level role, task-level responsibility, independent scope, collaborative scope, and final-output ownership.
+
 For example, R is a programming/statistical tool, MR and Meta-analysis are analytical methods, qPCR is a wet-lab technique, GCP is a compliance framework, CRF is a clinical-research document or workflow artifact, and PubMed is an evidence-retrieval resource. Do not group them as one undifferentiated skill list. Read the [capability taxonomy](references/capability-taxonomy.md) when extracting or presenting capabilities.
 
 ## Confirmation before composition
@@ -75,6 +88,8 @@ Generate three selectable expression tiers from the same confirmed fact set:
 A well-supported flagship experience may contain 5–9 non-duplicative bullets; a smaller experience may contain 3–6. Do not impose a fixed count when facts are sparse. Each bullet should prove a different capability or contribution and normally combine context, personal action, method/tool/technique, and a confirmed deliverable or professional purpose. Use metrics only when the user supplies them; a method, material, scope, workflow decision or named deliverable is often stronger than an invented number.
 
 Read the [resume translation method](references/resume-translation-method.md) and [role packs](references/role-packs.md) before tailoring the output. Translate the same facts by changing emphasis and ordering, not by changing what happened. Create a candidate-positioning line only when the confirmed material supports one.
+
+First show one representative entry. Continue to the complete content plan and three full versions only after the user accepts that sample or explicitly asks to use it as the frozen standard.
 
 
 If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md). Use the full [prompt templates](references/prompt-templates.md) whenever the host can preserve staged structured state. The shorter [medical resume prompts](references/medical-resume-prompts.md) are a compatibility adapter for hosts that can preserve only two stages; they must follow the same fact, density and responsibility rules. In JD/public-evidence mode, keep role language and public-source notes separate from personal facts in the final comparison.
@@ -134,6 +149,8 @@ After the user accepts the final content and explicitly asks for a file, create 
 
 ```text
 resume-output/
+├─ resume-editor.html
+├─ resume.md
 ├─ resume.html
 ├─ resume-data.json
 ├─ evidence-summary.json
@@ -141,7 +158,11 @@ resume-output/
 └─ export-instructions.txt
 ```
 
-`resume.html` is the candidate-facing deliverable. Keep the supporting JSON and comparison files local, and do not expose their internal identifiers in the rendered resume.
+Read the [resume bundle contract](references/resume-data-contract.md). Store the complete conservative, professional, and high-impact resume bodies in `resume-data.json`, then run `scripts/build_resume_bundle.py`. Do not hand-code candidate text into HTML. `resume.md` is the human-editable selected version; `resume-editor.html` provides local live preview, three themes, browser-only autosave, Markdown import/download, standalone HTML export, an optional local photo, and print-to-PDF.
+
+`resume.html` is the candidate-facing static deliverable. Keep supporting JSON and comparison files local, and do not expose their internal identifiers in the rendered resume. If the user edits Markdown, preserve that revision and audit it again rather than overwriting it with regenerated text.
+
+For direct PDF export, run `scripts/export_resume_pdf.py`. It tries Playwright, then installed Microsoft Edge, then reports a manual browser-print fallback. Never claim that a PDF or rendered preview succeeded unless the expected file exists. When layout matters, inspect the rendered pages for overflow, clipping, broken photos, sparse trailing pages, and heading/bullet separation before delivery.
 
 The default HTML should look complete and text-rich at first glance. Include candidate positioning, education, grouped experience sections, methods and skills, outputs/publications when confirmed, languages/certificates and research interests when supported. Do not add filler solely to occupy the page. Preserve accepted prior versions instead of overwriting them when the user requests another tier or layout.
 

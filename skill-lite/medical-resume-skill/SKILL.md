@@ -57,7 +57,7 @@ After confirmation, write one to three concise bullets tailored to the selected 
 
 Read [role packs](references/role-packs.md) before tailoring the output. Translate the same facts by changing emphasis and ordering, not by changing what happened.
 
-If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md). The model may improve wording and propose alternatives, but the fact card and validation rules remain the source of truth.
+If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md) and use the two-stage [medical resume prompts](references/medical-resume-prompts.md). The model may improve wording and propose alternatives, but the fact card and validation rules remain the source of truth. In JD/public-evidence mode, keep role language and public-source notes separate from personal facts in the final comparison.
 
 ## Output format
 

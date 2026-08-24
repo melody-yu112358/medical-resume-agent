@@ -26,6 +26,7 @@
     li { margin: 1.3mm 0; }
     .skills { margin: 0; color: var(--ink); }
     .skills strong { color: var(--accent); }
+    .summary { margin: 0; text-align: justify; }
     @media print { body { background: #fff; } main { width: auto; min-height: auto; margin: 0; padding: 0; box-shadow: none; } }
   </style>
 </head>
@@ -40,6 +41,11 @@
     </header>
 
     <section>
+      <h2>个人概况</h2>
+      <p class="summary">{{candidate_positioning_and_profile}}</p>
+    </section>
+
+    <section>
       <h2>教育背景</h2>
       <div class="education">
         <div class="row"><span class="organisation">{{school}}</span><span class="date">{{education_dates}}</span></div>
@@ -48,15 +54,41 @@
     </section>
 
     <section>
-      <h2>实践与项目经历</h2>
+      <h2>科研经历</h2>
       <article class="entry">
-        <div class="row"><span class="organisation">{{organisation_or_project}}</span><span class="date">{{experience_dates}}</span></div>
-        <div class="subline">{{role}} · {{research_context_or_topic}}</div>
+        <div class="row"><span class="organisation">{{research_organisation_or_project}}</span><span class="date">{{research_dates}}</span></div>
+        <div class="subline">{{research_role}} · {{research_context_or_topic}}</div>
         <ul>
-          <li>{{confirmed_bullet_1}}</li>
-          <li>{{confirmed_bullet_2}}</li>
+          {{research_bullets_html}}
         </ul>
       </article>
+    </section>
+
+    <section>
+      <h2>项目与实践经历</h2>
+      <article class="entry">
+        <div class="row"><span class="organisation">{{project_organisation_or_name}}</span><span class="date">{{project_dates}}</span></div>
+        <div class="subline">{{project_role}} · {{project_context_or_topic}}</div>
+        <ul>
+          {{project_bullets_html}}
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>临床经历</h2>
+      <article class="entry">
+        <div class="row"><span class="organisation">{{clinical_organisation}}</span><span class="date">{{clinical_dates}}</span></div>
+        <div class="subline">{{clinical_role}} · {{clinical_department_or_focus}}</div>
+        <ul>
+          {{clinical_bullets_html}}
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>成果与学术输出</h2>
+      <p class="skills">{{publications_presentations_and_outputs}}</p>
     </section>
 
     <section>
@@ -66,7 +98,7 @@
 
     <section>
       <h2>证书与其他信息</h2>
-      <p class="skills">{{certificates_or_languages}}</p>
+      <p class="skills"><strong>语言与证书：</strong>{{certificates_or_languages}}<br><strong>研究兴趣：</strong>{{research_interests}}</p>
     </section>
   </main>
 </body>

@@ -1,0 +1,564 @@
+{
+  "medical_knowledge_dimensions": {
+    "meta_analysis_systematic_review": {
+      "name": "Meta-analysis and Systematic Review",
+      "description": "Comprehensive evidence synthesis through systematic literature review and statistical meta-analysis",
+      "identifiable_expressions": [
+        "Meta分析", "荟萃分析", "系统综述", "systematic review", "meta-analysis",
+        "文献综述", "evidence synthesis", "PRISMA", "Cochrane"
+      ],
+      "required_hard_facts": {
+        "context": ["domain", "setting"],
+        "role": ["responsibility_level"],
+        "actions": ["retrieve_literature", "screen_studies", "extract_data"],
+        "methods": ["systematic_review", "meta_analysis"],
+        "scope": ["database_count", "study_count"]
+      },
+      "professional_context": {
+        "background": "Systematic reviews address clinical uncertainty by synthesizing all available evidence using rigorous methodology",
+        "problem_or_goal": "To provide comprehensive, unbiased evidence synthesis for clinical decision-making",
+        "workflow_steps": [
+          "Research question formulation using PICO framework",
+          "Comprehensive literature search across multiple databases",
+          "Study screening using predefined inclusion/exclusion criteria",
+          "Data extraction using standardized forms",
+          "Quality assessment using validated tools (e.g., Cochrane RoB)",
+          "Statistical analysis including heterogeneity assessment",
+          "Sensitivity and subgroup analyses as appropriate",
+          "Evidence interpretation and clinical implications"
+        ],
+        "quality_control": [
+          "PRISMA guideline adherence",
+          "Dual screening process",
+          "Standardized data extraction protocols",
+          "Validated bias risk assessment tools",
+          "Appropriate statistical methods selection"
+        ]
+      },
+      "role_specific_value": {
+        "doctoral_v1": {
+          "research_problem": "Demonstrates ability to identify clinically relevant research questions",
+          "methodology": "Shows mastery of systematic review methodology fundamentals",
+          "critical_thinking": "Exhibits critical appraisal skills for study quality assessment",
+          "statistical_understanding": "Understands complex statistical concepts in meta-analysis",
+          "academic_contribution": "Contributes to evidence base through rigorous synthesis"
+        },
+        "clinical_research_v1": {
+          "protocol_execution": "Executes systematic review protocols with precision",
+          "data_quality": "Ensures high-quality data extraction and management",
+          "regulatory_compliance": "Follows established guidelines (PRISMA) consistently",
+          "team_collaboration": "Works effectively within research team structure",
+          "timeline_management": "Manages systematic review timeline efficiently"
+        },
+        "medical_affairs_v1": {
+          "evidence_synthesis": "Synthesizes complex medical evidence comprehensively",
+          "scientific_communication": "Communicates evidence findings clearly and accurately",
+          "therapeutic_expertise": "Demonstrates deep understanding of therapeutic area",
+          "stakeholder_engagement": "Engages with scientific community on evidence topics",
+          "medical_strategy": "Supports medical strategy through robust evidence"
+        },
+        "health_ai_data_v1": {
+          "data_curation": "Curates high-quality structured data from literature",
+          "systematic_approach": "Applies systematic methodology to data collection",
+          "quality_assurance": "Implements robust quality control in data processes",
+          "analytical_rigor": "Maintains analytical rigor in evidence synthesis",
+          "scalable_processes": "Develops scalable evidence synthesis workflows"
+        }
+      },
+      "high_risk_content": {
+        "forbidden_claims": [
+          "independently conducted meta-analysis",
+          "led systematic review",
+          "developed novel methodology",
+          "resolved all heterogeneity issues",
+          "concluded definitive treatment recommendations"
+        ],
+        "restricted_verbs": [
+          "independently", "led", "developed", "resolved", "concluded", "determined"
+        ],
+        "unverifiable_outcomes": [
+          "changed clinical practice",
+          "influenced treatment guidelines",
+          "saved patient lives",
+          "reduced healthcare costs"
+        ]
+      },
+      "recommended_questions": [
+        "Which databases did you search (PubMed, Embase, Cochrane, etc.)?",
+        "How many studies were included in the final analysis?",
+        "What inclusion/exclusion criteria did you use?",
+        "Which bias risk assessment tool did you apply (Cochrane RoB, etc.)?",
+        "What statistical software did you use for analysis?",
+        "What was your specific role in the screening process?",
+        "Was this work published or presented anywhere?"
+      ]
+    },
+    "clinical_research": {
+      "name": "Clinical Research",
+      "description": "Conducting research studies involving human participants in clinical settings",
+      "identifiable_expressions": [
+        "临床研究", "clinical research", "临床试验", "clinical trial",
+        "patient research", "human subjects research", "IRB", "ethics approval"
+      ],
+      "required_hard_facts": {
+        "context": ["domain", "setting"],
+        "role": ["responsibility_level"],
+        "actions": ["collect_data", "screen_patients", "perform_assessments"],
+        "methods": ["cohort_study", "case_control", "randomized_trial"],
+        "tools": ["electronic_health_records", "clinical_databases"]
+      },
+      "professional_context": {
+        "background": "Clinical research investigates medical interventions, diagnostics, or outcomes in real patient populations",
+        "problem_or_goal": "To generate evidence about clinical effectiveness, safety, or patient outcomes",
+        "workflow_steps": [
+          "Protocol development and ethics approval",
+          "Patient recruitment and informed consent",
+          "Data collection using standardized instruments",
+          "Clinical assessments and measurements",
+          "Adverse event monitoring and reporting",
+          "Data cleaning and validation",
+          "Statistical analysis and interpretation",
+          "Manuscript preparation and submission"
+        ],
+        "quality_control": [
+          "Good Clinical Practice (GCP) compliance",
+          "Standardized data collection protocols",
+          "Regular monitoring and auditing",
+          "Adverse event reporting systems",
+          "Data validation and cleaning procedures"
+        ]
+      },
+      "role_specific_value": {
+        "doctoral_v1": {
+          "clinical_insight": "Demonstrates understanding of clinical research challenges",
+          "patient_interaction": "Shows competence in patient recruitment and interaction",
+          "protocol_adherence": "Maintains strict protocol adherence",
+          "data_integrity": "Ensures high-quality clinical data collection",
+          "ethical_awareness": "Exhibits strong ethical research conduct"
+        },
+        "clinical_research_v1": {
+          "study_coordination": "Coordinates clinical study activities effectively",
+          "regulatory_compliance": "Ensures GCP and regulatory compliance",
+          "data_management": "Manages clinical data with high accuracy",
+          "patient_safety": "Prioritizes patient safety and well-being",
+          "team_leadership": "Leads clinical research team activities"
+        },
+        "medical_affairs_v1": {
+          "clinical_expertise": "Demonstrates deep clinical domain knowledge",
+          "investigator_relations": "Builds strong relationships with clinical investigators",
+          "study_design": "Contributes to robust clinical study design",
+          "medical_monitoring": "Provides medical oversight for clinical studies",
+          "regulatory_strategy": "Supports regulatory submissions with clinical data"
+        },
+        "health_ai_data_v1": {
+          "clinical_data_engineering": "Engineers robust clinical data collection systems",
+          "real_world_evidence": "Generates real-world evidence from clinical data",
+          "data_standardization": "Standardizes clinical data for analysis",
+          "patient_phenotyping": "Develops patient phenotyping algorithms",
+          "clinical_workflow_integration": "Integrates data collection into clinical workflows"
+        }
+      },
+      "high_risk_content": {
+        "forbidden_claims": [
+          "designed clinical trial",
+          "obtained IRB approval independently",
+          "managed entire clinical study",
+          "ensured patient safety single-handedly",
+          "guaranteed data quality"
+        ],
+        "restricted_verbs": [
+          "designed", "approved", "managed", "ensured", "guaranteed"
+        ],
+        "unverifiable_outcomes": [
+          "improved patient outcomes",
+          "accelerated drug approval",
+          "reduced adverse events",
+          "increased study enrollment"
+        ]
+      },
+      "recommended_questions": [
+        "What type of clinical study was this (observational, RCT, etc.)?",
+        "What was your specific role in patient recruitment?",
+        "Which clinical assessments did you perform?",
+        "How was data collected and managed?",
+        "What regulatory approvals were required?",
+        "Was this study published or presented?"
+      ]
+    },
+    "wet_lab_research": {
+      "name": "Wet Lab Research",
+      "description": "Laboratory-based biological or chemical experimentation",
+      "identifiable_expressions": [
+        "实验", "实验室", "wet lab", "molecular biology", "cell culture",
+        "PCR", "Western Blot", "ELISA", "flow cytometry", "microscopy"
+      ],
+      "required_hard_facts": {
+        "context": ["domain", "setting"],
+        "role": ["responsibility_level"],
+        "actions": ["perform_experiments", "collect_samples", "analyze_results"],
+        "methods": ["cell_culture", "pcr", "western_blot", "elisa"],
+        "tools": ["microscope", "centrifuge", "spectrophotometer"]
+      },
+      "professional_context": {
+        "background": "Wet lab research investigates biological mechanisms at molecular, cellular, or tissue levels",
+        "problem_or_goal": "To understand biological processes or test hypotheses through controlled experimentation",
+        "workflow_steps": [
+          "Experimental design and protocol development",
+          "Reagent and sample preparation",
+          "Cell culture maintenance (if applicable)",
+          "Molecular or biochemical assays execution",
+          "Instrument operation and calibration",
+          "Data collection and documentation",
+          "Result analysis and interpretation",
+          "Troubleshooting and optimization"
+        ],
+        "quality_control": [
+          "Sterile technique maintenance",
+          "Reagent quality control",
+          "Instrument calibration and maintenance",
+          "Replicate experimental design",
+          "Positive/negative controls implementation",
+          "Detailed laboratory notebook documentation"
+        ]
+      },
+      "role_specific_value": {
+        "doctoral_v1": {
+          "experimental_design": "Demonstrates understanding of experimental design principles",
+          "technical_proficiency": "Shows proficiency in core laboratory techniques",
+          "troubleshooting": "Exhibits problem-solving skills in experimental challenges",
+          "data_interpretation": "Interprets complex experimental results accurately",
+          "scientific_rigor": "Maintains high standards of scientific rigor"
+        },
+        "clinical_research_v1": {
+          "assay_development": "Develops robust laboratory assays for clinical research",
+          "sample_processing": "Processes clinical samples with high quality",
+          "data_generation": "Generates reliable laboratory data for clinical studies",
+          "quality_assurance": "Implements laboratory quality control measures",
+          "protocol_standardization": "Standardizes laboratory protocols"
+        },
+        "medical_affairs_v1": {
+          "translational_research": "Connects basic science to clinical applications",
+          "biomarker_development": "Contributes to biomarker discovery and validation",
+          "mechanism_understanding": "Demonstrates deep understanding of disease mechanisms",
+          "scientific_credibility": "Builds scientific credibility through laboratory expertise",
+          "collaborative_research": "Collaborates effectively with basic scientists"
+        },
+        "health_ai_data_v1": {
+          "high_throughput_screening": "Designs high-throughput experimental workflows",
+          "automated_data_collection": "Implements automated laboratory data collection",
+          "experimental_data_integration": "Integrates experimental data with computational analysis",
+          "lab_informatics": "Applies informatics to laboratory data management",
+          "reproducible_research": "Ensures reproducibility through systematic approaches"
+        }
+      },
+      "high_risk_content": {
+        "forbidden_claims": [
+          "discovered novel mechanism",
+          "developed breakthrough assay",
+          "optimized all experimental conditions",
+          "achieved perfect reproducibility",
+          "solved major technical challenge independently"
+        ],
+        "restricted_verbs": [
+          "discovered", "developed", "optimized", "achieved", "solved"
+        ],
+        "unverifiable_outcomes": [
+          "led to new drug target",
+          "revolutionized experimental approach",
+          "eliminated all technical variability",
+          "produced groundbreaking results"
+        ]
+      },
+      "recommended_questions": [
+        "What specific laboratory techniques did you use?",
+        "What type of samples did you work with?",
+        "What instruments did you operate?",
+        "How many replicates did you typically run?",
+        "What controls did you include in your experiments?",
+        "Was this work published or presented?"
+      ]
+    },
+    "data_analysis_medical": {
+      "name": "Medical Data Analysis",
+      "description": "Statistical and computational analysis of medical or healthcare data",
+      "identifiable_expressions": [
+        "数据分析", "统计分析", "data analysis", "statistical analysis",
+        "R", "Python", "SPSS", "SAS", "regression", "machine learning",
+        "predictive modeling", "survival analysis", "logistic regression"
+      ],
+      "required_hard_facts": {
+        "context": ["domain", "setting"],
+        "role": ["responsibility_level"],
+        "actions": ["analyze_data", "validate_results", "create_visualizations"],
+        "methods": ["regression_modeling", "survival_analysis", "machine_learning"],
+        "tools": ["r", "python", "spss", "sas", "tableau"]
+      },
+      "professional_context": {
+        "background": "Medical data analysis extracts insights from healthcare data to support clinical or research decisions",
+        "problem_or_goal": "To identify patterns, associations, or predictions from medical data using appropriate statistical methods",
+        "workflow_steps": [
+          "Data cleaning and preprocessing",
+          "Exploratory data analysis",
+          "Statistical method selection",
+          "Model development and validation",
+          "Result interpretation and validation",
+          "Visualization creation",
+          "Sensitivity analysis",
+          "Documentation and reporting"
+        ],
+        "quality_control": [
+          "Data quality assessment",
+          "Appropriate statistical method selection",
+          "Model validation techniques",
+          "Multiple testing correction",
+          "Reproducible analysis code",
+          "Peer review of analysis approach"
+        ]
+      },
+      "role_specific_value": {
+        "doctoral_v1": {
+          "statistical_mastery": "Demonstrates advanced statistical methodology knowledge",
+          "computational_skills": "Shows strong programming and computational abilities",
+          "methodological_rigor": "Applies rigorous analytical approaches",
+          "result_interpretation": "Interprets complex statistical results accurately",
+          "reproducible_research": "Ensures reproducible analytical workflows"
+        },
+        "clinical_research_v1": {
+          "study_analysis": "Performs robust clinical study statistical analysis",
+          "regulatory_compliance": "Ensures analysis meets regulatory standards",
+          "data_quality": "Maintains high standards for data analysis quality",
+          "timeline_delivery": "Delivers analysis results on schedule",
+          "collaborative_analysis": "Works effectively with clinical team on analysis"
+        },
+        "medical_affairs_v1": {
+          "real_world_evidence": "Generates compelling real-world evidence",
+          "healthcare_economics": "Conducts health economics analyses",
+          "market_access_support": "Supports market access with robust analyses",
+          "scientific_communication": "Communicates analytical findings effectively",
+          "stakeholder_insights": "Provides actionable insights to stakeholders"
+        },
+        "health_ai_data_v1": {
+          "advanced_analytics": "Applies cutting-edge analytical techniques",
+          "scalable_infrastructure": "Builds scalable analytical infrastructure",
+          "automated_workflows": "Creates automated analytical workflows",
+          "model_deployment": "Deploys analytical models in production",
+          "data_product_development": "Develops data products from analytical insights"
+        }
+      },
+      "high_risk_content": {
+        "forbidden_claims": [
+          "developed novel algorithm",
+          "created predictive model with perfect accuracy",
+          "solved data quality issues completely",
+          "discovered hidden patterns no one else saw",
+          "built production-ready AI system"
+        ],
+        "restricted_verbs": [
+          "developed", "created", "solved", "discovered", "built"
+        ],
+        "unverifiable_outcomes": [
+          "improved clinical decision-making",
+          "reduced healthcare costs significantly",
+          "enabled precision medicine implementation",
+          "transformed data into actionable insights"
+        ]
+      },
+      "recommended_questions": [
+        "What statistical methods did you use?",
+        "What programming languages or software did you employ?",
+        "What type of medical data did you analyze?",
+        "How did you validate your results?",
+        "What was the sample size of your analysis?",
+        "Was this analysis published or presented?"
+      ]
+    },
+    "medical_writing_literature": {
+      "name": "Medical Writing and Literature Work",
+      "description": "Creating, reviewing, or synthesizing medical and scientific literature",
+      "identifiable_expressions": [
+        "医学写作", "文献工作", "medical writing", "literature review",
+        "manuscript", "paper", "publication", "scientific communication",
+        "grant writing", "regulatory writing", "clinical study report"
+      ],
+      "required_hard_facts": {
+        "context": ["domain", "setting"],
+        "role": ["responsibility_level"],
+        "actions": ["write_manuscript", "review_literature", "edit_documents"],
+        "methods": ["systematic_review", "narrative_review"],
+        "artifacts": ["research_paper", "grant_proposal", "regulatory_document"]
+      },
+      "professional_context": {
+        "background": "Medical writing communicates scientific and medical information to various audiences",
+        "problem_or_goal": "To convey complex medical information clearly, accurately, and appropriately for the target audience",
+        "workflow_steps": [
+          "Audience and purpose definition",
+          "Literature research and evidence gathering",
+          "Outline and structure development",
+          "Draft writing and revision",
+          "Peer review and feedback incorporation",
+          "Formatting and style compliance",
+          "Final editing and proofreading",
+          "Submission or publication"
+        ],
+        "quality_control": [
+          "Scientific accuracy verification",
+          "Regulatory or journal guideline compliance",
+          "Peer review process",
+          "Fact-checking and reference validation",
+          "Style guide adherence",
+          "Plagiarism avoidance"
+        ]
+      },
+      "role_specific_value": {
+        "doctoral_v1": {
+          "scientific_communication": "Communicates research findings effectively",
+          "literature_synthesis": "Synthesizes complex literature comprehensively",
+          "academic_writing": "Demonstrates strong academic writing skills",
+          "peer_review": "Engages constructively in peer review process",
+          "publication_strategy": "Understands publication strategy and selection"
+        },
+        "clinical_research_v1": {
+          "protocol_writing": "Writes clear clinical study protocols",
+          "csr_preparation": "Prepares comprehensive clinical study reports",
+          "regulatory_submissions": "Supports regulatory submission documents",
+          "scientific_accuracy": "Ensures scientific accuracy in all documents",
+          "timeline_management": "Manages writing timelines effectively"
+        },
+        "medical_affairs_v1": {
+          "scientific_narrative": "Crafts compelling scientific narratives",
+          "medical_communications": "Creates effective medical communications",
+          "advisory_board_support": "Supports advisory board materials",
+          "publication_planning": "Contributes to publication planning",
+          "key_message_development": "Develops clear key messages"
+        },
+        "health_ai_data_v1": {
+          "technical_documentation": "Creates clear technical documentation",
+          "data_storytelling": "Communicates data insights effectively",
+          "user_guide_development": "Develops user-friendly documentation",
+          "scientific_translation": "Translates technical concepts for broader audience",
+          "content_strategy": "Plans content strategy for data products"
+        }
+      },
+      "high_risk_content": {
+        "forbidden_claims": [
+          "authored entire manuscript independently",
+          "wrote successful grant that secured funding",
+          "created regulatory document that gained approval",
+          "developed writing style that influenced field",
+          "published in top-tier journal as first author"
+        ],
+        "restricted_verbs": [
+          "authored", "wrote", "created", "developed", "published"
+        ],
+        "unverifiable_outcomes": [
+          "influenced scientific opinion",
+          "secured major funding",
+          "gained regulatory approval",
+          "changed clinical practice through writing"
+        ]
+      },
+      "recommended_questions": [
+        "What type of medical documents did you write?",
+        "Who was your target audience?",
+        "What was your specific contribution to collaborative writing?",
+        "Which journals or guidelines did you follow?",
+        "Was your writing published or accepted?",
+        "What was your authorship position?"
+      ]
+    },
+    "clinical_practice": {
+      "name": "Clinical Practice and Patient Care",
+      "description": "Direct patient care and clinical activities in healthcare settings",
+      "identifiable_expressions": [
+        "临床实习", "临床实践", "patient care", "clinical rotation",
+        "ward rounds", "patient assessment", "medical history", "physical exam",
+        "treatment plan", "clinical decision-making", "three甲医院"
+      ],
+      "required_hard_facts": {
+        "context": ["domain", "setting"],
+        "role": ["responsibility_level"],
+        "actions": ["collect_history", "perform_exam", "document_notes"],
+        "methods": ["clinical_assessment", "differential_diagnosis"],
+        "objects": ["patient_records", "clinical_variables"]
+      },
+      "professional_context": {
+        "background": "Clinical practice involves direct patient care under supervision in healthcare settings",
+        "problem_or_goal": "To develop clinical skills, medical knowledge application, and patient care competencies",
+        "workflow_steps": [
+          "Patient history taking and documentation",
+          "Physical examination performance",
+          "Differential diagnosis formulation",
+          "Treatment plan discussion and implementation",
+          "Ward round participation",
+          "Case presentation preparation",
+          "Clinical procedure assistance",
+          "Patient education and counseling"
+        ],
+        "quality_control": [
+          "Supervisor oversight and feedback",
+          "Standardized clinical protocols",
+          "Patient safety protocols",
+          "Ethical patient interaction",
+          "Confidentiality maintenance",
+          "Professional conduct standards"
+        ]
+      },
+      "role_specific_value": {
+        "doctoral_v1": {
+          "clinical_observation": "Demonstrates keen clinical observation skills",
+          "problem_identification": "Identifies research-worthy clinical problems",
+          "patient_interaction": "Shows effective patient communication",
+          "clinical_reasoning": "Applies sound clinical reasoning",
+          "professional_development": "Exhibits commitment to professional growth"
+        },
+        "clinical_research_v1": {
+          "clinical_context": "Understands clinical context for research",
+          "patient_recruitment": "Recruits patients effectively for studies",
+          "clinical_data_quality": "Ensures high-quality clinical data collection",
+          "protocol_feasibility": "Assesses clinical protocol feasibility",
+          "patient_safety": "Prioritizes patient safety in research"
+        },
+        "medical_affairs_v1": {
+          "clinical_insight": "Provides deep clinical insights",
+          "physician_perspective": "Understands physician perspectives",
+          "patient_journey": "Comprehends patient journey and needs",
+          "clinical_relevance": "Ensures clinical relevance of medical information",
+          "healthcare_system": "Understands healthcare system dynamics"
+        },
+        "health_ai_data_v1": {
+          "clinical_workflow": "Understands clinical workflow requirements",
+          "user_needs": "Identifies clinician user needs",
+          "clinical_data_quality": "Recognizes clinical data quality issues",
+          "implementation_barriers": "Identifies implementation barriers",
+          "clinical_validation": "Supports clinical validation of solutions"
+        }
+      },
+      "high_risk_content": {
+        "forbidden_claims": [
+          "diagnosed patients independently",
+          "prescribed medications without supervision",
+          "performed procedures solo",
+          "made final treatment decisions",
+          "managed patient care independently"
+        ],
+        "restricted_verbs": [
+          "diagnosed", "prescribed", "performed", "made", "managed"
+        ],
+        "unverifiable_outcomes": [
+          "improved patient outcomes",
+          "reduced hospital readmissions",
+          "enhanced patient satisfaction",
+          "optimized clinical workflow"
+        ]
+      },
+      "recommended_questions": [
+        "Which clinical department or specialty was this in?",
+        "What specific clinical activities did you participate in?",
+        "What level of supervision did you have?",
+        "How many patients did you interact with?",
+        "What clinical procedures did you observe or assist with?",
+        "What clinical skills did you develop?"
+      ]
+    }
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": "candidate-facts-v1",
+  "facts_id": "v32_candidate_facts",
+  "status": "user_confirmed",
+  "confirmed_at": "2026-08-23T10:00:00Z",
+  "basics": {
+    "name": "候选人姓名",
+    "phone": "138****0000",
+    "email": "candidate@example.com",
+    "location": "上海",
+    "target": "心血管临床研究",
+    "avatar_path": "../assets/avatar-placeholder.svg"
+  },
+  "overview": "临床医学学士，专注于心血管临床研究方向，具备系统性循证医学训练和扎实的统计分析能力。通过参与心血管Meta分析项目，在导师指导和团队协作下完成从研究问题识别、系统检索、质量评价到结果解释的证据综合流程；通过心血管流行病学调查积累研究设计、数据质量控制与统计分析经验；在心内科临床实习中培养专科临床思维与科研问题意识，致力于将临床实践与循证研究相结合。",
+  "education": {
+    "degree": "临床医学学士",
+    "institution": "某医科大学",
+    "period": {
+      "start": "2020.09",
+      "end": "2024.06"
+    },
+    "gpa": "3.8/4.0",
+    "ranking": "专业前15%",
+    "english_score": "CET-6 580分",
+    "core_courses": ["流行病学", "卫生统计学", "内科学"]
+  },
+  "meta_analysis_experience": {
+    "organization": "某附属医院课题组",
+    "title": "心血管Meta分析研究助理",
+    "department": "心血管临床研究",
+    "period": {
+      "start": "2022.03",
+      "end": "2024.03"
+    },
+    "role_level": "participated",
+    "research_topic": "心血管疾病二级预防的药物疗效比较",
+    "pico_framework": {
+      "population": "ACS患者",
+      "intervention": "不同抗血小板药物",
+      "comparison": "标准治疗或其他抗血小板药物",
+      "outcome": "主要心血管事件、出血风险"
+    },
+    "databases_used": ["PubMed", "Embase", "Cochrane Library"],
+    "studies_screened": 120,
+    "studies_included": 45,
+    "retrieval_strategy": "在导师指导下参与制定多数据库检索策略",
+    "screening_process": "完成标题摘要初筛和全文复筛两级筛选",
+    "quality_assessment": "协助应用Cochrane RoB工具进行偏倚风险评价",
+    "data_extraction": "使用标准化表格提取基线特征、干预措施、结局指标",
+    "statistical_analysis": "协助使用R进行异质性检验和敏感性分析",
+    "results_interpretation": "能够解释主要结果和异质性来源",
+    "academic_output": {
+      "paper_title": "不同抗血小板药物在ACS患者中的疗效比较：系统综述与Meta分析",
+      "status": "in_preparation",
+      "author_position": "第三作者"
+    },
+    "team_collaboration": "研究团队协作",
+    "presentation": "3次组会汇报",
+    "tools_used": ["SPSS", "R"]
+  },
+  "innovation_project": {
+    "project_type": "校级大创项目",
+    "title": "心血管流行病学调查",
+    "period": {
+      "start": "2021.09",
+      "end": "2022.06"
+    },
+    "role_level": "participated",
+    "research_topic": "医学生心血管疾病认知现状",
+    "questionnaire_design": "参与设计结构化问卷并进行预调查",
+    "sample_size": "300+问卷",
+    "data_collection": "完成较大规模问卷数据收集",
+    "quality_control": "实施双人录入和逻辑校验双重质量控制",
+    "statistical_methods": ["描述性统计", "卡方检验", "Logistic回归"],
+    "key_findings": "高年级医学生对二级预防认知显著不足",
+    "recommendations": "提出针对性教学改进建议",
+    "project_outcome": "校级优秀结题",
+    "tools_used": ["SPSS", "Excel"]
+  },
+  "clinical_internship": {
+    "hospital": "某三甲医院",
+    "department": "心内科",
+    "period": {
+      "start": "2023.07",
+      "end": "2023.12"
+    },
+    "patient_cases": "20+住院患者",
+    "main_conditions": ["冠心病", "心衰"],
+    "clinical_skills": [
+      "跟随主治医师参与日常管理",
+      "参与查房前信息整理",
+      "病历书写",
+      "治疗方案讨论"
+    ],
+    "auxiliary_exams": [
+      "心电图解读",
+      "心脏超声解读",
+      "实验室检查整合"
+    ],
+    "research_inspiration": "观察到抗血小板药物使用的显著个体差异，深入思考循证依据",
+    "basic_operations": [
+      "静脉采血",
+      "心电图",
+      "生命体征监测"
+    ],
+    "team_collaboration": "积极参与科室病例讨论和健康教育活动"
+  },
+  "skills_and_certificates": {
+    "data_analysis": {
+      "R": "基础，具备基础分析能力",
+      "SPSS": "熟练，描述统计/推断统计/回归分析",
+      "Excel": "熟练"
+    },
+    "literature_management": {
+      "EndNote": "熟练",
+      "NoteExpress": "熟练"
+    },
+    "languages": {
+      "English": "CET-6 580，能够阅读英文医学文献",
+      "Chinese": "普通话"
+    },
+    "certificates": ["执业医师资格考试通过（2024）"]
+  },
+  "research_interests": [
+    "心血管疾病二级预防的循证策略优化",
+    "抗血小板治疗的个体化决策支持",
+    "真实世界证据在心血管临床实践中的应用",
+    "临床流行病学方法学在慢性病管理中的创新"
+  ],
+  "capability_profile": [
+    {
+      "name": "循证医学与系统综述",
+      "category": "research_method",
+      "proficiency": "participated_full_workflow",
+      "description": "系统参与Meta分析完整流程，完成文献检索、筛选与数据提取，并参与质量评价、统计分析和结果解释",
+      "evidence_ids": ["ev_meta_001"]
+    },
+    {
+      "name": "医学数据处理与统计分析",
+      "category": "data_analysis",
+      "proficiency": "applied",
+      "description": "结合研究目的处理问卷与文献数据，使用SPSS开展描述性及推断性统计，并具备R基础分析能力",
+      "evidence_ids": ["ev_meta_001", "ev_innovation_001"]
+    },
+    {
+      "name": "文献评价与证据整合",
+      "category": "research_method",
+      "proficiency": "applied",
+      "description": "参与偏倚风险评价、标准化数据提取与结果整合，重视证据质量、研究差异及临床解释",
+      "evidence_ids": ["ev_meta_001"]
+    },
+    {
+      "name": "临床问题识别与科研转化",
+      "category": "clinical_research",
+      "proficiency": "developing",
+      "description": "在心内科实践中结合病例、辅助检查与治疗差异识别循证问题，形成持续研究兴趣",
+      "evidence_ids": ["ev_clinical_001"]
+    }
+  ],
+  "career_objective": {
+    "target_direction": "心血管临床研究",
+    "target_mentor": "Meta分析专家",
+    "research_narrative": "临床学习→问题识别→证据整合→数据分析→深造方向"
+  }
+}

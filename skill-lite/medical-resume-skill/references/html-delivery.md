@@ -20,6 +20,8 @@ Use the included [ATS medical resume template](../assets/ats-medical-resume.html
 - For students and early-career researchers, place education before experience unless the user asks otherwise.
 - Use a compact header with name, target direction and contact details. Do not use a photo by default.
 - For every experience, display organisation or project on the left and dates on the right; put role and research topic on a muted second line.
+- Render separate research, project and clinical sections when the confirmed material supports them. Remove an unsupported section rather than leaving a placeholder.
+- Use the accepted professional tier by default; keep conservative and high-impact source versions in `resume-data.json` so another version can be rendered without rewriting facts.
 - Keep bullets below their corresponding experience. Do not repeat the same bullet in skills and experience.
 - Present methods, tools, experimental techniques and certificates as concise grouped text or one item per line, not as decorative chips.
 - Do not show `ev_001`, risk levels, source quotes, audit records, `[待补]`, or any other internal review text in the visible resume.

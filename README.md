@@ -3,7 +3,7 @@
 <p align="center">
   <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
   <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
-  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/285-TESTS-8BAA97?style=flat-square" alt="285 tests" />
   <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
 </p>
 
@@ -124,6 +124,8 @@ Copy-Item .env.example .env
 ## 面向 Codex/Claude 用户的 Skill Lite
 
 网页适合不想配置 AI 工具的用户；仓库也提供轻量 Skill，适合在 Codex 或 Claude 中进行更深入的“经历问诊”：
+
+Skill 默认先确认事实，再按不同内容维度规划每段经历，并提供稳妥版、专业版和高竞争力版。证据充分的代表经历可以形成 5–9 条互不重复的要点；默认交付专业版高密度 HTML，同时保留其他版本供用户选择。信息密度来自背景、职责、方法、工具、质控、协作和产出等不同事实，不来自重复句或虚构数字。
 
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)

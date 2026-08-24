@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>候选人姓名简历</title>
+  <style>
+    /* ATS-compatible medical resume styles */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Times New Roman", "SimHei", "Microsoft YaHei", sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.42;
+      color: #18212a;
+    }
+
+    .resume-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 9mm 12mm 11mm;
+      background: #fff;
+      box-shadow: 0 2px 18px #1f29372e;
+    }
+
+    .resume-header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 5mm;
+    }
+
+    .resume-header-text {
+      flex: 1;
+      min-width: 0;
+      padding-right: 10mm;
+    }
+
+    .resume-avatar-container {
+      width: 24mm;
+      height: 24mm;
+      flex-shrink: 0;
+    }
+
+    .resume-avatar {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
+    .resume-name {
+      margin: 0 0 3px;
+      font-family: Arial, "Microsoft YaHei", sans-serif;
+      font: 700 22pt/1.08;
+      letter-spacing: 0;
+    }
+
+    .resume-target {
+      margin: 4px 0;
+      color: #171717;
+      font-weight: 700;
+      font-size: 11.5pt;
+      letter-spacing: .02em;
+    }
+
+    .resume-contact {
+      margin: 3px 0;
+      color: #202020;
+      font-size: 10.5pt;
+    }
+
+    .resume-section {
+      margin-top: 5mm;
+      break-inside: avoid;
+    }
+
+    .resume-section h2 {
+      margin: 0 0 4px;
+      padding: 0;
+      border: 0;
+      color: #171717;
+      font: 700 12.5pt/1.15;
+      letter-spacing: 0;
+      position: relative;
+    }
+
+    .resume-section h2::after {
+      content: "";
+      display: block;
+      width: 30%;
+      height: 0.6px;
+      margin-top: 2px;
+      background: #888888;
+    }
+
+    .resume-summary {
+      margin: 3px 0;
+      color: #202020;
+      font-size: 10.6pt;
+      line-height: 1.48;
+    }
+
+    .resume-list {
+      margin: 2px 0 3px 17px;
+      padding: 0;
+    }
+
+    .resume-list li {
+      margin: 2px 0;
+      color: #202020;
+      font-size: 10.4pt;
+      line-height: 1.45;
+    }
+
+    .resume-entry {
+      padding: 0;
+      margin: 4mm 0 4mm 0;
+    }
+
+    .resume-entry-head {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 12px;
+      align-items: baseline;
+      padding-bottom: 2px;
+    }
+
+    .resume-date {
+      grid-column: 2;
+      grid-row: 1;
+      color: #334155;
+      font: 9.5pt "Times New Roman", "Microsoft YaHei", sans-serif;
+      white-space: nowrap;
+    }
+
+    .resume-org {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 11.1pt;
+      font-weight: 700;
+    }
+
+    .resume-role {
+      grid-column: 1;
+      grid-row: 2;
+      color: #202020;
+      font-size: 10.2pt;
+    }
+
+    .resume-empty {
+      padding: 20px 0;
+      color: #66716c;
+      font-size: 10pt;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .resume-sheet {
+        width: 210mm !important;
+        min-height: 297mm !important;
+        margin: 0 !important;
+        padding: 9mm 12mm 11mm !important;
+        box-shadow: none !important;
+      }
+
+      /* Explicit page break rules */
+      .page-break {
+        page-break-before: always;
+      }
+
+      .avoid-page-break {
+        page-break-inside: avoid;
+      }
+
+      /* Allow long sections to break naturally */
+      .resume-section {
+        break-inside: auto;
+      }
+
+      .resume-entry {
+        break-inside: auto;
+      }
+
+      /* Prevent orphaned headings */
+      h2 {
+        break-after: avoid;
+      }
+
+      /* Keep list items together when possible */
+      .resume-list li {
+        break-inside: avoid;
+      }
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 760px) {
+      .resume-sheet {
+        width: 100%;
+        min-height: auto;
+        padding: 24px 18px;
+      }
+
+      .resume-header-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .resume-header-text {
+        padding-right: 0;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .resume-avatar-container {
+        margin-bottom: 10px;
+      }
+
+      .resume-entry-head {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .resume-date,
+      .resume-org,
+      .resume-role {
+        grid-column: 1;
+        grid-row: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="resume-sheet template-minimal">
+    <div class="resume-header-container">
+      <div class="resume-header-text">
+        <h1 class="resume-name">候选人姓名</h1>
+        <div class="resume-target">心血管临床研究</div>
+        <div class="resume-contact">138****0000 · candidate@example.com · 上海</div>
+      </div>
+      <div class="resume-avatar-container"><img src="../assets/avatar-placeholder.svg" alt="候选人头像" class="resume-avatar"></div>
+    </div>
+
+    <div class="resume-section">
+      <div class="resume-summary">
+        临床医学学士，专注于心血管临床研究方向，具备系统性循证医学训练和扎实的统计分析能力。通过参与心血管Meta分析项目，在导师指导和团队协作下完成从研究问题识别、系统检索、质量评价到结果解释的证据综合流程；通过心血管流行病学调查积累研究设计、数据质量控制与统计分析经验；在心内科临床实习中培养专科临床思维与科研问题意识，致力于将临床实践与循证研究相结合。
+      </div>
+    </div>
+
+    <!-- 核心能力概览 -->
+    <div class="resume-section">
+      <h2>核心能力概览</h2>
+      <ul class="resume-list">
+        <li><strong>循证医学与系统综述</strong>：系统参与Meta分析完整流程，完成文献检索、筛选与数据提取，并参与质量评价、统计分析和结果解释</li>
+        <li><strong>医学数据处理与统计分析</strong>：结合研究目的处理问卷与文献数据，使用SPSS开展描述性及推断性统计，并具备R基础分析能力</li>
+        <li><strong>文献评价与证据整合</strong>：参与偏倚风险评价、标准化数据提取与结果整合，重视证据质量、研究差异及临床解释</li>
+        <li><strong>临床问题识别与科研转化</strong>：在心内科实践中结合病例、辅助检查与治疗差异识别循证问题，形成持续研究兴趣</li>
+      </ul>
+    </div>
+
+    <!-- 教育背景 -->
+    <div class="resume-section">
+      <h2>教育背景</h2>
+      <ul class="resume-list">
+        <li>某医科大学 | 临床医学学士 | 2020.09-2024.06</li>
+        <li>3.8/4.0 | 专业前15%</li>
+        <li>核心课程：流行病学、卫生统计学、内科学</li>
+      </ul>
+    </div>
+
+    <!-- 科研经历 -->
+        <div class="resume-section">
+      <h2>科研经历</h2>
+      <div class="resume-entry">
+        <div class="resume-entry-head">
+          <div class="resume-org">心血管Meta分析研究助理</div>
+          <div class="resume-date">2022.03-2024.03</div>
+          <div class="resume-role">某附属医院课题组</div>
+        </div>
+        <ul class="resume-list">          <li>参与心血管Meta分析，在团队协作中承担具体工作环节，旨在通过系统性证据综合比较不同抗血小板药物在ACS患者中的疗效</li>
+          <li>围绕通过系统性证据综合比较不同抗血小板药物在ACS患者中的疗效，参与研究问题的界定与梳理，明确研究边界和临床意义</li>
+          <li>在导师指导下参与构建PICO研究框架，明确人群、干预、对照与结局等要素，为后续检索与筛选提供结构化依据</li>
+          <li>参与制定系统检索策略，设计主题词与自由词组合，确保检索覆盖全面</li>
+          <li>参与制定并执行PubMed、Embase、Cochrane多数据库检索策略（覆盖3个数据库），为研究质量与进度提供可靠保障</li>
+          <li>参与完成标题摘要初筛和全文复筛双重筛选，处理筛选分歧，保障纳入研究的质量一致性，纳入45篇研究</li>
+          <li>参与制定明确的纳入与排除标准，规范筛选边界，减少主观偏倚</li>
+          <li>参与应用Cochrane RoB工具对纳入研究进行偏倚风险评价，确保证据基础的可靠性</li>
+          <li>参与使用标准化表格提取研究关键数据，维护结构化数据集，保障数据完整性与一致性</li>
+        </ul>
+      </div>
+      <div class="resume-entry">
+        <div class="resume-entry-head">
+          <div class="resume-org">心血管流行病学调查</div>
+          <div class="resume-date">2021.09-2022.06</div>
+          <div class="resume-role">某医科大学</div>
+        </div>
+        <ul class="resume-list">          <li>参与结构化问卷的设计与预调查，结合反馈完善条目设置和题项表达</li>
+          <li>参与较大规模问卷数据收集，保障回收数量与质量</li>
+          <li>参与实施预调查问卷验证、双人录入和逻辑校验、选择适当的统计方法，保障数据准确性与结果可靠性</li>
+          <li>参与根据数据特征选择描述性统计、卡方检验与回归分析等方法，确保结果的科学性</li>
+          <li>发现高年级医学生对二级预防认知显著不足，提出针对性教学改进建议，体现研究的实际应用价值</li>
+          <li>参与项目结题报告撰写与答辩汇报，项目最终获得校级优秀结题评价</li>
+        </ul>
+      </div>
+    </div>
+
+
+    <!-- 大创项目 -->
+    
+
+    <!-- 临床实习 -->
+        <div class="resume-section">
+      <h2>临床实习</h2>
+      <div class="resume-entry">
+        <div class="resume-entry-head">
+          <div class="resume-org">心内科临床实习</div>
+          <div class="resume-date">2023.07-2023.12</div>
+          <div class="resume-role">某三甲医院</div>
+        </div>
+        <ul class="resume-list">          <li>跟随主治医师参与住院患者的日常诊疗与病情观察（主要病种：冠心病、心衰），培养专科临床思维</li>
+          <li>参与病史采集与体格检查，规范完成临床文档记录</li>
+          <li>参与查房前信息整理、病历书写与治疗方案讨论，锻炼临床推理能力</li>
+          <li>协助整理与解读多维度辅助检查结果（如心电图解读、心脏超声解读、实验室检查整合），理解综合诊疗决策过程</li>
+          <li>在规范指导下完成基础临床操作（如静脉采血、心电图、生命体征监测），建立扎实的临床技能基础</li>
+          <li>参与病例分析与鉴别诊断讨论，提升临床推理与决策能力</li>
+        </ul>
+      </div>
+    </div>
+
+
+        <div class="resume-section">
+      <h2>论文与学术产出</h2>
+      <ul class="resume-list">
+        <li>不同抗血小板药物在ACS患者中的疗效比较：系统综述与Meta分析 · 第三作者 · 撰写中</li>
+      </ul>
+    </div>
+
+    <!-- 专业技能 -->
+    <div class="resume-section">
+      <h2>专业技能</h2>
+      <ul class="resume-list">
+        <li><strong>统计分析</strong>：R(基础，具备基础分析能力)、SPSS(熟练，描述统计/推断统计/回归分析)、Excel(熟练)</li>
+        <li><strong>文献管理与引用</strong>：EndNote(熟练)、NoteExpress(熟练)，支持文献组织、引用管理与学术写作</li>
+        <li><strong>语言能力</strong>：英语（CET-6 580，能够阅读英文医学文献）</li>
+      </ul>
+    </div>
+
+    <!-- 研究兴趣 -->
+    <div class="resume-section">
+      <h2>研究兴趣</h2>
+      <ul class="resume-list">
+        <li>心血管疾病二级预防的循证策略优化</li>
+        <li>抗血小板治疗的个体化决策支持</li>
+        <li>真实世界证据在心血管临床实践中的应用</li>
+        <li>临床流行病学方法学在慢性病管理中的创新</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

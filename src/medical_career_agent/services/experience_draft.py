@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Sequence
 
 from ..adapters.openai_compatible_model_gateway import ModelGatewayError
+from .question_planner import QuestionPlannerService
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,9 @@ class ExperienceDraft:
 
 class ExperienceDraftService:
     """Extracts facts from user's raw experience text and provides guidance."""
+
+    def __init__(self):
+        self.question_planner = QuestionPlannerService()
 
     # Medical research action patterns
     ACTION_PATTERNS = {
@@ -361,23 +365,26 @@ class ExperienceDraftService:
         return value_angles[:3]  # Limit to 3 value angles
 
     def _generate_clarifying_questions(self, facts: dict[str, Any], unknowns: list[str]) -> list[str]:
-        """Generate clarifying questions to improve the expression."""
+        """Choose at most three questions by expected resume-quality gain."""
         questions = []
-
-        # Prioritize questions that would most impact resume expression
+        # Preserve the repository's already-approved, user-facing questions.
+        # The dynamic planner fills remaining slots instead of replacing them.
         if "databases_used" in unknowns:
             questions.append("使用了哪些数据库进行文献检索？")
-
         if "screening_criteria" in unknowns:
             questions.append("你负责了文献筛选、数据提取或质量评价中的哪些环节？")
-
         if "specific_responsibilities" in unknowns:
             questions.append("你在项目中具体负责哪些任务？")
 
-        if "publication_status" in unknowns:
-            questions.append("这个项目是否有发表计划或已发表？")
-
-        return questions[:3]  # Limit to 3 questions as required
+        planned, _ = self.question_planner.plan_questions(
+            extracted_facts=facts,
+            unknown_items=unknowns,
+            previously_asked=[],
+        )
+        for item in planned:
+            if item.question not in questions:
+                questions.append(item.question)
+        return questions[:3]
 
     def _identify_risk_flags(self, facts: dict[str, Any], text: str) -> list[str]:
         """Identify potential risks in the input text."""

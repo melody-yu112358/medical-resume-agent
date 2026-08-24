@@ -22,6 +22,11 @@ class BulletClaim:
     responsibility_level: str
     omitted_unknowns: Tuple[str, ...]
     risk_flags: Tuple[str, ...]
+    dimension_id: str = ""
+    claim_type: str = "experience"
+    expression_tier: str = "professional"
+    source_fact_ids: Optional[List[str]] = None
+    role_value: Optional[str] = None
     verification_status: str = "candidate"
     user_disposition: Optional[str] = None
 
@@ -37,6 +42,11 @@ class BulletClaim:
             "responsibility_level": self.responsibility_level,
             "omitted_unknowns": list(self.omitted_unknowns),
             "risk_flags": list(self.risk_flags),
+            "dimension_id": self.dimension_id,
+            "claim_type": self.claim_type,
+            "expression_tier": self.expression_tier,
+            "source_fact_ids": self.source_fact_ids,
+            "role_value": self.role_value,
             "verification_status": self.verification_status,
             "user_disposition": self.user_disposition,
         }

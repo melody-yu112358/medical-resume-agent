@@ -184,13 +184,6 @@ def test_v32_golden_sample_multi_dimensional_generation():
     print("责任级别保护验证通过")
     print("三档表达差异化验证通过")
     print("内容密度和专业性达到V3.2标准")
-    return True
-
-
 if __name__ == "__main__":
-    success = test_v32_golden_sample_multi_dimensional_generation()
-    if success:
-        print("\n多维内容生成测试全部通过！")
-    else:
-        print("\n测试失败！")
-        sys.exit(1)
+    test_v32_golden_sample_multi_dimensional_generation()
+    print("\n多维内容生成测试全部通过！")

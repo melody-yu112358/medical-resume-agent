@@ -3,7 +3,7 @@
 <p align="center">
   <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
   <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
-  <img src="https://img.shields.io/badge/285-TESTS-8BAA97?style=flat-square" alt="285 tests" />
+  <img src="https://img.shields.io/badge/TEST_SUITE-PASSING-8BAA97?style=flat-square" alt="test suite passing" />
   <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
 </p>
 
@@ -130,7 +130,9 @@ Skill 默认先确认事实，再按不同内容维度规划每段经历，并�
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite 复用了本项目的核心方法：先拆事实、再确认、最后按目标方向翻译。它是提示词与工作流包，不替代网页中的 Claim Gate 和审计能力。
+Skill Lite 复用了本项目的核心方法：先拆事实、再确认、最后按目标方向翻译。它是供 Codex、Claude Code 等宿主模型调用的提示词、流程与知识资产，本身不包含或启动独立模型接口。网页 Agent 的模型接口、Claim Gate、审计账本和结构化 API 是另一套独立能力。
+
+`golden-sample/` 中的 V3.2 内容是脱敏的 synthetic demo，只用于展示质量上限和回归测试；其中的疾病、数字、署名、成果和职责绝不能成为真实用户简历的自动补全来源。
 
 ## 验证
 
@@ -139,7 +141,7 @@ python -m pip install -e ".[resume_extract,dev,schema_validation]"
 python -m pytest -q
 ```
 
-当前共享发布源包含 205 项单元、接口与端到端测试。发布前还应完成浏览器冒烟测试：载入示例、提取事实、确认、选择方向、生成要点、查看证据并导出。
+当前共享发布源包含完整的单元、接口与端到端测试套件；实际数量以 `pytest -q` 的收集结果为准，避免文档数字随新增测试失效。发布前还应完成浏览器冒烟测试：载入示例、提取事实、确认、选择方向、生成要点、查看证据并导出。
 
 ## 仓库结构
 

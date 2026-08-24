@@ -190,13 +190,6 @@ def test_v32_golden_sample_three_tier_expression():
     print("\n" + "=" * 60)
     print("V3.2黄金样本三档表达系统测试完成！")
     print("所有关键要求验证通过")
-    return True
-
-
 if __name__ == "__main__":
-    success = test_v32_golden_sample_three_tier_expression()
-    if success:
-        print("\n三档表达系统测试全部通过！")
-    else:
-        print("\n测试失败！")
-        sys.exit(1)
+    test_v32_golden_sample_three_tier_expression()
+    print("\n三档表达系统测试全部通过！")

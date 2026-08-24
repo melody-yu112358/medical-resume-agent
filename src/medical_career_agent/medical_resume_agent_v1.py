@@ -18,7 +18,6 @@ from medical_career_agent.services.multi_dimensional_content_generator import Mu
 from medical_career_agent.services.three_tier_expression_system import ThreeTierExpressionSystem
 from medical_career_agent.services.semantic_claim_gate import SemanticClaimGateService
 from medical_career_agent.services.resume_document_assembler import ResumeDocumentAssembler, enhance_role_packs
-from medical_career_agent.services.v32_canonical_experience_factory import create_v32_canonical_experiences
 
 
 class MedicalResumeAgentV1:
@@ -162,14 +161,21 @@ class MedicalResumeAgentV1:
 
 
 def generate_v32_golden_sample():
-    """生成V3.2黄金样本。"""
+    """Generate the synthetic V3.2 demo fixture for regression tests only.
+
+    This entry point is intentionally separate from ``process_user_input`` and
+    must never be used to construct a real user's canonical experiences.
+    """
+    from medical_career_agent.services.v32_canonical_experience_factory import (
+        create_v32_synthetic_demo_experiences,
+    )
     agent = MedicalResumeAgentV1()
 
     v32_input = """临床医学学士，专注于心血管临床研究方向，具备系统性循证医学训练和扎实的统计分析能力。通过参与心血管Meta分析项目，在导师指导和团队协作下完成了从研究问题识别、系统检索、质量评价到结果解释的完整证据综合流程；通过心血管流行病学调查，积累了真实世界研究数据处理和分析经验；在心内科临床实习中培养了专科临床思维和科研问题识别能力。致力于将临床实践与循证研究相结合，推动心血管疾病二级预防的个体化决策。"""
 
     candidate_facts_path = Path(__file__).parent.parent.parent / "data" / "fixtures" / "candidate-facts.json"
     candidate_facts = json.loads(candidate_facts_path.read_text(encoding="utf-8"))
-    canonical_experiences = create_v32_canonical_experiences(candidate_facts)
+    canonical_experiences = create_v32_synthetic_demo_experiences(candidate_facts)
     result = agent.process_user_input(
         v32_input,
         ["doctoral_v1"],
@@ -179,8 +185,13 @@ def generate_v32_golden_sample():
 
     if result["status"] == "success":
         # 保存结果
-        output_dir = Path(__file__).parent.parent.parent / "golden-sample" / "generated"
-        output_dir.mkdir(exist_ok=True)
+        output_dir = (
+            Path(__file__).parent.parent.parent
+            / "golden-sample"
+            / "generated"
+            / "synthetic-demo"
+        )
+        output_dir.mkdir(parents=True, exist_ok=True)
 
         # 保存专业版HTML
         html_content = generate_html_from_resume_document(result["resume_document"])

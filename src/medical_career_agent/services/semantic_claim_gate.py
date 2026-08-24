@@ -112,7 +112,11 @@ class SemanticClaimGateService:
             raise ValueError("canonical_experience必须具有状态'user_confirmed'")
 
         wording = bullet_claim.get("wording", "")
-        responsibility_level = bullet_claim.get("responsibility_level", "unknown")
+        # The confirmed canonical record is the only authority for responsibility.
+        # A generated claim must never be able to raise its own permission level.
+        responsibility_level = canonical_experience.get("role", {}).get(
+            "responsibility_level", "unknown"
+        )
         target_role = bullet_claim.get("role_pack", "")
 
         # 初始化结果
@@ -303,13 +307,18 @@ class SemanticClaimGateService:
         canonical_experience: Dict[str, Any]
     ) -> bool:
         """验证责任级别一致性。"""
-        # 定义责任级别顺序
-        level_order = ["participated", "owned_component", "led_delivery", "project_owner"]
-
-        # 明确的责任升级指标（只检查这些）
+        # 明确的责任升级指标。这里的 level 来自 canonical record。
         responsibility_upgrade_indicators = {
-            "participated": ["负责", "主导", "管理", "领导", "独立负责", "独立主导", "独立管理"],
-            "owned_component": ["主导", "管理", "领导", "overall responsibility"],
+            "participated": [
+                r"独立完成", r"独立负责", r"独立主导", r"牵头", r"主导",
+                r"核心负责", r"全程负责", r"负责", r"管理", r"领导",
+                r"\blead\b", r"\bled\b", r"\bleading\b", r"\bowner\b",
+                r"\bmanag(?:e|ed|ing)\b", r"\bindependently\s+completed\b",
+            ],
+            "owned_component": [
+                r"独立主导", r"牵头", r"主导", r"管理", r"领导",
+                r"overall responsibility", r"\blead\b", r"\bled\b", r"\bleading\b", r"\bowner\b",
+            ],
             "led_delivery": ["管理", "overall responsibility"],
             "project_owner": []
         }
@@ -318,8 +327,24 @@ class SemanticClaimGateService:
         if responsibility_level in responsibility_upgrade_indicators:
             upgrade_indicators = responsibility_upgrade_indicators[responsibility_level]
             for indicator in upgrade_indicators:
-                if indicator in wording:
+                if re.search(indicator, wording, flags=re.IGNORECASE):
                     return False
+
+        # owned_component 只允许对用户明确确认的具体模块使用“独立”。
+        if responsibility_level == "owned_component" and re.search(
+            r"独立(?:完成|负责)|\bindependently\s+completed\b", wording, flags=re.IGNORECASE
+        ):
+            boundary = str(canonical_experience.get("role", {}).get("personal_boundary") or "")
+            if not boundary or not re.search(r"独立(?:完成|负责)|independently", boundary, flags=re.IGNORECASE):
+                return False
+            module_terms = (
+                "文献检索", "文献筛选", "筛选", "数据提取", "统计分析", "数据分析",
+                "实验", "问卷", "随访", "写作", "可视化", "数据库", "模块",
+            )
+            wording_modules = {term for term in module_terms if term in wording}
+            boundary_modules = {term for term in module_terms if term in boundary}
+            if not wording_modules or not wording_modules.intersection(boundary_modules):
+                return False
 
         return True
 

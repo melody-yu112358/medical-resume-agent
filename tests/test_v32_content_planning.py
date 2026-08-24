@@ -184,13 +184,6 @@ def test_v32_golden_sample_content_planning():
 
     print("\n" + "=" * 60)
     print("V3.2 Golden Sample Content Planning Test Complete!")
-    return True
-
-
 if __name__ == "__main__":
-    success = test_v32_golden_sample_content_planning()
-    if success:
-        print("\nAll content planning tests passed!")
-    else:
-        print("\nSome tests failed!")
-        sys.exit(1)
+    test_v32_golden_sample_content_planning()
+    print("\nAll content planning tests passed!")

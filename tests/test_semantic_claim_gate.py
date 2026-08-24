@@ -27,7 +27,7 @@ def test_v32_claim_validation():
         "claim_id": "claim_v32_001",
         "experience_id": "v32_meta_analysis_001",
         "role_pack": "doctoral_v1",
-        "wording": "系统参与Meta分析完整流程，独立完成文献检索、筛选和数据提取，并参与统计分析与结果解释",
+        "wording": "系统参与Meta分析流程，完成文献检索、筛选和数据提取，并参与统计分析与结果解释",
         "used_facts": ["actions:retrieve_literature", "actions:screen_studies", "actions:extract_data"],
         "evidence_ids": ["ev_v32_001"],
         "responsibility_level": "participated",
@@ -56,7 +56,7 @@ def test_v32_claim_validation():
         canonical_experience=v32_experience
     )
 
-    # V3.2声明应该通过验证
+    # V3.2声明在不升级责任的情况下应该通过验证
     assert isinstance(result, SemanticClaimGateResult)
     assert result.hard_facts_valid == True
     assert result.status == "ready"
@@ -101,6 +101,55 @@ def test_responsibility_upgrade_detection():
     assert result.hard_facts_valid == False
     assert result.status == "rejected"
     assert any("responsibility_upgrade" in check for check in result.failed_checks)
+
+
+@pytest.mark.parametrize(
+    ("canonical_role", "claim_level", "wording", "expected_status"),
+    [
+        ({"responsibility_level": "participated"}, "participated", "独立完成文献检索", "rejected"),
+        ({"responsibility_level": "participated"}, "project_owner", "主导文献检索", "rejected"),
+        ({"responsibility_level": "owned_component"}, "owned_component", "独立完成统计分析", "rejected"),
+        (
+            {"responsibility_level": "owned_component", "personal_boundary": "独立完成统计分析模块"},
+            "owned_component",
+            "独立完成统计分析模块",
+            "ready",
+        ),
+    ],
+)
+def test_canonical_responsibility_is_authoritative(
+    canonical_role, claim_level, wording, expected_status
+):
+    service = SemanticClaimGateService()
+    claim = {
+        "schema_version": "bullet-claim-v1",
+        "claim_id": "claim_boundary_001",
+        "experience_id": "test_001",
+        "role_pack": "doctoral_v1",
+        "wording": wording,
+        "used_facts": ["actions:retrieve_literature"],
+        "evidence_ids": ["ev_001"],
+        "responsibility_level": claim_level,
+        "omitted_unknowns": [],
+        "risk_flags": [],
+        "verification_status": "candidate",
+        "user_disposition": None,
+    }
+    experience = {
+        "schema_version": "canonical-experience-v1",
+        "experience_id": "test_001",
+        "evidence_ids": ["ev_001"],
+        "context": {"domain": "clinical_research"},
+        "role": canonical_role,
+        "actions": ["retrieve_literature", "analyze_data"],
+        "status": "user_confirmed",
+    }
+
+    result = service.validate_claim_semantic_layers(
+        bullet_claim=claim, canonical_experience=experience
+    )
+
+    assert result.status == expected_status
 
 
 def test_numbers_consistency_validation():

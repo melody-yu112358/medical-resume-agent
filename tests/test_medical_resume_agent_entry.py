@@ -29,3 +29,24 @@ def test_canonical_factory_does_not_fill_missing_business_facts():
     assert canonical["tools"] == []
     assert canonical["outcomes"] == []
     assert canonical["scope"] == {}
+
+
+def test_confirmed_sparse_meta_output_never_inherits_synthetic_demo_facts():
+    agent = MedicalResumeAgentV1()
+    canonical = agent._create_canonical_experience(
+        {
+            "context": {"domain": "clinical_research", "setting": "research_project"},
+            "role": {"responsibility_level": "participated"},
+            "actions": ["screen_studies"],
+            "methods": ["meta_analysis"],
+        }
+    )
+    result = agent.process_user_input(
+        "参与 Meta 分析、完成文献筛选",
+        confirmed_candidate_facts={"overview": "参与 Meta 分析并完成文献筛选"},
+        canonical_experiences=[canonical],
+    )
+
+    serialized = str(result)
+    for synthetic_value in ("ACS", "45", "第三作者", "在投论文", "抗血小板"):
+        assert synthetic_value not in serialized

@@ -90,13 +90,6 @@ def test_full_dynamic_question_workflow():
 
     print("\n" + "=" * 50)
     print("Dynamic Question Planner Integration Test Complete!")
-    return True
-
-
 if __name__ == "__main__":
-    success = test_full_dynamic_question_workflow()
-    if success:
-        print("\nAll tests passed!")
-    else:
-        print("\nSome tests failed!")
-        sys.exit(1)
+    test_full_dynamic_question_workflow()
+    print("\nAll tests passed!")

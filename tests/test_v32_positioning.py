@@ -117,13 +117,6 @@ def test_v32_golden_sample_positioning():
 
     print("\n" + "=" * 60)
     print("V3.2 Golden Sample Positioning Test Complete!")
-    return True
-
-
 if __name__ == "__main__":
-    success = test_v32_golden_sample_positioning()
-    if success:
-        print("\nAll positioning tests passed!")
-    else:
-        print("\nSome tests failed!")
-        sys.exit(1)
+    test_v32_golden_sample_positioning()
+    print("\nAll positioning tests passed!")

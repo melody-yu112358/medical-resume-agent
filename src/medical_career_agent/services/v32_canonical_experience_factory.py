@@ -5,8 +5,13 @@ from pathlib import Path
 from typing import Dict, List, Any
 
 
-def create_v32_canonical_experiences(candidate_facts: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """Create three canonical experiences from V3.2 candidate facts."""
+def create_v32_synthetic_demo_experiences(candidate_facts: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Create the frozen synthetic V3.2 demo records.
+
+    The constants below belong only to the de-identified golden fixture. Real
+    user flows must build canonical records item by item from confirmed facts
+    and must not call this factory.
+    """
 
     # Meta Analysis Experience
     meta_experience = {

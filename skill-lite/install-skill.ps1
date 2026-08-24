@@ -10,8 +10,9 @@ $skillsRoot = Join-Path $codexRoot "skills"
 $skillTarget = Join-Path $skillsRoot "medical-resume-skill"
 
 New-Item -ItemType Directory -Force -Path $skillsRoot | Out-Null
-Copy-Item -LiteralPath $skillSource -Destination $skillTarget -Recurse -Force
+New-Item -ItemType Directory -Force -Path $skillTarget | Out-Null
+Get-ChildItem -LiteralPath $skillSource -Force | Copy-Item -Destination $skillTarget -Recurse -Force
 
 Write-Host "Installed Medical Resume Skill Lite to:" -ForegroundColor Green
 Write-Host $skillTarget -ForegroundColor Yellow
-Write-Host "Start a new Codex conversation, then ask: 请用 medical-resume-skill 帮我整理这段经历，目标是医学事务 / MSL。" -ForegroundColor Cyan
+Write-Host "Start a new Codex conversation, then ask Codex to use medical-resume-skill for a real experience and target direction." -ForegroundColor Cyan

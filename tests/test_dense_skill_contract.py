@@ -39,3 +39,14 @@ def test_codex_agent_metadata_is_present():
 
     assert 'display_name: "Medical Resume Skill"' in text
     assert "$medical-resume-skill" in text
+
+
+def test_prompt_contracts_keep_generation_staged_and_fact_bound():
+    text = (SKILL / "references" / "prompt-templates.md").read_text(encoding="utf-8")
+
+    for stage in ("Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5"):
+        assert stage in text
+    assert "Stop after this stage until the user confirms" in text
+    assert "fact set" in text
+    assert '"status": "ready|revision_required"' in text
+    assert "candidate-information source" in text

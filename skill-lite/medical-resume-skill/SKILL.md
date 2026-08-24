@@ -64,6 +64,8 @@ Read [evidence rules](references/evidence-rules.md) whenever a claim is ambiguou
 
 After confirmation, read the [dense resume protocol](references/dense-resume-protocol.md). Create a content plan before writing. For every substantial experience, select distinct supported dimensions such as background, objective, responsibility, workflow, methods, tools, quality control, judgment, collaboration, deliverables, results and role relevance. Do not create separate bullets for unsupported dimensions.
 
+When the host model is responsible for drafting, use the staged contracts in [prompt templates](references/prompt-templates.md). Do not collapse extraction, questioning, writing and audit into one unconstrained prompt. Preserve the structured output of each stage as the input to the next stage.
+
 Generate three selectable expression tiers from the same confirmed fact set:
 
 - **Conservative** — narrow responsibility language and the lowest inference risk.

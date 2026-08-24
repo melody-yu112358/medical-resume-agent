@@ -3,7 +3,7 @@
 <p align="center">
   <a href="#run-locally"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
   <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
-  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/TEST_SUITE-PASSING-8BAA97?style=flat-square" alt="test suite passing" />
   <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
 </p>
 
@@ -128,7 +128,7 @@ The web interface is intended for users who do not want to configure an AI codin
 - [Skill Lite guide](skill-lite/README.md)
 - [Skill entrypoint](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite follows the same method—extract facts, confirm facts, then translate for a target direction—but it is a prompt/workflow package. It does not replace the web app's deterministic Claim Gate or audit trail.
+Skill Lite follows the same method—extract facts, confirm facts, then translate for a target direction. It is a prompt, workflow, and knowledge package invoked by a host model such as Codex or Claude Code; it does not contain or start an independent model endpoint. The web Agent's model interface, deterministic Claim Gate, audit ledger, and structured APIs are separate capabilities.
 
 ## Verify
 
@@ -137,7 +137,7 @@ python -m pip install -e ".[resume_extract,dev,schema_validation]"
 python -m pytest -q
 ```
 
-The shared release source contains 205 unit, API, and end-to-end tests. Before a public test, also complete a browser smoke test: load the example, extract facts, confirm them, select a direction, generate bullets, review evidence, and export.
+The shared release source includes a complete unit, API, and end-to-end test suite. Use the current `pytest -q` collection result as the authoritative count so documentation does not become stale. Before a public test, also complete a browser smoke test: load the example, extract facts, confirm them, select a direction, generate bullets, review evidence, and export.
 
 ## Repository map
 

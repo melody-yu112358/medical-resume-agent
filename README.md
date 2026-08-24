@@ -3,7 +3,7 @@
 <p align="center">
   <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
   <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
-  <img src="https://img.shields.io/badge/205-TESTS-8BAA97?style=flat-square" alt="205 tests" />
+  <img src="https://img.shields.io/badge/TEST_SUITE-PASSING-8BAA97?style=flat-square" alt="test suite passing" />
   <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
 </p>
 
@@ -54,7 +54,7 @@
 1. 输入一段真实医学经历，或载入内置的脱敏 Meta 分析示例。
 2. 查看候选事实与最多 3 个澄清问题。
 3. 确认、修改或拒绝事实；未确认信息不会被静默升级成经历。
-4. 选择目标方向，生成 1–3 条候选简历要点。
+4. 选择目标方向，按已确认事实生成足量且不重复的候选简历要点。
 5. 查看依据事实、风险提示和审计记录，再复制或导出使用。
 
 首发版本提供四个重点方向：
@@ -125,10 +125,12 @@ Copy-Item .env.example .env
 
 网页适合不想配置 AI 工具的用户；仓库也提供轻量 Skill，适合在 Codex 或 Claude 中进行更深入的“经历问诊”：
 
+Skill 默认先确认事实，再按不同内容维度规划每段经历，并提供稳妥版、专业版和高竞争力版。证据充分的代表经历可以形成 5–9 条互不重复的要点；默认交付专业版高密度 HTML，同时保留其他版本供用户选择。信息密度来自背景、职责、方法、工具、质控、协作和产出等不同事实，不来自重复句或虚构数字。
+
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite 复用了本项目的核心方法：先拆事实、再确认、最后按目标方向翻译。它是提示词与工作流包，不替代网页中的 Claim Gate 和审计能力。
+Skill Lite 复用了本项目的核心方法：先拆事实、再确认、最后按目标方向翻译。它是供 Codex、Claude Code 等宿主模型调用的提示词、流程与知识资产，本身不包含或启动独立模型接口。网页 Agent 的模型接口、Claim Gate、审计账本和结构化 API 是另一套独立能力。
 
 ## 验证
 
@@ -137,7 +139,7 @@ python -m pip install -e ".[resume_extract,dev,schema_validation]"
 python -m pytest -q
 ```
 
-当前共享发布源包含 205 项单元、接口与端到端测试。发布前还应完成浏览器冒烟测试：载入示例、提取事实、确认、选择方向、生成要点、查看证据并导出。
+当前共享发布源包含完整的单元、接口与端到端测试套件；实际数量以 `pytest -q` 的收集结果为准，避免文档数字随新增测试失效。发布前还应完成浏览器冒烟测试：载入示例、提取事实、确认、选择方向、生成要点、查看证据并导出。
 
 ## 仓库结构
 

@@ -22,7 +22,7 @@ Use an instruction equivalent to the following:
 
 ```text
 You are editing a medical resume. Use only the confirmed fact card below.
-Write 1–3 concise bullets for the selected target path. Preserve responsibility
+Write a fact-dependent set of non-duplicative candidate bullets for the selected target path. A well-supported flagship experience may use 5–9 and a supporting experience 3–6; use fewer when facts are sparse. Preserve responsibility
 level exactly. Do not invent patient counts, study results, publications, clinical
 outcomes, ownership, tools, or timelines. Treat methods, tools, techniques,
 evidence resources, compliance standards, and deliverables as different kinds of

@@ -1,11 +1,11 @@
 ---
 name: medical-resume-skill
-description: Turn confirmed medical experience into target-specific, evidence-bound resume bullets and a printable HTML resume. Use for medical students or early-career researchers preparing academic applications, clinical research, medical affairs, or health-data resumes; never use it to invent or inflate experience.
+description: Build information-dense, evidence-bound medical resumes from confirmed experience, including conservative, professional, and high-impact versions plus printable HTML. Use for medical students or early-career researchers preparing academic applications, clinical research, medical affairs, MSL, or health-data resumes, and when polishing selected resume entries; never invent facts or inflate responsibility.
 ---
 
 # Medical Resume Skill
 
-Help the user translate real medical experience into concise, credible material for a chosen direction. This is an experience translator, not a text inflator: a polished sentence is never a reason to upgrade responsibility, invent an outcome, or attach a skill the user did not use.
+Help the user translate real medical experience into a complete, information-dense resume for a chosen direction. Density comes from uncovering distinct factual dimensions, not repeating one fact or inventing achievements. A polished sentence is never a reason to upgrade responsibility, invent an outcome, or attach a skill the user did not use.
 
 Choose one working mode before asking detailed questions:
 
@@ -62,17 +62,27 @@ Read [evidence rules](references/evidence-rules.md) whenever a claim is ambiguou
 
 ## Compose
 
-After confirmation, write one to three concise bullets tailored to the selected target path. Each bullet should normally contain the strongest confirmed combination of context, action or responsibility, method or technique, and verifiable deliverable. Use metrics only when the user supplies them; a method, material, scope, or named deliverable is often stronger than an invented number.
+After confirmation, read the [dense resume protocol](references/dense-resume-protocol.md). Create a content plan before writing. For every substantial experience, select distinct supported dimensions such as background, objective, responsibility, workflow, methods, tools, quality control, judgment, collaboration, deliverables, results and role relevance. Do not create separate bullets for unsupported dimensions.
+
+When the host model is responsible for drafting, use the staged contracts in [prompt templates](references/prompt-templates.md). Do not collapse extraction, questioning, writing and audit into one unconstrained prompt. Preserve the structured output of each stage as the input to the next stage.
+
+Generate three selectable expression tiers from the same confirmed fact set:
+
+- **Conservative** — narrow responsibility language and the lowest inference risk.
+- **Professional (default)** — confident, information-dense and suitable for normal applications.
+- **High impact** — strongest defensible framing, still without changing facts or responsibility level.
+
+A well-supported flagship experience may contain 5–9 non-duplicative bullets; a smaller experience may contain 3–6. Do not impose a fixed count when facts are sparse. Each bullet should prove a different capability or contribution and normally combine context, personal action, method/tool/technique, and a confirmed deliverable or professional purpose. Use metrics only when the user supplies them; a method, material, scope, workflow decision or named deliverable is often stronger than an invented number.
 
 Read the [resume translation method](references/resume-translation-method.md) and [role packs](references/role-packs.md) before tailoring the output. Translate the same facts by changing emphasis and ordering, not by changing what happened. Create a candidate-positioning line only when the confirmed material supports one.
 
 
-If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md) and use the two-stage [medical resume prompts](references/medical-resume-prompts.md). The model may improve wording and propose alternatives, but the fact card and validation rules remain the source of truth. In JD/public-evidence mode, keep role language and public-source notes separate from personal facts in the final comparison.
+If an LLM is available, read the [model writing protocol](references/model-writing-protocol.md). Use the full [prompt templates](references/prompt-templates.md) whenever the host can preserve staged structured state. The shorter [medical resume prompts](references/medical-resume-prompts.md) are a compatibility adapter for hosts that can preserve only two stages; they must follow the same fact, density and responsibility rules. In JD/public-evidence mode, keep role language and public-source notes separate from personal facts in the final comparison.
 
 
 ## Output format
 
-Use this structure:
+For a short polishing request, use this structure:
 
 ```markdown
 ### Confirmed fact card
@@ -97,6 +107,27 @@ Use this structure:
 
 If material facts remain unconfirmed, stop after the fact card and questions. Do not produce a ready-to-submit bullet.
 
+For a full-resume request, additionally provide:
+
+```markdown
+### Candidate positioning
+...
+
+### Content plan
+- Experience: supported dimensions and omitted unknowns
+
+### Conservative version
+...
+
+### Professional version (recommended)
+...
+
+### High-impact version
+...
+```
+
+Keep all three versions on the same fact set. The user may select one complete version or accept individual bullets before delivery.
+
 ## Delivery
 
 After the user accepts the final content and explicitly asks for a file, create a local output folder containing:
@@ -111,3 +142,5 @@ resume-output/
 ```
 
 `resume.html` is the candidate-facing deliverable. Keep the supporting JSON and comparison files local, and do not expose their internal identifiers in the rendered resume.
+
+The default HTML should look complete and text-rich at first glance. Include candidate positioning, education, grouped experience sections, methods and skills, outputs/publications when confirmed, languages/certificates and research interests when supported. Do not add filler solely to occupy the page. Preserve accepted prior versions instead of overwriting them when the user requests another tier or layout.

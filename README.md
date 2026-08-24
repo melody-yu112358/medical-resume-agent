@@ -1,4 +1,6 @@
-# 医学生的第一个AI简历助手
+<p align="center">
+# 医学生的第一个简历助手
+</p>
 
 <p align="center">
   <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>

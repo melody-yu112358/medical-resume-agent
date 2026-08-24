@@ -32,6 +32,16 @@ def test_html_asset_supports_complete_medical_resume_sections():
         assert heading in text
     for placeholder in ("{{research_bullets_html}}", "{{project_bullets_html}}", "{{clinical_bullets_html}}"):
         assert placeholder in text
+    assert "{{optional_photo_html}}" in text
+    assert ".profile-photo" in text
+
+
+def test_html_delivery_keeps_photo_opt_in_and_local():
+    text = (SKILL / "references" / "html-delivery.md").read_text(encoding="utf-8")
+
+    assert "Do not use a photo by default" in text
+    assert "relative path" in text
+    assert "must not be uploaded" in text
 
 
 def test_codex_agent_metadata_is_present():

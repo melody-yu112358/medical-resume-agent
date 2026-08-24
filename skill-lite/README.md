@@ -30,6 +30,15 @@
 
 安装时请复制整个 `medical-resume-skill` 文件夹，而不是只复制 `SKILL.md`。这样模型才能在需要时读到相应参考资料和模板。
 
+### 安装一览
+
+| 宿主 | 个人安装（所有项目可用） | 项目安装（仅当前仓库） | 调用方式 |
+| --- | --- | --- | --- |
+| Codex | `~/.codex/skills/medical-resume-skill` | `.codex/skills/medical-resume-skill` | `$medical-resume-skill` 或自然语言 |
+| Claude Code | `~/.claude/skills/medical-resume-skill` | `.claude/skills/medical-resume-skill` | `/medical-resume-skill` 或自然语言 |
+
+个人安装更适合长期使用；项目安装更适合团队共同维护的简历项目。不要在已有同名目录内部再次复制该文件夹，否则会形成 `medical-resume-skill/medical-resume-skill` 这种嵌套结构。
+
 ### 安装到 Codex
 
 推荐在 Codex 的新对话中发送下面这句，让内置安装器从 GitHub 安装完整 Skill 包：
@@ -81,6 +90,10 @@ Copy-Item -Recurse -Force ".\skill-lite\medical-resume-skill" "$HOME\.claude\ski
 
 `install-skill.ps1` 仅为 Windows 用户保留，作用也是把完整文件夹复制到 `~/.codex/skills/medical-resume-skill`。跨平台使用时，优先采用上面的 Codex 安装器或 Claude Code 目录复制方式。
 
+### 交付物与边界
+
+Skill 的输入是用户提供或确认的经历、简历片段和可选 JD；输出是经用户确认后生成的简历要点与本机 `resume-output/`。它不是自动背书工具：姓名、时间线、方法熟练度、个人责任、指标、论文状态和证书均需由用户确认。导出前请逐条复核。
+
 ### 模型、联网与交付
 
 Skill 不包含 API Key，也不绑定某一家模型。它使用 Codex、Claude 或兼容工作流中已经配置的模型；没有模型时仍可按事实卡和审校规则工作，但不应承诺自动生成高质量润色。
@@ -115,3 +128,5 @@ cp -R skill-lite/medical-resume-skill ~/.claude/skills/
 Use `.claude/skills/` instead for a project-only Claude Code Skill. Start a new Codex or Claude Code conversation, then ask it to use `medical-resume-skill` with a real experience and a target direction. The Skill supports building a single experience, polishing one to three existing entries, and delivering an accepted full resume as printable A4 HTML. It uses only confirmed facts by default and must not invent work, upgrade responsibility, or turn a job requirement into a personal achievement.
 
 The Skill uses the model already configured in the host workflow and contains no API key. JD/public-evidence assistance is opt-in: a user must supply a JD, URL, DOI, or explicit browsing permission. Public information may improve role-language alignment, but never becomes evidence of a user's own experience. The generated `resume-output/` stays local; an optional profile image is used only when the user explicitly supplies one.
+
+For installation scope, use `~/.codex/skills/medical-resume-skill` or `~/.claude/skills/medical-resume-skill` for a personal Skill, and `.codex/skills/medical-resume-skill` or `.claude/skills/medical-resume-skill` for a project-only Skill. Copy the entire folder and avoid copying it into an existing folder with the same name.

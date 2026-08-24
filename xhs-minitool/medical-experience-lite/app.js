@@ -17,7 +17,7 @@ const capabilityGroups = [
 ];
 
 const roleProfiles = {
-  academic: { title: '升学与科研申请', focus: '研究问题、方法深度与科研潜力', frame: '先交代研究问题或疾病领域，再说明你使用的方法、独立完成的环节，以及论文、报告或汇报等已确认产出。' },
+  academic: { title: '升学与科研申请', focus: '研究问题、方法深度与科研潜力', frame: '先交代研究问题或疾病领域，再说明你使用的方法、工具或实验技术、本人实际负责的环节，以及论文、报告或汇报等已确认产出。' },
   clinical: { title: '临床研究与医院科研', focus: '临床问题、研究执行与协作', frame: '优先写临床问题或研究设计、你负责的数据/流程环节，以及如何支持研究执行或结果解释。' },
   msl: { title: '医学事务 / MSL', focus: '证据解读、疾病领域与医学沟通', frame: '突出疾病领域材料的检索、解读和整合，以及汇报材料、病例讨论或医学信息沟通等真实交付。' },
   data: { title: '医疗数据与数字健康', focus: '数据流程、分析框架与结果沟通', frame: '优先说明数据来源、清洗或分析方法、结果图表/可视化，以及你如何把分析结果用于研究讨论。' },
@@ -110,17 +110,26 @@ function composeCandidate(role, capabilities) {
   const topic = $('#topicInput').value.trim() || '【待补充研究对象或问题】';
   const responsibility = $('#responsibilityInput').value.trim() || '【待补充本人实际负责的环节】';
   const deliverable = $('#deliverableInput').value.trim() || '【待补充可确认交付物】';
-  const methods = capabilityText(capabilities, 0, '【待补充研究设计或方法】');
+  const methods = capabilityText(capabilities, 0, '');
   const tools = capabilityText(capabilities, 1, '');
+  const techniques = capabilityText(capabilities, 3, '');
   const evidence = capabilityText(capabilities, 4, '【待补充证据来源或解读材料】');
-  const methodClause = tools ? `${methods}与${tools}` : methods;
+  const approach = describeApproach(methods, tools, techniques);
   const candidates = {
-    academic: `围绕${topic}，采用${methodClause}开展研究；负责${responsibility}，形成${deliverable}。`,
-    clinical: `围绕${topic}参与研究执行，负责${responsibility}；结合${methodClause}完成相关分析或整理，形成${deliverable}。`,
-    msl: `围绕${topic}，基于${evidence}开展材料检索、解读或整合；负责${responsibility}，形成${deliverable}，支持医学信息沟通。`,
-    data: `围绕${topic}，使用${methodClause}处理或分析研究数据；负责${responsibility}，形成${deliverable}，支持结果解释与沟通。`,
+    academic: `围绕${topic}，${approach}开展研究；负责${responsibility}，形成${deliverable}。`,
+    clinical: `围绕${topic}参与研究执行，负责${responsibility}；${approach}完成相关分析、实验或资料整理，形成${deliverable}。`,
+    msl: `围绕${topic}，基于${evidence}开展医学材料检索、解读或整合；负责${responsibility}，形成${deliverable}。`,
+    data: `围绕${topic}，${approach}完成研究数据处理、分析或可视化；负责${responsibility}，形成${deliverable}。`,
   };
   return candidates[role];
+}
+
+function describeApproach(methods, tools, techniques) {
+  const parts = [];
+  if (methods) parts.push(`采用${methods}`);
+  if (tools) parts.push(`使用${tools}`);
+  if (techniques) parts.push(`开展${techniques}等实验操作`);
+  return parts.length ? parts.join('，并') : '【待补充研究方法、工具或实验技术】';
 }
 
 function escapeHtml(value) {

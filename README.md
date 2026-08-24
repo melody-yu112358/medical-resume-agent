@@ -1,30 +1,40 @@
 <h1 align="center">医学生的第一个简历助手</h1>
 
 <p align="center">
-  <a href="#在自己的电脑上运行"><img src="https://img.shields.io/badge/LOCAL-FIRST-245A47?style=flat-square" alt="Local first" /></a>
+  <a href="skill-lite/README.md"><img src="https://img.shields.io/badge/RECOMMENDED-SKILL_LITE-245A47?style=flat-square" alt="Recommended: Skill Lite" /></a>
   <img src="https://img.shields.io/badge/EVIDENCE-BOUND-5E8570?style=flat-square" alt="Evidence bound" />
-  <img src="https://img.shields.io/badge/TEST_SUITE-PASSING-8BAA97?style=flat-square" alt="test suite passing" />
+  <img src="https://img.shields.io/badge/LOCAL-FIRST-8BAA97?style=flat-square" alt="Local first" />
   <img src="https://img.shields.io/badge/MEDICAL-CAREER-244638?style=flat-square" alt="Medical career" />
 </p>
 
-<p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite</a></p>
+<p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite 使用说明</a></p>
 
-一个可在自己电脑上运行的医学经历编译器，面向医学生的申学与医学相关求职场景。
+> **推荐入口：** [Medical Resume Skill Lite](skill-lite/README.md)
+>
+> 在 Codex、Claude Code 等已配置模型的本地对话中使用。它会基于已确认的真实经历进行多轮追问、按目标方向润色，并生成可编辑、可打印的 HTML 简历。
 
-用户先提交一段经历，核对系统提取出的事实，再选择目标方向。系统据此生成可以继续编辑的简历要点，并显示该要点使用了哪些已确认信息。
+医学经历常被压缩成“参与科研”“协助数据分析”这类描述。这个项目想做的不是把经历写得更夸张，而是把真实经历整理成目标方向能够理解的能力证明。
 
-它适合把“参与科研”“协助数据分析”这类概括性描述，拆成研究对象、方法、工具、个人角色和交付物，再确定应在简历中优先呈现什么。
+> 真实经历 → 研究对象 / 方法 / 工具 / 实验技术 / 角色 / 交付物 → 可迁移能力 → 目标方向关注的表达重点
 
-> 真实经历 → 已确认的研究对象、方法、工具、角色与交付物 → 可迁移能力 → 目标方向关注的价值表达
+## 示例成品
+
+下面是一份基于脱敏医学经历生成的简历示例，用于展示信息组织、表达密度与 A4 打印效果。
+
+![医学简历示例首页](examples/medical-resume-skill-example-preview.png)
+
+[查看示例 PDF](examples/medical-resume-skill-example.pdf)
+
+> 示例仅用于展示排版与表达结构。姓名、联系方式、头像、机构、课题与成果信息均为脱敏或示例内容，请勿将其视为真实投递材料。
 
 ## 选择入口
 
-| 你的目的 | 使用入口 | 适合的情况 |
+| 入口 | 当前状态 | 适合的情况 |
 | --- | --- | --- |
-| 先在浏览器体验完整流程 | [本地网页](#快速开始) | 不想配置 Codex 或 Claude，希望从输入、确认到预览逐步操作 |
-| 在 Codex / Claude 中通过对话深挖一到三段经历 | [Skill Lite](skill-lite/README.md) | 已有材料，想进行更细的追问、改写比较与本机 HTML 交付 |
+| [Skill Lite](skill-lite/README.md) | **推荐使用**。支持对话式经历梳理、受约束润色、表达版本比较与本机 HTML 简历交付。 | 已安装 Codex、Claude Code 或兼容 AI 工作流的用户 |
+| [网页体验版](#网页体验版) | **Beta / 持续重构中**。可体验事实拆解、确认与基础预览；多段经历编排和对话式润色正在与 Skill 流程对齐。 | 想快速了解“医学经历翻译”流程的用户 |
 
-两种入口共享“先确认事实、再翻译表达”的原则，但不要求同时安装。网页版本是可视化体验；Skill Lite 则由 Codex、Claude Code 等 AI 编程助手在对话中执行。
+两种入口共享“先确认事实、再翻译表达”的原则，但不要求同时安装。Skill Lite 是当前优先维护的交付路径；网页版本保留为可视化体验入口。
 
 | 你提供什么 | 系统如何处理 | 你拿到什么 |
 | --- | --- | --- |
@@ -32,7 +42,11 @@
 | 一段包含方法、工具或实验技术的经历 | 分别识别 MR/Meta 等研究方法、R/Python 等分析工具、qPCR/WB 等实验技术，以及 PubMed/Embase 等检索资源 | 可解释的能力结构，而不是关键词堆砌 |
 | 你的目标方向 | 调整表达重点，不改写真实经历 | 可追溯、可编辑、可核查的材料 |
 
-## 快速开始
+## 网页体验版
+
+> 网页入口目前用于体验事实确认与基础可视化流程。若你希望进行多轮润色、比较表达版本并生成可打印 HTML 简历，请优先使用 [Skill Lite](skill-lite/README.md)。
+
+### 快速开始
 
 ```powershell
 .\start-local.ps1
@@ -130,16 +144,19 @@ Copy-Item .env.example .env
 
 再按照 [模型配置说明](docs/LLM_INTEGRATION.md) 在本机 `.env` 中填写自己的密钥。`.env` 已被 Git 忽略，绝不要把密钥粘贴到网页、截图或 GitHub Issue 中。
 
-## 面向 Codex/Claude 用户的 Skill Lite
+## Skill Lite 能做什么
 
-网页适合不想配置 AI 工具的用户；仓库也提供轻量 Skill，适合在 Codex 或 Claude 中进行更深入的“经历问诊”：
+Skill 默认先确认事实，再按目标方向规划每段经历，并提供稳妥版、专业版和高竞争力版供比较。信息密度来自背景、职责、方法、工具、质控、协作和产出等已确认事实，不来自重复句或虚构数字。
 
-Skill 默认先确认事实，再按不同内容维度规划每段经历，并提供稳妥版、专业版和高竞争力版。证据充分的代表经历可以形成 5–9 条互不重复的要点；默认交付专业版高密度 HTML，同时保留其他版本供用户选择。信息密度来自背景、职责、方法、工具、质控、协作和产出等不同事实，不来自重复句或虚构数字。
+- 从零梳理一段零散的医学科研、实验或实践经历；
+- 局部润色已有简历中的一到三条经历；
+- 按升学科研、临床研究、医学事务 / MSL、医疗数据与数字健康等方向调整表达重点；
+- 用户确认后，生成本机可编辑、可打印的 A4 HTML 简历。
 
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite 复用了本项目的核心方法：先拆事实、再确认、最后按目标方向翻译。它是供 Codex、Claude Code 等宿主模型调用的提示词、流程与知识资产，本身不包含或启动独立模型接口。网页 Agent 的模型接口、Claim Gate、审计账本和结构化 API 是另一套独立能力。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
+Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
 
 ## 验证
 

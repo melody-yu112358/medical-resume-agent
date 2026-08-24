@@ -43,6 +43,14 @@
       <div id="capabilityGroups"></div>
     </section>
 
+    <section class="card" aria-labelledby="detail-heading">
+      <div class="section-heading"><span>04</span><h2 id="detail-heading">补齐三个关键信息</h2></div>
+      <p class="hint">这三项会直接用于生成候选简历表达。不会填写的地方可以留空，结果会明确标成待补充。</p>
+      <label class="field-label">研究对象或问题（可选）<input id="topicInput" placeholder="例如：2 型糖尿病与某暴露因素的关联"></label>
+      <label class="field-label">本人实际负责的环节（可选）<textarea id="responsibilityInput" rows="3" placeholder="例如：文献筛选、数据提取、R 分析和结果图表整理"></textarea></label>
+      <label class="field-label">可确认交付物（可选）<input id="deliverableInput" placeholder="例如：组会汇报材料、结果图表、研究报告"></label>
+    </section>
+
     <div class="actions">
       <button class="primary" id="analyseButton" type="button">开始拆解</button>
       <button class="secondary" id="resetButton" type="button">清空本机草稿</button>
@@ -59,7 +67,8 @@
         <ol id="questions"></ol>
       </div>
       <div class="result-card">
-        <p class="result-label">不同方向的表达重点</p>
+        <p class="result-label">候选简历表达（可直接编辑）</p>
+        <p class="result-hint">这些句子只使用你的输入和选择生成；提交前请逐字核对责任边界与事实。</p>
         <div id="roleOutput"></div>
       </div>
       <div class="notice">这是一份离线表达框架，不会联网、不会调用大模型，也不会替你确认或补写事实。完整版 Skill 可在笔记中的 GitHub 链接获取。</div>

@@ -37,6 +37,9 @@ function selectedValues(selector, key) {
 function saveDraft() {
   localStorage.setItem(storageKey, JSON.stringify({
     experience: $('#experienceInput').value,
+    topic: $('#topicInput').value,
+    responsibility: $('#responsibilityInput').value,
+    deliverable: $('#deliverableInput').value,
     roles: selectedValues('.role-card', 'role'),
     capabilities: selectedValues('.chip', 'capability'),
   }));
@@ -46,6 +49,9 @@ function restoreDraft() {
   try {
     const draft = JSON.parse(localStorage.getItem(storageKey) || '{}');
     $('#experienceInput').value = draft.experience || '';
+    $('#topicInput').value = draft.topic || '';
+    $('#responsibilityInput').value = draft.responsibility || '';
+    $('#deliverableInput').value = draft.deliverable || '';
     (draft.roles || []).forEach((role) => setPressed(`.role-card[data-role="${role}"]`, true));
     (draft.capabilities || []).forEach((capability) => setPressed(`.chip[data-capability="${capability}"]`, true));
   } catch (_) { localStorage.removeItem(storageKey); }
@@ -89,10 +95,32 @@ function renderResults() {
   $('#questions').innerHTML = questions.length ? questions.map((item) => `<li>${escapeHtml(item)}</li>`).join('') : '<li>信息已经较完整。请复核时间线、个人责任与产出是否均为本人可确认的事实。</li>';
   $('#roleOutput').innerHTML = roles.map((role) => {
     const profile = roleProfiles[role];
-    return `<article class="role-output"><h3>${profile.title}</h3><p><b>优先呈现：</b>${profile.focus}</p><p>${profile.frame}</p></article>`;
+    return `<article class="role-output"><h3>${profile.title}</h3><p><b>优先呈现：</b>${profile.focus}</p><textarea class="candidate-draft" data-candidate-role="${role}" rows="5">${escapeHtml(composeCandidate(role, capabilities))}</textarea><p class="frame">${profile.frame}</p></article>`;
   }).join('');
   $('#results').classList.remove('hidden');
   $('#results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function capabilityText(capabilities, groupIndex, fallback) {
+  const items = capabilityGroups[groupIndex].items.filter((item) => capabilities.includes(item));
+  return items.length ? items.join('、') : fallback;
+}
+
+function composeCandidate(role, capabilities) {
+  const topic = $('#topicInput').value.trim() || '【待补充研究对象或问题】';
+  const responsibility = $('#responsibilityInput').value.trim() || '【待补充本人实际负责的环节】';
+  const deliverable = $('#deliverableInput').value.trim() || '【待补充可确认交付物】';
+  const methods = capabilityText(capabilities, 0, '【待补充研究设计或方法】');
+  const tools = capabilityText(capabilities, 1, '');
+  const evidence = capabilityText(capabilities, 4, '【待补充证据来源或解读材料】');
+  const methodClause = tools ? `${methods}与${tools}` : methods;
+  const candidates = {
+    academic: `围绕${topic}，采用${methodClause}开展研究；负责${responsibility}，形成${deliverable}。`,
+    clinical: `围绕${topic}参与研究执行，负责${responsibility}；结合${methodClause}完成相关分析或整理，形成${deliverable}。`,
+    msl: `围绕${topic}，基于${evidence}开展材料检索、解读或整合；负责${responsibility}，形成${deliverable}，支持医学信息沟通。`,
+    data: `围绕${topic}，使用${methodClause}处理或分析研究数据；负责${responsibility}，形成${deliverable}，支持结果解释与沟通。`,
+  };
+  return candidates[role];
 }
 
 function escapeHtml(value) {
@@ -116,12 +144,15 @@ document.addEventListener('click', (event) => {
   button.classList.toggle('selected', !pressed);
   saveDraft();
 });
-$('#experienceInput').addEventListener('input', saveDraft);
+['#experienceInput', '#topicInput', '#responsibilityInput', '#deliverableInput'].forEach((selector) => $(selector).addEventListener('input', saveDraft));
 $('#analyseButton').addEventListener('click', renderResults);
 $('#resetButton').addEventListener('click', () => {
   if (!confirm('确定清空这台设备上的本机草稿吗？')) return;
   localStorage.removeItem(storageKey);
   $('#experienceInput').value = '';
+  $('#topicInput').value = '';
+  $('#responsibilityInput').value = '';
+  $('#deliverableInput').value = '';
   $$('.role-card, .chip').forEach((node) => { node.setAttribute('aria-pressed', 'false'); node.classList.remove('selected'); });
   $('#results').classList.add('hidden');
   $('#status').textContent = '本机草稿已清空。';

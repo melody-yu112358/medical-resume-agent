@@ -50,6 +50,10 @@ Skill 本身不包含 API Key，也不绑定某一家模型；它使用当前 Co
 
 在用户确认内容并明确要求导出后，Skill 会生成本机 `resume-output/`：其中有可打印的 `resume.html`、结构化数据、证据摘要、改写对照和导出说明。普通 PDF/DOCX 的文本抽取能力取决于宿主工具；复杂表格、双栏或扫描件仍应在确认页人工校对。
 
+### 联网与 JD 辅助
+
+默认是“仅本地事实模式”：只使用用户在对话或所提供文件中确认的经历。用户也可以明确提供 JD、岗位链接、论文 DOI 或同意联网搜索，启用“JD / 公开证据辅助模式”。此模式只用于提炼岗位语言、核对公开引用和指出能力缺口；网页上的岗位要求不能自动变成用户做过的事情。
+
 ### 与网页版本的区别
 
 Skill Lite 负责聊天式经历挖掘、保真表达与本机 HTML 交付；网页版本额外提供确定性 Claim Gate、审计账本、结构化 API 与可视化确认页面。重要投递材料建议再在网页中完成最终确认与审计。
@@ -63,5 +67,7 @@ On Windows, run `./skill-lite/install-skill.ps1` from the repository root. It co
 The Skill supports three routes: build an experience from fragments, polish one to three selected entries in an existing resume, or generate a printable single-column HTML resume after the user accepts the content. It separates research methods, tools, laboratory techniques, evidence resources, compliance work, and personal deliverables before tailoring the wording to a target direction.
 
 The Skill does not include an API key or require a specific model. It uses the model configured in the host workflow. Without a model, the fact-card and review workflow still apply, but it should not promise automatic high-quality rewriting.
+
+By default, the Skill runs in a local-facts-only mode and uses only the user's conversation or supplied files. The user may opt into JD/public-evidence assistance by providing a JD, URL, DOI, or explicit browsing permission. That mode may improve role-language alignment and verify public references, but it must never convert a job requirement or a web result into a personal achievement.
 
 The web app additionally provides deterministic Claim Gate checks, an audit ledger, structured APIs, and a visual confirmation page. Use the web app for important application materials that need the complete audit path.

@@ -60,3 +60,45 @@ def test_prompt_contracts_keep_generation_staged_and_fact_bound():
     assert "fact set" in text
     assert '"status": "ready|revision_required"' in text
     assert "candidate-information source" in text
+
+
+def test_skill_has_non_skippable_sample_and_reaudit_gates():
+    text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+
+    assert "Mandatory workflow gates" in text
+    assert "representative sample" in text
+    assert "project-level role" in text
+    assert "task-level responsibility" in text
+    assert "user-edited" in text
+    assert "Tier selection" in (SKILL / "references" / "prompt-templates.md").read_text(encoding="utf-8")
+
+
+def test_editor_is_offline_editable_and_supports_three_themes():
+    text = (SKILL / "assets" / "resume-editor.html").read_text(encoding="utf-8")
+
+    for feature in ("localStorage", "导入 Markdown", "下载 Markdown", "导出独立 HTML", "打印 / PDF"):
+        assert feature in text
+    for theme in ("clinical-blue", "academic-green", "ats-mono"):
+        assert theme in text
+    assert "<script src=" not in text
+    assert "https://" not in text
+
+
+def test_delivery_contract_requires_complete_tiers_and_data_driven_files():
+    text = (SKILL / "references" / "resume-data-contract.md").read_text(encoding="utf-8")
+
+    for tier in ("conservative", "professional", "high_impact"):
+        assert tier in text
+    for output in ("resume.md", "resume.html", "resume-editor.html"):
+        assert output in text
+    assert "complete candidate-facing resume" in text
+    assert "never type candidate facts directly" in text
+
+
+def test_pdf_export_has_explicit_fallbacks_and_no_false_success():
+    text = (SKILL / "scripts" / "export_resume_pdf.py").read_text(encoding="utf-8")
+
+    assert "export_with_playwright" in text
+    assert "export_with_edge" in text
+    assert "return 2" in text
+    assert "do not report a PDF as delivered" in text

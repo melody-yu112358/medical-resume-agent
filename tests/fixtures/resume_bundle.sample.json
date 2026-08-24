@@ -1,0 +1,33 @@
+{
+  "schema_version": "medical-resume-data-v1",
+  "candidate": {
+    "name": "张同学",
+    "target_direction": "医学科研申请",
+    "contact": "user@example.com",
+    "photo": null
+  },
+  "fact_card": {
+    "project_level_role": "课题成员",
+    "task_level_responsibility": "参与文献筛选与统计分析",
+    "independent_scope": null,
+    "collaborative_scope": "与课题组协作",
+    "final_output_ownership": "未确认"
+  },
+  "tiers": {
+    "conservative": {
+      "markdown": "# 张同学\n> 医学科研申请 · user@example.com\n\n## 教育背景\n### 某医科大学 · 临床医学\n本科在读\n\n## 科研经历\n### Meta 分析课题 · 课题成员\n- 参与课题文献筛选，并使用 R 完成已确认的统计分析任务。\n\n## 方法与技能\n**研究方法：** Meta 分析  \n**数据工具：** R"
+    },
+    "professional": {
+      "markdown": "# 张同学\n> 医学科研申请 · user@example.com\n\n具备循证医学项目参与经验，能够将医学问题、文献证据与统计分析流程衔接。\n\n## 教育背景\n### 某医科大学 · 临床医学\n本科在读，系统接受临床医学与科研方法训练。\n\n## 科研经历\n### Meta 分析课题 · 课题成员\n- 围绕课题研究问题参与文献筛选，依据既定标准协助识别符合条件的研究资料。\n- 使用 R 完成已确认的统计分析任务，并结合课题目标整理分析结果。\n- 与课题组成员协作衔接文献证据与数据分析环节，支持研究材料的持续完善。\n\n## 方法与技能\n**研究方法：** Meta 分析、文献筛选  \n**数据工具：** R  \n**研究协作：** 课题组沟通、研究材料整理"
+    },
+    "high_impact": {
+      "markdown": "# 张同学\n> 医学科研申请 · user@example.com\n\n以临床问题为导向积累循证研究实践，具备文献证据筛选、R 统计分析与研究协作能力。\n\n## 教育背景\n### 某医科大学 · 临床医学\n本科在读，持续强化临床知识与循证研究方法的交叉应用。\n\n## 科研经历\n### Meta 分析课题 · 课题成员\n- 面向课题核心问题参与证据筛选流程，依据既定标准协助形成可供后续分析的研究资料集合。\n- 运用 R 完成职责范围内的统计分析任务，将分析过程与研究问题保持一致。\n- 协同课题组推进文献与数据环节衔接，为研究材料整合提供方法与执行支持。\n\n## 方法与技能\n**研究方法：** Meta 分析、循证文献筛选  \n**数据工具：** R  \n**研究协作：** 医学问题理解、研究材料整合、团队沟通"
+    }
+  },
+  "selected_tier": "professional",
+  "theme": "clinical-blue",
+  "edit_status": "generated",
+  "audit": {
+    "status": "ready"
+  }
+}

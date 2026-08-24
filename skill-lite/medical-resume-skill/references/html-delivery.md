@@ -6,13 +6,15 @@ Generate a file only after the user has accepted the content and explicitly asks
 
 Create a local `resume-output/` directory with:
 
+- `resume-editor.html` — a local Markdown editor with live A4 preview;
+- `resume.md` — the selected, human-editable resume body;
 - `resume.html` — the final candidate-facing resume;
 - `resume-data.json` — the structured data used to render it;
 - `evidence-summary.json` — confirmed facts and evidence notes;
 - `rewrite-comparison.md` — original text, accepted rewrite, and rationale;
 - `export-instructions.txt` — concise browser print-to-PDF steps.
 
-Use the included [ATS medical resume template](../assets/ats-medical-resume.html) as the starting layout. Replace all `{{placeholders}}`; do not leave example text or internal IDs in the final file.
+Use the included [ATS medical resume template](../assets/ats-medical-resume.html) for compatibility or the bundled editor for editable delivery. Follow the [resume bundle contract](resume-data-contract.md) and use `scripts/build_resume_bundle.py`; do not duplicate candidate text by hand across Markdown, JSON and HTML.
 
 When the user opts in to a photo, also place a copy of the supplied local image in this directory, for example `profile-photo.jpg`. Use a relative path in `resume.html`; the image must not be uploaded or embedded from a third-party URL.
 
@@ -33,4 +35,6 @@ When the user opts in to a photo, also place a copy of the supplied local image 
 
 ## Editing after delivery
 
-If the user asks for an edit, update `resume-data.json` first, then regenerate `resume.html`. This keeps the rendered file and the factual source aligned.
+The user may edit `resume.md` or use `resume-editor.html`. The editor is self-contained, loads no third-party scripts, stores drafts only in the current browser, supports three themes, and can export Markdown or standalone HTML. Treat a changed resume as `user-edited`; run the factual audit before calling it final, then store the accepted text back in the corresponding tier of `resume-data.json` and rebuild.
+
+For PDF, first try `scripts/export_resume_pdf.py resume-output/resume.html`. The script uses Playwright when available, then installed Microsoft Edge, and otherwise exits with a manual-print instruction. A failed browser or missing output file is a failed export, not a delivered PDF. Inspect rendered pages before delivery; check clipping, overflow, broken photos, awkward page breaks and a sparse final page.

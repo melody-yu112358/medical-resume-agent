@@ -30,25 +30,15 @@
 
 安装时请复制整个 `medical-resume-skill` 文件夹，而不是只复制 `SKILL.md`。这样模型才能在需要时读到相应参考资料和模板。
 
-### Windows 一键安装
+### 安装到 Codex
 
-在仓库根目录打开 PowerShell，执行：
-
-```powershell
-.\skill-lite\install-skill.ps1
-```
-
-脚本会把 Skill 安装到 `~/.codex/skills/medical-resume-skill`。它不会上传简历内容、照片或密钥。安装后请新开一个 Codex 对话，让 Skill 列表重新加载。
-
-### 手动安装与第一次调用
-
-将 `skill-lite/medical-resume-skill` 整个文件夹复制到：
+推荐在 Codex 的新对话中发送下面这句，让内置安装器从 GitHub 安装完整 Skill 包：
 
 ```text
-~/.codex/skills/medical-resume-skill
+$skill-installer install https://github.com/melody-yu112358/medical-resume-agent/tree/main/skill-lite/medical-resume-skill
 ```
 
-新开对话后，可以这样开始：
+安装完成后新开一个 Codex 对话，再这样开始：
 
 ```text
 请用 medical-resume-skill 帮我整理下面这段真实经历，目标是医学事务 / MSL。
@@ -61,6 +51,35 @@
 请用 medical-resume-skill 只润色我下面第 2、4 条科研经历；目标是临床研究与医院科研。
 保留其他内容，不要新增未确认事实。先展示事实卡和待确认问题。
 ```
+
+### 安装到 Claude Code
+
+在仓库根目录执行下列命令，将整个 Skill 文件夹复制到 Claude Code 的个人 Skill 目录。macOS / Linux：
+
+```bash
+mkdir -p ~/.claude/skills
+cp -R skill-lite/medical-resume-skill ~/.claude/skills/
+```
+
+如果希望只在当前项目使用，将目标目录改为 `.claude/skills/`：
+
+```bash
+mkdir -p .claude/skills
+cp -R skill-lite/medical-resume-skill .claude/skills/
+```
+
+Windows PowerShell：
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.claude\skills"
+Copy-Item -Recurse -Force ".\skill-lite\medical-resume-skill" "$HOME\.claude\skills\"
+```
+
+重启 Claude Code 后，可以输入 `/medical-resume-skill`，或直接说明希望它使用该 Skill 整理一段真实经历。若要更新已安装版本，请先移除或改名同目录下已有的 `medical-resume-skill` 文件夹，再复制新版本，避免产生嵌套目录。
+
+### 可选：Windows 便利脚本
+
+`install-skill.ps1` 仅为 Windows 用户保留，作用也是把完整文件夹复制到 `~/.codex/skills/medical-resume-skill`。跨平台使用时，优先采用上面的 Codex 安装器或 Claude Code 目录复制方式。
 
 ### 模型、联网与交付
 
@@ -78,12 +97,21 @@ Skill 不包含 API Key，也不绑定某一家模型。它使用 Codex、Claude
 
 `Medical Resume Skill Lite` is a workflow for host models such as Codex and Claude Code. It does not start a web app or a separate API. The host model uses the bundled fact-confirmation flow, medical capability taxonomy, and writing rules to turn real medical experience into a local HTML resume.
 
-Install the entire `medical-resume-skill` folder, not only `SKILL.md`, so the model can access its references and HTML template. On Windows, run:
+Install the entire `medical-resume-skill` folder, not only `SKILL.md`, so the model can access its references and HTML template.
 
-```powershell
-.\skill-lite\install-skill.ps1
+For Codex, send this in a new Codex conversation:
+
+```text
+$skill-installer install https://github.com/melody-yu112358/medical-resume-agent/tree/main/skill-lite/medical-resume-skill
 ```
 
-Start a new Codex conversation, then ask it to use `medical-resume-skill` with a real experience and a target direction. The Skill supports building a single experience, polishing one to three existing entries, and delivering an accepted full resume as printable A4 HTML. It uses only confirmed facts by default and must not invent work, upgrade responsibility, or turn a job requirement into a personal achievement.
+For Claude Code, copy the folder into a personal or project skills directory:
+
+```bash
+mkdir -p ~/.claude/skills
+cp -R skill-lite/medical-resume-skill ~/.claude/skills/
+```
+
+Use `.claude/skills/` instead for a project-only Claude Code Skill. Start a new Codex or Claude Code conversation, then ask it to use `medical-resume-skill` with a real experience and a target direction. The Skill supports building a single experience, polishing one to three existing entries, and delivering an accepted full resume as printable A4 HTML. It uses only confirmed facts by default and must not invent work, upgrade responsibility, or turn a job requirement into a personal achievement.
 
 The Skill uses the model already configured in the host workflow and contains no API key. JD/public-evidence assistance is opt-in: a user must supply a JD, URL, DOI, or explicit browsing permission. Public information may improve role-language alignment, but never becomes evidence of a user's own experience. The generated `resume-output/` stays local; an optional profile image is used only when the user explicitly supplies one.

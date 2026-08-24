@@ -1,4 +1,4 @@
-# Medical Resume Skill Lite
+<h1 align="center"> Medical Resume Skill </h1>
 
 [中文说明](#中文说明) · [English](#english)
 

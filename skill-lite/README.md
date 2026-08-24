@@ -4,7 +4,7 @@
 
 ## 中文说明
 
-`Medical Resume Skill Lite` 是给 Codex、Claude Code 等宿主模型使用的医学简历工作流。它不启动网页或独立 API；模型在对话中根据 Skill 的事实确认、医学能力分类和表达规则，帮助用户整理经历并交付本地 HTML 简历。
+`Medical Resume Skill Lite` 是给 Codex、Claude Code 等 AI 编程助手使用的医学简历工作流。它不启动网页或独立 API；AI 工具在对话中根据 Skill 的事实确认、医学能力分类和表达规则，帮助用户整理经历并交付本地 HTML 简历。
 
 ### 它解决什么问题
 
@@ -18,21 +18,30 @@
 
 默认交付“专业版”表达；同一组已确认事实还可生成稳妥版与高竞争力版供用户比较。Skill 不会虚构实验、升级责任边界，或把 JD 要求写成个人经历。
 
-### 文件职责
+### 核心能力
 
-| 文件或目录 | 面向谁 | 用途 |
+| 能力 | 作用 |
 | --- | --- | --- |
-| 仓库根目录 `README.md` | GitHub 访客 | 项目概览，以及网页和 Skill 两个入口的选择 |
-| 本文件 | 安装 Skill 的用户 | 安装、调用方式、模型与隐私边界 |
-| `medical-resume-skill/SKILL.md` | Codex / Claude 等宿主模型 | 主执行流程与不可突破的事实边界 |
-| `medical-resume-skill/references/` | 宿主模型按需读取 | 医学能力分类、岗位表达、提示词、HTML 交付与联网规则 |
-| `medical-resume-skill/assets/` | 最终交付文件 | 可打印的 A4 HTML 模板 |
+| 经历事实卡 | 从原始描述中提取研究对象、方法、工具、角色、交付物和待确认信息，并一次只追问最多 3 个关键问题 |
+| 目标方向翻译 | 按学术升学与科研申请、临床研究与医院科研、医学事务 / MSL、医疗数据与数字健康调整表达重点 |
+| 三档改写 | 以同一组确认事实生成稳妥版、专业版和高竞争力版，避免“参与”被无依据升级为“主导” |
+| 本机交付 | 在用户确认后生成可打印的 A4 HTML、结构化数据、改写对照与证据摘要；头像为可选本地图片 |
 
-安装时请复制整个 `medical-resume-skill` 文件夹，而不是只复制 `SKILL.md`。这样模型才能在需要时读到相应参考资料和模板。
+### 医学能力词典概要
+
+Skill 将下列信息分开识别，而不是堆成一串“技能关键词”。完整定义见 [能力词典](medical-resume-skill/references/capability-taxonomy.md)。
+
+| 类别 | 代表内容 |
+| --- | --- |
+| 研究设计与方法 | 队列研究、RCT、MR、Meta 分析、GWAS、生物信息、机器学习 |
+| 数据与工具 | R、Python、SPSS、SQL、数据清洗、统计分析、可视化 |
+| 临床研究设计与执行 | 入排标准、随访、CRF、伦理、GCP、真实世界研究、数据质控 |
+| 实验技术 | 细胞培养、qPCR、Western Blot、流式细胞术、ELISA、动物实验 |
+| 医学证据与信息 | PubMed、Embase、Cochrane、指南解读、证据分级、医学写作 |
 
 ### 安装一览
 
-| 宿主 | 个人安装（所有项目可用） | 项目安装（仅当前仓库） | 调用方式 |
+| AI 工具 | 个人安装（所有项目可用） | 项目安装（仅当前仓库） | 调用方式 |
 | --- | --- | --- | --- |
 | Codex | `~/.codex/skills/medical-resume-skill` | `.codex/skills/medical-resume-skill` | `$medical-resume-skill` 或自然语言 |
 | Claude Code | `~/.claude/skills/medical-resume-skill` | `.claude/skills/medical-resume-skill` | `/medical-resume-skill` 或自然语言 |
@@ -106,9 +115,21 @@ Skill 不包含 API Key，也不绑定某一家模型。它使用 Codex、Claude
 
 网页版本适合可视化地输入、确认和预览；Skill Lite 适合在对话中深入梳理材料、比较多种表达并直接交付本机 HTML。两者共用“事实优先”的原则，但可以独立使用。
 
+### 包结构（维护者参考）
+
+| 文件或目录 | 面向谁 | 用途 |
+| --- | --- | --- |
+| 仓库根目录 `README.md` | GitHub 访客 | 项目概览，以及网页和 Skill 两个入口的选择 |
+| 本文件 | 安装 Skill 的用户 | 安装、调用方式、模型与隐私边界 |
+| `medical-resume-skill/SKILL.md` | Codex / Claude 等 AI 工具 | 主执行流程与不可突破的事实边界 |
+| `medical-resume-skill/references/` | AI 工具按需读取 | 医学能力分类、岗位表达、提示词、HTML 交付与联网规则 |
+| `medical-resume-skill/assets/` | 最终交付文件 | 可打印的 A4 HTML 模板 |
+
+安装时请复制整个 `medical-resume-skill` 文件夹，而不是只复制 `SKILL.md`。这样 AI 工具才能在需要时读到相应参考资料和模板。
+
 ## English
 
-`Medical Resume Skill Lite` is a workflow for host models such as Codex and Claude Code. It does not start a web app or a separate API. The host model uses the bundled fact-confirmation flow, medical capability taxonomy, and writing rules to turn real medical experience into a local HTML resume.
+`Medical Resume Skill Lite` is a workflow for AI coding tools such as Codex and Claude Code. It does not start a web app or a separate API. The AI tool uses the bundled fact-confirmation flow, medical capability taxonomy, and writing rules to turn real medical experience into a local HTML resume.
 
 Install the entire `medical-resume-skill` folder, not only `SKILL.md`, so the model can access its references and HTML template.
 
@@ -127,6 +148,6 @@ cp -R skill-lite/medical-resume-skill ~/.claude/skills/
 
 Use `.claude/skills/` instead for a project-only Claude Code Skill. Start a new Codex or Claude Code conversation, then ask it to use `medical-resume-skill` with a real experience and a target direction. The Skill supports building a single experience, polishing one to three existing entries, and delivering an accepted full resume as printable A4 HTML. It uses only confirmed facts by default and must not invent work, upgrade responsibility, or turn a job requirement into a personal achievement.
 
-The Skill uses the model already configured in the host workflow and contains no API key. JD/public-evidence assistance is opt-in: a user must supply a JD, URL, DOI, or explicit browsing permission. Public information may improve role-language alignment, but never becomes evidence of a user's own experience. The generated `resume-output/` stays local; an optional profile image is used only when the user explicitly supplies one.
+The Skill uses the model configured for the AI tool and contains no API key. JD/public-evidence assistance is opt-in: a user must supply a JD, URL, DOI, or explicit browsing permission. Public information may improve role-language alignment, but never becomes evidence of a user's own experience. The generated `resume-output/` stays local; an optional profile image is used only when the user explicitly supplies one.
 
 For installation scope, use `~/.codex/skills/medical-resume-skill` or `~/.claude/skills/medical-resume-skill` for a personal Skill, and `.codex/skills/medical-resume-skill` or `.claude/skills/medical-resume-skill` for a project-only Skill. Copy the entire folder and avoid copying it into an existing folder with the same name.

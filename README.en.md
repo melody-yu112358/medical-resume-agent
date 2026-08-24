@@ -130,8 +130,6 @@ The web interface is intended for users who do not want to configure an AI codin
 
 Skill Lite follows the same method—extract facts, confirm facts, then translate for a target direction. It is a prompt, workflow, and knowledge package invoked by a host model such as Codex or Claude Code; it does not contain or start an independent model endpoint. The web Agent's model interface, deterministic Claim Gate, audit ledger, and structured APIs are separate capabilities.
 
-The V3.2 material under `golden-sample/` is a de-identified synthetic demo used only as a quality reference and regression fixture. Its disease area, numbers, authorship, outcomes, and responsibility must never be used to complete a real user's resume.
-
 ## Verify
 
 ```powershell

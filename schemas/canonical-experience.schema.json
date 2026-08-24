@@ -37,10 +37,6 @@
         "title": { "type": ["string", "null"] },
         "responsibility_level": {
           "enum": ["participated", "owned_component", "led_delivery", "project_owner", "unknown"]
-        },
-        "personal_boundary": {
-          "description": "User-confirmed boundary naming the specific component personally owned or completed.",
-          "type": ["string", "null"]
         }
       }
     },

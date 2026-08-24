@@ -58,7 +58,7 @@ Skill 本身不包含 API Key，也不绑定某一家模型；它使用当前 Co
 
 ### 与网页版本的区别
 
-Skill Lite 是供 Codex、Claude Code 等宿主模型调用的提示词、流程与知识资产，负责聊天式经历挖掘、保真表达与本机 HTML 交付；它没有独立的模型接口。网页 Agent 的模型接口是独立能力，并额外提供确定性 Claim Gate、审计账本、结构化 API 与可视化确认页面。`golden-sample/` 只是脱敏 synthetic demo，不能为真实用户补全事实。重要投递材料建议再在网页中完成最终确认与审计。
+Skill Lite 是供 Codex、Claude Code 等宿主模型调用的提示词、流程与知识资产，负责聊天式经历挖掘、保真表达与本机 HTML 交付；它没有独立的模型接口。网页 Agent 的模型接口是独立能力，并额外提供确定性 Claim Gate、审计账本、结构化 API 与可视化确认页面。重要投递材料建议再在网页中完成最终确认与审计。
 
 ## English
 

@@ -14,4 +14,4 @@ Copy-Item -LiteralPath $skillSource -Destination $skillTarget -Recurse -Force
 
 Write-Host "Installed Medical Resume Skill Lite to:" -ForegroundColor Green
 Write-Host $skillTarget -ForegroundColor Yellow
-Write-Host "Start a new Codex conversation, then ask: 请用 medical-resume-skill 帮我整理这段经历，目标是医学事务 / MSL。" -ForegroundColor Cyan
+Write-Host "Start a new Codex conversation, then ask Codex to use medical-resume-skill for a real experience and target direction." -ForegroundColor Cyan

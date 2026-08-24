@@ -10,10 +10,13 @@
     * { box-sizing: border-box; }
     body { margin: 0; background: #f5f7f7; color: var(--ink); font: 10.5pt/1.58 "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif; }
     main { width: 210mm; min-height: 297mm; margin: 12mm auto; padding: 15mm 16mm 17mm; background: #fff; box-shadow: 0 1px 12px rgba(25, 42, 45, .12); }
-    header { display: flex; justify-content: space-between; gap: 16mm; padding-bottom: 7mm; border-bottom: 2px solid var(--accent); }
+    header { display: flex; justify-content: space-between; gap: 12mm; padding-bottom: 7mm; border-bottom: 2px solid var(--accent); }
     h1 { margin: 0; font-size: 25pt; line-height: 1.15; letter-spacing: .04em; }
     .target { margin: 4px 0 0; color: var(--accent); font-weight: 700; }
-    .contact { margin: 0; min-width: 60mm; color: var(--muted); text-align: right; font-size: 9.5pt; }
+    .header-side { display: flex; align-items: flex-start; gap: 5mm; }
+    .contact { margin: 0; min-width: 46mm; color: var(--muted); text-align: right; font-size: 9.5pt; }
+    .profile-photo { flex: 0 0 28mm; width: 28mm; height: 38mm; overflow: hidden; border: 1px solid var(--line); background: #f7f9f8; }
+    .profile-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
     section { margin-top: 6mm; }
     h2 { margin: 0 0 3mm; color: var(--accent); font-size: 12pt; letter-spacing: .07em; }
     .education, .entry { padding: 3mm 0; border-top: 1px solid var(--line); }
@@ -37,7 +40,10 @@
         <h1>{{name}}</h1>
         <p class="target">{{target_direction}}</p>
       </div>
-      <p class="contact">{{email}} · {{phone}} · {{city}}<br>{{optional_link}}</p>
+      <div class="header-side">
+        <p class="contact">{{email}} · {{phone}} · {{city}}<br>{{optional_link}}</p>
+        {{optional_photo_html}}
+      </div>
     </header>
 
     <section>

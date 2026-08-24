@@ -144,3 +144,5 @@ resume-output/
 `resume.html` is the candidate-facing deliverable. Keep the supporting JSON and comparison files local, and do not expose their internal identifiers in the rendered resume.
 
 The default HTML should look complete and text-rich at first glance. Include candidate positioning, education, grouped experience sections, methods and skills, outputs/publications when confirmed, languages/certificates and research interests when supported. Do not add filler solely to occupy the page. Preserve accepted prior versions instead of overwriting them when the user requests another tier or layout.
+
+Ask about an optional local headshot only at this delivery stage. Keep the default no-photo layout. When a user supplies an image, copy it into `resume-output/`, render the template's optional photo block using a relative local path, and record that it was user-supplied in `resume-data.json`. Do not upload the image, fetch an image from the web, or substitute a generated portrait without the user's explicit request.

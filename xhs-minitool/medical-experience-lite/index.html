@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>医学经历拆解器 Lite</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">MEDICAL EXPERIENCE LITE</p>
+      <h1>把碎片化的真实经历<br>整理成专业、完整的简历表达</h1>
+      <p>从碎片化生活事件到专业完整而丰富的简历表达，帮助你打破既有边界轻松得到心动offer。</p>
+    </header>
+
+    <section class="skill-cta" aria-labelledby="full-skill-heading">
+      <div>
+        <p class="skill-kicker">让你被真正看见</p>
+        <h2 id="full-skill-heading">从“我只做过”，到“原来我会这么多”</h2>
+        <p>不是套模板，也不是凭空包装。完整版通过 Codex、Claude Code 等 AI 编程助手，把你确认过的科研、实验和实践经历，翻译成目标方向真正关心的能力。</p>
+      </div>
+      <ul>
+        <li>同一段经历，可面向升学、临床科研、MSL、医疗数据分别表达</li>
+        <li>可结合 JD，精修已有的一到三段经历</li>
+        <li>确认成稿后，生成可编辑、可打印的 A4 HTML 简历</li>
+      </ul>
+      <p class="skill-route">不虚构实验、职责或成果 · 完整 Skill 包见发布笔记 GitHub 链接</p>
+    </section>
+
+    <section class="card" aria-labelledby="experience-heading">
+      <div class="section-heading"><span>01</span><h2 id="experience-heading">写下真实经历</h2></div>
+      <p class="hint">可写科研、湿实验、临床研究、病例汇报或项目经历。不要填写姓名、病历号等敏感信息。</p>
+      <textarea id="experienceInput" rows="7" placeholder="例如：在导师指导下参与某疾病风险因素的 Meta 分析，使用 PubMed、Embase 检索文献，完成筛选、数据提取和 R 分析，整理图表并参与组会汇报。"></textarea>
+      <div class="sample-row">
+        <span>试试示例：</span>
+        <button class="text-button" type="button" data-sample="meta">Meta 分析</button>
+        <button class="text-button" type="button" data-sample="wetlab">湿实验</button>
+        <button class="text-button" type="button" data-sample="case">病例汇报</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="role-heading">
+      <div class="section-heading"><span>02</span><h2 id="role-heading">选择目标方向</h2></div>
+      <p class="hint">可多选。它决定什么信息应该被优先呈现，不会改变你的真实经历。</p>
+      <div class="role-grid" id="roleGrid">
+        <button type="button" class="role-card" data-role="academic" aria-pressed="false"><b>升学与科研申请</b><small>研究问题、方法深度、科研潜力</small></button>
+        <button type="button" class="role-card" data-role="clinical" aria-pressed="false"><b>临床研究与医院科研</b><small>研究执行、临床问题、协作</small></button>
+        <button type="button" class="role-card" data-role="msl" aria-pressed="false"><b>医学事务 / MSL</b><small>证据解读、疾病领域、医学沟通</small></button>
+        <button type="button" class="role-card" data-role="data" aria-pressed="false"><b>医疗数据与数字健康</b><small>数据流程、分析框架、结果沟通</small></button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="evidence-heading">
+      <div class="section-heading"><span>03</span><h2 id="evidence-heading">补充你确实做过的线索</h2></div>
+      <p class="hint">只选实际使用过的项目；这是提示工具，不等于熟练度认定。</p>
+      <div id="capabilityGroups"></div>
+    </section>
+
+    <section class="card" aria-labelledby="detail-heading">
+      <div class="section-heading"><span>04</span><h2 id="detail-heading">补齐三个关键信息</h2></div>
+      <p class="hint">这三项会直接用于生成候选简历表达。不会填写的地方可以留空，结果会明确标成待补充。</p>
+      <label class="field-label">研究对象或问题（可选）<input id="topicInput" placeholder="例如：2 型糖尿病与某暴露因素的关联"></label>
+      <label class="field-label">本人实际负责的环节（可选）<textarea id="responsibilityInput" rows="3" placeholder="例如：文献筛选、数据提取、R 分析和结果图表整理"></textarea></label>
+      <label class="field-label">可确认交付物（可选）<input id="deliverableInput" placeholder="例如：组会汇报材料、结果图表、研究报告"></label>
+    </section>
+
+    <div class="actions">
+      <button class="primary" id="analyseButton" type="button">开始拆解</button>
+      <button class="secondary" id="resetButton" type="button">清空本机草稿</button>
+    </div>
+    <p class="status" id="status" role="status"></p>
+
+    <section class="results hidden" id="results" aria-live="polite">
+      <div class="result-card">
+        <p class="result-label">你已提供的事实线索</p>
+        <div id="factSummary"></div>
+      </div>
+      <div class="result-card">
+        <p class="result-label">建议补充的关键问题</p>
+        <ol id="questions"></ol>
+      </div>
+      <div class="result-card">
+        <p class="result-label">候选简历表达（可直接编辑）</p>
+        <p class="result-hint">这些句子只使用你的输入和选择生成；提交前请逐字核对责任边界与事实。</p>
+        <div id="roleOutput"></div>
+      </div>
+      <div class="notice">这是本地表达框架，不会联网、调用大模型或替你确认事实。候选句仍需由本人逐字核对后使用。</div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

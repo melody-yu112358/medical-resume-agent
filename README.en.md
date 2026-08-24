@@ -17,6 +17,15 @@ It is useful when a broad statement such as “participated in research” or �
 
 > Real experience → confirmed research object, method, tool, role, and deliverable → transferable capability → value expression for a target direction
 
+## Choose an entry point
+
+| Your goal | Entry point | Best for |
+| --- | --- | --- |
+| Try the full flow in a browser | [Local web app](#quick-start) | Users who prefer guided input, fact confirmation, and visual review without configuring Codex or Claude |
+| Explore one to three experiences in a Codex / Claude conversation | [Skill Lite](skill-lite/README.md) | Users with existing material who want deeper questioning, rewrite comparison, and local HTML delivery |
+
+The two entry points share the same fact-first method but do not need to be installed together. The web app is a visual experience; Skill Lite is a workflow executed by a host model.
+
 | What you provide | What the system does | What you receive |
 | --- | --- | --- |
 | A real medical experience | Extracts facts, asks about missing information, and waits for confirmation | Candidate bullets for a chosen target path |
@@ -128,7 +137,7 @@ The web interface is intended for users who do not want to configure an AI codin
 - [Skill Lite guide](skill-lite/README.md)
 - [Skill entrypoint](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite follows the same method—extract facts, confirm facts, then translate for a target direction. It is a prompt, workflow, and knowledge package invoked by a host model such as Codex or Claude Code; it does not contain or start an independent model endpoint. The web Agent's model interface, deterministic Claim Gate, audit ledger, and structured APIs are separate capabilities.
+Skill Lite follows the same method—extract facts, confirm facts, then translate for a target direction. It is a prompt, workflow, and knowledge package invoked by a host model such as Codex or Claude Code; it does not contain or start an independent model endpoint. The web Agent's model interface, deterministic Claim Gate, audit ledger, and structured APIs are separate capabilities. See the [Skill Lite guide](skill-lite/README.md) for installation and invocation.
 
 ## Verify
 

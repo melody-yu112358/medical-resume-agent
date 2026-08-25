@@ -1,0 +1,63 @@
+from pathlib import Path
+
+from src.medical_career_agent.services.bullet_composer import BulletComposerService
+from src.medical_career_agent.services.claim_gate import ClaimGateService
+from src.medical_career_agent.services.confirmation_gate import ConfirmationGateService
+from src.medical_career_agent.services.claim_ledger import ClaimLedgerService
+
+
+def _draft():
+    return {"extracted_facts": {"context": {"domain": "clinical_research", "setting": "research_project", "topic": None}, "role": {"title": None, "responsibility_level": "participated"}, "actions": ["perform_analysis", "screen_studies"], "methods": ["sensitivity_analysis", "systematic_review"], "tools": ["r"], "techniques": [], "objects": ["research_data", "medical_literature"], "collaboration": [], "artifacts": [], "outcomes": [], "scope": {}, "unknown_items": []}}
+
+
+def _activity(activity_id, action, method, tool, obj, evidence="ev_001"):
+    return {"activity_id": activity_id, "label": "展示名称不能作为事实依据", "components": {"actions": [action], "methods": [method], "tools": [tool] if tool else [], "techniques": [], "objects": [obj], "artifacts": []}, "evidence_ids": [evidence], "status": "user_confirmed"}
+
+
+def test_v2_confirmation_requires_all_activity_components_to_have_evidence_mapping():
+    result = ConfirmationGateService().confirm_experience(
+        experience_draft=_draft(),
+        user_actions={"disposition": "accept", "canonical_schema_version": "canonical-experience-v2", "activities": [_activity("act_r", "perform_analysis", "sensitivity_analysis", "r", "research_data")], "task_responsibilities": [{"responsibility_id": "resp_r", "activity_id": "act_r", "ownership_level": "owned_component", "execution_mode": "independent", "scope": {"coverage": "partial", "note": "后续步骤"}, "evidence_ids": ["ev_001"]}]},
+        evidence_records=[{"evidence_id": "ev_001", "source_text": "使用 R 完成敏感性分析", "status": "confirmed"}],
+    )
+    assert result.canonical_experience is not None
+    assert result.canonical_experience["schema_version"] == "canonical-experience-v2"
+
+
+def test_v2_reject_does_not_create_canonical_experience():
+    result = ConfirmationGateService().confirm_experience(experience_draft=_draft(), user_actions={"disposition": "reject", "canonical_schema_version": "canonical-experience-v2"}, evidence_records=[{"evidence_id": "ev_001", "source_text": "x", "status": "confirmed"}])
+    assert result.canonical_experience is None
+
+
+def test_v2_rejects_two_current_responsibilities_for_one_activity():
+    activity = _activity("act_r", "perform_analysis", "sensitivity_analysis", "r", "research_data")
+    responsibilities = [
+        {"responsibility_id": "resp_1", "activity_id": "act_r", "ownership_level": "contributed", "execution_mode": "supervised", "scope": {"coverage": "partial", "note": None}, "evidence_ids": ["ev_001"]},
+        {"responsibility_id": "resp_2", "activity_id": "act_r", "ownership_level": "owned_component", "execution_mode": "independent", "scope": {"coverage": "partial", "note": None}, "evidence_ids": ["ev_001"]},
+    ]
+    result = ConfirmationGateService().confirm_experience(experience_draft=_draft(), user_actions={"disposition": "accept", "canonical_schema_version": "canonical-experience-v2", "activities": [activity], "task_responsibilities": responsibilities}, evidence_records=[{"evidence_id": "ev_001", "source_text": "使用 R 完成敏感性分析", "status": "confirmed"}])
+    assert result.canonical_experience is None
+    assert "only one current confirmed responsibility" in str(result.confirmation_status)
+
+
+def test_composer_and_gate_use_activity_not_display_label():
+    canonical = {"schema_version": "canonical-experience-v2", "experience_id": "exp_v2_1", "evidence_ids": ["ev_001"], "context": {"domain": "clinical_research", "setting": "research_project", "topic": None}, "role": {"title": None, "responsibility_level": "participated"}, "actions": ["screen_studies"], "methods": ["systematic_review"], "tools": [], "techniques": [], "objects": ["medical_literature"], "collaboration": [], "artifacts": [], "outcomes": [], "scope": {}, "unknowns": [], "activities": [_activity("act_screen", "screen_studies", "systematic_review", "", "medical_literature")], "task_responsibilities": [{"responsibility_id": "resp_screen", "activity_id": "act_screen", "ownership_level": "owned_component", "execution_mode": "independent", "scope": {"coverage": "full", "note": None}, "evidence_ids": ["ev_001"]}], "status": "user_confirmed"}
+    composer = BulletComposerService(role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs")
+    claim = composer.compose_bullets(canonical_experience=canonical, role_pack_name="doctoral_v1")[0].to_dict()
+    assert "展示名称" not in claim["wording"]
+    assert "独立完成" in claim["wording"]
+    assert ClaimGateService(role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs").validate_claim(bullet_claim=claim, canonical_experience=canonical).status == "ready"
+
+
+def test_v2_gate_rejects_partial_activity_rendered_as_full():
+    canonical = {"schema_version": "canonical-experience-v2", "experience_id": "exp_v2_2", "evidence_ids": ["ev_001"], "context": {}, "role": {"responsibility_level": "participated"}, "actions": ["perform_analysis"], "methods": ["sensitivity_analysis"], "tools": ["r"], "techniques": [], "objects": ["research_data"], "collaboration": [], "artifacts": [], "outcomes": [], "scope": {}, "unknowns": [], "activities": [_activity("act_r", "perform_analysis", "sensitivity_analysis", "r", "research_data")], "task_responsibilities": [{"responsibility_id": "resp_r", "activity_id": "act_r", "ownership_level": "owned_component", "execution_mode": "independent", "scope": {"coverage": "partial", "note": None}, "evidence_ids": ["ev_001"]}], "status": "user_confirmed"}
+    claim = {"schema_version": "bullet-claim-v2", "claim_id": "claim_v2_2", "experience_id": "exp_v2_2", "role_pack": "doctoral_v1", "wording": "独立完成 R 完整流程。", "used_facts": ["actions:perform_analysis", "methods:sensitivity_analysis", "tools:r"], "dependency_refs": {"activity_ids": ["act_r"], "responsibility_ids": ["resp_r"], "completeness": "complete"}, "evidence_ids": ["ev_001"], "project_responsibility_level": "participated", "omitted_unknowns": [], "risk_flags": [], "verification_status": "candidate", "user_disposition": None}
+    result = ClaimGateService(role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs").validate_claim(bullet_claim=claim, canonical_experience=canonical)
+    assert result.status == "needs_confirmation"
+    assert "scope_not_upgraded" in str(result.failed_checks)
+
+
+def test_ledger_invalidates_incomplete_dependency_claim_conservatively(tmp_path):
+    ledger = ClaimLedgerService(tmp_path)
+    ledger.record_claim(session_id="s1", bullet_claim={"claim_id": "claim_1", "experience_id": "exp_1", "role_pack": "doctoral_v1", "evidence_ids": ["ev_001"]}, gate_status="ready")
+    assert ledger.invalidate_claims_by_activity_dependencies("s1", ["act_x"], ["actions:screen_studies"])

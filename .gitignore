@@ -226,6 +226,7 @@ user_data/
 uploads/
 data/.sessions/
 data/.uploads/
+tmp/model-evals/
 interviews/raw/
 *.key
 *.pem

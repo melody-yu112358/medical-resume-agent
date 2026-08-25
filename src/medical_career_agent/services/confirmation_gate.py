@@ -6,6 +6,7 @@ from typing import Any, Optional
 from uuid import uuid4
 
 from ..adapters.openai_compatible_model_gateway import ModelGatewayError
+from .activity_responsibility import validate_confirmed_activities
 
 
 @dataclass(frozen=True)
@@ -45,8 +46,17 @@ class ConfirmationGateService:
         """Confirm, modify, or reject an experience draft based on user actions."""
 
         disposition = user_actions.get("disposition", "accept")
+        requested_schema = user_actions.get("canonical_schema_version", "canonical-experience-v1")
 
         if disposition == "reject":
+            if requested_schema == "canonical-experience-v2":
+                # Rejected proposals belong to conversation/event history, never
+                # to a confirmed v2 canonical record.
+                return ConfirmationResult(
+                    canonical_experience=None,
+                    confirmation_status={"status": "rejected"},
+                    fact_evidence_map={},
+                )
             return self._handle_rejection(evidence_records, previous_experience_id)
 
         # Handle accept or edit dispositions
@@ -94,6 +104,9 @@ class ConfirmationGateService:
 
         # Create fact-evidence mapping for original facts
         fact_evidence_map = self._create_initial_fact_evidence_map(extracted_facts, evidence_records)
+        activity_evidence_overrides = user_actions.get("activity_evidence_overrides", {})
+        if not isinstance(activity_evidence_overrides, dict):
+            return ConfirmationResult(None, {"status": "needs_more_info", "validation_errors": ["activity_evidence_overrides must be an object"]}, fact_evidence_map)
 
         # Handle modifications if any
         if modified_facts or new_evidence_text.strip():
@@ -137,8 +150,26 @@ class ConfirmationGateService:
             )
 
         # Create canonical experience
+        activities = user_actions.get("activities", [])
+        task_responsibilities = user_actions.get("task_responsibilities", [])
+        if requested_schema == "canonical-experience-v2":
+            if not isinstance(activities, list) or not isinstance(task_responsibilities, list):
+                return ConfirmationResult(None, {"status": "needs_more_info", "validation_errors": ["activities and task_responsibilities must be arrays"]}, fact_evidence_map)
+            activity_errors = validate_confirmed_activities(
+                activities=activities,
+                responsibilities=task_responsibilities,
+                facts=extracted_facts,
+                evidence_ids={record["evidence_id"] for record in evidence_records},
+                fact_evidence_map=fact_evidence_map,
+                activity_evidence_overrides=activity_evidence_overrides,
+            )
+            if activity_errors:
+                return ConfirmationResult(None, {"status": "needs_more_info", "validation_errors": activity_errors}, fact_evidence_map)
         canonical_experience = self._build_canonical_experience(
-            extracted_facts, evidence_records, previous_experience_id
+            extracted_facts, evidence_records, previous_experience_id,
+            schema_version=requested_schema,
+            activities=activities if requested_schema == "canonical-experience-v2" else None,
+            task_responsibilities=task_responsibilities if requested_schema == "canonical-experience-v2" else None,
         )
 
         # Validate canonical experience against schema requirements
@@ -315,7 +346,10 @@ class ConfirmationGateService:
         self,
         extracted_facts: dict[str, Any],
         evidence_records: list[dict[str, Any]],
-        previous_experience_id: Optional[str] = None
+        previous_experience_id: Optional[str] = None,
+        schema_version: str = "canonical-experience-v1",
+        activities: Optional[list[dict[str, Any]]] = None,
+        task_responsibilities: Optional[list[dict[str, Any]]] = None,
     ) -> dict[str, Any]:
         """Build a canonical experience record from confirmed facts."""
         evidence_ids = [record["evidence_id"] for record in evidence_records]
@@ -323,7 +357,7 @@ class ConfirmationGateService:
         # Build the canonical experience structure using only what's provided
         # Don't fill in defaults for missing fields - let validation catch them
         canonical = {
-            "schema_version": "canonical-experience-v1",
+            "schema_version": schema_version,
             "experience_id": f"exp_{uuid4().hex[:8]}",
             "evidence_ids": evidence_ids,
             "context": extracted_facts.get("context", {}),
@@ -340,6 +374,9 @@ class ConfirmationGateService:
             "unknowns": extracted_facts.get("unknown_items", []),
             "status": "user_confirmed"
         }
+        if schema_version == "canonical-experience-v2":
+            canonical["activities"] = activities or []
+            canonical["task_responsibilities"] = task_responsibilities or []
 
         return canonical
 
@@ -359,8 +396,15 @@ class ConfirmationGateService:
                 errors.append(f"Missing required field: {field}")
 
         # Schema version check
-        if canonical.get("schema_version") != "canonical-experience-v1":
+        if canonical.get("schema_version") not in {"canonical-experience-v1", "canonical-experience-v2"}:
             errors.append("Invalid schema_version")
+        if canonical.get("schema_version") == "canonical-experience-v2":
+            if canonical.get("status") != "user_confirmed":
+                errors.append("v2 canonical experience must be user_confirmed")
+            if not isinstance(canonical.get("activities"), list):
+                errors.append("v2 activities must be a list")
+            if not isinstance(canonical.get("task_responsibilities"), list):
+                errors.append("v2 task_responsibilities must be a list")
 
         # Evidence IDs check
         if not canonical.get("evidence_ids"):

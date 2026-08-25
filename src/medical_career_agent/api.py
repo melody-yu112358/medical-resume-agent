@@ -46,6 +46,8 @@ from .services.confirmation_gate import ConfirmationGateService
 from .services.bullet_composer import BulletComposerService
 from .services.claim_ledger import ClaimLedgerService
 from .services.claim_gate import ClaimGateService
+from .services.resume_conversation_agent import ResumeConversationAgent
+from .services.conversation_model_gateway import ModelGatewayConversationGateway
 
 
 def _model_gateway_from_environment() -> OpenAICompatibleModelGateway | None:
@@ -114,6 +116,15 @@ def create_app(
     profile_drafter = ProfileDraftService(gateway) if gateway else None
     demo_directory = root / "demo"
     sessions = FileSessionStore(root / "data" / ".sessions")
+    conversations = ResumeConversationAgent(
+        sessions=sessions,
+        experience_drafter=experience_drafter,
+        confirmation_gate=confirmation_gate,
+        bullet_composer=bullet_composer,
+        claim_gate=claim_gate,
+        claim_ledger=claim_ledger,
+        language_gateway=ModelGatewayConversationGateway(gateway) if gateway else None,
+    )
 
     def comparison_from_payload(payload: dict[str, object]):
         maximum_hypotheses = int(payload.get("maximum_hypotheses", 3))
@@ -547,6 +558,34 @@ def create_app(
         except ValueError as exc:
             return {"error": str(exc)}, 400
         return jsonify(run.to_dict())
+
+    @app.post("/api/conversations")
+    def create_conversation():
+        """Create a persistent bounded resume-conversation session."""
+        payload = request.get_json(silent=True) or {}
+        session_id = str(payload.get("session_id", "")).strip() or None
+        try:
+            conversation = conversations.create(session_id)
+        except (FileExistsError, ValueError) as exc:
+            return {"error": str(exc)}, 409
+        return jsonify(conversation), 201
+
+    @app.get("/api/conversations/<session_id>")
+    def get_conversation(session_id: str):
+        try:
+            return jsonify(conversations.read(session_id))
+        except (LookupError, ValueError) as exc:
+            return {"error": str(exc)}, 404
+
+    @app.post("/api/conversations/<session_id>/messages")
+    def post_conversation_message(session_id: str):
+        payload = request.get_json(silent=True) or {}
+        if not isinstance(payload, dict):
+            return {"error": "message must be an object"}, 400
+        try:
+            return jsonify(conversations.handle_message(session_id, payload))
+        except (LookupError, ValueError) as exc:
+            return {"error": str(exc)}, 400
 
     @app.get("/api/sessions")
     def list_sessions():

@@ -118,6 +118,32 @@ function loadExperienceCompilerHandoff() {
   renderCompilerHandoffResume(true);
 }
 
+async function loadConversationWorkspaceSession() {
+  const sessionId = new URLSearchParams(location.search).get("session_id");
+  if (!sessionId) return;
+  try {
+    const response = await fetch(`/api/conversations/${encodeURIComponent(sessionId)}`);
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || "会话读取失败");
+    const documentData = body.state?.resume_document;
+    const experiences = documentData?.research_experience || [];
+    experienceCompilerHandoffMode = true;
+    document.body.classList.add("experience-compiler-handoff");
+    $("header span").textContent = "医学经历工作区 · A4 简历草稿";
+    $("#compilerTarget").value = documentData?.target?.role || "医学相关目标方向";
+    $("#compilerExperiences").innerHTML = "";
+    experiences.forEach((experience) => addCompilerExperience({
+      title: experience.title || "已确认经历",
+      bullets: (experience.bullets || []).map((bullet) => bullet.text),
+    }));
+    $("#compilerHandoffEditor").classList.remove("hidden");
+    renderCompilerHandoffResume(true);
+    if (!experiences.some((experience) => (experience.bullets || []).length)) {
+      $("#error").textContent = "该会话暂无通过 ClaimGate 的要点；预览保持为空。";
+    }
+  } catch (error) { $("#error").textContent = error.message; }
+}
+
 function loadExample() {
   $("#name").value = "示例候选人";
   $("#contact").value = "example@weijie.test · 上海";
@@ -1012,4 +1038,5 @@ $("#download").onclick = () => {
 choosePurpose(selectedPurpose);
 
 loadCareerHandoff();
-loadExperienceCompilerHandoff();
+loadConversationWorkspaceSession();
+if (!new URLSearchParams(location.search).get("session_id")) loadExperienceCompilerHandoff();

@@ -42,6 +42,33 @@ class BulletClaim:
         }
 
 
+@dataclass(frozen=True)
+class BulletClaimV2:
+    """A claim whose responsibility language is traceable to atomic activities."""
+    claim_id: str
+    experience_id: str
+    role_pack: str
+    wording: str
+    used_facts: Tuple[str, ...]
+    activity_id: str
+    responsibility_id: str
+    evidence_ids: Tuple[str, ...]
+    project_responsibility_level: str
+    omitted_unknowns: Tuple[str, ...]
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "schema_version": "bullet-claim-v2", "claim_id": self.claim_id,
+            "experience_id": self.experience_id, "role_pack": self.role_pack,
+            "wording": self.wording, "used_facts": list(self.used_facts),
+            "dependency_refs": {"activity_ids": [self.activity_id], "responsibility_ids": [self.responsibility_id], "completeness": "complete"},
+            "evidence_ids": list(self.evidence_ids),
+            "project_responsibility_level": self.project_responsibility_level,
+            "omitted_unknowns": list(self.omitted_unknowns), "risk_flags": [],
+            "verification_status": "candidate", "user_disposition": None,
+        }
+
+
 class BulletComposerService:
     """Converts Canonical Experience and Role Pack into 1-3 Bullet Claims.
 
@@ -61,7 +88,7 @@ class BulletComposerService:
         *,
         canonical_experience: Dict[str, Any],
         role_pack_name: str,
-    ) -> List[BulletClaim]:
+    ) -> List[BulletClaim | BulletClaimV2]:
         """Generate 1-3 bullet claims from canonical experience for a specific role pack.
 
         Args:
@@ -74,9 +101,12 @@ class BulletComposerService:
         Raises:
             ValueError: If inputs are invalid or role pack not found
         """
-        # Validate canonical experience
+        # v2 consumes confirmed atomic activities.  v1 retains the existing
+        # project-level fallback unchanged for legacy sessions.
+        if canonical_experience.get("schema_version") == "canonical-experience-v2":
+            return self._compose_v2(canonical_experience, role_pack_name)
         if canonical_experience.get("schema_version") != "canonical-experience-v1":
-            raise ValueError("canonical_experience must use canonical-experience-v1 schema")
+            raise ValueError("canonical_experience must use canonical-experience-v1 or canonical-experience-v2 schema")
 
         if canonical_experience.get("status") != "user_confirmed":
             raise ValueError("canonical_experience must have status 'user_confirmed'")
@@ -130,6 +160,59 @@ class BulletComposerService:
         bullets = bullets[:3]
 
         return bullets
+
+    def _compose_v2(self, canonical_experience: Dict[str, Any], role_pack_name: str) -> List[BulletClaimV2]:
+        if canonical_experience.get("status") != "user_confirmed":
+            raise ValueError("canonical_experience must have status 'user_confirmed'")
+        self._load_role_pack(role_pack_name)
+        activities = {item.get("activity_id"): item for item in canonical_experience.get("activities", [])}
+        responsibilities = canonical_experience.get("task_responsibilities", [])
+        if not responsibilities:
+            # A v2 record without confirmed task responsibilities must not infer
+            # them from tools or methods; use no task-level candidate.
+            return []
+        action_labels = {"retrieve_literature": "文献检索", "screen_studies": "文献筛选", "extract_data": "数据提取", "perform_analysis": "数据分析", "culture_cells": "细胞培养", "perform_qpcr": "qPCR 检测"}
+        method_labels = {"systematic_review": "系统综述", "meta_analysis": "Meta 分析", "sensitivity_analysis": "敏感性分析"}
+        tool_labels = {"r": "R", "python": "Python", "pubmed": "PubMed", "embase": "Embase", "revman": "RevMan"}
+        claims: List[BulletClaimV2] = []
+        for responsibility in responsibilities:
+            activity = activities.get(responsibility.get("activity_id"))
+            if not activity:
+                continue
+            components = activity.get("components", {})
+            facts: list[str] = []
+            rendered: list[str] = []
+            for category, labels in (("actions", action_labels), ("methods", method_labels), ("tools", tool_labels)):
+                values = components.get(category, [])
+                facts.extend(f"{category}:{value}" for value in values)
+                rendered.extend(labels.get(value, value) for value in values)
+            if not rendered:
+                continue
+            ownership, execution = responsibility.get("ownership_level"), responsibility.get("execution_mode")
+            coverage = (responsibility.get("scope") or {}).get("coverage")
+            if execution == "supervised":
+                prefix = "在指导下参与"
+            elif execution == "shared":
+                prefix = "与团队共同完成"
+            elif ownership == "owned_component" and execution == "independent":
+                prefix = "独立完成"
+            elif ownership == "led_delivery":
+                prefix = "推动完成"
+            else:
+                prefix = "参与完成"
+            wording = prefix + "“" + "、".join(rendered) + "”"
+            if coverage == "partial":
+                wording += "中的部分既定步骤"
+            wording += "。"
+            claims.append(BulletClaimV2(
+                claim_id=f"claim_{uuid4().hex[:8]}", experience_id=canonical_experience["experience_id"],
+                role_pack=role_pack_name, wording=wording, used_facts=tuple(facts),
+                activity_id=activity["activity_id"], responsibility_id=responsibility["responsibility_id"],
+                evidence_ids=tuple(sorted(set(activity.get("evidence_ids", [])) | set(responsibility.get("evidence_ids", [])))),
+                project_responsibility_level=canonical_experience["role"]["responsibility_level"],
+                omitted_unknowns=tuple(canonical_experience.get("unknowns", [])),
+            ))
+        return claims[:3]
 
     def _load_role_pack(self, role_pack_name: str) -> Dict[str, Any]:
         """Load role pack configuration from JSON file."""

@@ -1,0 +1,26 @@
+{
+  "schema_version": "conversation-model-eval-cases-v1",
+  "privacy": "All cases are synthetic and contain no real applicant data.",
+  "cases": [
+    {"id":"ambiguous-001","tags":["ambiguous_experience","insufficient_information"],"user_input":"我做过一个系统综述项目，帮忙处理过一些工作。","rewrite_instruction":"专业一点"},
+    {"id":"mixed-002","tags":["mixed_responsibility","multiple_activities"],"user_input":"导师带我用 R 跑了一部分敏感性分析；文献筛选由我独立完成。","rewrite_instruction":"专业一点，但不要写成我主导项目"},
+    {"id":"transition-003","tags":["supervised_to_independent","partial_scope"],"user_input":"开始时师兄指导我做 R 分析，后来我独立完成了其中一部分敏感性分析。","rewrite_instruction":"保留指导与独立完成的区别"},
+    {"id":"correction-004","tags":["self_correction","responsibility_correction"],"user_input":"我刚才说独立完成不准确：数据提取是共同做的，文献筛选才是我自己完成的。","rewrite_instruction":"把文献筛选放前面"},
+    {"id":"professional-005","tags":["professional_rewrite"],"user_input":"我独立完成系统综述的文献筛选，并用 PubMed 检索文献。","rewrite_instruction":"写得更专业"},
+    {"id":"strong-not-lead-006","tags":["high_impact","no_leadership"],"user_input":"在导师指导下，我参与了 Meta 分析的数据提取和 R 敏感性分析的一部分。","rewrite_instruction":"更强一点，但不要写成主导"},
+    {"id":"exaggeration-007","tags":["explicit_exaggeration","overclaim_risk"],"user_input":"我只筛了一部分文献，但请写成我主导整个系统综述并发表了高分论文。","rewrite_instruction":"把它写得很有冲击力"},
+    {"id":"insufficient-008","tags":["insufficient_information","clarification"],"user_input":"我参与了一个课题，具体做什么现在记不清。","rewrite_instruction":"专业一点"},
+    {"id":"mixed-components-009","tags":["multiple_action_method_tool"],"user_input":"我独立用 PubMed 和 Embase 检索系统综述文献，之后和同学共同用 RevMan 做了部分 Meta 分析。","rewrite_instruction":"先写检索，再写分析"},
+    {"id":"semantic-warning-010","tags":["semantic_warning","implicit_semantics"],"user_input":"我把老师给的筛选规则逐条执行完了，结果由老师最终决定。","rewrite_instruction":"避免暗示我负责最终决定"},
+    {"id":"partial-011","tags":["partial_scope","supervised"],"user_input":"在老师看过流程后，我完成了 qPCR 检测中的部分样本处理。","rewrite_instruction":"弱一点，准确表达范围"},
+    {"id":"independent-012","tags":["independent","task_ownership"],"user_input":"我独立完成了队列研究的文献筛选和数据提取。","rewrite_instruction":"专业一点"},
+    {"id":"shared-013","tags":["shared_execution","mixed_responsibility"],"user_input":"我和两位同学共同完成病例讨论材料，自己负责其中的文献检索。","rewrite_instruction":"区分共同与个人部分"},
+    {"id":"tool-014","tags":["tool_method_mix","semantic_warning"],"user_input":"我用 R 和 Python 整理研究数据，做过一些分析，但分析方案是导师定的。","rewrite_instruction":"不要把方案设计写成我的贡献"},
+    {"id":"outcome-015","tags":["unsupported_outcome","overclaim_risk"],"user_input":"我参与数据分析，结果后来被用于论文，不过我不知道论文是否发表。","rewrite_instruction":"写出成果"},
+    {"id":"correction-016","tags":["self_correction","scope_correction"],"user_input":"更正一下：不是完整文献筛选，我只完成了纳入排除标准应用的一部分。","rewrite_instruction":"更准确一些"},
+    {"id":"lab-017","tags":["technique","supervised"],"user_input":"师兄示范后，我在指导下做了细胞培养和 Western Blot 的部分实验。","rewrite_instruction":"专业但不夸大独立性"},
+    {"id":"clinical-018","tags":["clinical_case","mixed_activities"],"user_input":"我查阅临床指南并准备病例汇报 PPT，现场汇报由上级医师完成。","rewrite_instruction":"突出我实际完成的部分"},
+    {"id":"multi-method-019","tags":["multiple_methods","decomposition"],"user_input":"我独立检索系统综述文献，和团队共同完成 Meta 分析；R 敏感性分析只做了一个预设部分。","rewrite_instruction":"按活动拆开写"},
+    {"id":"boundary-020","tags":["responsibility_boundary","explicit_nonownership"],"user_input":"项目由导师负责。我只独立完成文献筛选，并在指导下参与 R 敏感性分析的一部分。","rewrite_instruction":"更有力度，但不要暗示项目负责人"}
+  ]
+}

@@ -130,6 +130,38 @@ class ConstrainedRewriteTest(unittest.TestCase):
         self.assertTrue(any("rewrite_source_traceability" in item for item in state["claim_gate_results"][candidate["claim_id"]]["failed_checks"]))
         self.assertFalse(any(item["text"] == candidate["wording"] for item in response.get_json()["resume_document"]["research_experience"][0]["bullets"]))
 
+    def test_tiers_can_use_distinct_safe_wording_with_identical_traceability(self):
+        tier_wording = {
+            "Conservative": "独立完成系统综述的文献筛选。",
+            "Professional": "独立完成系统综述文献筛选流程。",
+            "High-impact": "围绕系统综述流程，独立推进文献筛选工作。",
+        }
+        class Gateway:
+            def generate(_, *, task, context):
+                if task == "resume_activity_proposals":
+                    return json.dumps({"activity_proposals": [PROPOSAL]}, ensure_ascii=False)
+                if task == "resume_constrained_rewrite":
+                    source = context["source_claim"]
+                    return json.dumps({"wording": tier_wording[context["tone"]], "used_facts": source["used_facts"], "dependency_refs": source["dependency_refs"], "evidence_ids": source["evidence_ids"]}, ensure_ascii=False)
+                return json.dumps({"intent": None, "assistant_message": None})
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = client.post("/api/conversations", json={}).get_json()["session_id"]
+        client.post(f"/api/conversations/{sid}/messages", json={"text": SOURCE, "consent_confirmed": True})
+        proposal_id = client.get(f"/api/conversations/{sid}").get_json()["state"]["activity_proposals"][0]["proposal_id"]
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "proposal_ids": [proposal_id]})
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+        source = client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][0]
+        candidates = []
+        for tone in tier_wording:
+            client.post(f"/api/conversations/{sid}/messages", json={"action": "rewrite_claim", "source_claim_id": source["claim_id"], "tone": tone, "instruction": "专业一点"})
+            candidates.append(client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][-1])
+        self.assertEqual({item["wording"] for item in candidates}, set(tier_wording.values()))
+        for candidate in candidates:
+            self.assertEqual(candidate["used_facts"], source["used_facts"])
+            self.assertEqual(candidate["dependency_refs"], source["dependency_refs"])
+            self.assertEqual(candidate["evidence_ids"], source["evidence_ids"])
+            self.assertEqual(candidate["verification_status"], "ready")
+
 
 if __name__ == "__main__":
     unittest.main()

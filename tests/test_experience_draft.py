@@ -117,6 +117,16 @@ class ExperienceDraftServiceTest(unittest.TestCase):
         self.assertIn("clinical_case", facts["objects"])
         self.assertIn("case_presentation_material", facts["artifacts"])
 
+    def test_preparing_case_presentation_ppt_is_an_action(self):
+        draft = self.service.draft(
+            experience_text="查阅临床指南并准备病例汇报 PPT，现场汇报由上级医师完成",
+            consent_confirmed=True,
+        )
+
+        self.assertIn("retrieve_guidelines", draft.extracted_facts["actions"])
+        self.assertIn("prepare_case_presentation", draft.extracted_facts["actions"])
+        self.assertIn("case_presentation_material", draft.extracted_facts["artifacts"])
+
     def test_risk_flags_identification(self):
         """Should identify potential risks."""
         # Test responsibility upgrade risk

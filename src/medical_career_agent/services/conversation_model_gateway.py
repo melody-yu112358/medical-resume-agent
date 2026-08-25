@@ -39,6 +39,7 @@ class ModelGatewayConversationGateway:
     _ALLOWED_INTENTS = {
         "provide_facts", "correct_facts", "ask_question", "confirm_facts",
         "request_resume_generation", "continue_workflow", "rewrite_request", "general_chat",
+        "ask_current_state", "ask_what_to_confirm", "report_ui_problem", "general_help",
     }
 
     def __init__(self, gateway: ModelGateway) -> None:
@@ -46,7 +47,7 @@ class ModelGatewayConversationGateway:
 
     def interpret(self, *, text: str, stage: str, pending_questions: list[str]) -> ConversationLanguageResult:
         raw = self.gateway.generate(task="resume_conversation_intent", context={
-            "instruction": "Classify only. Return JSON with intent (or null) and assistant_message (or null). Use provide_facts only for new factual experience details, correct_facts only for factual corrections, ask_question for explanations, request_resume_generation/continue_workflow for progression requests, rewrite_request for wording changes, and general_chat when unsure. Do not extract facts, invent facts, or return state changes.",
+            "instruction": "Classify only. Return JSON with intent (or null) and assistant_message (or null). Use provide_facts only for new factual experience details, correct_facts only for factual corrections, ask_question for explanations, ask_current_state/ask_what_to_confirm for session-state questions, report_ui_problem for missing cards or display problems, general_help for how-to questions, request_resume_generation/continue_workflow for progression requests, rewrite_request for wording changes, and general_chat when unsure. Do not extract facts, invent facts, or return state changes.",
             "allowed_intents": sorted(self._ALLOWED_INTENTS),
             "stage": stage, "pending_questions": pending_questions[:3], "user_text": text,
         })

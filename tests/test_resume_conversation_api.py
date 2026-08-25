@@ -80,6 +80,50 @@ class ResumeConversationApiTest(unittest.TestCase):
         self.assertEqual(after["evidence_records"], before["evidence_records"])
         self.assertEqual(after["extracted_draft"], before["extracted_draft"])
 
+    def test_method_only_intake_does_not_claim_activity_cards_and_asks_for_actions(self):
+        response = self.message({"text": "我在做meta分析", "consent_confirmed": True})
+        state = response["state"]
+        self.assertFalse(state["activity_proposals"])
+        self.assertNotIn("待确认的活动卡", response["assistant_message"])
+        self.assertIn("信息还不足以形成活动卡", response["assistant_message"])
+        self.assertIn("具体负责了哪些步骤", response["assistant_message"])
+        self.assertTrue(response["pending_question"])
+
+    def test_ask_what_to_confirm_does_not_enter_evidence_and_describes_empty_activity_state(self):
+        self.message({"text": "我在做meta分析", "consent_confirmed": True})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        response = self.message({"text": "当前需要确认什么"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(after["evidence_records"], before["evidence_records"])
+        self.assertIn("当前没有可确认的活动卡", response["assistant_message"])
+        self.assertIn("具体负责了哪些步骤", response["assistant_message"])
+
+    def test_ui_problem_report_does_not_enter_evidence(self):
+        self.message({"text": "我在做meta分析", "consent_confirmed": True})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        response = self.message({"text": "我看不到候选卡"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(after["evidence_records"], before["evidence_records"])
+        self.assertIn("不是页面遗漏", response["assistant_message"])
+
+    def test_natural_academic_target_selects_role_pack_without_evidence(self):
+        self.establish_confirmed_experience()
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        response = self.message({"text": "保研"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(after["evidence_records"], before["evidence_records"])
+        self.assertEqual(after["selected_role_packs"], ["doctoral_v1"])
+        self.assertEqual(after["stage"], "factual_audit")
+        self.assertIn("候选要点已生成", response["assistant_message"])
+
+    def test_natural_target_and_wording_request_composes(self):
+        self.establish_confirmed_experience()
+        response = self.message({"text": "保研，给我措辞"})
+        state = response["state"]
+        self.assertEqual(state["selected_role_packs"], ["doctoral_v1"])
+        self.assertEqual(state["stage"], "factual_audit")
+        self.assertTrue(state["generated_claims"])
+
     def test_wording_edit_does_not_change_confirmed_facts(self):
         generated = self.establish_claims()
         state_before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]

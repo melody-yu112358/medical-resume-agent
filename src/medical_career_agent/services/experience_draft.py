@@ -49,7 +49,7 @@ class ExperienceDraftService:
             r"flowchart", r"PRISMA flowchart"
         ],
         "perform_analysis": [
-            r"分析", r"统计分析", r"数据分析", r"进行分析",
+            r"统计分析", r"数据分析", r"敏感性分析", r"进行分析",
             r"analyze", r"statistical analysis", r"data analysis"
         ],
         "write_manuscript": [

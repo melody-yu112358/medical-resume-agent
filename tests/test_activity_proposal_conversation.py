@@ -52,6 +52,39 @@ class ActivityProposalConversationTest(unittest.TestCase):
         self.assertEqual(len(state["activity_proposals"]), 2)
         self.assertIsNone(state["confirmed_canonical_experience"])
 
+    def test_intake_ignores_model_intent_and_records_hard_rejections(self):
+        class Gateway:
+            def generate(self, *, task, context):
+                if task == "resume_conversation_intent":
+                    return json.dumps({"intent": "edit_wording", "assistant_message": "错误路由"})
+                if task == "resume_activity_proposals":
+                    return json.dumps({"activity_proposals": [
+                        {"evidence_quote": SOURCE, "components": {"actions": [], "methods": [], "tools": [], "techniques": [], "objects": [], "artifacts": []}, "ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown"},
+                        {"evidence_quote": "不存在的引文", "components": {"actions": ["screen_studies"], "methods": [], "tools": [], "techniques": [], "objects": [], "artifacts": []}, "ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown"},
+                    ]}, ensure_ascii=False)
+                return json.dumps({})
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        response = self.post(client, sid, {"text": SOURCE, "consent_confirmed": True})
+        state = client.get(f"/api/conversations/{sid}").get_json()["state"]
+        self.assertEqual(response["stage"], "fact_confirmation")
+        self.assertEqual(state["proposal_audits"][-1]["accepted_count"], 0)
+        self.assertEqual(
+            {item["reason"] for item in state["proposal_audits"][-1]["hard_rejections"]},
+            {"atomic_activity_requires_action", "evidence_quote_must_be_nonempty_verbatim_source_substring_and_components_object"},
+        )
+
+    def test_unknown_responsibility_is_preserved_but_cannot_be_confirmed(self):
+        unknown = self.proposals()[:1]
+        unknown[0].update({"ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown"})
+        client = self.client_with_model(unknown); sid = self.create(client)
+        self.post(client, sid, {"text": SOURCE, "consent_confirmed": True})
+        state = client.get(f"/api/conversations/{sid}").get_json()["state"]
+        proposal = state["activity_proposals"][0]
+        self.assertEqual(proposal["execution_mode"], "unknown")
+        response = self.post(client, sid, {"action": "confirm_activity_proposals", "proposal_ids": [proposal["proposal_id"]]})
+        self.assertIn("缺少责任或范围确认", response["assistant_message"])
+
     def test_reject_does_not_change_canonical_then_confirm_writes_v2(self):
         client = self.client_with_model(self.proposals()); sid = self.create(client)
         self.post(client, sid, {"text": SOURCE, "consent_confirmed": True})

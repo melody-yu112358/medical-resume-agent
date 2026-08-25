@@ -60,7 +60,7 @@ class ExperienceDraftService:
         "perform_qpcr": [r"qPCR", r"RT[- ]?qPCR", r"实时定量PCR"],
         "perform_western_blot": [r"Western[ -]?Blot", r"蛋白印迹"],
         "review_clinical_case": [r"病例汇报", r"病例讨论", r"病例分析", r"case presentation"],
-        "prepare_case_presentation": [r"病例汇报材料", r"制作.*PPT", r"现场汇报", r"presentation"],
+        "prepare_case_presentation": [r"病例汇报材料", r"准备.*病例汇报.*PPT", r"准备.*PPT", r"制作.*PPT", r"现场汇报", r"presentation"],
         "retrieve_guidelines": [r"查阅指南", r"临床指南", r"guideline"]
     }
 
@@ -302,7 +302,7 @@ class ExperienceDraftService:
             artifacts.append("analysis_figures")
         if re.search(r"组会汇报|组会讨论", text, re.IGNORECASE):
             artifacts.append("group_presentation")
-        if re.search(r"病例汇报材料|制作.*PPT|现场汇报", text, re.IGNORECASE):
+        if re.search(r"病例汇报材料|准备.*PPT|制作.*PPT|现场汇报", text, re.IGNORECASE):
             artifacts.append("case_presentation_material")
         return artifacts
 

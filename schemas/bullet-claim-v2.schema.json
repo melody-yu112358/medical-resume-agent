@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/bullet-claim-v2.schema.json",
+  "title": "Resume Bullet Claim v2",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "claim_id", "experience_id", "role_pack", "wording", "used_facts", "dependency_refs", "evidence_ids", "project_responsibility_level", "omitted_unknowns", "risk_flags", "verification_status", "user_disposition"],
+  "properties": {"schema_version": {"const": "bullet-claim-v2"}, "claim_id": {"type": "string"}, "experience_id": {"type": "string"}, "role_pack": {"type": "string"}, "wording": {"type": "string", "minLength": 1}, "used_facts": {"type": "array", "items": {"type": "string"}}, "dependency_refs": {"type": "object", "additionalProperties": false, "required": ["activity_ids", "responsibility_ids", "completeness"], "properties": {"activity_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1}, "responsibility_ids": {"type": "array", "items": {"type": "string"}, "minItems": 1}, "completeness": {"const": "complete"}}}, "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "project_responsibility_level": {"type": "string"}, "omitted_unknowns": {"type": "array"}, "risk_flags": {"type": "array"}, "verification_status": {"enum": ["candidate", "needs_confirmation", "ready", "rejected", "superseded"]}, "user_disposition": {"enum": ["accepted", "edited", "rejected", null]}}
+}

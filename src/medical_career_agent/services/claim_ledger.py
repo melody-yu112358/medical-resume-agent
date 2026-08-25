@@ -25,6 +25,7 @@ class ClaimRecord:
     processed_at: str
     is_valid: bool = True
     invalidated_reason: Optional[str] = None
+    dependency_refs: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
@@ -41,6 +42,8 @@ class ClaimRecord:
         }
         if self.invalidated_reason:
             result["invalidated_reason"] = self.invalidated_reason
+        if self.dependency_refs is not None:
+            result["dependency_refs"] = self.dependency_refs
         return result
 
     @classmethod
@@ -57,6 +60,7 @@ class ClaimRecord:
             processed_at=data["processed_at"],
             is_valid=data.get("is_valid", True),
             invalidated_reason=data.get("invalidated_reason"),
+            dependency_refs=data.get("dependency_refs"),
         )
 
 
@@ -136,6 +140,7 @@ class ClaimLedgerService:
             gate_status=gate_status,
             user_disposition=user_disposition,
             processed_at=datetime.now(timezone.utc).isoformat(),
+            dependency_refs=bullet_claim.get("dependency_refs"),
         )
 
         # Load existing claims and add/update this one
@@ -204,6 +209,7 @@ class ClaimLedgerService:
                     processed_at=claim.processed_at,
                     is_valid=False,
                     invalidated_reason=reason,
+                    dependency_refs=claim.dependency_refs,
                 )
                 claims[claim_id] = invalidated_claim
                 invalidated_ids.append(claim_id)
@@ -246,6 +252,7 @@ class ClaimLedgerService:
                     processed_at=claim.processed_at,
                     is_valid=False,
                     invalidated_reason=reason,
+                    dependency_refs=claim.dependency_refs,
                 )
                 claims[claim_id] = invalidated_claim
                 invalidated_ids.append(claim_id)
@@ -254,6 +261,26 @@ class ClaimLedgerService:
             self._save_session_claims(session_id, claims)
 
         return invalidated_ids
+
+    def invalidate_claims_by_activity_dependencies(self, session_id: str, activity_ids: List[str], changed_fact_refs: List[str] | None = None, reason: str = "activity_changed") -> List[str]:
+        """Selective invalidation; incomplete/legacy dependency records fail closed."""
+        claims = self._load_session_claims(session_id)
+        targets = set(activity_ids)
+        fact_refs = set(changed_fact_refs or [])
+        invalidated: List[str] = []
+        for claim_id, claim in claims.items():
+            if not claim.is_valid:
+                continue
+            deps = claim.dependency_refs or {}
+            complete = deps.get("completeness") == "complete"
+            linked = bool(targets.intersection(deps.get("activity_ids", [])))
+            conservative = not complete and bool(fact_refs)
+            if linked or conservative:
+                claims[claim_id] = ClaimRecord(**{**claim.__dict__, "is_valid": False, "invalidated_reason": reason})
+                invalidated.append(claim_id)
+        if invalidated:
+            self._save_session_claims(session_id, claims)
+        return invalidated
 
     def get_invalidated_claims(self, session_id: str) -> List[ClaimRecord]:
         """Get all invalidated claims for a session."""

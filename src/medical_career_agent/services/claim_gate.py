@@ -61,6 +61,8 @@ class ClaimGateService:
         Returns:
             ClaimGateResult with status and any failed checks
         """
+        if bullet_claim.get("schema_version") == "bullet-claim-v2":
+            return self._validate_claim_v2(bullet_claim, canonical_experience)
         # Validate input schemas
         if bullet_claim.get("schema_version") != "bullet-claim-v1":
             raise ValueError("bullet_claim must use bullet-claim-v1 schema")
@@ -112,6 +114,66 @@ class ClaimGateService:
             status = "needs_confirmation"
 
         return ClaimGateResult(status=status, failed_checks=failed_checks, risk_flags=risk_flags)
+
+    def _validate_claim_v2(self, bullet_claim: Dict[str, Any], canonical_experience: Dict[str, Any]) -> ClaimGateResult:
+        """Audit each responsibility phrase against a complete activity dependency."""
+        failed: List[str] = []
+        if canonical_experience.get("schema_version") != "canonical-experience-v2" or canonical_experience.get("status") != "user_confirmed":
+            return ClaimGateResult("needs_confirmation", ["v2_canonical_required"], [])
+        try:
+            role_pack = self._load_role_pack(bullet_claim.get("role_pack", ""))
+        except ValueError as exc:
+            return ClaimGateResult("rejected", [f"role_pack_load_error: {exc}"], [])
+        dependencies = bullet_claim.get("dependency_refs", {})
+        activity_ids = dependencies.get("activity_ids", [])
+        responsibility_ids = dependencies.get("responsibility_ids", [])
+        if dependencies.get("completeness") != "complete" or not activity_ids or not responsibility_ids:
+            failed.append("dependency_refs_complete: v2 claims require complete activity and responsibility dependencies")
+        activities = {item.get("activity_id"): item for item in canonical_experience.get("activities", [])}
+        responsibilities = {item.get("responsibility_id"): item for item in canonical_experience.get("task_responsibilities", [])}
+        allowed_evidence = set(canonical_experience.get("evidence_ids", []))
+        required_evidence: Set[str] = set()
+        covered_facts: Set[str] = set()
+        for responsibility_id in responsibility_ids:
+            responsibility = responsibilities.get(responsibility_id)
+            if not responsibility:
+                failed.append(f"responsibility_exists: unknown {responsibility_id}")
+                continue
+            if responsibility.get("activity_id") not in activity_ids:
+                failed.append(f"responsibility_activity_dependency: {responsibility_id} activity missing")
+            required_evidence.update(responsibility.get("evidence_ids", []))
+        for activity_id in activity_ids:
+            activity = activities.get(activity_id)
+            if not activity:
+                failed.append(f"activity_exists: unknown {activity_id}")
+                continue
+            required_evidence.update(activity.get("evidence_ids", []))
+            for category, values in activity.get("components", {}).items():
+                covered_facts.update(f"{category}:{value}" for value in values)
+        if not set(bullet_claim.get("used_facts", [])).issubset(covered_facts):
+            failed.append("used_facts_activity_coverage: every used fact must be supplied by a dependency activity")
+        claim_evidence = set(bullet_claim.get("evidence_ids", []))
+        if not claim_evidence or not claim_evidence.issubset(allowed_evidence) or not required_evidence.issubset(claim_evidence):
+            failed.append("responsibility_evidence_coverage: claim must include all activity and responsibility evidence")
+        wording = bullet_claim.get("wording", "")
+        selected = [responsibilities[item] for item in responsibility_ids if item in responsibilities]
+        if "独立完成" in wording and not any(item.get("execution_mode") == "independent" and item.get("ownership_level") == "owned_component" for item in selected):
+            failed.append("responsibility_wording: independent wording lacks independent owned-component support")
+        if "独立" in wording and not any(item.get("execution_mode") == "independent" for item in selected):
+            failed.append("responsibility_wording: independent wording lacks independent support")
+        if "负责" in wording and not any(item.get("ownership_level") in {"owned_component", "led_delivery", "accountable"} for item in selected):
+            failed.append("ownership_wording: responsibility wording exceeds task ownership")
+        if "主导" in wording and not any(item.get("ownership_level") in {"led_delivery", "accountable"} for item in selected):
+            failed.append("ownership_wording: leadership wording exceeds task ownership")
+        if "指导下" in wording and not any(item.get("execution_mode") == "supervised" for item in selected):
+            failed.append("responsibility_wording: supervised wording lacks supervised support")
+        if ("全部" in wording or "完整流程" in wording) and any((item.get("scope") or {}).get("coverage") == "partial" for item in selected):
+            failed.append("scope_not_upgraded: partial activity cannot be rendered as full")
+        if any(word in wording for word in ("主导项目", "项目负责人")) and canonical_experience.get("role", {}).get("responsibility_level") not in {"led_delivery", "project_owner"}:
+            failed.append("project_role_not_upgraded: project-level wording exceeds project role")
+        if any(forbidden in wording for forbidden in role_pack.get("forbidden_claims", [])):
+            failed.append("no_forbidden_role_pack_expressions: contains role-pack forbidden expression")
+        return ClaimGateResult("ready" if not failed else "needs_confirmation", failed, list(bullet_claim.get("risk_flags", [])))
 
     def _get_check_names(self) -> List[str]:
         """Get the names of the twelve checks."""

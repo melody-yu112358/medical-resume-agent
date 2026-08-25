@@ -73,19 +73,25 @@ class ResumeConversationAgent:
         state = session["state"]
         text = str(payload.get("text", "")).strip()
         action = str(payload.get("action", "")).strip()
+        conversation_intent = None
         language_message = None
-        if not action and text and self.language_gateway is not None and state["stage"] != "intake":
+        control_intent = self._safe_control_intent(text) if not action else None
+        if control_intent:
+            # Explicit questions and workflow controls must not be reclassified as
+            # experience evidence even if a model makes an intent error.
+            conversation_intent = control_intent
+        elif not action and text and self.language_gateway is not None and state["stage"] != "intake":
             # The model may suggest a whitelisted intent and a friendlier question;
             # it cannot provide facts, mutations, or audit decisions.
             language = self.language_gateway.interpret(
                 text=text, stage=state["stage"], pending_questions=state["pending_questions"],
             )
             allowed_intents = self._allowed_language_intents(state["stage"])
-            action = language.intent if language.intent in allowed_intents else action
+            conversation_intent = language.intent if language.intent in allowed_intents else None
             language_message = language.assistant_message
             state["language_audit"].append({
                 "stage": state["stage"], "model_intent": language.intent,
-                "applied_intent": action or None,
+                "applied_intent": conversation_intent,
             })
         if text:
             state["raw_user_texts"].append(text)
@@ -116,18 +122,26 @@ class ResumeConversationAgent:
         elif action == "accept_bullets":
             state["stage"] = "delivery"
             response = self._response(state, "已保存可交付的已审计要点。", ui_events=["delivery_ready"])
+        elif conversation_intent in {"provide_facts", "correct_facts"}:
+            response = self._supplement_facts(state, payload, text)
+        elif conversation_intent == "confirm_facts":
+            response = self._confirm(session_id, state, payload)
+        elif conversation_intent == "ask_question":
+            response = self._explain_current_stage(state)
+        elif conversation_intent in {"request_resume_generation", "continue_workflow"}:
+            response = self._continue_workflow(session_id, state, payload)
+        elif conversation_intent == "rewrite_request":
+            response = self._response(state, "请选择一条已通过审计的候选要点，再告诉我希望怎样调整措辞。")
         elif state["stage"] == "intake":
             response = self._intake(state, payload, text)
         elif state["stage"] == "fact_confirmation":
-            # Any free-text addition is treated as a proposed fact change, never as a
-            # silent edit to canonical facts.  It must be confirmed in a later turn.
-            response = self._supplement_facts(state, payload, text)
+            response = self._route_fact_confirmation_fallback(session_id, state, payload, text)
         else:
             response = self._response(state, "请选择目标方向、确认事实，或提交需要审计的候选措辞。")
 
         state["resume_document"] = self._resume_document(session_id, state)
         self.sessions.update(session_id, state=state)
-        self.sessions.append_event(session_id, {"type": "conversation_message", "action": action or "message", "stage": state["stage"]})
+        self.sessions.append_event(session_id, {"type": "conversation_message", "action": action or conversation_intent or "message", "stage": state["stage"]})
         response["resume_document"] = state["resume_document"]
         if language_message and response["assistant_message"]:
             response["assistant_message"] = f"{language_message}\n\n{response['assistant_message']}"
@@ -163,6 +177,66 @@ class ResumeConversationAgent:
         state["pending_questions"] = merged["clarifying_questions"]
         self._propose_activities(state, text, merged["extracted_facts"])
         return self._response(state, "已将补充内容作为待确认事实和活动提议加入；确认前不会改变简历或既有 claim。", pending_question=(merged["clarifying_questions"] or [None])[0], ui_events=["refresh_fact_card", "show_activity_cards"])
+
+    def _route_fact_confirmation_fallback(self, session_id: str, state: dict[str, Any], payload: dict[str, Any], text: str) -> dict[str, Any]:
+        """Safe deterministic fallback when no model intent is available."""
+        if self._looks_like_workflow_request(text):
+            return self._continue_workflow(session_id, state, payload)
+        if self._looks_like_question(text):
+            return self._explain_current_stage(state)
+        if self._contains_extractable_fact(text):
+            return self._supplement_facts(state, payload, text)
+        return self._response(
+            state,
+            "我还不能判断这句话是否是在补充经历事实。若要补充，请说明你实际做了什么、用了什么方法或工具，以及范围；也可以直接问我当前需要确认什么。",
+            pending_question=(state["pending_questions"] or [None])[0],
+        )
+
+    def _continue_workflow(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        if not state.get("confirmed_canonical_experience"):
+            return self._response(
+                state,
+                "生成简历前，需要先确认事实和活动责任边界。请在事实卡与活动卡中确认、修改或拒绝候选内容；未确认内容不会进入简历。",
+                pending_question=(state["pending_questions"] or [None])[0],
+                ui_events=["show_fact_card", "show_activity_cards"],
+            )
+        if state["stage"] in {"representative_sample", "composition"} and not state.get("selected_role_packs"):
+            return self._response(state, "事实已确认。请选择至少一个目标方向后，我会生成并审计候选简历要点。", ui_events=["show_role_pack_chips"])
+        if state["stage"] == "factual_audit":
+            return self._response(state, "候选要点已完成审计；只有 ClaimGate 为 ready 的内容会显示在简历预览中。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
+        return self._response(state, "当前工作流已准备好继续。请按页面上的确认或目标方向入口操作。")
+
+    @staticmethod
+    def _explain_current_stage(state: dict[str, Any]) -> dict[str, Any]:
+        if state["stage"] == "fact_confirmation":
+            return ResumeConversationAgent._response(
+                state,
+                "确认的目的是把你的真实事实、责任边界和原文证据固定下来；之后的简历措辞只能在这些已确认内容内改写，避免把工具、成果或责任写得超过实际情况。",
+                pending_question=(state["pending_questions"] or [None])[0],
+                ui_events=["show_fact_card", "show_activity_cards"],
+            )
+        return ResumeConversationAgent._response(state, "我会根据当前阶段解释下一步，但不会把你的问题当作新的经历事实。")
+
+    def _contains_extractable_fact(self, text: str) -> bool:
+        draft = self.experience_drafter.draft(experience_text=text, consent_confirmed=True)
+        facts = draft.extracted_facts
+        return any(facts.get(category) for category in ("actions", "methods", "tools", "techniques", "objects", "artifacts", "outcomes"))
+
+    @staticmethod
+    def _looks_like_question(text: str) -> bool:
+        return text.endswith(("?", "？")) or text.strip() in {"什么意思", "这是什么意思", "为什么需要确认", "为什么要确认"}
+
+    @staticmethod
+    def _looks_like_workflow_request(text: str) -> bool:
+        return text.strip() in {"生成简历", "继续", "下一步", "继续工作流", "开始生成"}
+
+    @classmethod
+    def _safe_control_intent(cls, text: str) -> str | None:
+        if cls._looks_like_workflow_request(text):
+            return "request_resume_generation"
+        if cls._looks_like_question(text):
+            return "ask_question"
+        return None
 
     def _propose_activities(self, state: dict[str, Any], text: str, facts: dict[str, Any]) -> None:
         if self.language_gateway is not None:
@@ -440,11 +514,11 @@ class ResumeConversationAgent:
     def _allowed_language_intents(stage: str) -> set[str]:
         """Model intent can assist routing only after deterministic intake exists."""
         return {
-            "fact_confirmation": {"confirm_facts", "update_facts"},
-            "representative_sample": {"update_facts", "select_role_packs"},
-            "composition": {"update_facts", "select_role_packs"},
-            "factual_audit": {"update_facts", "edit_wording", "accept_bullets"},
-            "delivery": {"update_facts", "edit_wording", "accept_bullets"},
+            "fact_confirmation": {"provide_facts", "correct_facts", "ask_question", "confirm_facts", "request_resume_generation", "continue_workflow", "general_chat"},
+            "representative_sample": {"provide_facts", "correct_facts", "request_resume_generation", "continue_workflow", "general_chat"},
+            "composition": {"provide_facts", "correct_facts", "request_resume_generation", "continue_workflow", "general_chat"},
+            "factual_audit": {"provide_facts", "correct_facts", "ask_question", "request_resume_generation", "continue_workflow", "rewrite_request", "general_chat"},
+            "delivery": {"provide_facts", "correct_facts", "ask_question", "continue_workflow", "rewrite_request", "general_chat"},
         }.get(stage, set())
 
     @staticmethod

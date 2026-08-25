@@ -36,14 +36,17 @@ class ConversationModelGateway(Protocol):
 class ModelGatewayConversationGateway:
     """Adapter over the existing generic ModelGateway with strict JSON filtering."""
 
-    _ALLOWED_INTENTS = {"confirm_facts", "update_facts", "select_role_packs", "edit_wording", "accept_bullets"}
+    _ALLOWED_INTENTS = {
+        "provide_facts", "correct_facts", "ask_question", "confirm_facts",
+        "request_resume_generation", "continue_workflow", "rewrite_request", "general_chat",
+    }
 
     def __init__(self, gateway: ModelGateway) -> None:
         self.gateway = gateway
 
     def interpret(self, *, text: str, stage: str, pending_questions: list[str]) -> ConversationLanguageResult:
         raw = self.gateway.generate(task="resume_conversation_intent", context={
-            "instruction": "Classify only. Return JSON with intent (or null) and assistant_message (or null). Do not extract facts, invent facts, or return state changes.",
+            "instruction": "Classify only. Return JSON with intent (or null) and assistant_message (or null). Use provide_facts only for new factual experience details, correct_facts only for factual corrections, ask_question for explanations, request_resume_generation/continue_workflow for progression requests, rewrite_request for wording changes, and general_chat when unsure. Do not extract facts, invent facts, or return state changes.",
             "allowed_intents": sorted(self._ALLOWED_INTENTS),
             "stage": stage, "pending_questions": pending_questions[:3], "user_text": text,
         })

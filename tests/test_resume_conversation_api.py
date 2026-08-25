@@ -39,6 +39,47 @@ class ResumeConversationApiTest(unittest.TestCase):
         self.assertIn("sensitivity_analysis", stored["confirmed_canonical_experience"]["methods"])
         self.assertEqual(canonical["evidence_ids"], stored["confirmed_canonical_experience"]["evidence_ids"])
 
+    def test_explanation_question_does_not_enter_evidence(self):
+        self.message({"text": "在导师指导下用 R 进行生信分析。", "consent_confirmed": True})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        response = self.message({"text": "什么意思"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(after["evidence_records"], before["evidence_records"])
+        self.assertEqual(after["extracted_draft"], before["extracted_draft"])
+        self.assertIn("确认的目的", response["assistant_message"])
+
+    def test_resume_generation_request_does_not_enter_evidence_before_confirmation(self):
+        self.message({"text": "在导师指导下用 R 进行生信分析。", "consent_confirmed": True})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        response = self.message({"text": "生成简历"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(after["evidence_records"], before["evidence_records"])
+        self.assertEqual(after["extracted_draft"], before["extracted_draft"])
+        self.assertIn("需要先确认事实", response["assistant_message"])
+
+    def test_why_confirmation_does_not_change_canonical(self):
+        self.establish_confirmed_experience()
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]["confirmed_canonical_experience"]
+        self.message({"text": "为什么需要确认？"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]["confirmed_canonical_experience"]
+        self.assertEqual(after, before)
+
+    def test_unlabeled_new_fact_still_enters_supplement_flow(self):
+        self.message({"text": "在导师指导下参与系统综述并完成文献筛选。", "consent_confirmed": True})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        response = self.message({"text": "我还使用 R 进行敏感性分析。"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(len(after["evidence_records"]), len(before["evidence_records"]) + 1)
+        self.assertIn("补充内容", response["assistant_message"])
+
+    def test_no_model_unclear_free_text_does_not_pollute_evidence(self):
+        self.message({"text": "在导师指导下参与系统综述并完成文献筛选。", "consent_confirmed": True})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.message({"text": "我想再想想"})
+        after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertEqual(after["evidence_records"], before["evidence_records"])
+        self.assertEqual(after["extracted_draft"], before["extracted_draft"])
+
     def test_wording_edit_does_not_change_confirmed_facts(self):
         generated = self.establish_claims()
         state_before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]

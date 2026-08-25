@@ -62,13 +62,13 @@ class ModelGatewayConversationGateway:
 
     def propose_activities(self, *, text: str, extracted_facts: dict[str, Any]) -> ConversationLanguageResult:
         raw = self.gateway.generate(task="resume_activity_proposals", context={
-            "instruction": "Return JSON only. Propose atomic activities, never facts outside vocabulary. Each proposal needs evidence_quote copied verbatim from user_text, components, ownership_level, execution_mode, and coverage. Do not return canonical data or state patches.",
+            "instruction": "Return JSON only. Propose atomic activities, never facts outside vocabulary. Each proposal needs evidence_quote copied verbatim from user_text, components, ownership_level, execution_mode, and coverage. Split different actions or responsibility boundaries into separate activities. Use unknown for any ownership, execution, or coverage dimension not explicitly supported by the quote; never infer supervised from a mentor defining a plan, or partial from collaboration alone. Do not return canonical data or state patches.",
             "user_text": text,
             "allowed_components": {key: extracted_facts.get(key, []) for key in ("actions", "methods", "tools", "techniques", "objects", "artifacts")},
-            "ownership_levels": ["contributed", "owned_component", "led_delivery", "accountable"],
-            "execution_modes": ["supervised", "independent", "shared"],
-            "coverage": ["full", "partial"],
-            "response_shape": {"activity_proposals": [{"evidence_quote": "verbatim substring", "components": {"actions": [], "methods": [], "tools": [], "techniques": [], "objects": [], "artifacts": []}, "ownership_level": "contributed", "execution_mode": "supervised", "coverage": "partial", "scope_note": None}]},
+            "ownership_levels": ["unknown", "contributed", "owned_component", "led_delivery", "accountable"],
+            "execution_modes": ["unknown", "supervised", "independent", "shared"],
+            "coverage": ["unknown", "full", "partial"],
+            "response_shape": {"activity_proposals": [{"evidence_quote": "verbatim substring", "components": {"actions": [], "methods": [], "tools": [], "techniques": [], "objects": [], "artifacts": []}, "ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown", "scope_note": None}]},
         })
         try:
             value = json.loads(raw)
@@ -79,7 +79,7 @@ class ModelGatewayConversationGateway:
 
     def rewrite_claim(self, *, source_claim: dict[str, Any], canonical_experience: dict[str, Any], tone: str, instruction: str) -> ConversationLanguageResult:
         raw = self.gateway.generate(task="resume_constrained_rewrite", context={
-            "instruction": "Return JSON only. Rewrite wording using only source_claim used_facts, dependency_refs and evidence_ids. Never add facts, activities, responsibility, numbers or outcomes. Return wording, used_facts, dependency_refs and evidence_ids.",
+            "instruction": "Return JSON only. Rewrite only source_claim wording. Copy source_claim used_facts, dependency_refs and evidence_ids verbatim and unchanged. Never switch activity, responsibility, facts, evidence, numbers, outcomes, ownership, execution, or scope. Conservative is plainer; Professional is more polished; High-impact may improve ordering and action verbs but cannot strengthen responsibility. Return wording, used_facts, dependency_refs and evidence_ids.",
             "tone": tone, "user_instruction": instruction,
             "source_claim": source_claim, "canonical_experience": canonical_experience,
         })

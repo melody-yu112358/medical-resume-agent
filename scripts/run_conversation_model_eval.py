@@ -94,6 +94,16 @@ def _not_run_rewrites(reason: str) -> dict[str, dict[str, Any]]:
     return {tone: {"status": "not_run", "reason": reason} for tone in TONES}
 
 
+def _latest_model_intent(state: dict[str, Any]) -> dict[str, Any] | None:
+    entries = state.get("language_audit", [])
+    return entries[-1] if entries else None
+
+
+def _latest_proposal_audit(state: dict[str, Any]) -> dict[str, Any] | None:
+    entries = state.get("proposal_audits", [])
+    return entries[-1] if entries else None
+
+
 def evaluate_case(case: dict[str, Any], gateway: OpenAICompatibleModelGateway, workspace: Path) -> dict[str, Any]:
     agent = _new_agent(workspace, gateway)
     session_id = f"eval_{case['id']}"
@@ -110,7 +120,10 @@ def evaluate_case(case: dict[str, Any], gateway: OpenAICompatibleModelGateway, w
         **base,
         "status": "proposal_complete",
         "assistant_message": intake.get("assistant_message"),
+        "pending_question": intake.get("pending_question"),
         "stage": state.get("stage"),
+        "model_intent": _latest_model_intent(state),
+        "proposal_validation": _latest_proposal_audit(state),
         "activity_proposals": [_proposal_view(item) for item in proposals],
         "proposal_count": len(proposals),
         "rewrites": _not_run_rewrites("no user-confirmable model activity proposal"),
@@ -121,8 +134,13 @@ def evaluate_case(case: dict[str, Any], gateway: OpenAICompatibleModelGateway, w
         if item.get("ownership_level") != "unknown"
         and item.get("execution_mode") != "unknown"
         and (item.get("scope") or {}).get("coverage") != "unknown"
+        and not item.get("semantic_warnings")
     ]
     if not confirmable:
+        result["simulated_confirmation"] = {
+            "status": "not_run",
+            "reason": "unknown responsibility field or semantic warning requires a real user decision",
+        }
         result["risk_summary"] = _risk_summary([], len(proposals))
         return result
 
@@ -135,6 +153,7 @@ def evaluate_case(case: dict[str, Any], gateway: OpenAICompatibleModelGateway, w
     except (ModelGatewayError, OSError, ValueError) as exc:
         result.update({"status": "confirmation_error", "error": str(exc), "risk_summary": _risk_summary([], len(proposals))})
         return result
+    result["simulated_confirmation"] = {"status": "confirmed", "proposal_ids": [item["proposal_id"] for item in confirmable]}
 
     source = next((item for item in state.get("generated_claims", []) if item.get("verification_status") == "ready"), None)
     if not source:
@@ -161,11 +180,34 @@ def evaluate_case(case: dict[str, Any], gateway: OpenAICompatibleModelGateway, w
         except (ModelGatewayError, OSError, ValueError) as exc:
             rewrites[tone] = {"status": "model_error", "error": str(exc)}
     result["status"] = "rewrite_complete"
-    result["source_claim"] = {"claim_id": source["claim_id"], "wording": source["wording"]}
+    result["source_claim"] = {
+        "claim_id": source["claim_id"], "wording": source["wording"],
+        "used_facts": source["used_facts"], "dependency_refs": source["dependency_refs"],
+        "evidence_ids": source["evidence_ids"],
+    }
     result["rewrites"] = rewrites
     result["claim_gate"] = [item.get("claim_gate", {}) for item in rewrites.values()]
     result["risk_summary"] = _risk_summary(result["claim_gate"], len(proposals))
     return result
+
+
+def _metrics(results: list[dict[str, Any]]) -> dict[str, int]:
+    rewrites = [rewrite for item in results for rewrite in item.get("rewrites", {}).values()]
+    return {
+        "proposal_zero": sum(item.get("proposal_count") == 0 for item in results),
+        "proposal_nonzero": sum(item.get("proposal_count", 0) > 0 for item in results),
+        "hard_rejections": sum(len((item.get("proposal_validation") or {}).get("hard_rejections", [])) for item in results),
+        "semantic_warnings": sum(len(proposal.get("semantic_warnings", [])) for item in results for proposal in item.get("activity_proposals", [])),
+        "rewrite_complete": sum(item.get("status") == "rewrite_complete" for item in results),
+        "rewrite_ready": sum(rewrite.get("status") == "ready" for rewrite in rewrites),
+        "rewrite_traceability_rejected": sum(any("rewrite_source_traceability" in check for check in rewrite.get("claim_gate", {}).get("failed_checks", [])) for rewrite in rewrites),
+        "identical_three_tones": sum(
+            item.get("rewrites", {}).get("Conservative", {}).get("status") == "ready"
+            and item["rewrites"]["Conservative"].get("wording") == item["rewrites"].get("Professional", {}).get("wording")
+            and item["rewrites"].get("Professional", {}).get("wording") == item["rewrites"].get("High-impact", {}).get("wording")
+            for item in results
+        ),
+    }
 
 
 def main() -> int:
@@ -189,6 +231,7 @@ def main() -> int:
         "schema_version": "conversation-model-eval-report-v1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "case_count": len(results),
+        "metrics": _metrics(results),
         "cases": results,
         "human_scoring_template": ["fact_fidelity", "responsibility_fidelity", "activity_decomposition_quality", "conversation_naturalness", "rewrite_quality", "overclaim_risk"],
     }

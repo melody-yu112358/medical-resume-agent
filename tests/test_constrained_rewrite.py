@@ -102,6 +102,34 @@ class ConstrainedRewriteTest(unittest.TestCase):
         self.assertNotEqual(candidate["verification_status"], "ready")
         self.assertFalse(any("独立完成" in item["text"] for item in response.get_json()["resume_document"]["research_experience"][0]["bullets"]))
 
+    def test_rewrite_cannot_switch_source_dependencies(self):
+        second = "导师指导我用 R 对研究数据做敏感性分析的一部分。"
+        first = "我独立完成系统综述的文献筛选。"
+        proposals = [
+            {"evidence_quote": first, "components": {"actions": ["screen_studies"], "methods": ["systematic_review"], "tools": [], "techniques": [], "objects": ["medical_literature"], "artifacts": []}, "ownership_level": "owned_component", "execution_mode": "independent", "coverage": "full", "scope_note": None},
+            {"evidence_quote": second, "components": {"actions": ["perform_analysis"], "methods": ["sensitivity_analysis"], "tools": ["r"], "techniques": [], "objects": ["research_data"], "artifacts": []}, "ownership_level": "contributed", "execution_mode": "supervised", "coverage": "partial", "scope_note": None},
+        ]
+        class Gateway:
+            def generate(_, *, task, context):
+                if task == "resume_activity_proposals":
+                    return json.dumps({"activity_proposals": proposals}, ensure_ascii=False)
+                if task == "resume_constrained_rewrite":
+                    return json.dumps({"wording": "在指导下参与 R 敏感性分析的一部分。", "used_facts": ["actions:perform_analysis"], "dependency_refs": {"activity_ids": [context["canonical_experience"]["activities"][1]["activity_id"]], "responsibility_ids": [context["canonical_experience"]["task_responsibilities"][1]["responsibility_id"]], "completeness": "complete"}, "evidence_ids": context["source_claim"]["evidence_ids"]}, ensure_ascii=False)
+                return json.dumps({"intent": None, "assistant_message": None})
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = client.post("/api/conversations", json={}).get_json()["session_id"]
+        client.post(f"/api/conversations/{sid}/messages", json={"text": first + second, "consent_confirmed": True})
+        proposals_state = client.get(f"/api/conversations/{sid}").get_json()["state"]["activity_proposals"]
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "proposal_ids": [item["proposal_id"] for item in proposals_state]})
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+        source = client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][0]
+        response = client.post(f"/api/conversations/{sid}/messages", json={"action": "rewrite_claim", "source_claim_id": source["claim_id"], "tone": "Professional", "instruction": "专业一点"})
+        state = client.get(f"/api/conversations/{sid}").get_json()["state"]
+        candidate = state["generated_claims"][-1]
+        self.assertNotEqual(candidate["verification_status"], "ready")
+        self.assertTrue(any("rewrite_source_traceability" in item for item in state["claim_gate_results"][candidate["claim_id"]]["failed_checks"]))
+        self.assertFalse(any(item["text"] == candidate["wording"] for item in response.get_json()["resume_document"]["research_experience"][0]["bullets"]))
+
 
 if __name__ == "__main__":
     unittest.main()

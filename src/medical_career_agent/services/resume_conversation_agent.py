@@ -51,6 +51,7 @@ class ResumeConversationAgent:
             "pending_questions": [], "selected_role_packs": [], "generated_claims": [],
             "claim_gate_results": {}, "claim_user_dispositions": {},
             "activity_proposals": [], "rewrite_candidates": [], "resume_document": None,
+            "proposal_audits": [], "language_audit": [],
         }
 
     def create(self, session_id: str | None = None) -> dict[str, Any]:
@@ -73,13 +74,19 @@ class ResumeConversationAgent:
         text = str(payload.get("text", "")).strip()
         action = str(payload.get("action", "")).strip()
         language_message = None
-        if not action and text and self.language_gateway is not None:
+        if not action and text and self.language_gateway is not None and state["stage"] != "intake":
             # The model may suggest a whitelisted intent and a friendlier question;
             # it cannot provide facts, mutations, or audit decisions.
             language = self.language_gateway.interpret(
                 text=text, stage=state["stage"], pending_questions=state["pending_questions"],
             )
-            action, language_message = language.intent or action, language.assistant_message
+            allowed_intents = self._allowed_language_intents(state["stage"])
+            action = language.intent if language.intent in allowed_intents else action
+            language_message = language.assistant_message
+            state["language_audit"].append({
+                "stage": state["stage"], "model_intent": language.intent,
+                "applied_intent": action or None,
+            })
         if text:
             state["raw_user_texts"].append(text)
 
@@ -160,9 +167,12 @@ class ResumeConversationAgent:
     def _propose_activities(self, state: dict[str, Any], text: str, facts: dict[str, Any]) -> None:
         if self.language_gateway is not None:
             candidate = self.language_gateway.propose_activities(text=text, extracted_facts=facts).activity_proposals or []
+            source = "model"
         else:
             candidate = self._deterministic_activity_proposals(text, facts)
-        valid = self._validate_activity_proposals(candidate, text, facts)
+            source = "deterministic_fallback"
+        valid, audit = self._validate_activity_proposals_with_audit(candidate, text, facts)
+        state["proposal_audits"].append({"source": source, **audit})
         state["activity_proposals"].extend(valid)
 
     @staticmethod
@@ -171,28 +181,63 @@ class ResumeConversationAgent:
         return [{"evidence_quote": text, "components": {"actions": [action], "methods": facts.get("methods", []), "tools": facts.get("tools", []), "techniques": facts.get("techniques", []), "objects": facts.get("objects", []), "artifacts": facts.get("artifacts", [])}, "ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown", "scope_note": None} for action in facts.get("actions", [])]
 
     def _validate_activity_proposals(self, proposals: list[dict[str, Any]], source_text: str, facts: dict[str, Any]) -> list[dict[str, Any]]:
+        return self._validate_activity_proposals_with_audit(proposals, source_text, facts)[0]
+
+    def _validate_activity_proposals_with_audit(self, proposals: list[dict[str, Any]], source_text: str, facts: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         valid: list[dict[str, Any]] = []
+        audit: dict[str, Any] = {"submitted_proposals": [], "hard_rejections": [], "accepted_count": 0}
         categories = ("actions", "methods", "tools", "techniques", "objects", "artifacts")
-        for raw in proposals:
+        for index, raw in enumerate(proposals):
             if not isinstance(raw, dict):
+                audit["hard_rejections"].append({"index": index, "reason": "proposal_must_be_object"})
                 continue
+            audit["submitted_proposals"].append({key: raw.get(key) for key in ("evidence_quote", "components", "ownership_level", "execution_mode", "coverage", "scope_note")})
             quote = raw.get("evidence_quote")
             components = raw.get("components")
             if not isinstance(quote, str) or not quote.strip() or quote not in source_text or not isinstance(components, dict):
+                audit["hard_rejections"].append({"index": index, "reason": "evidence_quote_must_be_nonempty_verbatim_source_substring_and_components_object"})
                 continue
             # Regex extraction is a semantic signal only, not the final judge:
             # it may miss a valid implicit statement that needs user review.
             quote_facts = self.experience_drafter.draft(experience_text=quote, consent_confirmed=True).extracted_facts
+            if any(not isinstance(components.get(category, []), list) for category in categories):
+                audit["hard_rejections"].append({"index": index, "reason": "component_categories_must_be_arrays"})
+                continue
             normalised = {category: list(components.get(category, [])) for category in categories}
-            if not any(normalised.values()) or any(not isinstance(values, list) for values in normalised.values()):
+            if not normalised["actions"]:
+                audit["hard_rejections"].append({"index": index, "reason": "atomic_activity_requires_action"})
                 continue
             if any(set(values) - set(facts.get(category, [])) for category, values in normalised.items()):
+                audit["hard_rejections"].append({"index": index, "reason": "component_not_in_extracted_vocabulary"})
                 continue
             semantic_warnings = [f"quote does not deterministically expose {category}:{value}" for category, values in normalised.items() for value in values if value not in quote_facts.get(category, [])]
             if raw.get("ownership_level") not in {"unknown", "contributed", "owned_component", "led_delivery", "accountable"} or raw.get("execution_mode") not in {"unknown", "supervised", "independent", "shared"} or raw.get("coverage") not in {"unknown", "full", "partial"}:
+                audit["hard_rejections"].append({"index": index, "reason": "invalid_responsibility_enum"})
                 continue
+            semantic_warnings.extend(self._responsibility_semantic_warnings(quote, raw))
             valid.append({"proposal_id": f"proposal_{uuid4().hex[:8]}", "activity_id": f"act_{uuid4().hex[:8]}", "responsibility_id": f"resp_{uuid4().hex[:8]}", "evidence_quote": quote, "components": normalised, "ownership_level": raw["ownership_level"], "execution_mode": raw["execution_mode"], "scope": {"coverage": raw["coverage"], "note": raw.get("scope_note")}, "semantic_warnings": semantic_warnings, "status": "needs_user_confirmation"})
-        return valid
+        audit["accepted_count"] = len(valid)
+        return valid, audit
+
+    @staticmethod
+    def _responsibility_semantic_warnings(quote: str, proposal: dict[str, Any]) -> list[str]:
+        """Flag unsupported boundary inferences without rejecting semantic proposals."""
+        warnings: list[str] = []
+        explicit = {
+            "supervised": ("指导", "带我", "示范"),
+            "independent": ("独立", "自己"),
+            "shared": ("共同", "团队", "一起", "协作"),
+            "partial": ("部分", "一部分", "部分步骤", "其中"),
+        }
+        execution = proposal.get("execution_mode")
+        if execution in explicit and not any(token in quote for token in explicit[execution]):
+            warnings.append(f"execution_mode:{execution} is not explicit in evidence quote; user confirmation required")
+        coverage = proposal.get("coverage")
+        if coverage == "partial" and not any(token in quote for token in explicit["partial"]):
+            warnings.append("coverage:partial is not explicit in evidence quote; user confirmation required")
+        if proposal.get("ownership_level") in {"led_delivery", "accountable"} and not any(token in quote for token in ("主导", "负责", "牵头", "负责人")):
+            warnings.append("strong ownership is not explicit in evidence quote; user confirmation required")
+        return warnings
 
     def _reject_activity_proposal(self, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         proposal_id = str(payload.get("proposal_id", ""))
@@ -366,6 +411,15 @@ class ResumeConversationAgent:
             "verification_status": "candidate", "user_disposition": None,
         }
         gate = self.claim_gate.validate_claim(bullet_claim=candidate, canonical_experience=canonical).to_dict()
+        traceability_errors = [
+            field for field in ("used_facts", "dependency_refs", "evidence_ids")
+            if candidate[field] != source[field]
+        ]
+        if traceability_errors:
+            gate["status"] = "needs_confirmation"
+            gate["failed_checks"].append(
+                "rewrite_source_traceability: rewrite must preserve source " + ", ".join(traceability_errors)
+            )
         candidate["verification_status"] = gate["status"]
         self.claim_ledger.record_claim(session_id=session_id, bullet_claim=candidate, gate_status=gate["status"], user_disposition=None)
         state["generated_claims"].append(candidate)
@@ -381,6 +435,17 @@ class ResumeConversationAgent:
                 state["claim_user_dispositions"][claim_id] = "accepted"
                 return self._response(state, "已记录该候选版本为你的选择；其是否显示仍由 ClaimGate 决定。", ui_events=["refresh_resume_preview"])
         return self._response(state, "未找到该候选版本。")
+
+    @staticmethod
+    def _allowed_language_intents(stage: str) -> set[str]:
+        """Model intent can assist routing only after deterministic intake exists."""
+        return {
+            "fact_confirmation": {"confirm_facts", "update_facts"},
+            "representative_sample": {"update_facts", "select_role_packs"},
+            "composition": {"update_facts", "select_role_packs"},
+            "factual_audit": {"update_facts", "edit_wording", "accept_bullets"},
+            "delivery": {"update_facts", "edit_wording", "accept_bullets"},
+        }.get(stage, set())
 
     @staticmethod
     def _merge_facts(base: dict[str, Any], added: dict[str, Any]) -> dict[str, Any]:

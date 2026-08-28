@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="未界：医学职业表达 Skill、Agent 与公开生态工具目录。">
+  <title>未界 · Medical Career Skill Hub</title>
+  <style>
+    :root { --ink:#173a35; --muted:#60756f; --paper:#f7f6ef; --mint:#dceee6; --line:#d7e0da; --accent:#2c715f; --sun:#f4c960; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; line-height:1.55; }
+    a { color:inherit; text-decoration:none; }
+    .wrap { width:min(1120px,calc(100% - 40px)); margin:auto; }
+    nav { display:flex; justify-content:space-between; align-items:center; padding:24px 0; font-size:14px; }
+    .brand { display:flex; gap:10px; align-items:center; font-weight:750; letter-spacing:.02em; }
+    .mark { width:29px; height:29px; display:grid; place-items:center; background:var(--ink); color:#fff; border-radius:9px; }
+    .nav-link { border-bottom:1px solid var(--ink); padding-bottom:2px; }
+    .hero { padding:64px 0 56px; display:grid; grid-template-columns:1.25fr .75fr; gap:48px; align-items:end; }
+    .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.13em; }
+    h1 { max-width:760px; font-size:clamp(42px,7vw,80px); line-height:1.02; letter-spacing:-.065em; margin:14px 0 22px; }
+    h1 em { font-style:normal; color:var(--accent); }
+    .intro { max-width:640px; color:var(--muted); font-size:18px; }
+    .principle { border:1px solid var(--line); background:#fffdf8; padding:26px; border-radius:16px; }
+    .principle b { display:block; font-size:16px; margin-bottom:12px; }
+    .principle p { color:var(--muted); margin:0; font-size:14px; }
+    .flow { display:flex; gap:8px; flex-wrap:wrap; padding-top:18px; font-size:12px; font-weight:700; color:var(--accent); }
+    .flow span { background:var(--mint); padding:5px 8px; border-radius:50px; }
+    section { padding:66px 0; border-top:1px solid var(--line); }
+    .section-head { display:flex; align-items:baseline; justify-content:space-between; gap:20px; margin-bottom:28px; }
+    h2 { margin:0; letter-spacing:-.04em; font-size:31px; }
+    .section-note { margin:0; color:var(--muted); font-size:14px; max-width:420px; }
+    .catalog { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:27px; min-height:302px; display:flex; flex-direction:column; align-items:flex-start; }
+    .card.stable { background:linear-gradient(145deg,#fff 55%,#e5f2ec); }
+    .status { display:inline-flex; gap:7px; align-items:center; font-size:12px; font-weight:800; letter-spacing:.08em; }
+    .dot { width:8px; height:8px; background:#299171; border-radius:99px; }
+    .beta .dot { background:var(--sun); }
+    .card h3 { font-size:26px; line-height:1.14; letter-spacing:-.04em; margin:21px 0 12px; }
+    .card p { color:var(--muted); font-size:14px; margin:0 0 19px; }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:auto; }
+    .tags span { font-size:12px; border:1px solid var(--line); border-radius:99px; padding:4px 9px; background:#fffdf9; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+    .button { display:inline-block; padding:9px 13px; border-radius:8px; background:var(--ink); color:white; font-size:13px; font-weight:700; }
+    .button.secondary { color:var(--ink); background:transparent; border:1px solid var(--line); }
+    .map { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+    .map div { padding:22px; background:#fff; min-height:150px; border-right:1px solid var(--line); }
+    .map div:last-child { border:0; background:var(--mint); }
+    .map small { color:var(--accent); font-weight:800; letter-spacing:.09em; }
+    .map h3 { margin:12px 0 7px; font-size:18px; }
+    .map p { color:var(--muted); font-size:13px; margin:0; }
+    .product-principles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }.product-principles article { border:1px solid var(--line); background:#fff; border-radius:12px; padding:21px; }.product-principles b { display:block; color:var(--accent); font-size:12px; letter-spacing:.08em; }.product-principles h3 { margin:9px 0 7px; font-size:18px; }.product-principles p { margin:0; color:var(--muted); font-size:13px; }
+    .roadmap { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .roadmap li { border-top:2px solid var(--ink); padding-top:13px; }
+    .roadmap b { font-size:13px; color:var(--accent); }
+    .roadmap p { margin:7px 0 0; color:var(--muted); font-size:14px; }
+    .ecosystem { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }.catalog-group { margin-top:28px; }.catalog-group:first-of-type { margin-top:0; }.catalog-group h3 { font-size:16px; margin:0 0 12px; }.catalog-group h3 span { color:var(--muted); font-size:12px; font-weight:500; margin-left:7px; }
+    .eco-card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; min-height:210px; display:flex; flex-direction:column; }
+    .eco-card small { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:.08em; }
+    .eco-card h3 { font-size:18px; letter-spacing:-.025em; margin:10px 0 8px; }
+    .eco-card p { font-size:13px; color:var(--muted); margin:0; }
+    .eco-card a { font-size:13px; font-weight:750; margin-top:auto; padding-top:15px; text-decoration:underline; text-underline-offset:3px; }
+    .boundary { background:#edf4ef; border-left:4px solid var(--accent); padding:20px 22px; border-radius:0 12px 12px 0; color:var(--muted); font-size:14px; }
+    .boundary b { color:var(--ink); }
+    footer { background:var(--ink); color:#e9f4ed; padding:30px 0; font-size:13px; }
+    footer .wrap { display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+    @media (max-width:760px) { .hero,.catalog { grid-template-columns:1fr; } .hero { padding:38px 0; gap:28px; } .map,.product-principles,.roadmap,.ecosystem { grid-template-columns:1fr 1fr; } .map div { border-bottom:1px solid var(--line); } .map div:nth-child(2) { border-right:0; } }
+    @media (max-width:460px) { .wrap { width:min(100% - 28px,1120px); } .map,.product-principles,.roadmap,.ecosystem { grid-template-columns:1fr; } .map div { border-right:0; } h1 { font-size:48px; } }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <nav>
+      <a class="brand" href="#top"><span class="mark">未</span> 未界 · Medical Career Skill Hub</a>
+      <a class="nav-link" href="https://github.com/melody-yu112358/medical-resume-agent">GitHub ↗</a>
+    </nav>
+  </header>
+  <main id="top">
+    <div class="wrap hero">
+      <div>
+        <div class="eyebrow">EVIDENCE-BOUND CAREER TOOLS</div>
+        <h1>把医学经历，<br>翻译成<em>可信的职业证据。</em></h1>
+        <p class="intro">面向医学生与早期医学研究者的职业表达 Skill 与 Agent 目录。这里既展示自研工具，也整理可公开访问的同方向项目，帮助比较不同工作流与使用边界。</p>
+      </div>
+      <aside class="principle">
+        <b>同一条不可妥协的原则</b>
+        <p>岗位语言可以调整，个人事实不能被改写。未确认的信息应成为问题、待补项或保守表达，而不是被补成责任、数据或成果。</p>
+        <div class="flow"><span>真实经历</span><span>事实确认</span><span>能力结构</span><span>目标表达</span></div>
+      </aside>
+    </div>
+
+    <section class="wrap" id="catalog">
+      <div class="section-head">
+        <h2>官方入口</h2>
+        <p class="section-note">自研 Skill 与在研 Agent 明确标识；先提供可用入口，再展示外部生态参考。</p>
+      </div>
+      <div class="catalog">
+        <article class="card stable">
+          <div class="status"><i class="dot"></i> STABLE · RECOMMENDED</div>
+          <h3>Medical Resume Skill Lite</h3>
+          <p>供 Codex、Claude Code 等对话式 AI 使用的医学简历工作流。通过事实卡、多轮确认、三档表达与本地 HTML 简历交付，让真实经历形成可核对的职业材料。</p>
+          <div class="tags"><span>Codex</span><span>Claude Code</span><span>本地优先</span><span>可打印 HTML</span></div>
+          <div class="actions"><a class="button" href="../../skill-lite/README.md">查看安装与使用</a><a class="button secondary" href="../../skill-lite/medical-resume-skill/SKILL.md">阅读 SKILL.md</a></div>
+        </article>
+        <article class="card beta">
+          <div class="status beta"><i class="dot"></i> BETA · IN DEVELOPMENT</div>
+          <h3>Medical Career Agent</h3>
+          <p>一个用于体验“输入经历 → 确认事实 → 生成方向化要点”的本地网页 Agent。多段经历编排、对话式润色与 Skill 流程对齐正在持续开发。</p>
+          <div class="tags"><span>Flask</span><span>事实确认</span><span>基础可视化</span><span>持续重构</span></div>
+          <div class="actions"><a class="button" href="../../demo/experience-compiler/index.html">打开体验入口</a><a class="button secondary" href="https://github.com/melody-yu112358/medical-resume-agent#网页体验版">了解 Beta 状态</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="wrap" id="ecosystem">
+      <div class="section-head">
+        <h2>简历 Skill 生态目录</h2>
+        <p class="section-note">参考公开 README，优先收录近期活跃、社区关注度较高或工作流成熟的项目；不是完整榜单。最后核对：2026-08-28。</p>
+      </div>
+      <div class="catalog-group"><h3>直接可比：简历生成、改写与文件交付 <span>用于功能与流程竞品分析</span></h3><div class="ecosystem">
+        <article class="eco-card"><small>RESUME TAILORING</small><h3>resume-tailor</h3><p>以主事实档案与职位描述为基础，生成 ATS 导向的简历与求职信，并进行第二模型复核。</p><a href="https://github.com/nuin/resume-tailor">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>STRUCTURED RESUME</small><h3>claude-resume</h3><p>将经历作为结构化来源，围绕不同岗位生成定制化 LaTeX 简历；强调“一份事实，多种版本”。</p><a href="https://github.com/deusyu/claude-resume">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>HTML DELIVERY</small><h3>html-resume</h3><p>从既有简历或职业笔记生成可编辑 HTML 与 A4 PDF，面向多语言改写与打印交付。</p><a href="https://github.com/Gratia2533/html-resume">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>RESUME BUILDING</small><h3>cc-resume-skills</h3><p>Claude Code 简历生成流程，使用结构化 JSON、HTML 渲染与 PDF 导出，侧重通用求职场景。</p><a href="https://github.com/samuncleorange/cc-resume-skills">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>LATEX WORKFLOW</small><h3>claude-resume-kit</h3><p>多 Skill 的 LaTeX 简历定制框架，重点解决岗位定制、表达规则与生成后的检查。</p><a href="https://github.com/ARPeeketi/claude-resume-kit">查看 GitHub ↗</a></article>
+      </div></div>
+      <div class="catalog-group"><h3>成熟中文求职工作流 <span>用于本土化体验与多 Skill 编排参考</span></h3><div class="ecosystem">
+        <article class="eco-card"><small>CHINESE JOB SEARCH</small><h3>ASu-skills</h3><p>中文求职工作流插件，提供经历酥化、简历制作、同款复刻、Offer 与贡献等独立入口，并使用主张—证据账本衔接。</p><a href="https://github.com/Hisn00w/ASu-skills">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>CHINESE JOB SEARCH</small><h3>resume_skill</h3><p>面向 Agent Skills 运行时的中文求职工具集合，含简历与求职辅助相关入口。</p><a href="https://github.com/dominciyue/resume_skill">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>RESUME SKILL COLLECTION</small><h3>resume-skills</h3><p>将简历工作拆分为多个可安装 Skill 的集合，可作为粒度拆分与触发边界的参考。</p><a href="https://github.com/cabbage2000-lab/resume-skills">查看 GitHub ↗</a></article>
+      </div></div>
+      <div class="catalog-group"><h3>相邻参考：职业档案与医学专业能力 <span>不是医学简历的直接替代品</span></h3><div class="ecosystem">
+        <article class="eco-card"><small>CAREER PROFILE</small><h3>resume-agent-skills</h3><p>先建立可复用的职业档案，再为各岗位定制 ATS 简历；其公开说明将医疗列为待覆盖方向。</p><a href="https://github.com/vignzpie/resume-agent-skills">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>CAREER AGENT</small><h3>next-role</h3><p>由职业档案、岗位调研、简历定制与面试准备组成的多阶段 Agent 工作流。</p><a href="https://github.com/tam159/next-role">查看 GitHub ↗</a></article>
+        <article class="eco-card"><small>MEDICAL RESEARCH</small><h3>MedSci Skills</h3><p>面向医学研究的 Skill 集合，覆盖文献、统计、报告规范与论文工作流；用于医学能力边界的相邻参考。</p><a href="https://github.com/Aperivue/medsci-skills">查看 GitHub ↗</a></article>
+      </div></div>
+      <p class="boundary"><b>收录边界：</b>外部项目均为独立项目。收录不代表合作、背书、功能一致、已安全审计或适用于医疗求职；请在使用前自行阅读其许可证、隐私说明、依赖与当前版本。本站仅摘要公开描述并提供原始链接，不复制外部 Skill 内容。</p>
+      <div class="actions"><a class="button" href="ecosystem-catalog/README.md">浏览约 40 项完整生态目录</a><a class="button secondary" href="ecosystem-catalog/CONTRIBUTING.md">查看收录规则</a></div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head"><h2>可信生成链路</h2><p class="section-note">不是一段提示词，而是“事实确认—医学理解—岗位表达—主张审计—文件交付”的可追溯系统。</p></div>
+      <div class="map">
+        <div><small>01 · INTAKE</small><h3>原始输入</h3><p>接住经历、现有简历和其他用户提供材料。</p></div>
+        <div><small>02 · FACT CARD</small><h3>候选事实卡</h3><p>原子化拆解、去重归并，并保留来源定位。</p></div>
+        <div><small>03 · FREEZE</small><h3>用户确认 / 冻结</h3><p>逐项核对，确认后形成可用事实基线。</p></div>
+        <div><small>04 · MEDICAL</small><h3>医学能力解释</h3><p>分开理解方法、数据工具、实验技术与检索资源。</p></div>
+        <div><small>05 · CLAIM GATE</small><h3>表达与主张审计</h3><p>Role Pack 只改变侧重；阻止责任升级与虚构结果。</p></div>
+        <div><small>06 · DELIVERY</small><h3>可编辑交付</h3><p>输出 Markdown、HTML 与可打印简历，并保留审校边界。</p></div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head"><h2>医学简历的产品边界</h2><p class="section-note">方向包会持续完善，因此这里不把当前分类固定成产品承诺；核心是不失真的医学能力翻译与可审计表达。</p></div>
+      <div class="product-principles">
+        <article><b>01 · CAPABILITY TAXONOMY</b><h3>不堆关键词</h3><p>Meta 分析属于研究方法；R / Python 是数据工具；qPCR / WB 是实验技术；PubMed / Embase 是检索资源。</p></article>
+        <article><b>02 · USER CONFIRMATION</b><h3>确认权在用户</h3><p>模型提出候选事实与表达，用户确认责任、范围和结果；不确定信息保留为待补充或保守表述。</p></article>
+        <article><b>03 · CLAIM GATE</b><h3>规则阻止越界</h3><p>检查事实一致性、能力映射与责任等级；禁止把参与写成主导，也不编造数字和成果。</p></article>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="section-head"><h2>公开路线图</h2><p class="section-note">目录会持续更新；竞品信息与自研产品状态将明确分离。</p></div>
+      <ol class="roadmap">
+        <li><b>NOW</b><p>维护 Skill Lite 的事实约束、目标方向表达与本机 HTML 交付。</p></li>
+        <li><b>IN PROGRESS</b><p>让网页 Agent 的多段经历编排与对话式润色逐步对齐 Skill 工作流。</p></li>
+        <li><b>NEXT</b><p>为公开生态目录补充更新日期、来源、适用场景与边界，支持可追溯的竞品分析。</p></li>
+      </ol>
+    </section>
+  </main>
+  <footer><div class="wrap"><span>未界 · 从医学出发，走向更多可能</span><span>自研内容与外部项目均有明确标识；使用前请核对原始来源。</span></div></footer>
+</body>
+</html>

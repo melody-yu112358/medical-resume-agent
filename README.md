@@ -9,9 +9,24 @@
 
 <p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite 使用说明</a></p>
 
+<p align="center"><a href="docs/skill-hub/index.html">查看 Skill & Agent Hub</a> · <a href="https://melody-yu112358.github.io/medical-resume-agent/skill-hub/">GitHub Pages 预览</a></p>
+
 > **推荐入口：** [Medical Resume Skill Lite](skill-lite/README.md)
 >
 > 在 Codex、Claude Code 等已配置模型的本地对话中使用。它会基于已确认的真实经历进行多轮追问、按目标方向润色，并生成可编辑、可打印的 HTML 简历。
+
+## Skill & Agent Hub
+
+这是一个面向医学职业表达的公开导航页：稳定自研 Skill 与在研 Agent 分开呈现；同时收录公开可访问的同方向 Skill / Agent，便于竞品分析和访客发现工具。外部项目不是本仓库的一部分，也不代表合作、背书、兼容性或安全审计结论。
+
+| 入口 | 状态 | 用途 |
+| --- | --- | --- |
+| [Medical Resume Skill Lite](skill-lite/README.md) | **稳定 / 推荐** | 在 Codex、Claude Code 等 AI 对话中，以已确认事实整理经历、润色简历并交付本地 HTML。 |
+| [Medical Career Agent](demo/experience-compiler/index.html) | **Beta / 持续开发** | 在网页中体验经历输入、事实确认与基础可视化；多段经历编排与对话式润色正在与 Skill 流程对齐。 |
+| [Skill & Agent Hub](docs/skill-hub/index.html) | **展示页** | 浏览自研工具、公开生态目录、共享方法论与维护路线图。 |
+| [生态与竞品目录](docs/skill-hub/ecosystem-catalog/README.md) | **公开参考** | 查看约 40 项公开来源、可比范围与收录边界。 |
+
+GitHub Pages 部署时，将 Pages 的发布源设为 `main` 分支的 `/docs` 目录；展示页地址为 `https://melody-yu112358.github.io/medical-resume-agent/skill-hub/`。
 
 医学简历真正的难点，往往不是经历不够，而是研究方法、实验操作和实际贡献被压缩成一句“参与科研”。我们希望保留事实边界，把这些零散信息组织成目标方向看得懂、也经得起追问的能力证据。
 

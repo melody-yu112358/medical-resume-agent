@@ -1,0 +1,43 @@
+{
+  "schema_version": "medical-resume-workflow-v1",
+  "stages": [
+    {"id": "intake", "label": "材料输入", "progress": 0},
+    {"id": "fact_confirmation", "label": "事实确认", "progress": 20},
+    {"id": "representative_sample", "label": "样例确认", "progress": 40},
+    {"id": "composition", "label": "完整生成", "progress": 65},
+    {"id": "factual_audit", "label": "事实审计", "progress": 85},
+    {"id": "delivery", "label": "编辑导出", "progress": 100}
+  ],
+  "targets": [
+    {"id": "doctoral", "label": "学术升学与科研申请", "role_pack": "doctoral_v1"},
+    {"id": "clinical_research", "label": "临床研究与医院科研", "role_pack": "clinical_research_v1"},
+    {"id": "medical_affairs", "label": "医学事务 / MSL", "role_pack": "medical_affairs_v1"},
+    {"id": "health_data", "label": "医疗数据与数字健康", "role_pack": "health_ai_data_v1"}
+  ],
+  "themes": [
+    {"id": "clinical-blue", "label": "临床蓝"},
+    {"id": "academic-green", "label": "学术绿"},
+    {"id": "ats-mono", "label": "ATS 黑白"}
+  ],
+  "actions": [
+    "create_conversation",
+    "provide_facts",
+    "update_activity_proposals",
+    "confirm_activity_proposals",
+    "select_role_packs",
+    "rewrite_claim",
+    "edit_wording",
+    "accept_bullets"
+  ],
+  "privacy": {
+    "backend_persistence": "local_session_json",
+    "browser_state": "session_id_only",
+    "raw_material_sent_only_to_configured_backend": true
+  },
+  "rules": {
+    "maximum_questions_per_round": 3,
+    "default_tier": "professional",
+    "tier_selection_confirms_new_facts": false,
+    "user_edit_requires_reaudit": true
+  }
+}

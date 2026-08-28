@@ -90,3 +90,10 @@ class FileSessionStore(SessionRepository):
                 continue
         return result
 
+    def delete(self, session_id: str) -> bool:
+        """Delete one validated local session file; return whether it existed."""
+        path = self._path(session_id)
+        if not path.exists():
+            return False
+        path.unlink()
+        return True

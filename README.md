@@ -9,6 +9,12 @@
 
 <p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite 使用说明</a></p>
 
+<p align="center"><a href="docs/skill-hub/index.html">查看 Skill & Agent Hub</a> · <a href="docs/skill-hub/ecosystem-catalog/README.md">生态与竞品目录</a></p>
+
+## Skill & Agent Hub
+
+本仓库将稳定自研 Skill、在研网页 Agent 与公开生态参考分开呈现。外部项目仅用于发现和比较，不代表合作、推荐、兼容性或安全审计结论；详见[生态与竞品目录](docs/skill-hub/ecosystem-catalog/README.md)。
+
 > **推荐入口：** [Medical Resume Skill Lite](skill-lite/README.md)
 >
 > 在 Codex、Claude Code 等已配置模型的本地对话中使用。它会基于已确认的真实经历进行多轮追问、按目标方向润色，并生成可编辑、可打印的 HTML 简历。

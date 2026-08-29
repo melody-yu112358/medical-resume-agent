@@ -1,0 +1,9 @@
+{
+  "schema_version": "generalist-beta-boundary-cases-v1",
+  "cases": [
+    {"case_id":"coordination-safe", "rule_id":"project_coordination_requires_project_ownership_evidence", "evidence_flags":["coordination_task","collaborative_scope"], "candidate_text":"在研究团队内协调资料与时间节点，支持既定任务推进。", "expected_outcome":"allowed"},
+    {"case_id":"coordination-overclaim", "rule_id":"project_coordination_requires_project_ownership_evidence", "evidence_flags":["coordination_task","collaborative_scope"], "candidate_text":"主导跨部门项目并担任项目负责人。", "expected_outcome":"revision_required"},
+    {"case_id":"academic-presentation-safe", "rule_id":"internal_presentation_requires_external_communication_evidence", "evidence_flags":["communication_deliverable","internal_academic_presentation"], "candidate_text":"整理图表并向课题组进行学术汇报。", "expected_outcome":"allowed"},
+    {"case_id":"academic-presentation-overclaim", "rule_id":"internal_presentation_requires_external_communication_evidence", "evidence_flags":["communication_deliverable","internal_academic_presentation"], "candidate_text":"负责客户沟通并向高管沟通研究结论。", "expected_outcome":"revision_required"}
+  ]
+}

@@ -1,17 +1,34 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/schemas/role-pack.schema.json",
+  "x_schema_version": "medical-role-pack-schema-v1",
   "title": "Medical Career Role Pack Configuration",
   "description": "Configuration for translating canonical experiences to role-specific resume bullets.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["role_pack", "label", "priorities", "value_mappings", "preferred_actions", "allowed_verbs", "restricted_verbs", "forbidden_claims", "required_evidence", "sentence_patterns", "evaluation_cases"],
+  "required": ["role_pack", "label", "skill_reference", "priorities", "value_mappings", "preferred_actions", "allowed_verbs", "restricted_verbs", "forbidden_claims", "required_evidence", "sentence_patterns", "evaluation_cases"],
   "properties": {
     "role_pack": {
       "type": "string",
       "pattern": "^[a-z_][a-z0-9_]*_v[0-9]+$"
     },
     "label": { "type": "string" },
+    "skill_reference": {
+      "description": "Standalone Skill reference metadata; ignored by existing Agent execution paths.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_scope", "emphasis", "boundary_note"],
+      "properties": {
+        "target_scope": { "type": "string", "minLength": 1 },
+        "emphasis": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "boundary_note": { "type": "string", "minLength": 1 }
+      }
+    },
     "priorities": {
       "type": "array",
       "items": { "type": "string" },

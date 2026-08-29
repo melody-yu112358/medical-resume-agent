@@ -1,0 +1,22 @@
+{
+  "schema_version": "role-pack-execution-projection-v1",
+  "execution_fields": [
+    "role_pack",
+    "label",
+    "priorities",
+    "value_mappings",
+    "preferred_actions",
+    "allowed_verbs",
+    "restricted_verbs",
+    "forbidden_claims",
+    "required_evidence",
+    "sentence_patterns",
+    "evaluation_cases"
+  ],
+  "projections": {
+    "clinical_research_v1": "c592b53c92a1d106fa779d553f00e06c192f235055b44caa90dc13eebff2139b",
+    "doctoral_v1": "5df02f35359bc09c628aaa134379ea84b5f4da2e0dd7a8ca6cf910522fae5786",
+    "health_ai_data_v1": "0985af03477dbe6aa677b44da804862107de825ea4f74585a7df00d963bcb566",
+    "medical_affairs_v1": "199b6e8bbffcc13a248d226309ba1d19ba127073f9c73e97cea50dc34dcd0eee"
+  }
+}

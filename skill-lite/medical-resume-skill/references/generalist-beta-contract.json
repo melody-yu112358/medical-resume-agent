@@ -1,0 +1,26 @@
+{
+  "schema_version": "generalist-transition-beta-contract-v1",
+  "route": "generalist_transition_beta",
+  "entry_requirements": {
+    "outside_existing_target_paths": true,
+    "required_jd_source_types": ["pasted_text", "url"],
+    "unreadable_url_action": "request_pasted_jd"
+  },
+  "jd_snapshot": {
+    "required_fields": ["source_type", "retrieval_status", "source_digest_sha256", "responsibilities", "required_qualifications", "preferred_qualifications", "tools_domain_knowledge", "ownership_expectations", "stakeholder_client_expectations", "measurable_outcome_expectations", "keywords"],
+    "source_types": ["pasted_text", "url"],
+    "retrieval_statuses": ["provided", "retrieved", "unreadable"],
+    "url_required_when_source_type": "url",
+    "retrieved_at_required_when_status": "retrieved"
+  },
+  "mapping": {
+    "statuses": ["direct_evidence", "transferable_evidence", "partial_match", "explicit_gap"],
+    "required_fields": ["jd_item_id", "status", "module_ids", "confirmed_fact_refs", "safe_interpretation", "ownership_boundary", "not_claimed"],
+    "fact_refs_required_for": ["direct_evidence", "transferable_evidence", "partial_match"],
+    "fact_refs_forbidden_for": ["explicit_gap"]
+  },
+  "claim_safety": {
+    "required_fields": ["candidate_text", "prohibited_claims", "ownership_invariant"],
+    "outcomes": ["allowed", "revision_required"]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": "generalist-beta-model-conformance-cases-v1",
+  "purpose": "Run only with a real model in an isolated standalone Skill copy. This is not CI and does not use Agent/core assets.",
+  "case_source": "generalist-beta-eval-cases.json",
+  "required_case_ids": ["product-positive-transferable", "product-partial", "product-negative-ownership", "operations-positive-direct", "operations-partial", "operations-negative-owner", "consulting-positive-transferable", "consulting-partial", "consulting-negative-client", "heor-positive-direct", "heor-partial", "heor-negative-market-access", "commercial-positive-transferable", "commercial-partial", "commercial-negative-growth"],
+  "required_output_sections": ["jd_snapshot", "evidence_to_jd_mapping", "gaps", "claim_safety_audit", "representative_wording"],
+  "scoring_dimensions": ["factuality", "ownership_preservation", "jd_keyword_alignment", "gap_honesty", "transferable_capability_quality", "unsupported_claim_rate"],
+  "release_record": ["model_name", "model_version", "prompt", "package_source_digest", "case_id", "output", "reviewer_decision"]
+}

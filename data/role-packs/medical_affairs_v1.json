@@ -1,6 +1,16 @@
 {
   "role_pack": "medical_affairs_v1",
   "label": "MSL / 医学事务",
+  "skill_reference": {
+    "target_scope": "医学事务、MSL 与医学信息相关的早期求职材料。",
+    "emphasis": [
+      "疾病领域与证据解读",
+      "文献综合",
+      "科学沟通",
+      "医学信息转译与合规表达"
+    ],
+    "boundary_note": "没有明确事实时，不得声称 KOL 管理、外部拜访、医学策略制定、商业决策支持或独立负责医学信息。"
+  },
   "priorities": ["medical_information", "clinical_research", "research_method", "data_analysis", "wet_lab"],
   "value_mappings": {
     "research_method": ["研究证据解读能力", "核心能力 + 研究成果"],

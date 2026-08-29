@@ -1,0 +1,71 @@
+.activity-card {
+  margin: 14px 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.activity-card h3 { margin-top: 8px; }
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 7px;
+  border-radius: 99px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.evidence-quote {
+  padding: 10px;
+  border-left: 3px solid #c7d8e2;
+  background: #f7fafb;
+  color: #53616a;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.boundary-grid,
+.basics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.basics-grid { grid-template-columns: 1fr 1fr; }
+
+.claim-editor {
+  width: 100%;
+  min-height: 85px;
+  padding: 10px;
+  border: 1px solid #d4dfe3;
+  border-radius: 7px;
+  background: #fff;
+  font: 11px/1.65 "Microsoft YaHei", sans-serif;
+  resize: vertical;
+}
+
+.claim-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.claim-meta span,
+.mode-note {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.status-message { color: var(--muted); font-size: 11px; }
+
+.primary:disabled { opacity: .4; cursor: not-allowed; }
+body.busy { cursor: progress; }
+body.busy button { pointer-events: none; opacity: .65; }
+
+@media (max-width: 760px) {
+  .boundary-grid,
+  .basics-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,131 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from medical_career_agent.api import create_app
+
+
+ROOT = Path(__file__).resolve().parents[1]
+MATERIAL = "在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"
+
+
+def _message(client, session_id: str, payload: dict):
+    response = client.post(f"/api/conversations/{session_id}/messages", json=payload)
+    assert response.status_code == 200, response.get_json()
+    return response.get_json()
+
+
+def _delivery_conversation(client):
+    created = client.post("/api/conversations", json={})
+    assert created.status_code == 201
+    session_id = created.get_json()["session_id"]
+    intake = _message(client, session_id, {"text": MATERIAL, "consent_confirmed": True})
+    proposals = intake["state"]["activity_proposals"]
+    assert proposals
+    updated = []
+    for proposal in proposals:
+        updated.append({
+            "evidence_quote": proposal["evidence_quote"],
+            "components": proposal["components"],
+            "ownership_level": "contributed",
+            "execution_mode": "supervised",
+            "coverage": "partial",
+            "scope_note": "按既定流程完成部分步骤",
+        })
+    _message(client, session_id, {"action": "update_activity_proposals", "activity_proposals": updated})
+    confirmed = _message(client, session_id, {"action": "confirm_activity_proposals", "proposal_ids": []})
+    assert confirmed["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    assert composed["stage"] == "factual_audit"
+    assert composed["audit_status"]["ready"] > 0
+    delivered = _message(client, session_id, {"action": "accept_bullets"})
+    assert delivered["stage"] == "delivery"
+    return session_id, delivered
+
+
+def test_skill_contract_and_primary_workspace_are_connected():
+    client = create_app(load_model_from_environment=False).test_client()
+
+    config = client.get("/api/resume-agent/config")
+    assert config.status_code == 200
+    assert config.get_json()["schema_version"] == "medical-resume-workflow-v1"
+    assert [stage["id"] for stage in config.get_json()["stages"]] == [
+        "intake", "fact_confirmation", "representative_sample", "composition", "factual_audit", "delivery"
+    ]
+    root = client.get("/")
+    assert root.status_code == 302
+    assert root.headers["Location"] == "/demo/resume-agent/index.html"
+    assert client.get("/demo/resume-agent/index.html").status_code == 200
+
+
+def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id, delivered = _delivery_conversation(client)
+
+    canonical = delivered["state"]["confirmed_canonical_experience"]
+    assert canonical["schema_version"] == "canonical-experience-v2"
+    assert canonical["task_responsibilities"]
+    response = client.post(
+        f"/api/conversations/{session_id}/export",
+        json={
+            "theme": "academic-green",
+            "basics": {"name": "测试候选人", "contact": "test@example.invalid", "positioning": "循证医学研究实践"},
+        },
+    )
+    assert response.status_code == 200, response.get_json()
+    bundle = response.get_json()
+    assert set(bundle["files"]) == {
+        "resume.md", "resume.html", "resume-data.json", "evidence-summary.json", "export-instructions.txt"
+    }
+    assert "测试候选人" in bundle["files"]["resume.html"]
+    assert "学术升学与科研申请" in bundle["files"]["resume.html"]
+    assert "doctoral_v1" not in bundle["files"]["resume.html"]
+    assert "ACS" not in bundle["files"]["resume.html"]
+    assert "45 篇" not in bundle["files"]["resume.html"]
+    assert bundle["privacy"]["export_written_to_server"] is False
+    assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["research_experience"]
+
+
+def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files():
+    client = create_app(load_model_from_environment=False).test_client()
+    created = client.post("/api/conversations", json={}).get_json()
+    session_id = created["session_id"]
+
+    blocked = client.post(f"/api/conversations/{session_id}/export", json={})
+    assert blocked.status_code == 400
+    deleted = client.delete(f"/api/conversations/{session_id}")
+    assert deleted.status_code == 200
+    assert deleted.get_json()["deleted"] is True
+    assert client.get(f"/api/conversations/{session_id}").status_code == 404
+
+
+def test_export_rejects_invalid_session_id_and_reports_unknown_valid_id():
+    client = create_app(load_model_from_environment=False).test_client()
+
+    invalid = client.post("/api/conversations/bad$id/export", json={})
+    assert invalid.status_code == 400
+    assert "unsupported characters" in invalid.get_json()["error"]
+
+    unknown = client.post("/api/conversations/missing-session/export", json={})
+    assert unknown.status_code == 404
+    assert "unknown session_id" in unknown.get_json()["error"]
+
+
+def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
+    html_text = (ROOT / "demo/resume-agent/index.html").read_text(encoding="utf-8")
+    script = (ROOT / "demo/resume-agent/app.js").read_text(encoding="utf-8")
+
+    assert "LIVE A4 PREVIEW" in html_text
+    assert "workspace.css" in html_text
+    assert "reset-flow.js" in html_text
+    for action in (
+        "update_activity_proposals", "confirm_activity_proposals", "select_role_packs",
+        "edit_wording", "rewrite_claim", "accept_bullets",
+    ):
+        assert action in script
+    assert "/api/conversations/" in script
+    assert 'method: "DELETE"' in script
+    assert "旧会话删除失败，当前会话仍保留，未创建新简历" in script
+    assert "localStorage" in script
+    assert "window.print" in script

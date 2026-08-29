@@ -1,0 +1,130 @@
+from __future__ import annotations
+
+import html
+import json
+from typing import Any
+
+
+class ResumeDeliveryError(ValueError):
+    """Raised when a conversation is not ready for candidate-facing export."""
+
+
+class ResumeDeliveryService:
+    """Render the audited conversation document without creating another resume brain."""
+
+    THEMES = {"clinical-blue", "academic-green", "ats-mono"}
+    TARGET_LABELS = {
+        "doctoral_v1": "学术升学与科研申请",
+        "clinical_research_v1": "临床研究与医院科研",
+        "medical_affairs_v1": "医学事务 / MSL",
+        "health_ai_data_v1": "医疗数据与数字健康",
+    }
+
+    def build_bundle(
+        self,
+        *,
+        conversation: dict[str, Any],
+        basics: dict[str, Any] | None = None,
+        theme: str = "clinical-blue",
+    ) -> dict[str, Any]:
+        state = conversation.get("state") or {}
+        document = state.get("resume_document")
+        if state.get("stage") != "delivery" or not isinstance(document, dict):
+            raise ResumeDeliveryError("conversation must reach delivery before export")
+        if theme not in self.THEMES:
+            raise ResumeDeliveryError("theme is invalid")
+        experiences = document.get("research_experience") or []
+        if not any(item.get("bullets") for item in experiences):
+            raise ResumeDeliveryError("at least one ClaimGate-ready bullet is required")
+
+        resolved_basics = {
+            "name": str((basics or {}).get("name", "")).strip(),
+            "contact": str((basics or {}).get("contact", "")).strip(),
+            "positioning": str((basics or {}).get("positioning", "")).strip(),
+        }
+        markdown = self._markdown(document, resolved_basics)
+        delivery_data = {
+            "schema_version": "medical-resume-delivery-v1",
+            "session_id": conversation.get("session_id"),
+            "theme": theme,
+            "basics": resolved_basics,
+            "resume_document": document,
+            "audit_status": state.get("claim_gate_results", {}),
+        }
+        evidence = {
+            "session_id": conversation.get("session_id"),
+            "evidence": document.get("evidence", []),
+            "claim_gate_results": state.get("claim_gate_results", {}),
+        }
+        return {
+            "files": {
+                "resume.md": markdown,
+                "resume.html": self._html(markdown, theme),
+                "resume-data.json": json.dumps(delivery_data, ensure_ascii=False, indent=2),
+                "evidence-summary.json": json.dumps(evidence, ensure_ascii=False, indent=2),
+                "export-instructions.txt": "下载 resume.html 后可直接打开；在浏览器中选择打印并另存为 PDF。",
+            },
+            "privacy": {
+                "backend_persistence": "local_session_json",
+                "export_written_to_server": False,
+            },
+        }
+
+    @staticmethod
+    def _markdown(document: dict[str, Any], basics: dict[str, str]) -> str:
+        target_value = (document.get("target") or {}).get("role") or "医学相关方向"
+        target = ResumeDeliveryService.TARGET_LABELS.get(target_value, target_value)
+        lines = [
+            f"# {basics['name'] or '姓名（请填写）'}",
+            f"> {target}" + (f" · {basics['contact']}" if basics["contact"] else ""),
+        ]
+        if basics["positioning"]:
+            lines.extend(["", "## 候选人定位", basics["positioning"]])
+        lines.extend(["", "## 科研与实践经历"])
+        for experience in document.get("research_experience", []):
+            heading = " · ".join(
+                value for value in (
+                    "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip(),
+                    str(experience.get("title") or "").strip(),
+                ) if value
+            ) or "已确认经历"
+            lines.append(f"### {heading}")
+            lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        return "\n".join(lines).strip() + "\n"
+
+    @staticmethod
+    def _html(markdown: str, theme: str) -> str:
+        body: list[str] = []
+        in_list = False
+        for raw in markdown.splitlines():
+            line = raw.strip()
+            if line.startswith("- "):
+                if not in_list:
+                    body.append("<ul>")
+                    in_list = True
+                body.append(f"<li>{html.escape(line[2:])}</li>")
+                continue
+            if in_list:
+                body.append("</ul>")
+                in_list = False
+            if line.startswith("### "):
+                body.append(f"<h3>{html.escape(line[4:])}</h3>")
+            elif line.startswith("## "):
+                body.append(f"<h2>{html.escape(line[3:])}</h2>")
+            elif line.startswith("# "):
+                body.append(f"<h1>{html.escape(line[2:])}</h1>")
+            elif line.startswith("> "):
+                body.append(f'<p class="contact">{html.escape(line[2:])}</p>')
+            elif line:
+                body.append(f"<p>{html.escape(line)}</p>")
+        if in_list:
+            body.append("</ul>")
+        colors = {
+            "clinical-blue": ("#205f87", "#eef2f4"),
+            "academic-green": ("#17664e", "#eef3ef"),
+            "ats-mono": ("#111", "#f3f3f3"),
+        }
+        accent, background = colors[theme]
+        return f'''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>医学简历</title><style>
+@page{{size:A4;margin:15mm 16mm}}*{{box-sizing:border-box}}body{{margin:0;background:{background};color:#17242d;font:10.5pt/1.6 "Microsoft YaHei",Arial,sans-serif}}main{{width:210mm;min-height:297mm;margin:12mm auto;padding:15mm 16mm;background:#fff;box-shadow:0 2px 18px #1c334022}}h1{{margin:0;font-size:25pt}}h2{{margin:6mm 0 2mm;padding-bottom:1mm;border-bottom:1px solid #ccdbe5;color:{accent};font-size:12pt}}h3{{margin:3mm 0 1mm;font-size:11pt}}.contact{{color:#62727d;border-bottom:2px solid {accent};padding-bottom:3mm}}p{{margin:1.5mm 0}}ul{{margin:1.5mm 0;padding-left:5mm}}li{{margin:1.1mm 0;text-align:justify}}@media print{{body{{background:#fff}}main{{width:auto;min-height:auto;margin:0;padding:0;box-shadow:none}}}}
+</style><body><main>{"".join(body)}</main></body></html>'''

@@ -38,9 +38,9 @@
 | 入口 | 当前状态 | 适合的情况 |
 | --- | --- | --- |
 | [Skill Lite](skill-lite/README.md) | **推荐使用**。支持对话式经历梳理、受约束润色、表达版本比较与本机 HTML 简历交付。 | 已安装 Codex、Claude Code 或兼容 AI 工作流的用户 |
-| [网页体验版](#网页体验版) | **Beta / 持续重构中**。可体验事实拆解、确认与基础预览；多段经历编排和对话式润色正在与 Skill 流程对齐。 | 想快速了解“医学经历翻译”流程的用户 |
+| [网页 Agent 工作台](#网页体验版) | **Beta**。已接入现有对话 Agent、v2 活动责任模型、Claim Gate、A4 预览与本机交付。 | 希望在浏览器中逐步确认事实、审计要点并导出简历的用户 |
 
-两种入口共享“先确认事实、再翻译表达”的原则，但不要求同时安装。Skill Lite 是当前优先维护的交付路径；网页版本保留为可视化体验入口。
+两种入口共享“先确认事实、再翻译表达”的原则和版本化工作流契约，但不要求同时安装。Skill Lite 仍是优先维护的交付路径；网页版本是现有对话 Agent 的可视化入口，不再维护另一套简历大脑。
 
 ## Skill Lite 能做什么
 
@@ -54,7 +54,7 @@ Skill 默认先确认事实，再按目标方向规划每段经历，并提供�
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
+Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。网页 Agent 读取 Skill 随附的工作流契约，并复用仓库现有的对话编排、v2 活动责任模型和 Claim Gate。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
 
 | 你提供什么 | 系统如何处理 | 你拿到什么 |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 
 ## 网页体验版
 
-> 网页 Agent 正在升级多段经历编排和对话式润色；当前适合体验事实确认与基础可视化流程。若你希望进行多轮润色、比较表达版本并生成可打印 HTML 简历，请优先使用 [Skill Lite](skill-lite/README.md)。
+> 网页 Agent 当前提供一段经历的完整纵向链路：原文输入、活动责任确认、目标方向、要点审计、A4 预览和交付包下载。多段经历编排仍优先通过 [Skill Lite](skill-lite/README.md) 完成。
 
 ### 快速开始
 
@@ -72,7 +72,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 .\start-local.ps1
 ```
 
-然后打开：`http://127.0.0.1:5000/demo/experience-compiler/index.html`
+然后打开：`http://127.0.0.1:5000/`
 
 首次使用可载入内置的脱敏 Meta 分析示例。完整安装步骤见[在自己的电脑上运行网页体验版](#在自己的电脑上运行网页体验版)。
 
@@ -149,7 +149,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 3. 看到服务启动提示后，在浏览器打开：
 
    ```text
-   http://127.0.0.1:5000/demo/experience-compiler/index.html
+   http://127.0.0.1:5000/
    ```
 
 4. 用完后回到 PowerShell，按 `Ctrl + C` 停止本地服务。
@@ -176,7 +176,8 @@ python -m pytest -q
 ## 仓库结构
 
 ```text
-demo/experience-compiler/  可直接体验的医学经历编译器页面
+demo/resume-agent/         对话 Agent 的事实确认、审计、预览与导出工作台
+demo/experience-compiler/  保留的医学经历编译器 Demo
 src/medical_career_agent/  经历提取、确认、要点生成、Claim Gate 与账本服务
 schemas/                   canonical experience、role pack、bullet claim 数据契约
 data/role-packs/           四个目标方向的表达策略

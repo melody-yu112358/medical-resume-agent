@@ -158,8 +158,8 @@ function renderClaims() {
 function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStorageKey) || "{}"); } catch (_) { return {}; } }
 function renderDelivery() {
   const basics = savedBasics();
-  return `<section class="panel"><h3>补齐抬头并交付</h3><p>姓名、联系方式和定位仅保存在当前浏览器，并在下载时随请求用于生成文件，不写回经历事实。</p><div class="basics-grid"><label class="field">姓名<input id="candidateName" value="${esc(basics.name || "")}" placeholder="姓名"></label><label class="field">联系方式<input id="candidateContact" value="${esc(basics.contact || "")}" placeholder="电话 · 邮箱 · 城市"></label></div>
-    <label class="field">候选人定位（由你确认）<textarea id="positioning" placeholder="例如：具备系统综述与医学证据整理实践基础的临床医学学生">${esc(basics.positioning || "")}</textarea></label><div class="action-row"><button id="saveBasics" class="secondary" type="button">更新预览</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>
+  return `<section class="panel"><h3>补齐抬头并交付</h3><p>姓名和联系方式仅保存在当前浏览器，并在下载时随请求用于生成文件，不写回经历事实。</p><div class="basics-grid"><label class="field">姓名<input id="candidateName" value="${esc(basics.name || "")}" placeholder="姓名"></label><label class="field">联系方式<input id="candidateContact" value="${esc(basics.contact || "")}" placeholder="电话 · 邮箱 · 城市"></label></div>
+    <div class="action-row"><button id="saveBasics" class="secondary" type="button">更新预览</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>
     <section class="panel soft"><h3 class="audit-ready">已进入交付阶段</h3><p>只有通过 Claim Gate 的要点进入右侧预览和下载文件。</p></section>`;
 }
 
@@ -190,7 +190,7 @@ async function confirmActivities() {
 
 function editClaim(button) { const card = button.closest("[data-claim]"); const wording = card.querySelector("textarea").value.trim(); if (!wording) return showError("要点不能为空。"); sendMessage({ action: "edit_wording", claim_id: card.dataset.claim, wording }); }
 function rewriteClaim(button) { const card = button.closest("[data-claim]"); sendMessage({ action: "rewrite_claim", source_claim_id: card.dataset.claim, tone: button.dataset.tone, instruction: "保持事实与责任边界，提升医学简历的信息密度。" }); }
-function saveBasicsAndPreview() { const basics = { name: $("#candidateName").value.trim(), contact: $("#candidateContact").value.trim(), positioning: $("#positioning").value.trim() }; localStorage.setItem(basicsStorageKey, JSON.stringify(basics)); lastMessage = "抬头信息已保存到当前浏览器。"; render(); }
+function saveBasicsAndPreview() { const basics = { name: $("#candidateName").value.trim(), contact: $("#candidateContact").value.trim() }; localStorage.setItem(basicsStorageKey, JSON.stringify(basics)); lastMessage = "抬头信息已保存到当前浏览器。"; render(); }
 
 function renderPreview() {
   const documentData = state().resume_document;
@@ -198,7 +198,7 @@ function renderPreview() {
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
   const basics = savedBasics(); const experiences = documentData.research_experience || [];
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
-  paper.innerHTML = `<h1>${esc(basics.name || "姓名（请填写）")}</h1><blockquote>${esc(target)}${basics.contact ? ` · ${esc(basics.contact)}` : ""}</blockquote>${basics.positioning ? `<h2>候选人定位</h2><p>${esc(basics.positioning)}</p>` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
+  paper.innerHTML = `<h1>${esc(basics.name || "姓名（请填写）")}</h1><blockquote>${esc(target)}${basics.contact ? ` · ${esc(basics.contact)}` : ""}</blockquote><h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 

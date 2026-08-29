@@ -70,7 +70,7 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
         f"/api/conversations/{session_id}/export",
         json={
             "theme": "academic-green",
-            "basics": {"name": "测试候选人", "contact": "test@example.invalid", "positioning": "循证医学研究实践"},
+            "basics": {"name": "测试候选人", "contact": "test@example.invalid", "positioning": "未经审计的强定位"},
         },
     )
     assert response.status_code == 200, response.get_json()
@@ -83,6 +83,9 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
     assert "doctoral_v1" not in bundle["files"]["resume.html"]
     assert "ACS" not in bundle["files"]["resume.html"]
     assert "45 篇" not in bundle["files"]["resume.html"]
+    assert "未经审计的强定位" not in bundle["files"]["resume.md"]
+    assert "未经审计的强定位" not in bundle["files"]["resume.html"]
+    assert "positioning" not in json.loads(bundle["files"]["resume-data.json"])["basics"]
     assert bundle["privacy"]["export_written_to_server"] is False
     assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["research_experience"]
 
@@ -98,6 +101,24 @@ def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files
     assert deleted.status_code == 200
     assert deleted.get_json()["deleted"] is True
     assert client.get(f"/api/conversations/{session_id}").status_code == 404
+
+
+def test_claim_cleanup_failure_preserves_conversation(monkeypatch):
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+
+    def fail_cleanup(_ledger, _session_id):
+        raise OSError("claim sidecar is locked")
+
+    monkeypatch.setattr(
+        "medical_career_agent.api.ClaimLedgerService.cleanup_session_claims",
+        fail_cleanup,
+    )
+    failed = client.delete(f"/api/conversations/{session_id}")
+
+    assert failed.status_code == 500
+    assert "failed to delete local conversation" in failed.get_json()["error"]
+    assert client.get(f"/api/conversations/{session_id}").status_code == 200
 
 
 def test_export_rejects_invalid_session_id_and_reports_unknown_valid_id():
@@ -127,5 +148,6 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "/api/conversations/" in script
     assert 'method: "DELETE"' in script
     assert "旧会话删除失败，当前会话仍保留，未创建新简历" in script
+    assert "positioning" not in script
     assert "localStorage" in script
     assert "window.print" in script

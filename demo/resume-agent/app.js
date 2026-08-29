@@ -212,8 +212,24 @@ async function downloadBundle() {
 }
 
 async function resetConversation() {
-  if (conversation?.session_id) { try { await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}`, { method: "DELETE" }); } catch (_) {} }
-  localStorage.removeItem(sessionStorageKey); localStorage.removeItem(basicsStorageKey); await createConversation(); render();
+  setBusy(true);
+  try {
+    const resetCompleted = await window.ResumeResetFlow.resetResumeConversation({
+      sessionId: conversation?.session_id,
+      deleteSession: (sessionId) => api(`/api/conversations/${encodeURIComponent(sessionId)}`, { method: "DELETE" }),
+      clearLocalState: () => {
+        localStorage.removeItem(sessionStorageKey);
+        localStorage.removeItem(basicsStorageKey);
+      },
+      createConversation,
+      onDeleteError: (error) => showError(`旧会话删除失败，当前会话仍保留，未创建新简历：${error.message}`),
+    });
+    if (resetCompleted) render();
+  } catch (error) {
+    showError(`新会话创建失败：${error.message}`);
+  } finally {
+    setBusy(false);
+  }
 }
 
 function setBusy(busy) { document.body.classList.toggle("busy", busy); }

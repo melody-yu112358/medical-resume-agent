@@ -18,7 +18,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Install test dependencies
         run: python -m pip install -e ".[dev,schema_validation]"
       - name: Run tests
         run: python -m pytest -q
+      - name: Run frontend state tests
+        run: node --test tests/test_resume_agent_reset_flow.js

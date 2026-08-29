@@ -618,6 +618,8 @@ def create_app(
                 basics=payload.get("basics") if isinstance(payload.get("basics"), dict) else {},
                 theme=str(payload.get("theme", "clinical-blue")),
             )
+        except ValueError as exc:
+            return {"error": str(exc)}, 400
         except LookupError as exc:
             return {"error": str(exc)}, 404
         except ResumeDeliveryError as exc:

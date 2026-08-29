@@ -100,12 +100,25 @@ def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files
     assert client.get(f"/api/conversations/{session_id}").status_code == 404
 
 
+def test_export_rejects_invalid_session_id_and_reports_unknown_valid_id():
+    client = create_app(load_model_from_environment=False).test_client()
+
+    invalid = client.post("/api/conversations/bad$id/export", json={})
+    assert invalid.status_code == 400
+    assert "unsupported characters" in invalid.get_json()["error"]
+
+    unknown = client.post("/api/conversations/missing-session/export", json={})
+    assert unknown.status_code == 404
+    assert "unknown session_id" in unknown.get_json()["error"]
+
+
 def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     html_text = (ROOT / "demo/resume-agent/index.html").read_text(encoding="utf-8")
     script = (ROOT / "demo/resume-agent/app.js").read_text(encoding="utf-8")
 
     assert "LIVE A4 PREVIEW" in html_text
     assert "workspace.css" in html_text
+    assert "reset-flow.js" in html_text
     for action in (
         "update_activity_proposals", "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets",
@@ -113,5 +126,6 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
         assert action in script
     assert "/api/conversations/" in script
     assert 'method: "DELETE"' in script
+    assert "旧会话删除失败，当前会话仍保留，未创建新简历" in script
     assert "localStorage" in script
     assert "window.print" in script

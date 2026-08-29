@@ -51,7 +51,9 @@ class ConstrainedRewriteTest(unittest.TestCase):
             self.assertEqual(candidate["dependency_refs"], self.source_claim["dependency_refs"])
             self.assertEqual(candidate["evidence_ids"], self.source_claim["evidence_ids"])
             self.assertEqual(candidate["verification_status"], "ready")
-            self.assertTrue(any(item["text"] == candidate["wording"] for item in response["resume_document"]["research_experience"][0]["bullets"]))
+            rendered = response["resume_document"]["research_experience"][0]["bullets"]
+            self.assertFalse(any(item["text"] == candidate["wording"] for item in rendered))
+            self.assertTrue(any(item["text"] == self.source_claim["wording"] for item in rendered))
         self.assertEqual(len(set(ids)), 3)
         self.assertIn(self.source_claim["claim_id"], [item["claim_id"] for item in self.state()["generated_claims"]])
 
@@ -70,6 +72,10 @@ class ConstrainedRewriteTest(unittest.TestCase):
         reloaded = self.state()
         self.assertTrue(next(item for item in reloaded["rewrite_candidates"] if item["claim_id"] == candidate["claim_id"])["selected"])
         self.assertIn(candidate["claim_id"], reloaded["claim_gate_results"])
+        document = reloaded["resume_document"]
+        rendered = document["research_experience"][0]["bullets"]
+        self.assertTrue(any(item["text"] == candidate["wording"] for item in rendered))
+        self.assertFalse(any(item["text"] == self.source_claim["wording"] for item in rendered))
 
     def test_no_model_keeps_deterministic_base_flow_available(self):
         client = create_app(load_model_from_environment=False).test_client()

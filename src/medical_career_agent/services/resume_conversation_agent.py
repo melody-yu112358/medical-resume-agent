@@ -46,7 +46,7 @@ class ResumeConversationAgent:
     def initial_state() -> dict[str, Any]:
         return {
             "conversation_version": "resume-conversation-v1", "stage": "intake",
-            "raw_user_texts": [], "extracted_draft": None,
+            "raw_user_texts": [], "conversation_turns": [], "extracted_draft": None,
             "confirmed_canonical_experience": None, "evidence_records": [],
             "pending_questions": [], "selected_role_packs": [], "generated_claims": [],
             "claim_gate_results": {}, "claim_user_dispositions": {},
@@ -75,8 +75,22 @@ class ResumeConversationAgent:
         action = str(payload.get("action", "")).strip()
         conversation_intent = None
         language_message = None
+        turn_plan = None
+        turn_plan_attempted = False
         target_packs = self._role_packs_from_text(text) if not action and state.get("confirmed_canonical_experience") else []
         control_intent = self._safe_control_intent(text) if not action else None
+        if not action and text and self.language_gateway is not None:
+            # Primary LLM entry point: it sees a bounded state summary and can
+            # propose actions, but never receives authority to mutate state.
+            try:
+                turn_plan_attempted = True
+                turn_plan = self.language_gateway.plan_turn(text=text, session_context=self._conversation_context(state))
+                state["language_audit"].append({"stage": state["stage"], "turn_plan_actions": [item.get("type") for item in (turn_plan.proposed_actions or [])]})
+            except Exception as exc:  # Model availability must never break deterministic intake.
+                state["language_audit"].append({"stage": state["stage"], "turn_plan_error": type(exc).__name__})
+        # Explicit, bounded user controls are safe to recognize deterministically.
+        # They must take precedence over an otherwise helpful but actionless model
+        # reply; without this, a model can accidentally swallow "确认" or "保研".
         if target_packs:
             # A target direction is workflow input, never experience evidence.
             conversation_intent = "select_role_packs"
@@ -84,7 +98,15 @@ class ResumeConversationAgent:
             # Explicit questions and workflow controls must not be reclassified as
             # experience evidence even if a model makes an intent error.
             conversation_intent = control_intent
-        elif not action and text and self.language_gateway is not None and state["stage"] != "intake":
+        elif turn_plan and not (turn_plan.proposed_actions or []) and text and self._contains_extractable_fact(text):
+            # A natural-language reply without a proposed action is never enough
+            # to drop an otherwise verifiable experience fact.  The deterministic
+            # extractor remains the safety net and still sends the change through
+            # the confirmation flow.
+            conversation_intent = "provide_facts"
+        elif turn_plan and (turn_plan.proposed_actions or turn_plan.assistant_message):
+            conversation_intent = "turn_plan"
+        elif not action and text and self.language_gateway is not None and not turn_plan_attempted and state["stage"] != "intake":
             # The model may suggest a whitelisted intent and a friendlier question;
             # it cannot provide facts, mutations, or audit decisions.
             language = self.language_gateway.interpret(
@@ -114,7 +136,7 @@ class ResumeConversationAgent:
             response = self._merge_activity_proposals(state, payload)
         elif action == "update_facts":
             state["stage"] = "fact_confirmation"
-            response = self._supplement_facts(state, payload, text)
+            response = self._supplement_facts(session_id, state, payload, text)
         elif action == "select_role_packs":
             response = self._compose(session_id, state, payload)
         elif action == "edit_wording":
@@ -126,12 +148,15 @@ class ResumeConversationAgent:
         elif action == "accept_bullets":
             state["stage"] = "delivery"
             response = self._response(state, "已保存可交付的已审计要点。", ui_events=["delivery_ready"])
+        elif conversation_intent == "turn_plan":
+            response = self._execute_turn_plan(session_id, state, payload, text, turn_plan)
         elif conversation_intent == "select_role_packs":
             response = self._compose(session_id, state, {**payload, "role_packs": target_packs})
         elif conversation_intent in {"provide_facts", "correct_facts"}:
-            response = self._supplement_facts(state, payload, text)
+            state["stage"] = "fact_confirmation"
+            response = self._supplement_facts(session_id, state, payload, text)
         elif conversation_intent == "confirm_facts":
-            response = self._confirm(session_id, state, payload)
+            response = self._confirm_from_conversation(session_id, state, payload)
         elif conversation_intent == "ask_question":
             response = self._explain_current_stage(state)
         elif conversation_intent in {"ask_current_state", "ask_what_to_confirm", "report_ui_problem", "general_help"}:
@@ -139,7 +164,12 @@ class ResumeConversationAgent:
         elif conversation_intent in {"request_resume_generation", "continue_workflow"}:
             response = self._continue_workflow(session_id, state, payload)
         elif conversation_intent == "rewrite_request":
-            response = self._response(state, "请选择一条已通过审计的候选要点，再告诉我希望怎样调整措辞。")
+            response = self._handle_rewrite_request(session_id, state, text)
+        elif text and self._contains_extractable_fact(text):
+            state["stage"] = "fact_confirmation"
+            response = self._supplement_facts(session_id, state, payload, text)
+        elif self._pending_activity_proposals(state) and self._looks_like_responsibility_reply(text):
+            response = self._apply_responsibility_reply(state, text)
         elif state["stage"] == "intake":
             response = self._intake(state, payload, text)
         elif state["stage"] == "fact_confirmation":
@@ -148,16 +178,81 @@ class ResumeConversationAgent:
             response = self._response(state, "请选择目标方向、确认事实，或提交需要审计的候选措辞。")
 
         state["resume_document"] = self._resume_document(session_id, state)
+        if text:
+            state["conversation_turns"].append({"user": text, "assistant": response["assistant_message"], "stage": state["stage"]})
+            state["conversation_turns"] = state["conversation_turns"][-12:]
         self.sessions.update(session_id, state=state)
         self.sessions.append_event(session_id, {"type": "conversation_message", "action": action or conversation_intent or "message", "stage": state["stage"]})
         # The browser workspace renders cards from the persisted source of truth,
         # not from a locally reconstructed chat history.
         response["state"] = state
         response["resume_document"] = state["resume_document"]
-        if language_message and response["assistant_message"]:
-            response["assistant_message"] = f"{language_message}\n\n{response['assistant_message']}"
         response["stage"] = state["stage"]
         response["audit_status"] = self._audit_status(state)
+        return response
+
+    @staticmethod
+    def _conversation_context(state: dict[str, Any]) -> dict[str, Any]:
+        draft = state.get("extracted_draft") or {}
+        return {
+            "stage": state.get("stage"), "recent_conversation": state.get("conversation_turns", [])[-6:],
+            "pending_questions": state.get("pending_questions", [])[:3],
+            "extracted_facts": draft.get("extracted_facts", {}),
+            "pending_activities": [{"proposal_id": item.get("proposal_id"), "components": item.get("components"), "ownership_level": item.get("ownership_level"), "execution_mode": item.get("execution_mode"), "coverage": item.get("scope", {}).get("coverage"), "semantic_warnings": item.get("semantic_warnings", [])} for item in state.get("activity_proposals", []) if item.get("status") == "needs_user_confirmation"],
+            "selected_role_packs": state.get("selected_role_packs", []),
+            "claim_gate_statuses": {key: value.get("status") for key, value in state.get("claim_gate_results", {}).items()},
+        }
+
+    def _execute_turn_plan(self, session_id: str, state: dict[str, Any], payload: dict[str, Any], text: str, plan: Any) -> dict[str, Any]:
+        actions = plan.proposed_actions or []
+        responsibility_actions = [item for item in actions if item.get("type") == "update_activity_responsibility"]
+        if responsibility_actions:
+            pending_by_id = {item.get("proposal_id"): item for item in self._pending_activity_proposals(state)}
+            if any(
+                not isinstance(item.get("proposal_id"), str)
+                or item.get("proposal_id") not in pending_by_id
+                or not isinstance(item.get("evidence_quote"), str)
+                or not item["evidence_quote"]
+                or item["evidence_quote"] not in text
+                for item in responsibility_actions
+            ):
+                return self._response(state, plan.assistant_message or "请先选择需要补充责任边界的活动。", ui_events=["show_activity_cards"])
+            response: dict[str, Any] | None = None
+            for item in responsibility_actions:
+                response = self._apply_responsibility_reply(state, text, proposal_id=item["proposal_id"], proposed=item)
+            return self._with_planned_message(response or self._response(state, "请补充活动责任边界。"), plan)
+        action = actions[0] if actions else {}
+        kind = action.get("type")
+        if kind == "propose_fact_update":
+            quote = action.get("evidence_quote")
+            if isinstance(quote, str) and quote and quote in text and self._contains_extractable_fact(quote):
+                if payload.get("consent_confirmed") is not True:
+                    return self._response(state, "请先确认这段经历真实准确并同意在本机服务处理后再继续。")
+                state["stage"] = "fact_confirmation"
+                return self._with_planned_message(self._supplement_facts(session_id, state, {}, text), plan)
+            return self._response(state, plan.assistant_message or "我还需要一条可核实的经历事实，才能更新事实卡。")
+        if kind == "update_activity_responsibility":
+            proposal_id = action.get("proposal_id")
+            quote = action.get("evidence_quote")
+            proposal = next((item for item in self._pending_activity_proposals(state) if item.get("proposal_id") == proposal_id), None)
+            if proposal and isinstance(quote, str) and quote and quote in text:
+                return self._with_planned_message(self._apply_responsibility_reply(state, text, proposal_id=proposal_id, proposed=action), plan)
+            return self._response(state, plan.assistant_message or "请在活动卡中选择需要补充责任边界的活动。", ui_events=["show_activity_cards"])
+        if kind == "select_role_packs":
+            packs = action.get("role_packs")
+            allowed = {"doctoral_v1", "clinical_research_v1", "medical_affairs_v1", "health_ai_data_v1"}
+            if state.get("confirmed_canonical_experience") and isinstance(packs, list) and packs and set(packs) <= allowed:
+                return self._with_planned_message(self._compose(session_id, state, {"role_packs": packs}), plan)
+        if kind == "request_rewrite":
+            return self._handle_rewrite_request(session_id, state, text)
+        if kind == "request_confirmation":
+            return self._confirm_from_conversation(session_id, state, {"proposal_ids": action.get("proposal_ids", [])})
+        return self._response(state, plan.assistant_message or "我会根据已确认的事实继续协助；需要变更事实时请补充可核实的具体内容。", pending_question=(state.get("pending_questions") or [None])[0])
+
+    @staticmethod
+    def _with_planned_message(response: dict[str, Any], plan: Any) -> dict[str, Any]:
+        if plan.assistant_message:
+            response["assistant_message"] = plan.assistant_message
         return response
 
     def _intake(self, state: dict[str, Any], payload: dict[str, Any], text: str) -> dict[str, Any]:
@@ -173,7 +268,7 @@ class ResumeConversationAgent:
         self._propose_activities(state, text, draft["extracted_facts"])
         return self._fact_confirmation_response(state, introduced="我已提取出候选事实")
 
-    def _supplement_facts(self, state: dict[str, Any], payload: dict[str, Any], text: str) -> dict[str, Any]:
+    def _supplement_facts(self, session_id: str, state: dict[str, Any], payload: dict[str, Any], text: str) -> dict[str, Any]:
         if not text:
             return self._response(state, "请确认事实卡，或补充一条可核实的事实。", pending_question=(state["pending_questions"] or [None])[0])
         draft = self.experience_drafter.draft(experience_text=text, context_hint=payload.get("context_hint"), consent_confirmed=True).to_dict()
@@ -186,7 +281,11 @@ class ResumeConversationAgent:
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
         state["pending_questions"] = merged["clarifying_questions"]
-        self._propose_activities(state, text, merged["extracted_facts"])
+        self._supersede_pending_proposals(state)
+        self._invalidate_claims_for_pending_fact_update(session_id, state)
+        # Rebuild from all evidence: a later tool/responsibility clarification
+        # must not leave the earlier action proposal superseded with no successor.
+        self._propose_activities(state, "\n".join(state["raw_user_texts"]), merged["extracted_facts"])
         return self._fact_confirmation_response(state, introduced="已将补充内容作为待确认事实加入")
 
     def _fact_confirmation_response(self, state: dict[str, Any], *, introduced: str) -> dict[str, Any]:
@@ -213,8 +312,10 @@ class ResumeConversationAgent:
             return self._continue_workflow(session_id, state, payload)
         if self._looks_like_question(text):
             return self._explain_current_stage(state)
+        if self._pending_activity_proposals(state) and self._looks_like_responsibility_reply(text):
+            return self._apply_responsibility_reply(state, text)
         if self._contains_extractable_fact(text):
-            return self._supplement_facts(state, payload, text)
+            return self._supplement_facts(session_id, state, payload, text)
         return self._response(
             state,
             "我还不能判断这句话是否是在补充经历事实。若要补充，请说明你实际做了什么、用了什么方法或工具，以及范围；也可以直接问我当前需要确认什么。",
@@ -293,6 +394,136 @@ class ResumeConversationAgent:
             "哪些部分是独立、在指导下或共同完成的？",
         ])[:3]
 
+    @staticmethod
+    def _proposal_gaps(proposal: dict[str, Any]) -> list[str]:
+        gaps: list[str] = []
+        labels = {
+            "ownership_level": "对任务结果的承担",
+            "execution_mode": "执行方式",
+        }
+        for field, label in labels.items():
+            if proposal.get(field) == "unknown":
+                gaps.append(label)
+        if proposal.get("scope", {}).get("coverage") == "unknown":
+            gaps.append("完成范围（整个流程还是其中一部分）")
+        if proposal.get("semantic_warnings"):
+            gaps.append("原文责任表述的核实")
+        return gaps
+
+    @staticmethod
+    def _activity_label(proposal: dict[str, Any]) -> str:
+        labels = {
+            "retrieve_literature": "文献检索",
+            "screen_studies": "文献筛选",
+            "perform_analysis": "R / 数据分析",
+        }
+        actions = proposal.get("components", {}).get("actions", [])
+        return "、".join(labels.get(action, action) for action in actions) or "该活动"
+
+    def _pending_confirmation_response(self, state: dict[str, Any], proposals: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        pending = proposals if proposals is not None else self._pending_activity_proposals(state)
+        if len(pending) > 1:
+            return self._response(
+                state,
+                f"目前有 {len(pending)} 项待确认活动，请逐项确认或选择其中一项；不能用一次“确认”同时确认不同的责任边界。",
+                ui_events=["show_activity_cards"],
+            )
+        if pending:
+            proposal = pending[0]
+            gaps = self._proposal_gaps(proposal)
+            if gaps:
+                detail = "、".join(gaps)
+                action = self._activity_label(proposal)
+                return self._response(
+                    state,
+                    f"{action} 已记录的责任信息仍缺少：{detail}。请直接在聊天里说明即可；例如“我负责这个子任务，完成整个既定流程”或“我只完成其中一部分”。",
+                    pending_question="请补充该活动是否由你负责，以及完整或部分范围。",
+                    ui_events=["show_activity_cards"],
+                )
+        return self._response(state, "当前没有待确认的活动。")
+
+    def _confirm_from_conversation(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        pending = self._pending_activity_proposals(state)
+        if pending:
+            if len(pending) != 1 or self._proposal_gaps(pending[0]):
+                return self._pending_confirmation_response(state, pending)
+            return self._confirm_activity_proposals(session_id, state, {**payload, "proposal_ids": [pending[0]["proposal_id"]]})
+        return self._confirm(session_id, state, payload)
+
+    @staticmethod
+    def _looks_like_responsibility_reply(text: str) -> bool:
+        return any(token in text for token in ("独立", "自己完成", "指导下", "导师指导", "共同完成", "一起完成", "完整流程", "全部完成", "一部分", "部分"))
+
+    def _apply_responsibility_reply(self, state: dict[str, Any], text: str, *, proposal_id: str | None = None, proposed: dict[str, Any] | None = None) -> dict[str, Any]:
+        pending = self._pending_activity_proposals(state)
+        if proposal_id:
+            pending = [item for item in pending if item.get("proposal_id") == proposal_id]
+        if len(pending) != 1:
+            return self._pending_confirmation_response(state, pending)
+        proposal = pending[0]
+        evidence_id = f"ev_{len(state['evidence_records']) + 1:03d}"
+        state["evidence_records"].append({"evidence_id": evidence_id, "source_text": text, "status": "confirmed"})
+        if any(token in text for token in ("独立", "自己完成")):
+            proposal["execution_mode"] = "independent"
+        elif any(token in text for token in ("指导下", "导师指导")):
+            proposal["execution_mode"] = "supervised"
+        elif any(token in text for token in ("共同完成", "一起完成")):
+            proposal["execution_mode"] = "shared"
+        if any(token in text for token in ("完整流程", "全部完成", "完整完成")):
+            proposal["scope"]["coverage"] = "full"
+        elif any(token in text for token in ("一部分", "部分")):
+            proposal["scope"]["coverage"] = "partial"
+        if "负责" in text:
+            proposal["ownership_level"] = "owned_component"
+        if proposed:
+            for field, allowed in {
+                "ownership_level": {"unknown", "contributed", "owned_component", "led_delivery", "accountable"},
+                "execution_mode": {"unknown", "supervised", "independent", "shared"},
+            }.items():
+                if proposed.get(field) in allowed:
+                    proposal[field] = proposed[field]
+            if proposed.get("coverage") in {"unknown", "full", "partial"}:
+                proposal["scope"]["coverage"] = proposed["coverage"]
+        proposal["responsibility_evidence_ids"] = list(dict.fromkeys(proposal.get("responsibility_evidence_ids", []) + [evidence_id]))
+        proposal["semantic_warnings"] = [warning for warning in proposal.get("semantic_warnings", []) if not warning.startswith(("execution_mode:", "coverage:"))]
+        if self._proposal_gaps(proposal):
+            return self._pending_confirmation_response(state, [proposal])
+        return self._response(state, "已更新该活动的责任信息；请确认活动卡后写入已确认经历。", ui_events=["refresh_activity_cards"])
+
+    @staticmethod
+    def _supersede_pending_proposals(state: dict[str, Any]) -> None:
+        for proposal in state.get("activity_proposals", []):
+            if proposal.get("status") in {"needs_user_confirmation", "confirmed"}:
+                proposal["status"] = "superseded"
+
+    def _invalidate_claims_for_pending_fact_update(self, session_id: str, state: dict[str, Any]) -> None:
+        canonical = state.get("confirmed_canonical_experience")
+        if not canonical:
+            return
+        self.claim_ledger.invalidate_claims_by_experience(session_id, canonical["experience_id"], "pending_fact_update")
+        for claim in state.get("generated_claims", []):
+            if claim.get("experience_id") == canonical["experience_id"]:
+                claim["verification_status"] = "superseded"
+                if claim.get("claim_id") in state.get("claim_gate_results", {}):
+                    state["claim_gate_results"][claim["claim_id"]]["status"] = "superseded"
+
+    def _handle_rewrite_request(self, session_id: str, state: dict[str, Any], text: str) -> dict[str, Any]:
+        ready = [claim for claim in state.get("generated_claims", []) if claim.get("verification_status") == "ready"]
+        if ready:
+            if len(ready) > 1:
+                return self._response(state, "有多条已审计要点，请先选择要改写的那一条。", ui_events=["show_bullet_cards"])
+            tone = "High-impact" if any(token in text for token in ("力度", "更强")) else "Professional"
+            return self._rewrite_claim(session_id, state, {"source_claim_id": ready[0]["claim_id"], "tone": tone, "instruction": text})
+        pending = self._pending_activity_proposals(state)
+        if pending:
+            return self._pending_confirmation_response(state, pending)
+        blocked = [result for result in state.get("claim_gate_results", {}).values() if result.get("status") != "ready"]
+        if blocked:
+            failed = blocked[0].get("failed_checks", [])
+            detail = "；".join(failed[:2]) or "候选要点尚未通过 ClaimGate"
+            return self._response(state, f"目前没有可改写的 ready 要点：{detail}。请先完成对应事实或责任确认。", ui_events=["show_bullet_cards"])
+        return self._response(state, "目前还没有可改写的已审计要点。请先完成事实、活动责任和目标方向确认。")
+
     def _contains_extractable_fact(self, text: str) -> bool:
         draft = self.experience_drafter.draft(experience_text=text, consent_confirmed=True)
         facts = draft.extracted_facts
@@ -311,6 +542,8 @@ class ResumeConversationAgent:
         normalized = text.strip()
         if normalized in {"确认", "确认事实", "确认一下"}:
             return "confirm_facts"
+        if any(phrase in normalized for phrase in ("专业版措辞", "写得专业一点", "更有力度一点", "专业一点", "更强一点")):
+            return "rewrite_request"
         if normalized in {"当前需要确认什么", "我现在还缺什么", "当前状态", "现在到哪一步了"}:
             return "ask_what_to_confirm"
         if normalized in {"我看不到候选卡", "为什么没有卡片", "看不到活动卡", "卡片没有显示"}:
@@ -337,19 +570,87 @@ class ResumeConversationAgent:
 
     def _propose_activities(self, state: dict[str, Any], text: str, facts: dict[str, Any]) -> None:
         if self.language_gateway is not None:
-            candidate = self.language_gateway.propose_activities(text=text, extracted_facts=facts).activity_proposals or []
-            source = "model"
+            try:
+                candidate = self.language_gateway.propose_activities(text=text, extracted_facts=facts).activity_proposals or []
+                source = "model"
+            except Exception as exc:  # Model availability must not break the chat API.
+                candidate = self._deterministic_activity_proposals(text, facts)
+                source = "deterministic_fallback"
+                state["language_audit"].append({"stage": state["stage"], "activity_proposal_error": type(exc).__name__})
         else:
             candidate = self._deterministic_activity_proposals(text, facts)
             source = "deterministic_fallback"
+        candidate = self._enrich_explicit_responsibility(candidate)
         valid, audit = self._validate_activity_proposals_with_audit(candidate, text, facts)
         state["proposal_audits"].append({"source": source, **audit})
         state["activity_proposals"].extend(valid)
 
     @staticmethod
+    def _enrich_explicit_responsibility(proposals: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Fill only responsibility values stated verbatim in proposal evidence.
+
+        A model may conservatively return ``unknown`` despite an explicit phrase.
+        This deterministic enrichment never upgrades an asserted value and never
+        infers a fact that is absent from the evidence quote.
+        """
+        enriched: list[dict[str, Any]] = []
+        for proposal in proposals:
+            if not isinstance(proposal, dict):
+                enriched.append(proposal)
+                continue
+            item = dict(proposal)
+            quote = item.get("evidence_quote")
+            if not isinstance(quote, str):
+                enriched.append(item)
+                continue
+            if item.get("ownership_level") == "unknown" and "负责" in quote:
+                item["ownership_level"] = "owned_component"
+            if item.get("execution_mode") == "unknown":
+                if any(token in quote for token in ("独立", "自己完成")):
+                    item["execution_mode"] = "independent"
+                elif any(token in quote for token in ("指导下", "导师指导", "指导")):
+                    item["execution_mode"] = "supervised"
+                elif any(token in quote for token in ("共同完成", "一起完成", "协作")):
+                    item["execution_mode"] = "shared"
+            if item.get("coverage") == "unknown":
+                if any(token in quote for token in ("完整流程", "整个既定流程", "全部完成", "完整完成")):
+                    item["coverage"] = "full"
+                elif any(token in quote for token in ("一部分", "部分步骤", "部分")):
+                    item["coverage"] = "partial"
+            enriched.append(item)
+        return enriched
+
+    @staticmethod
     def _deterministic_activity_proposals(text: str, facts: dict[str, Any]) -> list[dict[str, Any]]:
         """Fallback proposes facts only; it never invents execution or scope."""
-        return [{"evidence_quote": text, "components": {"actions": [action], "methods": facts.get("methods", []), "tools": facts.get("tools", []), "techniques": facts.get("techniques", []), "objects": facts.get("objects", []), "artifacts": facts.get("artifacts", [])}, "ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown", "scope_note": None} for action in facts.get("actions", [])]
+        proposals = []
+        action_count = len(facts.get("actions", []))
+        for action in facts.get("actions", []):
+            action_text = text
+            execution = "unknown"
+            if action == "screen_studies" and "独立" in text:
+                execution = "independent"
+            elif action == "perform_analysis" and any(token in text for token in ("指导", "带我", "示范")):
+                execution = "supervised"
+            ownership = "owned_component" if "负责" in text else "unknown"
+            coverage = "full" if any(token in text for token in ("完整流程", "整个既定流程", "全部完成", "完整完成")) else "partial" if any(token in text for token in ("一部分", "部分")) else "unknown"
+            components = ResumeConversationAgent._components_for_action(action, facts, action_count)
+            proposals.append({"evidence_quote": action_text, "components": {"actions": [action], **components}, "ownership_level": ownership, "execution_mode": execution, "coverage": coverage, "scope_note": None})
+        return proposals
+
+    @staticmethod
+    def _components_for_action(action: str, facts: dict[str, Any], action_count: int) -> dict[str, list[str]]:
+        """Conservative action-to-component association for deterministic fallback."""
+        all_components = {key: list(facts.get(key, [])) for key in ("methods", "tools", "techniques", "objects", "artifacts")}
+        if action_count <= 1:
+            return all_components
+        if action == "retrieve_literature":
+            return {"methods": [], "tools": [tool for tool in all_components["tools"] if tool in {"pubmed", "embase", "cochrane"}], "techniques": [], "objects": [item for item in all_components["objects"] if item == "medical_literature"], "artifacts": []}
+        if action == "screen_studies":
+            return {"methods": [], "tools": [], "techniques": [], "objects": [item for item in all_components["objects"] if item == "medical_literature"], "artifacts": []}
+        if action == "perform_analysis":
+            return {"methods": [method for method in all_components["methods"] if method in {"meta_analysis", "sensitivity_analysis", "mendelian_randomization"}], "tools": [tool for tool in all_components["tools"] if tool in {"r", "python", "spss", "stata", "sas", "revman"}], "techniques": all_components["techniques"], "objects": [item for item in all_components["objects"] if item == "research_data"], "artifacts": all_components["artifacts"]}
+        return all_components
 
     def _validate_activity_proposals(self, proposals: list[dict[str, Any]], source_text: str, facts: dict[str, Any]) -> list[dict[str, Any]]:
         return self._validate_activity_proposals_with_audit(proposals, source_text, facts)[0]
@@ -424,7 +725,8 @@ class ResumeConversationAgent:
         proposals = self._validate_activity_proposals(payload.get("activity_proposals", []), source, facts)
         if not proposals:
             return self._response(state, "修改后的活动提议未通过原文、事实或范围校验。")
-        state["activity_proposals"] = proposals
+        self._supersede_pending_proposals(state)
+        state["activity_proposals"].extend(proposals)
         return self._response(state, "已更新活动提议；请确认后写入经历。", ui_events=["refresh_activity_cards"])
 
     def _split_activity_proposal(self, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
@@ -436,7 +738,8 @@ class ResumeConversationAgent:
         replacements = self._validate_activity_proposals(raw, "\n".join(state["raw_user_texts"]), (state.get("extracted_draft") or {}).get("extracted_facts", {}))
         if len(replacements) != len(groups):
             return self._response(state, "拆分后的活动未通过原文或组件校验。")
-        state["activity_proposals"] = [item for item in state["activity_proposals"] if item is not proposal] + replacements
+        proposal["status"] = "superseded"
+        state["activity_proposals"].extend(replacements)
         return self._response(state, "活动已拆分为待确认提议。", ui_events=["refresh_activity_cards"])
 
     def _merge_activity_proposals(self, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
@@ -453,7 +756,9 @@ class ResumeConversationAgent:
         merged = self._validate_activity_proposals([raw], "\n".join(state["raw_user_texts"]), (state.get("extracted_draft") or {}).get("extracted_facts", {}))
         if not merged:
             return self._response(state, "合并后的活动未通过原文或组件校验。")
-        state["activity_proposals"] = [item for item in state["activity_proposals"] if item not in selected] + merged
+        for proposal in selected:
+            proposal["status"] = "superseded"
+        state["activity_proposals"].extend(merged)
         return self._response(state, "活动已合并为新的待确认提议。", ui_events=["refresh_activity_cards"])
 
     def _confirm_activity_proposals(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
@@ -469,16 +774,19 @@ class ResumeConversationAgent:
             if not evidence:
                 return self._response(state, "活动提议缺少可追溯的原文证据。")
             activities.append({"activity_id": proposal["activity_id"], "label": "已确认活动", "components": proposal["components"], "evidence_ids": [evidence], "status": "user_confirmed"})
-            responsibilities.append({"responsibility_id": proposal["responsibility_id"], "activity_id": proposal["activity_id"], "ownership_level": proposal["ownership_level"], "execution_mode": proposal["execution_mode"], "scope": proposal["scope"], "evidence_ids": [evidence]})
+            responsibility_evidence = list(dict.fromkeys([evidence] + proposal.get("responsibility_evidence_ids", [])))
+            responsibilities.append({"responsibility_id": proposal["responsibility_id"], "activity_id": proposal["activity_id"], "ownership_level": proposal["ownership_level"], "execution_mode": proposal["execution_mode"], "scope": proposal["scope"], "evidence_ids": responsibility_evidence})
             overrides[proposal["activity_id"]] = {}
             for category, values in proposal["components"].items():
                 if values:
                     overrides[proposal["activity_id"]][category] = [evidence]
         updated_payload = {**payload, "canonical_schema_version": "canonical-experience-v2", "activities": activities, "task_responsibilities": responsibilities, "activity_evidence_overrides": overrides}
+        for proposal in proposals:
+            proposal["status"] = "confirmed"
         response = self._confirm(session_id, state, updated_payload)
-        if state.get("confirmed_canonical_experience"):
+        if not state.get("confirmed_canonical_experience"):
             for proposal in proposals:
-                proposal["status"] = "confirmed"
+                proposal["status"] = "needs_user_confirmation"
         return response
 
     def _confirm(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
@@ -508,6 +816,15 @@ class ResumeConversationAgent:
                     claim["verification_status"] = "superseded"
         state["confirmed_canonical_experience"] = result["canonical_experience"]
         state["pending_questions"] = []
+        pending = self._pending_activity_proposals(state)
+        if pending:
+            state["stage"] = "fact_confirmation"
+            return self._response(
+                state,
+                "事实卡已确认，但活动责任边界仍待确认；完成这些活动后才能生成简历要点。",
+                pending_question=(state["pending_questions"] or [None])[0],
+                ui_events=["fact_confirmed", "show_activity_cards"],
+            )
         state["stage"] = "representative_sample"
         return self._response(state, "事实已确认。请选择目标方向，我会生成候选要点并逐条通过 ClaimGate 审计。", ui_events=["fact_confirmed", "show_role_pack_chips"])
 
@@ -516,6 +833,8 @@ class ResumeConversationAgent:
         packs = payload.get("role_packs", [])
         if not canonical:
             return self._response(state, "请先确认事实，再生成简历要点。")
+        if self._pending_activity_proposals(state):
+            return self._pending_confirmation_response(state)
         if not isinstance(packs, list) or not packs:
             return self._response(state, "请至少选择一个目标方向。")
         state["selected_role_packs"] = [str(pack) for pack in packs]
@@ -602,9 +921,15 @@ class ResumeConversationAgent:
         claim_id = str(payload.get("claim_id", ""))
         for candidate in state["rewrite_candidates"]:
             if candidate["claim_id"] == claim_id:
+                if candidate.get("gate", {}).get("status") != "ready":
+                    return self._response(state, "这版措辞尚未通过 ClaimGate，因此不能用于简历预览。")
+                source_id = candidate.get("source_claim_id")
+                for other in state["rewrite_candidates"]:
+                    if other.get("source_claim_id") == source_id:
+                        other["selected"] = other.get("claim_id") == claim_id
                 candidate["selected"] = True
                 state["claim_user_dispositions"][claim_id] = "accepted"
-                return self._response(state, "已记录该候选版本为你的选择；其是否显示仍由 ClaimGate 决定。", ui_events=["refresh_resume_preview"])
+                return self._response(state, "已选用这版措辞；右侧预览已切换到该已审计版本。", ui_events=["refresh_resume_preview"])
         return self._response(state, "未找到该候选版本。")
 
     @staticmethod
@@ -636,7 +961,29 @@ class ResumeConversationAgent:
         if not canonical:
             return None
         valid = {item.claim_id for item in self.claim_ledger.get_valid_claims_for_experience(session_id, canonical["experience_id"]) if item.gate_status == "ready"}
-        bullets = [{"claim_id": claim["claim_id"], "text": claim["wording"], "evidence_ids": claim["evidence_ids"]} for claim in state.get("generated_claims", []) if claim["claim_id"] in valid and claim.get("verification_status") == "ready"]
+        selected_rewrites = {
+            item["source_claim_id"]: item["claim_id"]
+            for item in state.get("rewrite_candidates", [])
+            if item.get("selected") and item.get("gate", {}).get("status") == "ready"
+        }
+        rewrite_source_by_id = {
+            item["claim_id"]: item.get("source_claim_id")
+            for item in state.get("rewrite_candidates", [])
+        }
+        bullets = []
+        for claim in state.get("generated_claims", []):
+            claim_id = claim.get("claim_id")
+            if claim_id not in valid or claim.get("verification_status") != "ready":
+                continue
+            source_id = rewrite_source_by_id.get(claim_id)
+            if source_id:
+                if selected_rewrites.get(source_id) != claim_id:
+                    continue
+            elif claim_id in selected_rewrites:
+                # A selected rewrite replaces its source in the rendered resume,
+                # while both versions remain in the audit ledger.
+                continue
+            bullets.append({"claim_id": claim_id, "text": claim["wording"], "evidence_ids": claim["evidence_ids"]})
         return {
             "schema_version": "resume-document-v1", "resume_id": session_id,
             "target": {"purpose": "general", "role": ", ".join(state.get("selected_role_packs", [])) or None, "organization": None, "jd_reference": None},

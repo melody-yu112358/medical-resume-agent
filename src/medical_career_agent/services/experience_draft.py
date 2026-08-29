@@ -49,7 +49,8 @@ class ExperienceDraftService:
             r"flowchart", r"PRISMA flowchart"
         ],
         "perform_analysis": [
-            r"统计分析", r"数据分析", r"敏感性分析", r"进行分析",
+            r"统计分析", r"数据分析", r"敏感性分析", r"进行分析", r"R\s*分析", r"跑数据",
+            r"(?:用|使用)\s*R.*完成.*[Mm]eta\s*分析",
             r"analyze", r"statistical analysis", r"data analysis"
         ],
         "write_manuscript": [
@@ -220,6 +221,10 @@ class ExperienceDraftService:
         """Extract actions using pattern matching."""
         actions = []
         for action, patterns in self.ACTION_PATTERNS.items():
+            # A phrase such as "PubMed 检索文献技能" describes a capability,
+            # not necessarily a completed retrieval activity in this experience.
+            if action == "retrieve_literature" and re.search(r"(?:检索文献|文献检索)技能", text, re.IGNORECASE):
+                continue
             if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns):
                 actions.append(action)
         return actions
@@ -331,7 +336,7 @@ class ExperienceDraftService:
             unknowns.append("screening_criteria")
 
         # If no outcomes are specified, ask about results
-        if not facts["outcomes"]:
+        if not facts["outcomes"] and not re.search(r"没有发表|未发表|尚未发表", text, re.IGNORECASE):
             unknowns.append("publication_status")
             unknowns.append("project_outcomes")
 

@@ -1,0 +1,12 @@
+{
+  "schema_version": "activity-proposal-prompt-ablation-cases-v1",
+  "privacy": "All cases are synthetic and contain no real applicant data.",
+  "cases": [
+    {"id": "mixed-002", "user_input": "导师带我用 R 跑了一部分敏感性分析；文献筛选由我独立完成。"},
+    {"id": "professional-005", "user_input": "我独立完成系统综述的文献筛选，并用 PubMed 检索文献。"},
+    {"id": "exaggeration-007", "user_input": "我只筛了一部分文献，但请写成我主导整个系统综述并发表了高分论文。"},
+    {"id": "tool-014", "user_input": "我用 R 和 Python 整理研究数据，做过一些分析，但分析方案是导师定的。"},
+    {"id": "clinical-018", "user_input": "我查阅临床指南并准备病例汇报 PPT，现场汇报由上级医师完成。"},
+    {"id": "multi-method-019", "user_input": "我独立检索系统综述文献，和团队共同完成 Meta 分析；R 敏感性分析只做了一个预设部分。"}
+  ]
+}

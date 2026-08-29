@@ -34,6 +34,11 @@ def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def _digestable_file_bytes(path: Path) -> bytes:
+    """Use Git's LF text representation so generated metadata is cross-platform."""
+    return path.read_bytes().replace(b"\r\n", b"\n")
+
+
 def _canonical_json(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
@@ -53,13 +58,13 @@ def source_metadata(packs: list[dict], schema: dict) -> dict:
     for path in sorted(PACK_DIR.glob("*.json")):
         source_hasher.update(path.name.encode("utf-8"))
         source_hasher.update(b"\0")
-        source_hasher.update(path.read_bytes())
+        source_hasher.update(_digestable_file_bytes(path))
         source_hasher.update(b"\0")
     return {
         "canonical_pack_versions": [pack["role_pack"] for pack in packs],
         "schema_id": schema["$id"],
         "schema_version": schema["x_schema_version"],
-        "schema_sha256": _sha256_bytes(SCHEMA_PATH.read_bytes()),
+        "schema_sha256": _sha256_bytes(_digestable_file_bytes(SCHEMA_PATH)),
         "source_digest_sha256": source_hasher.hexdigest(),
     }
 

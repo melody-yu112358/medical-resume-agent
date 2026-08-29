@@ -40,7 +40,6 @@ class ResumeDeliveryService:
         resolved_basics = {
             "name": str((basics or {}).get("name", "")).strip(),
             "contact": str((basics or {}).get("contact", "")).strip(),
-            "positioning": str((basics or {}).get("positioning", "")).strip(),
         }
         markdown = self._markdown(document, resolved_basics)
         delivery_data = {
@@ -78,8 +77,6 @@ class ResumeDeliveryService:
             f"# {basics['name'] or '姓名（请填写）'}",
             f"> {target}" + (f" · {basics['contact']}" if basics["contact"] else ""),
         ]
-        if basics["positioning"]:
-            lines.extend(["", "## 候选人定位", basics["positioning"]])
         lines.extend(["", "## 科研与实践经历"])
         for experience in document.get("research_experience", []):
             heading = " · ".join(

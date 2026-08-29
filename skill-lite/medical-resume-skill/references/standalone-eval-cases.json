@@ -1,0 +1,38 @@
+{
+  "schema_version": "standalone-skill-eval-cases-v1",
+  "purpose": "Offline invariant cases for the standalone Skill package. These cases validate bundled rules and candidate text properties; they do not prove real-model adherence.",
+  "cases": [
+    {
+      "case_id": "doctoral-participation-boundary",
+      "role_pack": "doctoral_v1",
+      "responsibility_level": "participated",
+      "candidate_text": "参与系统综述的文献检索与筛选工作，支持 Meta 分析项目执行。",
+      "must_include": ["文献检索", "筛选"],
+      "must_not_include": ["主导", "独立完成", "领导"]
+    },
+    {
+      "case_id": "clinical-research-boundary",
+      "role_pack": "clinical_research_v1",
+      "responsibility_level": "participated",
+      "candidate_text": "参与队列研究的数据收集与患者筛选，支持观察性研究执行。",
+      "must_include": ["数据收集", "患者筛选"],
+      "must_not_include": ["负责临床试验运营", "确保合规"]
+    },
+    {
+      "case_id": "medical-affairs-boundary",
+      "role_pack": "medical_affairs_v1",
+      "responsibility_level": "participated",
+      "candidate_text": "参与药物安全性文献的检索与数据整理，支持医学信息转译工作。",
+      "must_include": ["文献", "医学信息转译"],
+      "must_not_include": ["KOL管理", "制定医学策略", "支持商业决策"]
+    },
+    {
+      "case_id": "health-data-boundary",
+      "role_pack": "health_ai_data_v1",
+      "responsibility_level": "participated",
+      "candidate_text": "参与电子健康记录的数据处理与清洗，支持医疗数据分析项目。",
+      "must_include": ["数据处理", "清洗"],
+      "must_not_include": ["训练AI模型", "开发算法", "主导产品设计"]
+    }
+  ]
+}

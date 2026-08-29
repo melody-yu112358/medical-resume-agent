@@ -1,0 +1,55 @@
+{
+  "schema_version": "generalist-beta-learning-loop-v1",
+  "run_date": "2026-08-29",
+  "scope": ["clinical_operations", "heor_rwe_evidence_oriented"],
+  "fixed_personas": [
+    {"id":"wet_lab_only", "facts":["在指导下完成细胞培养和 qPCR 实验。", "记录实验条件并协助实验资料整理。"], "confirmed_absences":["临床研究流程", "CRF", "患者协调", "数据质量流程", "RWE", "payer", "项目协调"]},
+    {"id":"meta_no_coordination", "facts":["参与系统综述检索和筛选。", "在指导下使用 R 支持 Meta 分析数据整理和结果复核。", "共同作者论文已确认。"], "confirmed_absences":["项目协调", "项目管理", "RWE 数据", "payer interaction", "外部沟通"]},
+    {"id":"clinical_rotation_only", "facts":["完成临床轮转并参与病例讨论和病历阅读。"], "confirmed_absences":["正式 clinical research", "CRF", "GCP", "研究数据管理", "流程 owner"]},
+    {"id":"data_no_rwe", "facts":["使用 R 清洗研究数据并完成回归分析。", "整理基础结果图表供课题组讨论。"], "confirmed_absences":["claims/EHR/RWE 数据", "payer", "商业数据", "经济模型", "商业决策"]},
+    {"id":"internal_presentation_only", "facts":["整理研究图表并向课题组进行学术汇报。"], "confirmed_absences":["外部 stakeholder interaction", "客户沟通", "高管沟通", "payer interaction"]}
+  ],
+  "jd_sets": {
+    "clinical_operations": [
+      {"company":"Salma Health", "title":"Clinical Operations Manager", "url":"https://jobs.ashbyhq.com/salma-health/8b6c7365-acc8-4659-96d7-50e879aadc6c", "retrieved_at":"2026-08-29", "level":"manager / multi-site", "signals":["clinic operations", "team management", "KPI", "workflow improvement"]},
+      {"company":"Solace", "title":"Clinical Operations Coordinator", "url":"https://jobs.ashbyhq.com/Solace/7ee80c52-8ad8-4001-873c-88f0e73f8946", "retrieved_at":"2026-08-29", "level":"coordinator / telehealth", "signals":["real-time scheduling", "provider support", "escalation", "utilization tracking"]},
+      {"company":"Sprinter Health", "title":"Clinical Operations Coordinator", "url":"https://jobs.ashbyhq.com/sprinter-health/4112326a-b734-4f50-b211-b230b1709d96", "retrieved_at":"2026-08-29", "level":"coordinator / field operations", "signals":["workflow support", "documentation review", "reporting", "compliance follow-up"]},
+      {"company":"Talkiatry", "title":"Clinical Operations Coordinator", "url":"https://jobs.ashbyhq.com/talkiatry/263f5fd7-56aa-4afa-883d-453076ddf63c", "retrieved_at":"2026-08-29", "level":"coordinator / remote practice", "signals":["triage", "operational processes", "onboarding", "schedule support"]},
+      {"company":"Array Behavioral Care", "title":"Clinician Scheduling Coordinator", "url":"https://jobs.ashbyhq.com/array-behavioral-care/cac5c138-0b34-4db3-af38-96cfba050240", "retrieved_at":"2026-08-29", "level":"coordinator / telepsychiatry", "signals":["schedule accuracy", "patient demand", "workforce planning", "communication"]}
+    ],
+    "heor_rwe_evidence_oriented": [
+      {"company":"GRAIL", "title":"Managed Care Liaison / Health Economics Field Lead", "url":"https://jobs.lever.co/grailbio/1bc78e07-19ca-4212-a047-476a9b9d905c?lever-source%5B%5D=jobs.gv.com", "retrieved_at":"2026-08-29", "level":"field lead / payer-facing", "signals":["payer evidence", "value communication", "AMCP", "reimbursement"]},
+      {"company":"Penumbra", "title":"Market Access Analytics Manager", "url":"https://jobs.lever.co/penumbrainc/8bc3db50-744e-4555-8ff6-80edc6ba3a7b", "retrieved_at":"2026-08-29", "level":"manager / medtech", "signals":["RWE databases", "study design", "dashboards", "market access strategy"]},
+      {"company":"Circadia Health", "title":"Senior Scientist, Real-World Evidence and Outcomes", "url":"https://jobs.lever.co/circadiahealth/b44738aa-954b-41e1-a0f4-df909b673385", "retrieved_at":"2026-08-29", "level":"senior scientist / digital health", "signals":["observational design", "claims/EHR", "causal inference", "cost and ROI"]},
+      {"company":"Lexeo Therapeutics", "title":"Senior Director, Real World Evidence & Health Economics and Outcomes", "url":"https://jobs.lever.co/lexeotx/1895953b-f733-4e97-bae5-9b4670c0cf2e", "retrieved_at":"2026-08-29", "level":"director / biotech", "signals":["RWE strategy", "protocol development", "historical controls", "regulatory collaboration"]},
+      {"company":"Beghou Consulting", "title":"Senior Consultant - Value and Access", "url":"https://jobs.lever.co/beghouconsulting/fd230bf4-70c3-428b-88d6-ab6b7e56cfdc", "retrieved_at":"2026-08-29", "level":"consulting / value and access", "signals":["HEOR", "payer mix", "pricing", "client-facing recommendations"]}
+    ]
+  },
+  "stress_results": {
+    "clinical_operations": {
+      "candidate_positive_mappings":["B-like confirmed CRF maintenance, data checking, documentation completeness and protocol-following workflow support → direct_evidence for research-process and data-quality tasks.", "Confirmed internal coordination of records/timepoints → partial_match for coordination support, never project ownership."],
+      "partial_or_gap_required_for":["wet_lab_only: explicit_gap for clinical workflow and data-quality operations.", "meta_no_coordination: explicit_gap for scheduling, triage and operational coordination.", "clinical_rotation_only: partial_match for clinical context, explicit_gap for GCP/CRF/data-management operations.", "data_no_rwe and internal_presentation_only: explicit_gap for operations workflows, schedules and escalations."],
+      "stable_core":["workflow/documentation accuracy", "tracking and follow-up", "quality/completeness checks", "coordination support", "clear internal communication"],
+      "unstable_or_jd_specific":["provider scheduling", "patient escalation", "payroll/workforce systems", "EHR/HRIS", "clinic launch", "multi-site operations"],
+      "candidate_forbidden_claims":["operations manager", "process owner", "KPI ownership", "managed clinic teams", "project manager", "cross-functional project owner"],
+      "maturity":"promising Beta cluster; stable support-level core, but no evidence yet for a Role Pack because manager/coordinator JD variance and persona coverage show large ownership discontinuities."
+    },
+    "heor_rwe_evidence_oriented": {
+      "candidate_positive_mappings":["meta_no_coordination: direct_evidence for literature search, screening and academic evidence synthesis; transferable_evidence for structured scientific communication.", "data_no_rwe: transferable_evidence for analytic reasoning and result reporting; not RWE by default."],
+      "partial_or_gap_required_for":["wet_lab_only and clinical_rotation_only: explicit_gap for evidence synthesis, RWE and health-economics work.", "meta_no_coordination: explicit_gap for payer engagement, pricing, reimbursement and RWE data ownership.", "data_no_rwe: partial_match for analytics; explicit_gap for claims/EHR, economic modelling, payer and commercial context.", "internal_presentation_only: partial_match for internal scientific communication; explicit_gap for payer/external/executive communication."],
+      "stable_core":["clinical evidence synthesis", "study-question framing", "analytic reasoning", "scientific interpretation", "structured internal reporting"],
+      "unstable_or_jd_specific":["claims/EHR data", "observational causal design", "economic/ROI modelling", "AMCP/value dossiers", "payer engagement", "reimbursement/pricing", "RWE strategy ownership", "regulatory submissions"],
+      "candidate_forbidden_claims":["RWE lead", "payer engagement", "payer insights", "AMCP dossier", "reimbursement strategy", "pricing strategy", "economic model ownership", "market access strategy"],
+      "maturity":"evidence-oriented subcluster is stronger than market-access/RWE ownership, but the overall HEOR/RWE family remains JD-dependent; do not graduate yet."
+    }
+  },
+  "graduation_criteria": {
+    "minimum_real_jd_coverage":"at least 8 current/recent public JDs from at least 5 companies across at least 3 responsibility levels or company types, with a documented stable core.",
+    "persona_coverage":"at least 8 fixed confirmed personas, including at least 3 clear negative/partial personas, each run against at least 3 JDs in the candidate cluster.",
+    "stable_rules":"stable responsibilities, evidence mappings and negative mappings recur across at least 70% of evaluated JDs; JD-specific elements remain explicitly separated.",
+    "conformance":"at least 30 isolated model-conformance runs across 2 model versions with factuality and ownership-preservation averages at least 4.5/5, and no critical unsupported ownership claim.",
+    "usefulness":"median usefulness/resume-quality score at least 4/5; a safe output that is generic or non-competitive fails graduation.",
+    "unsupported_claim_rate":"0 critical unsupported claims and less than 2% non-critical unsupported claims after final audit.",
+    "jd_dependence":"the stable core must produce useful, truthful wording from more than one JD; if output depends primarily on one employer's terminology, retain Beta status."
+  }
+}

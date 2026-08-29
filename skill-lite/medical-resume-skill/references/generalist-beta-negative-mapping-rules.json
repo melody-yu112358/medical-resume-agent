@@ -1,0 +1,14 @@
+{
+  "schema_version": "generalist-beta-negative-mapping-rules-v1",
+  "rules": [
+    {"id": "product_ownership_requires_product_evidence", "missing_evidence": ["requirements_definition", "prd", "roadmap"], "prohibited_claims": ["product ownership", "产品负责人", "定义需求", "撰写PRD", "驱动路线图", "user research", "用户需求洞察"]},
+    {"id": "client_delivery_requires_client_evidence", "missing_evidence": ["client_project"], "prohibited_claims": ["consulting", "client delivery", "客户交付", "客户建议", "客户项目负责人"]},
+    {"id": "commercial_ownership_requires_commercial_evidence", "missing_evidence": ["sales", "budget", "commercial_data", "commercial_decision"], "prohibited_claims": ["growth", "revenue", "商业决策", "营收负责", "增长负责"]},
+    {"id": "operations_ownership_requires_operations_evidence", "missing_evidence": ["operations_ownership", "kpi_ownership"], "prohibited_claims": ["运营负责人", "KPI负责", "负责KPI"]},
+    {"id": "project_coordination_requires_project_ownership_evidence", "missing_evidence": ["project_management_ownership", "program_management_ownership", "cross_functional_project_ownership"], "prohibited_claims": ["project manager", "program manager", "项目负责人", "项目管理", "主导跨部门项目", "跨部门项目负责人"]},
+    {"id": "internal_presentation_requires_external_communication_evidence", "missing_evidence": ["external_stakeholder_interaction", "client_interaction", "executive_communication"], "prohibited_claims": ["external stakeholder communication", "client communication", "executive communication", "外部利益相关方沟通", "客户沟通", "高管沟通"]},
+    {"id": "leadership_requires_people_management_evidence", "missing_evidence": ["people_management"], "prohibited_claims": ["team leadership", "带领团队", "人员管理", "管理团队"]},
+    {"id": "external_stakeholder_ownership_requires_engagement_evidence", "missing_evidence": ["kol_hcp_external_engagement"], "prohibited_claims": ["KOL management", "KOL管理", "external stakeholder ownership", "外部利益相关方负责人"]},
+    {"id": "ownership_verbs_require_independent_evidence", "missing_evidence": ["independent_ownership"], "prohibited_claims": ["led", "owned", "drove", "主导", "独立负责", "牵头"]}
+  ]
+}

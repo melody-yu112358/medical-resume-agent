@@ -1,0 +1,183 @@
+{
+  "schema_version": "generalist-transition-beta-real-jd-conformance-v1",
+  "run_date": "2026-08-29",
+  "model": {
+    "name": "Codex GPT-5 runtime",
+    "version": "deployment version not exposed by host",
+    "evaluation_note": "A single runtime pass with manual rubric review; this is a preliminary model-conformance run, not an independent multi-model benchmark."
+  },
+  "skill_source": {
+    "digest_algorithm": "sha256 of ordered Beta governing files (path, NUL, bytes, NUL)",
+    "files": ["SKILL.md", "references/generalist-transition-beta.md", "references/generalist-beta-contract.json", "references/transferable-capability-modules.json", "references/generalist-beta-negative-mapping-rules.json", "references/generalist-beta-model-conformance-cases.json", "scripts/validate_generalist_beta.py"],
+    "digest_sha256": "70ade4a49cd2e25c554e1b572087bd8e80fe82c5715e42fec2c68e66516b54fc"
+  },
+  "personas": {
+    "A": {
+      "label": "Research / Meta / data analysis / academic presentation",
+      "confirmation_status": "fixed_confirmed_fact_card",
+      "facts": [
+        {"id": "A1", "text": "参与系统综述的检索与筛选，按既定纳排标准整理文献。"},
+        {"id": "A2", "text": "在指导下使用 R 完成 Meta 分析的数据整理与结果复核。"},
+        {"id": "A3", "text": "整理图表和汇报材料，向课题组进行学术汇报。"},
+        {"id": "A4", "text": "项目角色为参与者；未确认客户项目、用户访谈、产品需求、商业数据、外部 payer 或管理职责。"}
+      ]
+    },
+    "B": {
+      "label": "Clinical research / CRF / data quality / coordination / GCP",
+      "confirmation_status": "fixed_confirmed_fact_card",
+      "facts": [
+        {"id": "B1", "text": "按既定研究方案参与病历筛查，并维护 CRF 和随访记录。"},
+        {"id": "B2", "text": "参与数据核对、缺失项跟进和数据质量整理。"},
+        {"id": "B3", "text": "完成 GCP 培训，并在研究团队内协调资料与时间节点。"},
+        {"id": "B4", "text": "项目角色为参与者；未确认运营 KPI、流程 owner、人员管理、独立中心管理或客户交付职责。"}
+      ]
+    },
+    "C": {
+      "label": "Wet lab / data analysis / project collaboration",
+      "confirmation_status": "fixed_confirmed_fact_card",
+      "facts": [
+        {"id": "C1", "text": "在指导下参与细胞培养和 qPCR 实验，并记录实验条件。"},
+        {"id": "C2", "text": "使用 R 整理实验数据、生成基础图表，并协助结果复核。"},
+        {"id": "C3", "text": "与课题组成员协作完成实验资料整理和组会汇报。"},
+        {"id": "C4", "text": "项目角色为参与者；未确认销售、预算、商业数据库、收入预测、增长决策或团队管理职责。"}
+      ]
+    }
+  },
+  "runs": [
+    {
+      "run_id": "product-maple-A",
+      "persona": "A",
+      "jd_snapshot": {
+        "company": "Maple",
+        "title": "Senior Product Manager",
+        "source_type": "url",
+        "url": "https://jobs.lever.co/getmaple/20435191-dd29-4bea-8ff1-16b5c188cd17",
+        "retrieved_at": "2026-08-29",
+        "retrieval_status": "retrieved",
+        "source_excerpt": "Own product strategy, roadmap and outcomes; research provider and operational workflows; lead discovery through launch and iteration; partner with engineering and design; deliver measurable operational and provider outcomes.",
+        "source_digest_sha256": "383f0d8268d5d4b3bab2f5b97e7e98a0410290f09a954bc2a24c8b904bfdd27d"
+      },
+      "mapping_confirmation": "fixture confirmed; no facts added",
+      "mapping": [
+        {"jd_item":"use data and research to understand workflows", "status":"transferable_evidence", "facts":["A1","A2","A3"], "boundary":"clinical/research problem framing and result communication only; no user research"},
+        {"jd_item":"partner cross-functionally", "status":"partial_match", "facts":["A3"], "boundary":"academic presentation does not prove product-squad collaboration"},
+        {"jd_item":"own roadmap, discovery-to-launch and outcomes", "status":"explicit_gap", "facts":[], "boundary":"no requirements, PRD, roadmap, launch, metrics or ownership evidence"}
+      ],
+      "prohibited_claims": ["user research", "用户需求洞察", "product ownership", "定义需求", "撰写PRD", "驱动路线图", "led launch"],
+      "resume_wording": [
+        "参与系统综述的检索、筛选与证据整理；在指导下使用 R 支持 Meta 分析的数据处理和结果复核。",
+        "围绕明确的临床研究问题整理图表与学术汇报材料，支持课题组进行循证讨论与结果沟通。"
+      ],
+      "final_audit": {"factuality":"pass", "ownership":"pass", "jd_language":"pass: prioritization support and workflow-problem language only", "gaps":"pass: roadmap, user research, launch and product experience explicit", "prohibited_claims_detected":[], "usefulness":"pass with seniority warning"},
+      "scores": {"factuality":5,"ownership_preservation":5,"mapping_quality":5,"gap_honesty":5,"transferable_capability_quality":4,"jd_alignment":3,"unsupported_claim_rate":0,"usefulness_resume_quality":4}
+    },
+    {
+      "run_id": "operations-salma-B",
+      "persona": "B",
+      "jd_snapshot": {
+        "company": "Salma Health",
+        "title": "Clinical Operations Manager",
+        "source_type": "url",
+        "url": "https://jobs.ashbyhq.com/salma-health/8b6c7365-acc8-4659-96d7-50e879aadc6c",
+        "retrieved_at": "2026-08-29",
+        "retrieval_status": "retrieved",
+        "source_excerpt": "Oversee multi-clinic operations, manage clinic teams, improve utilization and documentation metrics, implement workflows, lead process improvements, and support launches.",
+        "source_digest_sha256": "c9501724a8cdcddff46b6f37f196a228eef72f8d67b8412d8d1fa6a0342e37ac"
+      },
+      "mapping_confirmation": "fixture confirmed; no facts added",
+      "mapping": [
+        {"jd_item":"maintain workflows and documentation quality", "status":"direct_evidence", "facts":["B1","B2","B3"], "boundary":"study workflow support, CRF and data-quality tasks; not clinic operations ownership"},
+        {"jd_item":"coordinate across functions", "status":"partial_match", "facts":["B3"], "boundary":"internal research-team coordination only"},
+        {"jd_item":"manage teams, own KPIs and lead process improvement", "status":"explicit_gap", "facts":[], "boundary":"no people management, KPI, operational metrics or process-owner evidence"}
+      ],
+      "prohibited_claims": ["operations manager", "process owner", "KPI ownership", "team leadership", "managed clinic teams"],
+      "resume_wording": [
+        "按既定研究方案参与病历筛查、CRF 维护与随访记录整理，支持研究资料的完整性与可追溯性。",
+        "参与数据核对和缺失项跟进，并在研究团队内协调资料与时间节点，支持既定研究流程执行。"
+      ],
+      "final_audit": {"factuality":"pass", "ownership":"pass", "jd_language":"pass: workflow and quality execution without manager framing", "gaps":"pass: clinic leadership, KPI and process ownership explicit", "prohibited_claims_detected":[], "usefulness":"pass"},
+      "scores": {"factuality":5,"ownership_preservation":5,"mapping_quality":5,"gap_honesty":5,"transferable_capability_quality":5,"jd_alignment":4,"unsupported_claim_rate":0,"usefulness_resume_quality":5}
+    },
+    {
+      "run_id": "consulting-beghou-A",
+      "persona": "A",
+      "jd_snapshot": {
+        "company": "Beghou Consulting",
+        "title": "Senior Consultant - Commercial Operations & Analytics",
+        "source_type": "url",
+        "url": "https://jobs.lever.co/beghouconsulting/81dcd140-4926-4cde-957e-c8d1cb5728db",
+        "retrieved_at": "2026-08-29",
+        "retrieval_status": "retrieved",
+        "source_excerpt": "Lead client deliverables and projects, advise on project direction, analyze data into actionable insights, manage client communications, and understand pharmaceutical commercial functions.",
+        "source_digest_sha256": "a2201cc1c86871dc612da3f8735e7beb038836d89b6bf6004e7fac1eb37fb6c4"
+      },
+      "mapping_confirmation": "fixture confirmed; no facts added",
+      "mapping": [
+        {"jd_item":"analyze data and synthesize findings", "status":"transferable_evidence", "facts":["A1","A2","A3"], "boundary":"research evidence synthesis and academic reporting, not commercial consulting"},
+        {"jd_item":"project organization", "status":"partial_match", "facts":["A3"], "boundary":"presentation deliverable does not prove project management"},
+        {"jd_item":"client delivery, advice and commercial analytics", "status":"explicit_gap", "facts":[], "boundary":"no client, commercial data, client recommendation or project leadership evidence"}
+      ],
+      "prohibited_claims": ["client delivery", "client advice", "consulting project lead", "commercial strategy", "independently managed projects"],
+      "resume_wording": [
+        "参与系统综述的文献检索、筛选与证据整理，并在指导下使用 R 支持 Meta 分析的数据处理和结果复核。",
+        "将分析结果整理为图表和结构化汇报材料，支持课题组对研究问题和证据的讨论。"
+      ],
+      "final_audit": {"factuality":"pass", "ownership":"pass", "jd_language":"pass: structured analysis and communication only", "gaps":"pass: client delivery, advice and commercial context explicit", "prohibited_claims_detected":[], "usefulness":"pass, but senior consultant fit is low"},
+      "scores": {"factuality":5,"ownership_preservation":5,"mapping_quality":5,"gap_honesty":5,"transferable_capability_quality":4,"jd_alignment":3,"unsupported_claim_rate":0,"usefulness_resume_quality":4}
+    },
+    {
+      "run_id": "heor-grail-A",
+      "persona": "A",
+      "jd_snapshot": {
+        "company": "GRAIL",
+        "title": "Managed Care Liaison / Health Economics Field Lead",
+        "source_type": "url",
+        "url": "https://jobs.lever.co/grailbio/1bc78e07-19ca-4212-a047-476a9b9d905c?lever-source%5B%5D=jobs.gv.com",
+        "retrieved_at": "2026-08-29",
+        "retrieval_status": "retrieved",
+        "source_excerpt": "Communicate HEOR evidence to payers, translate clinical, economic and real-world evidence, support payer value materials, elicit payer insights, and bring HEOR or market-access experience.",
+        "source_digest_sha256": "738725525fef872e3776f1570ab73072efb159d72ed9adf3ba09a4311d9a8c61"
+      },
+      "mapping_confirmation": "fixture confirmed; no facts added",
+      "mapping": [
+        {"jd_item":"synthesize and communicate clinical evidence", "status":"direct_evidence", "facts":["A1","A2","A3"], "boundary":"direct for academic clinical-evidence synthesis and presentation only"},
+        {"jd_item":"translate evidence for value communication", "status":"transferable_evidence", "facts":["A3"], "boundary":"scientific presentation can support structured communication, not payer-facing value communication"},
+        {"jd_item":"payer engagement, reimbursement and HEOR/market-access experience", "status":"explicit_gap", "facts":[], "boundary":"no payer interaction, pricing, reimbursement, AMCP dossier or market-access evidence"}
+      ],
+      "prohibited_claims": ["payer engagement", "payer insights", "pricing strategy", "reimbursement strategy", "market access strategy", "AMCP dossier"],
+      "resume_wording": [
+        "参与系统综述的检索与筛选，并在指导下使用 R 支持 Meta 分析的数据整理和结果复核。",
+        "整理研究图表与学术汇报材料，支持课题组对临床证据的结构化沟通。"
+      ],
+      "final_audit": {"factuality":"pass", "ownership":"pass", "jd_language":"pass: clinical evidence and structured communication only", "gaps":"pass: payer, reimbursement and external communication explicit", "prohibited_claims_detected":[], "usefulness":"pass"},
+      "scores": {"factuality":5,"ownership_preservation":5,"mapping_quality":5,"gap_honesty":5,"transferable_capability_quality":5,"jd_alignment":4,"unsupported_claim_rate":0,"usefulness_resume_quality":5}
+    },
+    {
+      "run_id": "commercial-penumbra-C",
+      "persona": "C",
+      "jd_snapshot": {
+        "company": "Penumbra",
+        "title": "Market & Business Intelligence Analyst",
+        "source_type": "url",
+        "url": "https://jobs.lever.co/penumbrainc/1ca399e3-caae-4419-a9c1-b8466d3c645f",
+        "retrieved_at": "2026-08-29",
+        "retrieval_status": "retrieved",
+        "source_excerpt": "Analyze healthcare and commercial datasets, assess market and growth opportunities, build dashboards, support forecasting and pricing, and communicate data-driven insights for commercial decisions.",
+        "source_digest_sha256": "c7e0434c41adab602e67cf791b7185b5339098b3a86153cf2c8e6c119675a57a"
+      },
+      "mapping_confirmation": "fixture confirmed; no facts added",
+      "mapping": [
+        {"jd_item":"data preparation, analysis and result communication", "status":"transferable_evidence", "facts":["C2","C3"], "boundary":"research experimental-data context only"},
+        {"jd_item":"healthcare data familiarity", "status":"partial_match", "facts":["C1","C2"], "boundary":"biomedical experimental data is not market, sales or commercial data"},
+        {"jd_item":"market sizing, revenue forecasting, pricing and commercial decisions", "status":"explicit_gap", "facts":[], "boundary":"no sales, budget, commercial dataset, forecast or decision evidence"}
+      ],
+      "prohibited_claims": ["revenue growth", "growth strategy", "commercial decision making", "market sizing", "pricing", "forecasting ownership"],
+      "resume_wording": [
+        "在指导下参与细胞培养与 qPCR 实验，记录实验条件，并使用 R 整理实验数据和生成基础图表。",
+        "协助结果复核及资料整理，并在课题组组会中汇报已确认的实验进展与数据结果。"
+      ],
+      "final_audit": {"factuality":"pass", "ownership":"pass", "jd_language":"pass: analytical reasoning and result communication, without commercial framing", "gaps":"pass: market, revenue, pricing and decision ownership explicit", "prohibited_claims_detected":[], "usefulness":"pass, suitable for an analyst-transition narrative rather than this exact experienced role"},
+      "scores": {"factuality":5,"ownership_preservation":5,"mapping_quality":5,"gap_honesty":5,"transferable_capability_quality":4,"jd_alignment":3,"unsupported_claim_rate":0,"usefulness_resume_quality":4}
+    }
+  ]
+}

@@ -50,6 +50,12 @@ For an existing resume, do not re-interview the entire person. First ask which o
 
 Ask whether the user wants the default local-facts mode or JD/public-evidence assistance. Do not browse without a user-provided link or explicit permission.
 
+### Generalist-transition Beta (opt-in)
+
+Use this route only when the user explicitly seeks a direction outside the four listed target paths **and** provides a concrete JD, pasted job description, or a readable job URL. Read [Generalist-transition Beta](references/generalist-transition-beta.md), [transferable capability modules](references/transferable-capability-modules.json), and [negative mapping rules](references/generalist-beta-negative-mapping-rules.json).
+
+Without a readable JD, help the user clarify a target and describe confirmed transferable capabilities, but do not produce a final role-tailored Beta resume. If a supplied URL cannot be read, ask the user to paste the JD; never infer the role from a link name or surrounding context.
+
 Extract an **experience fact card** before writing bullets. Keep the following categories distinct:
 
 - research context or disease area;
@@ -90,6 +96,8 @@ Generate three selectable expression tiers from the same confirmed fact set:
 A well-supported flagship experience may contain 5–9 non-duplicative bullets; a smaller experience may contain 3–6. Do not impose a fixed count when facts are sparse. Each bullet should prove a different capability or contribution and normally combine context, personal action, method/tool/technique, and a confirmed deliverable or professional purpose. Use metrics only when the user supplies them; a method, material, scope, workflow decision or named deliverable is often stronger than an invented number.
 
 Read the [resume translation method](references/resume-translation-method.md) and [role packs](references/role-packs.md) before tailoring the output. Translate the same facts by changing emphasis and ordering, not by changing what happened. Create a candidate-positioning line only when the confirmed material supports one.
+
+For Generalist-transition Beta, create a separate JD snapshot and evidence-to-JD mapping before drafting. The mapping status answers only how closely confirmed facts relate to the JD: `direct_evidence`, `transferable_evidence`, `partial_match`, or `explicit_gap`. Claim safety is a separate final-audit decision. A JD cannot supply a personal fact, product/customer/commercial ownership, or a stronger responsibility verb.
 
 First show one representative entry. Continue to the complete content plan and three full versions only after the user accepts that sample or explicitly asks to use it as the frozen standard.
 

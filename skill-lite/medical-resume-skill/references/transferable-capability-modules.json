@@ -1,0 +1,10 @@
+{
+  "schema_version": "transferable-capability-modules-v1",
+  "modules": [
+    {"id": "evidence_research_synthesis", "label": "Evidence / research synthesis", "requires_confirmed_dimensions": ["literature_or_evidence_work", "method_or_deliverable"], "safe_translations": ["evidence synthesis", "structured research", "literature review"], "does_not_establish": ["market strategy ownership", "client recommendation ownership"]},
+    {"id": "data_analytical_reasoning", "label": "Data / analytical reasoning", "requires_confirmed_dimensions": ["data_work", "method_or_tool"], "safe_translations": ["analytical reasoning", "data quality work", "result interpretation"], "does_not_establish": ["commercial decision making", "growth ownership", "algorithm ownership"]},
+    {"id": "process_quality_execution", "label": "Process / quality execution", "requires_confirmed_dimensions": ["process_or_quality_task", "confirmed_scope"], "safe_translations": ["process support", "quality execution", "workflow documentation"], "does_not_establish": ["operations ownership", "KPI ownership", "compliance leadership"]},
+    {"id": "project_cross_functional_coordination", "label": "Project / cross-functional coordination", "requires_confirmed_dimensions": ["coordination_task", "collaborative_scope"], "safe_translations": ["cross-functional coordination support", "project communication", "delivery tracking"], "does_not_establish": ["project ownership", "client delivery", "team leadership"]},
+    {"id": "scientific_structured_communication", "label": "Scientific / structured communication", "requires_confirmed_dimensions": ["communication_deliverable", "confirmed_audience"], "safe_translations": ["structured communication", "scientific presentation", "evidence-based reporting"], "does_not_establish": ["external stakeholder ownership", "sales execution", "client advisory ownership"]}
+  ]
+}

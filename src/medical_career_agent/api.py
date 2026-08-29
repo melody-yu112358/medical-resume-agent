@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import subprocess
 from dataclasses import asdict
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -47,7 +49,28 @@ from .services.bullet_composer import BulletComposerService
 from .services.claim_ledger import ClaimLedgerService
 from .services.claim_gate import ClaimGateService
 from .services.resume_conversation_agent import ResumeConversationAgent
+from .services.chat_first_resume_agent import ChatFirstResumeAgent
 from .services.conversation_model_gateway import ModelGatewayConversationGateway
+
+PROCESS_STARTED_AT = datetime.now(timezone.utc).isoformat()
+CONVERSATION_V2_VERSION = "runtime-observability-v1"
+
+
+def _git_head(root: Path) -> str:
+    try:
+        result = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, timeout=2, check=True)
+        return result.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return "unavailable"
+
+
+def _runtime_model_info(gateway: ModelGateway | None) -> dict[str, object]:
+    return {
+        "llm_configured": gateway is not None,
+        "provider": type(gateway).__name__ if gateway else None,
+        "base_url_host": getattr(gateway, "hostname", None) if gateway else None,
+        "model": getattr(gateway, "model", None) if gateway else None,
+    }
 
 
 def _model_gateway_from_environment() -> OpenAICompatibleModelGateway | None:
@@ -125,6 +148,15 @@ def create_app(
         claim_ledger=claim_ledger,
         language_gateway=ModelGatewayConversationGateway(gateway) if gateway else None,
     )
+    conversations_v2 = ChatFirstResumeAgent(
+        sessions=sessions,
+        experience_drafter=experience_drafter,
+        confirmation_gate=confirmation_gate,
+        bullet_composer=bullet_composer,
+        claim_gate=claim_gate,
+        claim_ledger=claim_ledger,
+        model_gateway=gateway,
+    )
 
     def comparison_from_payload(payload: dict[str, object]):
         maximum_hypotheses = int(payload.get("maximum_hypotheses", 3))
@@ -147,6 +179,19 @@ def create_app(
             "career_comparison_version": "career-comparison-v0.1",
             "llm_configured": explainer is not None,
             "profile_drafting_configured": profile_drafter is not None,
+            "conversation_v2_version": CONVERSATION_V2_VERSION,
+            "git_head_sha": _git_head(root),
+            "process_started_at": PROCESS_STARTED_AT,
+            **_runtime_model_info(gateway),
+        }
+
+    @app.get("/api/runtime-info")
+    def runtime_info():
+        return {
+            "git_head_sha": _git_head(root),
+            "conversation_v2_version": CONVERSATION_V2_VERSION,
+            "process_started_at": PROCESS_STARTED_AT,
+            **_runtime_model_info(gateway),
         }
 
     @app.get("/")
@@ -587,6 +632,30 @@ def create_app(
         except (LookupError, ValueError) as exc:
             return {"error": str(exc)}, 400
 
+    @app.post("/api/conversations-v2")
+    def create_conversation_v2():
+        try:
+            return jsonify(conversations_v2.create()), 201
+        except (FileExistsError, ValueError) as exc:
+            return {"error": str(exc)}, 409
+
+    @app.get("/api/conversations-v2/<session_id>")
+    def get_conversation_v2(session_id: str):
+        try:
+            return jsonify(conversations_v2.read(session_id))
+        except (LookupError, ValueError) as exc:
+            return {"error": str(exc)}, 404
+
+    @app.post("/api/conversations-v2/<session_id>/messages")
+    def post_conversation_v2_message(session_id: str):
+        payload = request.get_json(silent=True) or {}
+        if not isinstance(payload, dict):
+            return {"error": "message must be an object"}, 400
+        try:
+            return jsonify(conversations_v2.handle(session_id, payload))
+        except (LookupError, ValueError) as exc:
+            return {"error": str(exc)}, 400
+
     @app.get("/api/sessions")
     def list_sessions():
         return jsonify(sessions.list_sessions())
@@ -652,6 +721,14 @@ def create_app(
     @app.get("/demo/")
     def journey_demo():
         return send_from_directory(demo_directory / "journey", "index.html")
+
+    @app.get("/demo/experience-compiler/")
+    def experience_compiler_demo():
+        return send_from_directory(demo_directory / "experience-compiler", "index.html")
+
+    @app.get("/demo/experience-compiler-v2/")
+    def experience_compiler_v2_demo():
+        return send_from_directory(demo_directory / "experience-compiler-v2", "index.html")
 
     @app.get("/demo/<path:filename>")
     def demo_asset(filename: str):

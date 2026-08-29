@@ -636,12 +636,18 @@ def create_app(
     @app.delete("/api/conversations/<session_id>")
     def delete_conversation(session_id: str):
         try:
-            removed = sessions.delete(session_id)
+            # Keep the source session intact unless its claim sidecar can also
+            # be removed.  The browser relies on a failed response meaning the
+            # current conversation is still available.
+            sessions.get(session_id)
             claim_ledger.cleanup_session_claims(session_id)
+            sessions.delete(session_id)
         except ValueError as exc:
             return {"error": str(exc)}, 400
-        if not removed:
+        except LookupError:
             return {"error": f"unknown session_id: {session_id}"}, 404
+        except OSError as exc:
+            return {"error": f"failed to delete local conversation: {exc}"}, 500
         return {"deleted": True, "session_id": session_id}
 
     @app.post("/api/conversations/<session_id>/messages")

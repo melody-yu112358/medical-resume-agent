@@ -2,8 +2,8 @@
 Source: data/role-packs/*.json
 Canonical packs: clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
 Schema: medical-role-pack-schema-v1 (https://example.invalid/schemas/role-pack.schema.json)
-Schema SHA-256: 2b2fc6d27c7d5964ec1ce72ade0262f59bc78b06fbfc23401cd2f6cfe69f7b38
-Source digest SHA-256: 066935cf105dba457ddf7a194fc449d15d6876fa8715a5d58f6b36f2a7dab8ea -->
+Schema SHA-256: 10138c659769d6c80f411068b3e170e8aab430b2e79d737ac66a3be6505743f7
+Source digest SHA-256: 44c6b324134759f563036676d2011fb1bfc9879bca05f440a0c9203c956ffa16 -->
 
 # Target paths
 

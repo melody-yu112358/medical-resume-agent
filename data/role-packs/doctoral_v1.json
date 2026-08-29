@@ -3,7 +3,12 @@
   "label": "考博 / 保研",
   "skill_reference": {
     "target_scope": "学术升学、保研、夏令营、博士申请与研究型项目申请。",
-    "emphasis": ["研究问题与设计", "方法学严谨性", "可确认的独立贡献", "学术产出与研究潜力"],
+    "emphasis": [
+      "研究问题与设计",
+      "方法学严谨性",
+      "可确认的独立贡献",
+      "学术产出与研究潜力"
+    ],
     "boundary_note": "不要用泛泛的“科研能力强”替代已确认的方法、责任和产出；未确认时不得写成课题负责人或研究领导者。"
   },
   "priorities": ["research_method", "data_analysis", "wet_lab", "clinical_research", "medical_information"],

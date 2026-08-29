@@ -3,7 +3,12 @@
   "label": "医疗数据 / 健康科技",
   "skill_reference": {
     "target_scope": "医疗数据、数字健康与健康科技相关的研究或早期岗位材料。",
-    "emphasis": ["数据来源与处理", "分析方法与工具链", "验证和结果沟通", "医学问题与数据场景的关联"],
+    "emphasis": [
+      "数据来源与处理",
+      "分析方法与工具链",
+      "验证和结果沟通",
+      "医学问题与数据场景的关联"
+    ],
     "boundary_note": "不得将分析或研究辅助工作描述为已上线临床产品、算法开发、AI 模型训练、产品设计或系统架构责任。"
   },
   "priorities": ["data_analysis", "research_method", "clinical_research", "medical_information", "wet_lab"],

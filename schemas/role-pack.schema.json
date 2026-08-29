@@ -14,6 +14,7 @@
     },
     "label": { "type": "string" },
     "skill_reference": {
+      "description": "Standalone Skill reference metadata; ignored by existing Agent execution paths.",
       "type": "object",
       "additionalProperties": false,
       "required": ["target_scope", "emphasis", "boundary_note"],

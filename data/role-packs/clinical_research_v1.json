@@ -3,7 +3,12 @@
   "label": "临床科研",
   "skill_reference": {
     "target_scope": "医院科研、临床研究支持和以临床问题为中心的研究申请。",
-    "emphasis": ["临床问题与研究设计", "受试者或队列流程", "数据质量与分析", "已确认的伦理、GCP 与协作工作"],
+    "emphasis": [
+      "临床问题与研究设计",
+      "受试者或队列流程",
+      "数据质量与分析",
+      "已确认的伦理、GCP 与协作工作"
+    ],
     "boundary_note": "不得把参与研究或数据任务写成临床试验运营、中心管理、合规保证或独立方案设计。"
   },
   "priorities": ["clinical_research", "research_method", "data_analysis", "medical_information", "wet_lab"],

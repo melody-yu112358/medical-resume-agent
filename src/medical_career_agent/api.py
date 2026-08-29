@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 from dataclasses import asdict
@@ -51,6 +52,7 @@ from .services.claim_gate import ClaimGateService
 from .services.resume_conversation_agent import ResumeConversationAgent
 from .services.chat_first_resume_agent import ChatFirstResumeAgent
 from .services.conversation_model_gateway import ModelGatewayConversationGateway
+from .services.resume_delivery import ResumeDeliveryError, ResumeDeliveryService
 
 PROCESS_STARTED_AT = datetime.now(timezone.utc).isoformat()
 CONVERSATION_V2_VERSION = "runtime-observability-v1"
@@ -157,6 +159,8 @@ def create_app(
         claim_ledger=claim_ledger,
         model_gateway=gateway,
     )
+    resume_delivery = ResumeDeliveryService()
+    workflow_contract = root / "skill-lite" / "medical-resume-skill" / "references" / "workflow-contract.json"
 
     def comparison_from_payload(payload: dict[str, object]):
         maximum_hypotheses = int(payload.get("maximum_hypotheses", 3))
@@ -177,6 +181,8 @@ def create_app(
             "status": "ok",
             "scoring_version": "deterministic-v1",
             "career_comparison_version": "career-comparison-v0.1",
+            "resume_agent_version": "medical-resume-workflow-v1",
+            "resume_agent_backend_persistence": "local_session_json",
             "llm_configured": explainer is not None,
             "profile_drafting_configured": profile_drafter is not None,
             "conversation_v2_version": CONVERSATION_V2_VERSION,
@@ -196,7 +202,12 @@ def create_app(
 
     @app.get("/")
     def launch_resume_beta():
-        return redirect("/demo/resume-beta/index.html", code=302)
+        return redirect("/demo/resume-agent/index.html", code=302)
+
+    @app.get("/api/resume-agent/config")
+    def resume_agent_config():
+        """Expose the Skill-owned workflow vocabulary to the browser workspace."""
+        return jsonify(json.loads(workflow_contract.read_text(encoding="utf-8")))
 
     @app.get("/api/jobs")
     def list_jobs():
@@ -622,6 +633,17 @@ def create_app(
         except (LookupError, ValueError) as exc:
             return {"error": str(exc)}, 404
 
+    @app.delete("/api/conversations/<session_id>")
+    def delete_conversation(session_id: str):
+        try:
+            removed = sessions.delete(session_id)
+            claim_ledger.cleanup_session_claims(session_id)
+        except ValueError as exc:
+            return {"error": str(exc)}, 400
+        if not removed:
+            return {"error": f"unknown session_id: {session_id}"}, 404
+        return {"deleted": True, "session_id": session_id}
+
     @app.post("/api/conversations/<session_id>/messages")
     def post_conversation_message(session_id: str):
         payload = request.get_json(silent=True) or {}
@@ -631,6 +653,23 @@ def create_app(
             return jsonify(conversations.handle_message(session_id, payload))
         except (LookupError, ValueError) as exc:
             return {"error": str(exc)}, 400
+
+    @app.post("/api/conversations/<session_id>/export")
+    def export_conversation_resume(session_id: str):
+        payload = request.get_json(silent=True) or {}
+        try:
+            bundle = resume_delivery.build_bundle(
+                conversation=conversations.read(session_id),
+                basics=payload.get("basics") if isinstance(payload.get("basics"), dict) else {},
+                theme=str(payload.get("theme", "clinical-blue")),
+            )
+        except ValueError as exc:
+            return {"error": str(exc)}, 400
+        except LookupError as exc:
+            return {"error": str(exc)}, 404
+        except ResumeDeliveryError as exc:
+            return {"error": str(exc)}, 400
+        return jsonify(bundle)
 
     @app.post("/api/conversations-v2")
     def create_conversation_v2():
@@ -721,10 +760,6 @@ def create_app(
     @app.get("/demo/")
     def journey_demo():
         return send_from_directory(demo_directory / "journey", "index.html")
-
-    @app.get("/demo/experience-compiler/")
-    def experience_compiler_demo():
-        return send_from_directory(demo_directory / "experience-compiler", "index.html")
 
     @app.get("/demo/experience-compiler-v2/")
     def experience_compiler_v2_demo():

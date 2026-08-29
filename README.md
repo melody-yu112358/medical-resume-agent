@@ -9,24 +9,15 @@
 
 <p align="center"><b>简体中文</b> · <a href="README.en.md">English</a> · <a href="skill-lite/README.md">Skill Lite 使用说明</a></p>
 
-<p align="center"><a href="docs/skill-hub/index.html">查看 Skill & Agent Hub</a> · <a href="https://melody-yu112358.github.io/medical-resume-agent/skill-hub/">GitHub Pages 预览</a></p>
+<p align="center"><a href="docs/skill-hub/index.html">查看 Skill & Agent Hub</a> · <a href="docs/skill-hub/ecosystem-catalog/README.md">生态与竞品目录</a></p>
+
+## Skill & Agent Hub
+
+本仓库将稳定自研 Skill、在研网页 Agent 与公开生态参考分开呈现。外部项目仅用于发现和比较，不代表合作、推荐、兼容性或安全审计结论；详见[生态与竞品目录](docs/skill-hub/ecosystem-catalog/README.md)。
 
 > **推荐入口：** [Medical Resume Skill Lite](skill-lite/README.md)
 >
 > 在 Codex、Claude Code 等已配置模型的本地对话中使用。它会基于已确认的真实经历进行多轮追问、按目标方向润色，并生成可编辑、可打印的 HTML 简历。
-
-## Skill & Agent Hub
-
-这是一个面向医学职业表达的公开导航页：稳定自研 Skill 与在研 Agent 分开呈现；同时收录公开可访问的同方向 Skill / Agent，便于竞品分析和访客发现工具。外部项目不是本仓库的一部分，也不代表合作、背书、兼容性或安全审计结论。
-
-| 入口 | 状态 | 用途 |
-| --- | --- | --- |
-| [Medical Resume Skill Lite](skill-lite/README.md) | **稳定 / 推荐** | 在 Codex、Claude Code 等 AI 对话中，以已确认事实整理经历、润色简历并交付本地 HTML。 |
-| [Medical Career Agent](demo/experience-compiler/index.html) | **Beta / 持续开发** | 在网页中体验经历输入、事实确认与基础可视化；多段经历编排与对话式润色正在与 Skill 流程对齐。 |
-| [Skill & Agent Hub](docs/skill-hub/index.html) | **展示页** | 浏览自研工具、公开生态目录、共享方法论与维护路线图。 |
-| [生态与竞品目录](docs/skill-hub/ecosystem-catalog/README.md) | **公开参考** | 查看约 40 项公开来源、可比范围与收录边界。 |
-
-GitHub Pages 部署时，将 Pages 的发布源设为 `main` 分支的 `/docs` 目录；展示页地址为 `https://melody-yu112358.github.io/medical-resume-agent/skill-hub/`。
 
 医学简历真正的难点，往往不是经历不够，而是研究方法、实验操作和实际贡献被压缩成一句“参与科研”。我们希望保留事实边界，把这些零散信息组织成目标方向看得懂、也经得起追问的能力证据。
 
@@ -47,9 +38,9 @@ GitHub Pages 部署时，将 Pages 的发布源设为 `main` 分支的 `/docs` �
 | 入口 | 当前状态 | 适合的情况 |
 | --- | --- | --- |
 | [Skill Lite](skill-lite/README.md) | **推荐使用**。支持对话式经历梳理、受约束润色、表达版本比较与本机 HTML 简历交付。 | 已安装 Codex、Claude Code 或兼容 AI 工作流的用户 |
-| [网页体验版](#网页体验版) | **Beta / 持续重构中**。可体验事实拆解、确认与基础预览；多段经历编排和对话式润色正在与 Skill 流程对齐。 | 想快速了解“医学经历翻译”流程的用户 |
+| [网页 Agent 工作台](#网页体验版) | **Beta**。已接入现有对话 Agent、v2 活动责任模型、Claim Gate、A4 预览与本机交付。 | 希望在浏览器中逐步确认事实、审计要点并导出简历的用户 |
 
-两种入口共享“先确认事实、再翻译表达”的原则，但不要求同时安装。Skill Lite 是当前优先维护的交付路径；网页版本保留为可视化体验入口。
+两种入口共享“先确认事实、再翻译表达”的原则和版本化工作流契约，但不要求同时安装。Skill Lite 仍是优先维护的交付路径；网页版本是现有对话 Agent 的可视化入口，不再维护另一套简历大脑。
 
 ## Skill Lite 能做什么
 
@@ -63,7 +54,7 @@ Skill 默认先确认事实，再按目标方向规划每段经历，并提供�
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
+Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。网页 Agent 读取 Skill 随附的工作流契约，并复用仓库现有的对话编排、v2 活动责任模型和 Claim Gate。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
 
 | 你提供什么 | 系统如何处理 | 你拿到什么 |
 | --- | --- | --- |
@@ -73,7 +64,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 
 ## 网页体验版
 
-> 网页 Agent 正在升级多段经历编排和对话式润色；当前适合体验事实确认与基础可视化流程。若你希望进行多轮润色、比较表达版本并生成可打印 HTML 简历，请优先使用 [Skill Lite](skill-lite/README.md)。
+> 网页 Agent 当前提供一段经历的完整纵向链路：原文输入、活动责任确认、目标方向、要点审计、A4 预览和交付包下载。多段经历编排仍优先通过 [Skill Lite](skill-lite/README.md) 完成。
 
 ### 快速开始
 
@@ -81,7 +72,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 .\start-local.ps1
 ```
 
-然后打开：`http://127.0.0.1:5000/demo/experience-compiler/index.html`
+然后打开：`http://127.0.0.1:5000/`
 
 首次使用可载入内置的脱敏 Meta 分析示例。完整安装步骤见[在自己的电脑上运行网页体验版](#在自己的电脑上运行网页体验版)。
 
@@ -158,7 +149,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 3. 看到服务启动提示后，在浏览器打开：
 
    ```text
-   http://127.0.0.1:5000/demo/experience-compiler/index.html
+   http://127.0.0.1:5000/
    ```
 
 4. 用完后回到 PowerShell，按 `Ctrl + C` 停止本地服务。
@@ -185,7 +176,8 @@ python -m pytest -q
 ## 仓库结构
 
 ```text
-demo/experience-compiler/  可直接体验的医学经历编译器页面
+demo/resume-agent/         对话 Agent 的事实确认、审计、预览与导出工作台
+demo/experience-compiler/  保留的医学经历编译器 Demo
 src/medical_career_agent/  经历提取、确认、要点生成、Claim Gate 与账本服务
 schemas/                   canonical experience、role pack、bullet claim 数据契约
 data/role-packs/           四个目标方向的表达策略

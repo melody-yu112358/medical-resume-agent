@@ -21,7 +21,10 @@ class ApiTest(unittest.TestCase):
     def test_health_and_job_list(self):
         health = self.client.get("/api/health")
         self.assertEqual(health.status_code, 200)
-        self.assertFalse(health.get_json()["llm_configured"])
+        payload = health.get_json()
+        self.assertFalse(payload["llm_configured"])
+        self.assertEqual(payload["resume_agent_version"], "medical-resume-workflow-v1")
+        self.assertEqual(payload["resume_agent_backend_persistence"], "local_session_json")
         jobs = self.client.get("/api/jobs").get_json()
         self.assertEqual(len(jobs), 1)
         self.assertTrue(jobs[0]["synthetic"])
@@ -29,7 +32,7 @@ class ApiTest(unittest.TestCase):
     def test_root_redirects_to_launch_beta(self):
         response = self.client.get("/")
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.headers["Location"], "/demo/resume-beta/index.html")
+        self.assertEqual(response.headers["Location"], "/demo/resume-agent/index.html")
 
     def test_text_resume_upload_returns_extracted_text(self):
         response = self.client.post(

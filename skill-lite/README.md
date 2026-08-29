@@ -120,7 +120,7 @@ Skill 不包含 API Key，也不绑定某一家模型。它使用 Codex、Claude
 
 ### 与网页版本的关系
 
-网页版本适合可视化地输入、确认和预览；Skill Lite 适合在对话中深入梳理材料、比较多种表达并直接交付本机 HTML。两者共用“事实优先”的原则，但可以独立使用。
+网页版本适合可视化地输入、确认、审计和预览；Skill Lite 适合在对话中深入梳理材料、比较多种表达并直接交付本机 HTML。两者可以独立使用；仓库内网页读取 Skill 的 `references/workflow-contract.json`，并调用现有对话 Agent 与 v2 Claim Gate，而不是维护另一套表达规则。
 
 ### 包结构（维护者参考）
 

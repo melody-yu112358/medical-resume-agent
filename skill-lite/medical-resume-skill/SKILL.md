@@ -28,6 +28,8 @@ External information can improve the wording of a target role, but it cannot bec
 
 Track the current stage explicitly: `intake → fact confirmation → representative sample → full composition → factual audit → delivery`. Do not skip a stage because the user asks for a file or because the source already resembles a resume.
 
+When this Skill is hosted by the repository's web/API product, load `references/workflow-contract.json` as the machine-readable source for stage names, actions, target paths, expression tiers and privacy defaults. Do not maintain a second hard-coded workflow contract in the browser. The prose rules in this file remain authoritative for evidence and responsibility boundaries.
+
 - During intake, read all supplied material once, preserve facts already present, list every material gap, and ask only the three highest-value unanswered questions in the current round.
 - Before confirmation, split responsibility into project-level role, task-level responsibility, independently completed scope, collaborative scope, and ownership of final outputs. A general statement such as “I completed all of it” does not settle these fields.
 - After confirmation, draft one representative flagship entry and ask the user to approve its density, tone and responsibility boundary before expanding the whole resume.

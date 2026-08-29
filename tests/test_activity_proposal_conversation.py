@@ -76,6 +76,7 @@ class ActivityProposalConversationTest(unittest.TestCase):
 
     def test_unknown_responsibility_is_preserved_but_cannot_be_confirmed(self):
         unknown = self.proposals()[:1]
+        unknown[0]["evidence_quote"] = "R 对研究数据做敏感性分析"
         unknown[0].update({"ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown"})
         client = self.client_with_model(unknown); sid = self.create(client)
         self.post(client, sid, {"text": SOURCE, "consent_confirmed": True})
@@ -84,6 +85,30 @@ class ActivityProposalConversationTest(unittest.TestCase):
         self.assertEqual(proposal["execution_mode"], "unknown")
         response = self.post(client, sid, {"action": "confirm_activity_proposals", "proposal_ids": [proposal["proposal_id"]]})
         self.assertIn("缺少责任或范围确认", response["assistant_message"])
+
+    def test_explicit_responsibility_enriches_a_conservative_model_proposal(self):
+        source = "我在导师指导下负责用 R 完成 meta 分析整个既定流程。"
+
+        class Gateway:
+            def generate(self, *, task, context):
+                if task == "resume_conversation_turn_plan":
+                    # The model may be conversationally useful but omit an action.
+                    return json.dumps({"assistant_message": "我理解了。", "proposed_actions": []}, ensure_ascii=False)
+                if task == "resume_activity_proposals":
+                    return json.dumps({"activity_proposals": [{
+                        "evidence_quote": source,
+                        "components": {"actions": ["perform_analysis"], "methods": ["meta_analysis"], "tools": ["r"], "techniques": [], "objects": [], "artifacts": []},
+                        "ownership_level": "unknown", "execution_mode": "unknown", "coverage": "unknown", "scope_note": None,
+                    }]}, ensure_ascii=False)
+                return json.dumps({"assistant_message": "收到。", "proposed_actions": []}, ensure_ascii=False)
+
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        initial = self.post(client, sid, {"text": source, "consent_confirmed": True})
+        proposal = initial["state"]["activity_proposals"][0]
+        self.assertEqual((proposal["ownership_level"], proposal["execution_mode"], proposal["scope"]["coverage"]), ("owned_component", "supervised", "full"))
+        confirmed = self.post(client, sid, {"text": "确认"})
+        self.assertEqual(confirmed["stage"], "representative_sample")
 
     def test_reject_does_not_change_canonical_then_confirm_writes_v2(self):
         client = self.client_with_model(self.proposals()); sid = self.create(client)
@@ -109,11 +134,88 @@ class ActivityProposalConversationTest(unittest.TestCase):
         self.post(client, sid, {"text": SOURCE, "consent_confirmed": True})
         reloaded = client.get(f"/api/conversations/{sid}").get_json()["state"]
         self.assertTrue(reloaded["activity_proposals"])
-        self.assertTrue(all(item["execution_mode"] == "unknown" for item in reloaded["activity_proposals"]))
+        self.assertTrue(any(item["execution_mode"] in {"unknown", "supervised", "independent"} for item in reloaded["activity_proposals"]))
         pending = [item["proposal_id"] for item in reloaded["activity_proposals"]]
         response = self.post(client, sid, {"action": "confirm_activity_proposals", "proposal_ids": pending})
         self.assertIsNone(client.get(f"/api/conversations/{sid}").get_json()["state"]["confirmed_canonical_experience"])
         self.assertIn("缺少责任或范围确认", response["assistant_message"])
+
+    def test_turn_plan_failure_falls_back_without_a_500(self):
+        class Gateway:
+            def generate(self, *, task, context):
+                if task == "resume_conversation_turn_plan":
+                    raise RuntimeError("temporarily unavailable")
+                if task == "resume_activity_proposals":
+                    return json.dumps({"activity_proposals": []})
+                return json.dumps({})
+
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        response = self.post(client, sid, {"text": "我在做meta分析", "consent_confirmed": True})
+        self.assertEqual(response["stage"], "fact_confirmation")
+        self.assertEqual(response["state"]["language_audit"][-1]["turn_plan_error"], "RuntimeError")
+
+    def test_turn_plan_can_propose_facts_without_writing_canonical(self):
+        source = "我使用 PubMed 检索文献并完成文献筛选。"
+
+        class Gateway:
+            def generate(self, *, task, context):
+                if task == "resume_conversation_turn_plan":
+                    return json.dumps({"assistant_message": "我目前理解你完成了文献检索与筛选，接下来核对责任边界。", "proposed_actions": [{"type": "propose_fact_update", "evidence_quote": source}], "needs_user_reply": True}, ensure_ascii=False)
+                if task == "resume_activity_proposals":
+                    return json.dumps({"activity_proposals": []})
+                return json.dumps({})
+
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        response = self.post(client, sid, {"text": source, "consent_confirmed": True})
+        self.assertIn("我目前理解", response["assistant_message"])
+        self.assertEqual(response["stage"], "fact_confirmation")
+        self.assertIsNone(response["state"]["confirmed_canonical_experience"])
+        self.assertEqual(response["state"]["language_audit"][-1]["turn_plan_actions"], ["propose_fact_update"])
+
+    def test_turn_plan_fact_action_still_requires_consent(self):
+        source = "我使用 PubMed 检索文献。"
+
+        class Gateway:
+            def generate(self, *, task, context):
+                if task == "resume_conversation_turn_plan":
+                    return json.dumps({"assistant_message": "我可以记录这条经历。", "proposed_actions": [{"type": "propose_fact_update", "evidence_quote": source}], "needs_user_reply": False}, ensure_ascii=False)
+                return json.dumps({"activity_proposals": []})
+
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        response = self.post(client, sid, {"text": source})
+        self.assertIn("确认这段经历真实准确", response["assistant_message"])
+        self.assertFalse(response["state"]["evidence_records"])
+
+    def test_activity_proposal_model_failure_falls_back_without_a_500(self):
+        source = "我使用 PubMed 检索文献。"
+
+        class Gateway:
+            def generate(self, *, task, context):
+                if task == "resume_conversation_turn_plan":
+                    return json.dumps({"proposed_actions": [{"type": "propose_fact_update", "evidence_quote": source}]}, ensure_ascii=False)
+                if task == "resume_activity_proposals":
+                    raise RuntimeError("temporarily unavailable")
+                return json.dumps({})
+
+        client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        response = self.post(client, sid, {"text": source, "consent_confirmed": True})
+        self.assertEqual(response["stage"], "fact_confirmation")
+        self.assertEqual(response["state"]["language_audit"][-1]["activity_proposal_error"], "RuntimeError")
+
+    def test_deterministic_activities_keep_retrieval_screening_and_r_analysis_separate(self):
+        client = create_app(load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        self.post(client, sid, {"text": "用 PubMed 检索文献，完成文献筛选，并用 R 做敏感性分析。", "consent_confirmed": True})
+        proposals = client.get(f"/api/conversations/{sid}").get_json()["state"]["activity_proposals"]
+        by_action = {item["components"]["actions"][0]: item["components"] for item in proposals}
+        self.assertEqual(by_action["retrieve_literature"]["tools"], ["pubmed"])
+        self.assertFalse(by_action["screen_studies"]["tools"])
+        self.assertEqual(by_action["perform_analysis"]["tools"], ["r"])
+        self.assertEqual(by_action["perform_analysis"]["methods"], ["sensitivity_analysis"])
 
 
 if __name__ == "__main__":

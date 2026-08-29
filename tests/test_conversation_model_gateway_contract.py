@@ -46,3 +46,18 @@ def test_rewrite_prompt_contract_defines_distinct_safe_tiers():
     assert "High-impact" in instruction
     assert "verbatim unchanged" in instruction
     assert "主导" in instruction
+
+
+def test_turn_plan_filters_actions_to_the_allow_list():
+    class PlanGateway:
+        def generate(self, *, task, context):
+            assert task == "resume_conversation_turn_plan"
+            return json.dumps({"assistant_message": "请确认范围。", "proposed_actions": [
+                {"type": "update_activity_responsibility", "proposal_id": "p1"},
+                {"type": "write_canonical_experience", "experience": {}},
+            ], "needs_user_reply": True})
+
+    plan = ModelGatewayConversationGateway(PlanGateway()).plan_turn(text="我独立完成", session_context={"stage": "fact_confirmation"})
+    assert plan.assistant_message == "请确认范围。"
+    assert plan.proposed_actions == [{"type": "update_activity_responsibility", "proposal_id": "p1"}]
+    assert plan.needs_user_reply is True

@@ -22,8 +22,18 @@ class ResumeConversationApiTest(unittest.TestCase):
         return response.get_json()
 
     def establish_confirmed_experience(self):
-        self.message({"text": "在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。", "consent_confirmed": True})
-        return self.message({"action": "confirm_facts"})
+        source = "在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"
+        self.message({"text": source, "consent_confirmed": True})
+        state = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        facts = state["extracted_draft"]["extracted_facts"]
+        proposal = {
+            "evidence_quote": source,
+            "components": {key: facts.get(key, []) for key in ("actions", "methods", "tools", "techniques", "objects", "artifacts")},
+            "ownership_level": "contributed", "execution_mode": "supervised", "coverage": "full", "scope_note": None,
+        }
+        self.message({"action": "update_activity_proposals", "activity_proposals": [proposal]})
+        proposal_id = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]["activity_proposals"][-1]["proposal_id"]
+        return self.message({"action": "confirm_activity_proposals", "proposal_ids": [proposal_id]})
 
     def establish_claims(self):
         self.establish_confirmed_experience()
@@ -124,6 +134,65 @@ class ResumeConversationApiTest(unittest.TestCase):
         self.assertEqual(state["stage"], "factual_audit")
         self.assertTrue(state["generated_claims"])
 
+    def test_new_facts_return_to_confirmation_and_supersede_pending_proposals(self):
+        self.establish_confirmed_experience()
+        self.message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+        before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        old_claim_ids = [item["claim_id"] for item in before["generated_claims"]]
+        response = self.message({"text": "我用 PubMed 检索文献，独立完成筛选，R 分析是在导师指导下做的。"})
+        after = response["state"]
+        self.assertEqual(after["stage"], "fact_confirmation")
+        self.assertTrue(any(item["status"] == "superseded" for item in after["activity_proposals"]))
+        self.assertTrue(any(item["status"] == "needs_user_confirmation" for item in after["activity_proposals"]))
+        self.assertTrue(all(item["verification_status"] == "superseded" for item in after["generated_claims"] if item["claim_id"] in old_claim_ids))
+
+    def test_natural_confirmation_with_unknown_scope_does_not_advance(self):
+        self.message({"text": "我在导师指导下使用 R 进行数据分析。", "consent_confirmed": True})
+        response = self.message({"text": "确认"})
+        self.assertEqual(response["stage"], "fact_confirmation")
+        self.assertIn("完成范围", response["assistant_message"])
+        self.assertIn("整个既定流程", response["assistant_message"])
+
+    def test_guidance_is_retained_and_chat_confirmation_only_asks_for_missing_fields(self):
+        self.message({"text": "我在导师指导下用 R 完成meta分析，PubMed检索文献技能。", "consent_confirmed": True})
+        state = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        pending = [item for item in state["activity_proposals"] if item["status"] == "needs_user_confirmation"]
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending[0]["components"]["actions"], ["perform_analysis"])
+        self.assertEqual(pending[0]["execution_mode"], "supervised")
+        response = self.message({"text": "确认"})
+        self.assertIn("对任务结果的承担", response["assistant_message"])
+        self.assertIn("完成范围", response["assistant_message"])
+        self.assertNotIn("执行方式、", response["assistant_message"])
+
+    def test_chat_only_confirmation_can_confirm_a_complete_single_activity(self):
+        self.message({"text": "我在导师指导下负责用 R 完成meta分析整个既定流程。", "consent_confirmed": True})
+        response = self.message({"text": "确认"})
+        self.assertEqual(response["stage"], "representative_sample")
+        state = response["state"]
+        self.assertTrue(state["confirmed_canonical_experience"])
+        self.assertFalse(any(item["status"] == "needs_user_confirmation" for item in state["activity_proposals"]))
+
+    def test_confirmed_proposal_is_not_pending_and_pending_reason_is_returned(self):
+        self.establish_confirmed_experience()
+        state = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        self.assertTrue(state["activity_proposals"])
+        self.assertTrue(any(item["status"] == "confirmed" for item in state["activity_proposals"]))
+        self.assertFalse(any(item["status"] == "needs_user_confirmation" for item in state["activity_proposals"]))
+        self.message({"text": "我在导师指导下使用 R 进行数据分析。"})
+        response = self.message({"text": "确认"})
+        self.assertIn("待确认活动", response["assistant_message"])
+        self.assertIn("show_activity_cards", response["ui_events"])
+
+    def test_rewrite_request_explains_claim_gate_gap_when_no_ready_claim(self):
+        self.establish_claims()
+        state = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        claim = state["generated_claims"][0]
+        self.message({"action": "edit_wording", "claim_id": claim["claim_id"], "wording": "主导 999 项临床研究并获得国际大奖。"})
+        response = self.message({"text": "给我专业版措辞"})
+        self.assertIn("目前没有可改写的 ready 要点", response["assistant_message"])
+        self.assertNotIn("请选择目标方向", response["assistant_message"])
+
     def test_wording_edit_does_not_change_confirmed_facts(self):
         generated = self.establish_claims()
         state_before = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
@@ -142,6 +211,11 @@ class ResumeConversationApiTest(unittest.TestCase):
         self.assertTrue(any(item["experience_id"] == old_experience for item in ledger))
         document = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]["resume_document"]
         self.assertFalse(document["research_experience"][0]["bullets"])
+        state = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
+        pending = [item for item in state["activity_proposals"] if item["status"] == "needs_user_confirmation"]
+        self.message({"action": "update_activity_proposals", "activity_proposals": [{"evidence_quote": "我负责了文献筛选工作。", "components": {"actions": ["screen_studies"], "methods": [], "tools": [], "techniques": [], "objects": ["medical_literature"], "artifacts": []}, "ownership_level": "owned_component", "execution_mode": "independent", "coverage": "full", "scope_note": None}]})
+        proposal_id = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]["activity_proposals"][-1]["proposal_id"]
+        self.message({"action": "confirm_activity_proposals", "proposal_ids": [proposal_id]})
         regenerated = self.message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         self.assertGreater(regenerated["audit_status"]["ready"], 0)
 

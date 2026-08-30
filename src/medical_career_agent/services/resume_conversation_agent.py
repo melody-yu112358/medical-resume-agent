@@ -51,6 +51,8 @@ class ResumeConversationAgent:
             "candidate_profile": CandidateProfileIntakeService.initial_state(),
             "raw_user_texts": [], "conversation_turns": [], "extracted_draft": None,
             "confirmed_canonical_experience": None, "evidence_records": [],
+            "confirmed_experiences": [], "active_experience_id": None,
+            "active_experience_evidence_ids": [],
             "pending_questions": [], "question_card": None,
             "selected_role_packs": [], "generated_claims": [],
             "claim_gate_results": {}, "claim_user_dispositions": {},
@@ -135,6 +137,10 @@ class ResumeConversationAgent:
         elif action == "edit_candidate_profile":
             CandidateProfileIntakeService.restart(state["candidate_profile"])
             response = self._response(state, "好的，我们从姓名开始逐项修改；旧答案会保留，提交新答案后覆盖。")
+        elif action == "start_new_experience":
+            response = self._start_new_experience(state)
+        elif action == "select_experience":
+            response = self._select_experience(state, payload)
         elif action == "confirm_facts":
             response = self._confirm(session_id, state, payload)
         elif action == "confirm_activity_proposals":
@@ -210,6 +216,48 @@ class ResumeConversationAgent:
     def _refresh_candidate_profile(state: dict[str, Any]) -> None:
         profile = state.setdefault("candidate_profile", CandidateProfileIntakeService.initial_state())
         profile["current_question"] = CandidateProfileIntakeService.current_question(profile)
+
+    @staticmethod
+    def _start_new_experience(state: dict[str, Any]) -> dict[str, Any]:
+        if not state.get("confirmed_experiences"):
+            return ResumeConversationAgent._response(state, "请先确认当前经历，再添加下一段。")
+        if state.get("stage") not in {"intake", "representative_sample"}:
+            return ResumeConversationAgent._response(state, "请先完成当前经历的事实确认，再添加下一段。")
+        for key, empty in (
+            ("extracted_draft", None), ("confirmed_canonical_experience", None),
+            ("pending_questions", []), ("question_card", None),
+            ("activity_proposals", []), ("proposal_audits", []),
+            ("active_experience_evidence_ids", []),
+        ):
+            state[key] = empty
+        state["active_experience_id"] = None
+        state["stage"] = "intake"
+        return ResumeConversationAgent._response(
+            state, "已保留前面的已确认经历。现在请描述下一段真实经历。",
+            ui_events=["new_experience_started"],
+        )
+
+    @staticmethod
+    def _select_experience(state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        if state.get("stage") != "representative_sample":
+            return ResumeConversationAgent._response(state, "请先完成当前经历，再切换已确认经历。")
+        experience_id = str(payload.get("experience_id", ""))
+        entry = next(
+            (item for item in state.get("confirmed_experiences", []) if item.get("experience_id") == experience_id),
+            None,
+        )
+        if not entry:
+            return ResumeConversationAgent._response(state, "没有找到这段已确认经历。")
+        state["confirmed_canonical_experience"] = deepcopy(entry["canonical_experience"])
+        state["extracted_draft"] = deepcopy(entry.get("extracted_draft"))
+        state["activity_proposals"] = deepcopy(entry.get("activity_proposals") or [])
+        state["active_experience_evidence_ids"] = list(entry.get("evidence_ids") or [])
+        state["active_experience_id"] = experience_id
+        state["pending_questions"] = []
+        return ResumeConversationAgent._response(
+            state, f"已切换到：{entry.get('label') or '已确认经历'}。",
+            ui_events=["experience_selected"],
+        )
 
     @staticmethod
     def _answer_candidate_profile(state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
@@ -322,7 +370,9 @@ class ResumeConversationAgent:
             return self._response(state, "请先确认这段经历真实准确并同意在本机服务处理后再继续。")
         draft = self.experience_drafter.draft(experience_text=text, context_hint=payload.get("context_hint"), consent_confirmed=True).to_dict()
         state["extracted_draft"] = draft
-        state["evidence_records"] = [{"evidence_id": "ev_001", "source_text": text, "status": "confirmed"}]
+        next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
+        state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
+        state["active_experience_evidence_ids"] = [next_id]
         state["pending_questions"] = draft["clarifying_questions"]
         state["stage"] = "fact_confirmation"
         self._propose_activities(state, text, draft["extracted_facts"])
@@ -340,13 +390,22 @@ class ResumeConversationAgent:
         state["extracted_draft"] = merged
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
+        state.setdefault("active_experience_evidence_ids", []).append(next_id)
         state["pending_questions"] = merged["clarifying_questions"]
         self._supersede_pending_proposals(state)
         self._invalidate_claims_for_pending_fact_update(session_id, state)
         # Rebuild from all evidence: a later tool/responsibility clarification
         # must not leave the earlier action proposal superseded with no successor.
-        self._propose_activities(state, "\n".join(state["raw_user_texts"]), merged["extracted_facts"])
+        self._propose_activities(state, self._active_experience_text(state), merged["extracted_facts"])
         return self._fact_confirmation_response(state, introduced="已将补充内容作为待确认事实加入")
+
+    @staticmethod
+    def _active_experience_text(state: dict[str, Any]) -> str:
+        active_ids = set(state.get("active_experience_evidence_ids") or [])
+        return "\n".join(
+            item.get("source_text", "") for item in state.get("evidence_records", [])
+            if item.get("evidence_id") in active_ids
+        )
 
     def _fact_confirmation_response(self, state: dict[str, Any], *, introduced: str) -> dict[str, Any]:
         pending = self._pending_activity_proposals(state)
@@ -782,7 +841,7 @@ class ResumeConversationAgent:
         return self._response(state, "未找到该活动提议。")
 
     def _update_activity_proposals(self, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
-        source = "\n".join(state["raw_user_texts"])
+        source = self._active_experience_text(state)
         facts = (state.get("extracted_draft") or {}).get("extracted_facts", {})
         proposals = self._validate_activity_proposals(payload.get("activity_proposals", []), source, facts)
         if not proposals:
@@ -797,7 +856,7 @@ class ResumeConversationAgent:
         if not proposal or not isinstance(groups, list) or len(groups) < 2:
             return self._response(state, "请提供至少两个待验证的活动拆分。")
         raw = [{"evidence_quote": proposal["evidence_quote"], "components": group, "ownership_level": proposal["ownership_level"], "execution_mode": proposal["execution_mode"], "coverage": proposal["scope"]["coverage"], "scope_note": proposal["scope"].get("note")} for group in groups]
-        replacements = self._validate_activity_proposals(raw, "\n".join(state["raw_user_texts"]), (state.get("extracted_draft") or {}).get("extracted_facts", {}))
+        replacements = self._validate_activity_proposals(raw, self._active_experience_text(state), (state.get("extracted_draft") or {}).get("extracted_facts", {}))
         if len(replacements) != len(groups):
             return self._response(state, "拆分后的活动未通过原文或组件校验。")
         proposal["status"] = "superseded"
@@ -815,7 +874,7 @@ class ResumeConversationAgent:
         components = {category: list(dict.fromkeys(value for item in selected for value in item["components"][category])) for category in ("actions", "methods", "tools", "techniques", "objects", "artifacts")}
         first = selected[0]
         raw = {"evidence_quote": first["evidence_quote"], "components": components, "ownership_level": first["ownership_level"], "execution_mode": first["execution_mode"], "coverage": first["scope"]["coverage"], "scope_note": first["scope"].get("note")}
-        merged = self._validate_activity_proposals([raw], "\n".join(state["raw_user_texts"]), (state.get("extracted_draft") or {}).get("extracted_facts", {}))
+        merged = self._validate_activity_proposals([raw], self._active_experience_text(state), (state.get("extracted_draft") or {}).get("extracted_facts", {}))
         if not merged:
             return self._response(state, "合并后的活动未通过原文或组件校验。")
         for proposal in selected:
@@ -831,8 +890,13 @@ class ResumeConversationAgent:
         if any(item["ownership_level"] == "unknown" or item["execution_mode"] == "unknown" or item["scope"]["coverage"] == "unknown" for item in proposals):
             return self._response(state, "这些活动仍缺少责任或范围确认；请先补充是在指导下、独立还是共同完成，以及完整或部分范围。")
         activities, responsibilities, overrides = [], [], {}
+        active_evidence_ids = set(state.get("active_experience_evidence_ids") or [])
         for proposal in proposals:
-            evidence = next((item["evidence_id"] for item in state["evidence_records"] if proposal["evidence_quote"] in item.get("source_text", "")), None)
+            evidence = next((
+                item["evidence_id"] for item in state["evidence_records"]
+                if item.get("evidence_id") in active_evidence_ids
+                and proposal["evidence_quote"] in item.get("source_text", "")
+            ), None)
             if not evidence:
                 return self._response(state, "活动提议缺少可追溯的原文证据。")
             activities.append({"activity_id": proposal["activity_id"], "label": "已确认活动", "components": proposal["components"], "evidence_ids": [evidence], "status": "user_confirmed"})
@@ -855,6 +919,11 @@ class ResumeConversationAgent:
         draft = state.get("extracted_draft")
         if not isinstance(draft, dict):
             return self._response(state, "还没有可确认的事实卡。请先描述经历。")
+        active_evidence_ids = set(state.get("active_experience_evidence_ids") or [])
+        active_evidence_records = [
+            item for item in state["evidence_records"]
+            if not active_evidence_ids or item.get("evidence_id") in active_evidence_ids
+        ]
         result = self.confirmation_gate.confirm_experience(
             experience_draft=draft,
             user_actions={
@@ -865,7 +934,7 @@ class ResumeConversationAgent:
                 "task_responsibilities": payload.get("task_responsibilities", []),
                 "activity_evidence_overrides": payload.get("activity_evidence_overrides", {}),
             },
-            evidence_records=state["evidence_records"],
+            evidence_records=active_evidence_records,
             previous_experience_id=(state.get("confirmed_canonical_experience") or {}).get("experience_id"),
         ).to_dict()
         if not result["canonical_experience"]:
@@ -878,6 +947,7 @@ class ResumeConversationAgent:
                     claim["verification_status"] = "superseded"
         state["confirmed_canonical_experience"] = result["canonical_experience"]
         state["pending_questions"] = []
+        self._upsert_confirmed_experience(state)
         pending = self._pending_activity_proposals(state)
         if pending:
             state["stage"] = "fact_confirmation"
@@ -890,10 +960,53 @@ class ResumeConversationAgent:
         state["stage"] = "representative_sample"
         return self._response(state, "事实已确认。请选择目标方向，我会生成候选要点并逐条通过 ClaimGate 审计。", ui_events=["fact_confirmed", "show_role_pack_chips"])
 
-    def _compose(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    @staticmethod
+    def _upsert_confirmed_experience(state: dict[str, Any]) -> None:
         canonical = state.get("confirmed_canonical_experience")
-        packs = payload.get("role_packs", [])
         if not canonical:
+            return
+        experience_id = canonical["experience_id"]
+        context = canonical.get("context") or {}
+        role = canonical.get("role") or {}
+        label = " · ".join(
+            value for value in (context.get("domain"), role.get("title"))
+            if isinstance(value, str) and value.strip()
+        ) or f"已确认经历 {len(state.get('confirmed_experiences', [])) + 1}"
+        entry = {
+            "experience_id": experience_id,
+            "label": label,
+            "canonical_experience": deepcopy(canonical),
+            "extracted_draft": deepcopy(state.get("extracted_draft")),
+            "activity_proposals": deepcopy(state.get("activity_proposals") or []),
+            "evidence_ids": list(state.get("active_experience_evidence_ids") or canonical.get("evidence_ids") or []),
+        }
+        experiences = state.setdefault("confirmed_experiences", [])
+        active_experience_id = state.get("active_experience_id")
+        index = next((
+            index for index, item in enumerate(experiences)
+            if item.get("experience_id") in {experience_id, active_experience_id}
+        ), None)
+        if index is None:
+            experiences.append(entry)
+        else:
+            experiences[index] = entry
+        state["active_experience_id"] = experience_id
+
+    @staticmethod
+    def _confirmed_canonicals(state: dict[str, Any]) -> list[dict[str, Any]]:
+        canonicals = [
+            item.get("canonical_experience") for item in state.get("confirmed_experiences", [])
+            if isinstance(item.get("canonical_experience"), dict)
+        ]
+        current = state.get("confirmed_canonical_experience")
+        if current and not any(item.get("experience_id") == current.get("experience_id") for item in canonicals):
+            canonicals.append(current)
+        return canonicals
+
+    def _compose(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        canonicals = self._confirmed_canonicals(state)
+        packs = payload.get("role_packs", [])
+        if not canonicals:
             return self._response(state, "请先确认事实，再生成简历要点。")
         if self._pending_activity_proposals(state):
             return self._pending_confirmation_response(state)
@@ -903,14 +1016,15 @@ class ResumeConversationAgent:
         state["stage"] = "composition"
         claims: list[dict[str, Any]] = []
         gates: dict[str, Any] = {}
-        for pack in state["selected_role_packs"]:
-            for claim in self.bullet_composer.compose_bullets(canonical_experience=canonical, role_pack_name=pack):
-                claim_data = claim.to_dict()
-                gate = self.claim_gate.validate_claim(bullet_claim=claim_data, canonical_experience=canonical).to_dict()
-                claim_data["verification_status"] = gate["status"]
-                self.claim_ledger.record_claim(session_id=session_id, bullet_claim=claim_data, gate_status=gate["status"], user_disposition=None)
-                claims.append(claim_data)
-                gates[claim_data["claim_id"]] = gate
+        for canonical in canonicals:
+            for pack in state["selected_role_packs"]:
+                for claim in self.bullet_composer.compose_bullets(canonical_experience=canonical, role_pack_name=pack):
+                    claim_data = claim.to_dict()
+                    gate = self.claim_gate.validate_claim(bullet_claim=claim_data, canonical_experience=canonical).to_dict()
+                    claim_data["verification_status"] = gate["status"]
+                    self.claim_ledger.record_claim(session_id=session_id, bullet_claim=claim_data, gate_status=gate["status"], user_disposition=None)
+                    claims.append(claim_data)
+                    gates[claim_data["claim_id"]] = gate
         state["generated_claims"] = claims
         state["claim_gate_results"] = gates
         state["stage"] = "factual_audit"
@@ -1019,10 +1133,15 @@ class ResumeConversationAgent:
         return merged
 
     def _resume_document(self, session_id: str, state: dict[str, Any]) -> dict[str, Any] | None:
-        canonical = state.get("confirmed_canonical_experience")
-        if not canonical:
+        canonicals = self._confirmed_canonicals(state)
+        if not canonicals:
             return None
-        valid = {item.claim_id for item in self.claim_ledger.get_valid_claims_for_experience(session_id, canonical["experience_id"]) if item.gate_status == "ready"}
+        valid = {
+            item.claim_id
+            for canonical in canonicals
+            for item in self.claim_ledger.get_valid_claims_for_experience(session_id, canonical["experience_id"])
+            if item.gate_status == "ready"
+        }
         selected_rewrites = {
             item["source_claim_id"]: item["claim_id"]
             for item in state.get("rewrite_candidates", [])
@@ -1032,7 +1151,9 @@ class ResumeConversationAgent:
             item["claim_id"]: item.get("source_claim_id")
             for item in state.get("rewrite_candidates", [])
         }
-        bullets = []
+        bullets_by_experience: dict[str, list[dict[str, Any]]] = {
+            canonical["experience_id"]: [] for canonical in canonicals
+        }
         for claim in state.get("generated_claims", []):
             claim_id = claim.get("claim_id")
             if claim_id not in valid or claim.get("verification_status") != "ready":
@@ -1045,7 +1166,12 @@ class ResumeConversationAgent:
                 # A selected rewrite replaces its source in the rendered resume,
                 # while both versions remain in the audit ledger.
                 continue
-            bullets.append({"claim_id": claim_id, "text": claim["wording"], "evidence_ids": claim["evidence_ids"]})
+            experience_id = claim.get("experience_id")
+            if experience_id in bullets_by_experience:
+                bullets_by_experience[experience_id].append({
+                    "claim_id": claim_id, "text": claim["wording"],
+                    "evidence_ids": claim["evidence_ids"],
+                })
         basics, education, profile_evidence = CandidateProfileIntakeService.document_sections(
             state.get("candidate_profile") or {}
         )
@@ -1058,8 +1184,11 @@ class ResumeConversationAgent:
                 "item_id": canonical["experience_id"], "organization": "待补充", "title": canonical["role"].get("title") or "已确认经历",
                 "department_or_field": canonical["context"].get("domain"), "period": {"start": None, "end": None, "ongoing": False},
                 "evidence_ids": canonical["evidence_ids"],
-                "bullets": [{"text": item["text"], "evidence_ids": item["evidence_ids"]} for item in bullets],
-            }],
+                "bullets": [
+                    {"text": item["text"], "evidence_ids": item["evidence_ids"]}
+                    for item in bullets_by_experience[canonical["experience_id"]]
+                ],
+            } for canonical in canonicals],
             "evidence": profile_evidence + [{"evidence_id": item["evidence_id"], "statement": item["source_text"], "source_document_id": None, "source_locator": None, "status": "user_confirmed", "confirmed_at": None} for item in state["evidence_records"]],
             "review_events": [],
         }

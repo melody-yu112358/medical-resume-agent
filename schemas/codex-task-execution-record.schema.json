@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex Task Execution Record v1",
+  "type": "object",
+  "required": ["schema_version", "source_state_digest", "career_id", "assigned_agent", "task_start_status", "task_reference", "started_at", "attempt_id", "last_error"],
+  "properties": {
+    "schema_version": {"const": "codex-task-execution-record-v1"},
+    "source_state_digest": {"type": "string"},
+    "career_id": {"type": "string"},
+    "assigned_agent": {"type": "string"},
+    "task_start_status": {"enum": ["codex_task_created", "duplicate_ignored", "rejected", "human_escalation_required", "task_start_failed", "awaiting_remote_sync", "self_trigger_ignored"]},
+    "task_reference": {"type": ["string", "null"]},
+    "started_at": {"type": ["string", "null"]},
+    "attempt_id": {"type": "string"},
+    "last_error": {"type": ["string", "null"]},
+    "agent_started": {"const": false}
+  }
+}

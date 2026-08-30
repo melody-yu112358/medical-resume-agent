@@ -68,6 +68,10 @@ def main() -> int:
         "name": "测试同学", "email": "student@example.invalid", "phone": None,
         "location": "上海", "institution": "示例医科大学", "degree": "医学硕士",
         "major": "临床医学", "period": {"start": "2023-09", "end": None, "ongoing": True},
+        "awards": "校级科研竞赛一等奖",
+        "languages": "CET-6：580",
+        "certificates": "GCP 培训证书",
+        "research_interests": "心血管循证医学",
     }
     for question_id, value in profile.items():
         message({"action": "answer_candidate_profile", "question_id": question_id,
@@ -103,6 +107,7 @@ def main() -> int:
     state = message({"action": "confirm_activity_proposals", "activity_proposals": confirmed,
                      "proposal_ids": []})["state"]
     state = message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})["state"]
+    state = message({"action": "approve_representative_sample"})["state"]
     state = message({"action": "accept_bullets"})["state"]
 
     exported = client.post(f"/api/conversations/{session_id}/export", json={})
@@ -116,7 +121,11 @@ def main() -> int:
         "four_summary_calls": gateway.tasks == ["resume_intake_skill_summary"] * CALL_LIMIT,
         "all_model_summaries_validated": model_statuses == ["validated"] * CALL_LIMIT,
         "profile_confirmed": state["candidate_profile"]["status"] == "confirmed",
+        "profile_extras_present": all(item in markdown for item in (
+            "校级科研竞赛一等奖", "CET-6：580", "GCP 培训证书", "心血管循证医学",
+        )),
         "experience_confirmed": bool(state["confirmed_experiences"]),
+        "representative_sample_approved": state["representative_sample"]["status"] == "approved",
         "claims_generated": bool(state["generated_claims"]),
         "deliverable_claims_ready": any(
             item.get("verification_status") == "ready" for item in state["generated_claims"]

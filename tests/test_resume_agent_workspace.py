@@ -193,6 +193,10 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "basics.summary" in script
     assert "documentData.skills" in script
     assert "研究方法与技能" in script
+    assert "experience_identity" in script
+    assert "experienceName" in script
+    assert "experienceOrganization" in script
+    assert "experienceRole" in script
     assert "confirmed_experiences" in script
     assert "添加另一段经历" in script
     assert "你的回答会保存在本机 session" in script

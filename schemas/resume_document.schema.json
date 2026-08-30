@@ -86,7 +86,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["item_id", "organization", "title", "evidence_ids"],
       "properties": {
-        "item_id": { "type": "string" }, "organization": { "type": "string" }, "title": { "type": "string" },
+          "item_id": { "type": "string" }, "project_name": { "type": ["string", "null"] }, "organization": { "type": "string" }, "title": { "type": "string" },
         "department_or_field": { "type": ["string", "null"] }, "period": { "$ref": "#/$defs/period" },
         "bullets": { "type": "array", "items": { "$ref": "#/$defs/bulletItem" } },
         "evidence_ids": { "$ref": "#/$defs/evidenceIds" }

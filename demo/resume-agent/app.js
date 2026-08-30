@@ -107,7 +107,10 @@ function renderIntake() {
   const profile = state().candidate_profile || {};
   if (profile.status !== "confirmed") return renderCandidateProfile(profile);
   return `${renderExperienceNavigator(false)}<section class="panel soft"><h3>${(state().confirmed_experiences || []).length ? "继续添加一段真实经历" : "先告诉我们一段真实经历"}</h3>
-    <p>写下研究背景、你实际做过的步骤、方法或工具。系统只把原文支持的内容变成待确认事实。</p>
+    <p>先填写简历上要显示的经历名称，再写下实际步骤。抬头信息只用于识别这段经历，不会提高你的责任等级。</p>
+    <label class="field">经历或项目名称（必填）<input id="experienceName" placeholder="例如：心血管风险因素 Meta 分析项目 / 内科临床轮转"></label>
+    <div class="basics-grid"><label class="field">机构或团队（可选）<input id="experienceOrganization" placeholder="例如：某大学附属医院课题组"></label><label class="field">身份或角色（可选）<input id="experienceRole" placeholder="例如：课题成员 / 实习生"></label></div>
+    <div class="period-grid"><label class="field">开始年月（可选）<input id="experienceStart" type="month"></label><label class="field">结束年月（可选）<input id="experienceEnd" type="month"></label></div><label class="consent"><input id="experienceOngoing" type="checkbox"><span>这段经历仍在进行</span></label>
     <label class="field">经历材料<textarea id="material" placeholder="例如：在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"></textarea></label>
     <label class="consent"><input id="consent" type="checkbox"><span>我确认材料来自本人真实经历，并同意在当前电脑的本机服务中保存该会话；点击“开始新简历”会删除当前会话文件。</span></label>
     <button id="submitMaterial" class="primary" type="button">建立事实卡 →</button></section>`;
@@ -231,7 +234,16 @@ function bindWorkspace(stage) {
   if (stage === "intake") {
     if ($("#submitCandidateProfile")) bindCandidateProfile();
     else if ($("#confirmCandidateProfile")) bindCandidateProfileConfirmation();
-    else $("#submitMaterial").onclick = () => { const text = $("#material").value.trim(); if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。"); sendMessage({ action: "submit_experience", text, consent_confirmed: true }); };
+    else {
+      $("#experienceOngoing").onchange = () => { $("#experienceEnd").disabled = $("#experienceOngoing").checked; };
+      $("#submitMaterial").onclick = () => {
+        const text = $("#material").value.trim(); const projectName = $("#experienceName").value.trim();
+        if (!projectName) return showError("请填写真实的经历或项目名称；没有正式名称时可填写研究主题或轮转名称。");
+        if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。");
+        const ongoing = $("#experienceOngoing").checked;
+        sendMessage({ action: "submit_experience", text, consent_confirmed: true, experience_identity: { project_name: projectName, organization: $("#experienceOrganization").value.trim(), role_title: $("#experienceRole").value.trim(), period: { start: $("#experienceStart").value, end: ongoing ? "" : $("#experienceEnd").value, ongoing } } });
+      };
+    }
   } else if (stage === "fact_confirmation") {
     selectedQuestionOptions = new Set();
     document.querySelectorAll("[data-question-option]").forEach((button) => button.onclick = () => toggleQuestionOption(button));
@@ -334,7 +346,7 @@ function renderPreview() {
   const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源" };
   const skillGroups = Object.entries(skillLabels).map(([category, label]) => [label, (documentData.skills || []).filter((item) => item.category === category).map((item) => item.name)]).filter(([, items]) => items.length);
   const skills = skillGroups.length ? `<h2>研究方法与技能</h2>${skillGroups.map(([label, items]) => `<p><b>${esc(label)}：</b>${items.map(esc).join("、")}</p>`).join("")}` : "";
-  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}${skills}`;
+  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const period = experience.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); const projectName = experience.project_name || ""; const heading = projectName || [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; const metadata = projectName ? [organization, experience.title, dates].filter(Boolean).join(" · ") : dates; return `<h3>${esc(heading)}</h3>${metadata ? `<p>${esc(metadata)}</p>` : ""}<ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}${skills}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 

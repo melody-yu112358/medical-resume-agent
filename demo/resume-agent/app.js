@@ -31,6 +31,11 @@ const resumeTiers = [
   { id: "high_impact", label: "高竞争力版" },
 ];
 const toneLabels = { Conservative: "稳妥版", Professional: "专业版", "High-impact": "高竞争力版" };
+const userStages = [
+  { id: "conversation", label: "聊经历", internalStages: ["intake", "fact_confirmation"], progress: 33 },
+  { id: "expression", label: "定表达", internalStages: ["representative_sample", "composition"], progress: 66 },
+  { id: "delivery", label: "完成简历", internalStages: ["factual_audit", "delivery"], progress: 100 },
+];
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -83,18 +88,19 @@ async function sendMessage(payload) {
 }
 
 function state() { return conversation?.state || {}; }
-function stageIndex(stage) { const index = contract.stages.findIndex((item) => item.id === stage); return index < 0 ? 0 : index; }
 function displayStage(stage) { return contract.stages.find((item) => item.id === stage) || contract.stages[0]; }
+function userStageFor(stage) { return userStages.find((item) => item.internalStages.includes(stage)) || userStages[0]; }
 
 function render() {
   const current = displayStage(state().stage || "intake");
-  const currentIndex = stageIndex(current.id);
-  $("#steps").innerHTML = contract.stages.map((item, index) =>
-    `<li class="${index === currentIndex ? "active" : index < currentIndex ? "done" : ""}">${esc(item.label)}</li>`
+  const visibleStage = userStageFor(current.id);
+  const visibleIndex = userStages.findIndex((item) => item.id === visibleStage.id);
+  $("#steps").innerHTML = userStages.map((item, index) =>
+    `<li class="${index === visibleIndex ? "active" : index < visibleIndex ? "done" : ""}">${index + 1} ${esc(item.label)}</li>`
   ).join("");
-  $("#progressBar").style.width = `${current.progress}%`;
-  $("#stageKicker").textContent = `STEP ${currentIndex + 1} / ${contract.stages.length}`;
-  $("#stageTitle").textContent = current.label;
+  $("#progressBar").style.width = `${visibleStage.progress}%`;
+  $("#stageKicker").textContent = `阶段 ${visibleIndex + 1} / ${userStages.length}`;
+  $("#stageTitle").textContent = visibleStage.label;
   $("#saveStatus").textContent = `本机会话 ${conversation.session_id.slice(0, 8)}`;
   $("#connection").textContent = health?.llm_configured ? "本机 Agent 已连接 · 语言模型可用" : "本机 Agent 已连接 · 确定性模式";
   $("#workspace").innerHTML = renderWorkspace(current.id);

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GitHub Dispatch Issue Event v1",
+  "type": "object",
+  "required": ["event_name", "action", "repository", "issue", "origin"],
+  "properties": {
+    "event_name": {"const": "issues"},
+    "action": {"enum": ["opened", "edited", "reopened"]},
+    "repository": {"const": "melody-yu112358/medical-resume-agent"},
+    "origin": {"type": "string"},
+    "issue": {"type": "object", "required": ["number", "body"], "properties": {"number": {"type": "integer"}, "body": {"type": "string"}}}
+  }
+}

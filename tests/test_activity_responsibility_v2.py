@@ -95,6 +95,43 @@ def test_v2_composer_renders_every_supported_component_without_internal_ids():
     ).validate_claim(bullet_claim=claim, canonical_experience=canonical).status == "ready"
 
 
+def test_v2_composer_uses_natural_activity_sentences_not_quoted_label_lists():
+    composer = BulletComposerService(
+        role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs"
+    )
+    responsibility = {
+        "ownership_level": "contributed", "execution_mode": "supervised",
+        "scope": {"coverage": "full", "note": None},
+    }
+
+    retrieval = composer._render_v2_wording({
+        "actions": ["retrieve_literature"], "methods": [],
+        "tools": ["pubmed", "web_of_science"], "techniques": [],
+        "artifacts": [],
+    }, responsibility)
+    analysis = composer._render_v2_wording({
+        "actions": ["perform_analysis"], "methods": ["meta_analysis"],
+        "tools": ["r"], "techniques": [], "artifacts": ["analysis_figures"],
+    }, responsibility)
+
+    assert retrieval == "在指导下参与医学文献检索，使用 PubMed、Web of Science。"
+    assert analysis == "在指导下参与统计分析，采用 Meta 分析并使用 R，形成分析图表。"
+    assert all(mark not in retrieval + analysis for mark in ("“", "”"))
+
+
+def test_v2_partial_scope_is_worded_as_assigned_work_not_complete_ownership():
+    wording = BulletComposerService._render_v2_wording({
+        "actions": ["screen_studies"], "methods": [], "tools": [],
+        "techniques": [], "artifacts": [],
+    }, {
+        "ownership_level": "contributed", "execution_mode": "supervised",
+        "scope": {"coverage": "partial", "note": "完成已分配步骤"},
+    })
+
+    assert wording == "在指导下完成已分配的文献筛选。"
+    assert "完整" not in wording
+
+
 def test_v2_composer_keeps_every_distinct_confirmed_responsibility_auditable():
     specs = [
         ("retrieve", "retrieve_literature", "systematic_review", "pubmed", "medical_literature"),

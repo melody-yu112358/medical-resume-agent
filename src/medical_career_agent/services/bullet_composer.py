@@ -187,22 +187,7 @@ class BulletComposerService:
                 rendered.extend(FACT_LABELS[category].get(value, value) for value in values)
             if not rendered:
                 continue
-            ownership, execution = responsibility.get("ownership_level"), responsibility.get("execution_mode")
-            coverage = (responsibility.get("scope") or {}).get("coverage")
-            if execution == "supervised":
-                prefix = "在指导下参与"
-            elif execution == "shared":
-                prefix = "与团队共同完成"
-            elif ownership == "owned_component" and execution == "independent":
-                prefix = "独立完成"
-            elif ownership == "led_delivery":
-                prefix = "推动完成"
-            else:
-                prefix = "参与完成"
-            wording = prefix + "“" + "、".join(rendered) + "”"
-            if coverage == "partial":
-                wording += "中的部分既定步骤"
-            wording += "。"
+            wording = self._render_v2_wording(components, responsibility)
             claims.append(BulletClaimV2(
                 claim_id=f"claim_{uuid4().hex[:8]}", experience_id=canonical_experience["experience_id"],
                 role_pack=role_pack_name, wording=wording, used_facts=tuple(facts),
@@ -212,6 +197,86 @@ class BulletComposerService:
                 omitted_unknowns=tuple(canonical_experience.get("unknowns", [])),
             ))
         return claims
+
+    @staticmethod
+    def _render_v2_wording(
+        components: Dict[str, Any], responsibility: Dict[str, Any],
+    ) -> str:
+        """Render one atomic activity as natural prose without changing facts."""
+        def labels(category: str) -> str:
+            return "、".join(
+                FACT_LABELS[category].get(value, value)
+                for value in components.get(category, [])
+            )
+
+        action = next(iter(components.get("actions", [])), "")
+        methods, tools = labels("methods"), labels("tools")
+        method_phrase = methods.replace("、", "与")
+        techniques, artifacts = labels("techniques"), labels("artifacts")
+        action_label = FACT_LABELS["actions"].get(action, action or "相关工作")
+        if action == "define_research_question":
+            body = "研究问题界定"
+        elif action == "develop_protocol":
+            body = f"{method_phrase}研究方案的制定与修改" if methods else "研究方案的制定与修改"
+        elif action == "design_search_strategy":
+            body = f"{method_phrase}检索策略设计" if methods else "检索策略设计"
+            if tools:
+                body += f"，覆盖 {tools}"
+        elif action == "retrieve_literature":
+            body = "医学文献检索"
+            if tools:
+                body += f"，使用 {tools}"
+        elif action == "screen_studies":
+            body = "文献筛选"
+        elif action == "extract_data":
+            body = "研究数据提取"
+        elif action == "assess_quality":
+            body = f"{method_phrase}的质量评价与偏倚评估" if methods else "质量评价与偏倚评估"
+        elif action == "prepare_research_outputs":
+            body = "研究材料整理"
+            if artifacts:
+                body += f"，形成{artifacts}"
+        elif action == "perform_analysis":
+            body = "统计分析"
+            if methods:
+                body += f"，采用 {methods}"
+            if tools:
+                body += f"并使用 {tools}"
+            if techniques:
+                body += f"，涉及 {techniques}"
+            if artifacts:
+                body += f"，形成{artifacts}"
+        else:
+            body = action_label
+            if methods:
+                body += f"，采用 {methods}"
+            if tools:
+                body += f"，使用 {tools}"
+            if techniques:
+                body += f"，涉及 {techniques}"
+            if artifacts:
+                body += f"，形成{artifacts}"
+
+        ownership = responsibility.get("ownership_level")
+        execution = responsibility.get("execution_mode")
+        partial = (responsibility.get("scope") or {}).get("coverage") == "partial"
+        if partial:
+            lead = {
+                "supervised": "在指导下完成已分配的",
+                "shared": "与团队共同完成已分配的",
+                "independent": "独立完成已分配的",
+            }.get(execution, "完成已分配的")
+        elif execution == "supervised":
+            lead = "在指导下参与"
+        elif execution == "shared":
+            lead = "与团队共同完成"
+        elif ownership == "owned_component" and execution == "independent":
+            lead = "独立完成"
+        elif ownership == "led_delivery":
+            lead = "推动完成"
+        else:
+            lead = "参与完成"
+        return f"{lead}{body}。"
 
     def _load_role_pack(self, role_pack_name: str) -> Dict[str, Any]:
         """Load role pack configuration from JSON file."""

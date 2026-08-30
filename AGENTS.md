@@ -37,3 +37,36 @@ For every phase, make the smallest scoped change and include:
 ## No scope creep
 
 Do not refactor adjacent code, add dependencies, modify production behavior, or promote a target family while completing research, documentation, fixture, or evaluation work. If the requested change would affect runtime semantics, the four stable packs, routing, UI, `workflow-contract.json`, or either gate, stop and request a separately scoped task.
+
+## Shared-account safety and merge controls
+
+- Treat a shared ChatGPT/Codex account as an untrusted execution surface, not as a human identity or approval authority.
+- Every agent change must use a dedicated branch and a pull request (PR) targeting `main`. Direct pushes to `main` are prohibited.
+- Agents must never enable or request automatic merge. A merge requires an explicit decision by a traceable human GitHub account.
+- Do not read, write, log, upload, or commit secrets, tokens, private keys, local credentials, credential files, or `.env` files. Stop and notify a human owner if any are encountered.
+- Keep commits and PRs narrow. Do not mix governance changes with product, documentation, research, or generated-artifact changes.
+
+## Role boundaries
+
+- **Researcher** may research and report only. It must not modify production code, runtime configuration, or canonical Role Packs.
+- **Implementer** may modify scoped code only on its dedicated branch, and must run the tests required by the changed surface before opening or updating a PR.
+- **Reviewer** is read-only. It reviews the diff, tests, and evidence; it must not edit code, push commits, or merge.
+- **Release Gate** is read-only. It reports `PASS` or `FAIL` with a merge recommendation; it must not merge, approve on behalf of a human, or change repository settings.
+
+The detailed responsibilities and handoffs are in `agents/`.
+
+## Governance-only PRs
+
+The following paths are governance-sensitive:
+
+- `.github/workflows/**`
+- `AGENTS.md`
+- `agents/**`
+- `docs/AGENT_GOVERNANCE.md`
+- files that affect permissions, repository governance, or release controls
+
+Any change to a governance-sensitive path must be in a standalone governance PR. That PR may not modify product code, canonical Role Packs, schemas, workflow contracts, generated Role Pack references, or product behavior. Conversely, non-governance PRs must not change governance-sensitive paths.
+
+## Required handoff record
+
+Each PR must state its scope, files changed, verification performed, known gaps, and explicit non-goals. The PR is a handoff record, not merge authorization. See `docs/AGENT_GOVERNANCE.md` for the human-owned GitHub settings that cannot be enforced by repository files alone.

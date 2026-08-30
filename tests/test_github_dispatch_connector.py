@@ -5,7 +5,7 @@ from pathlib import Path
 
 from jsonschema import validate
 
-from scripts.github_dispatch_connector import DEFAULT_STATE, dispatch_state, dispatch_track, issue_marker
+from scripts.github_dispatch_connector import DEFAULT_STATE, REPOSITORY, build_record, dispatch_state, dispatch_track, issue_marker
 
 
 def _track(*, human_required: bool = False) -> dict:
@@ -46,6 +46,33 @@ def test_apply_is_idempotent_for_the_same_source_state_digest():
     assert second["dispatch_status"] == "already_dispatched"
     assert len(created) == 1
     assert issue_marker(first) in created[0]["body"]
+
+
+def test_digest_changes_when_source_track_state_changes_without_a_new_action():
+    original = build_record(_track(), "career-track-state-v1")
+    changed = _track()
+    changed["conformance_status"] = "in_progress"
+    changed["execution_status"] = "review_pending"
+
+    updated = build_record(changed, "career-track-state-v1")
+
+    assert updated["next_action"] == original["next_action"]
+    assert updated["source_state_digest"] != original["source_state_digest"]
+
+
+def test_every_github_issue_command_binds_the_configured_repository():
+    calls: list[list[str]] = []
+
+    def runner(arguments: list[str]) -> str:
+        calls.append(arguments)
+        if arguments[:2] == ["issue", "list"]:
+            return "[]"
+        return "https://github.test/issues/43"
+
+    dispatch_track(_track(), "career-track-state-v1", apply=True, runner=runner)
+
+    assert len(calls) == 2
+    assert all("--repo" in call and call[call.index("--repo") + 1] == REPOSITORY for call in calls)
 
 
 def test_human_required_creates_escalation_only_and_never_starts_an_agent():

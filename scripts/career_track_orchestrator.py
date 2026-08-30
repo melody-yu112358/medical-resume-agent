@@ -29,16 +29,22 @@ def _complete_mapping(evidence: dict[str, Any]) -> bool:
     return all(isinstance(mappings.get(key), list) and mappings[key] for key in ("direct", "transferable", "partial", "gap"))
 
 
+def _is_qualifying_snapshot(snapshot: dict[str, Any]) -> bool:
+    """Exclude explicitly non-countable search snippets from graduation coverage."""
+    return snapshot.get("status") != "search_extract_not_countable"
+
+
 def import_candidate_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     snapshots = evidence.get("jd_snapshots") or []
+    qualifying_snapshots = [item for item in snapshots if _is_qualifying_snapshot(item)]
     conformance = evidence.get("conformance_ledger") or {}
     return {
         "career_id": evidence["career_id"],
         "current_tier": "beta",
         "stage": "research",
         "jd_count": len(snapshots),
-        "qualifying_jd_count": sum(item.get("status") != "search_extract_not_countable" for item in snapshots),
-        "company_count": len({item.get("employer") for item in snapshots if item.get("employer")}),
+        "qualifying_jd_count": len(qualifying_snapshots),
+        "company_count": len({item.get("employer") for item in qualifying_snapshots if item.get("employer")}),
         "persona_count": len(evidence.get("fixed_personas") or []),
         "mapping_status": "complete" if _complete_mapping(evidence) else "incomplete",
         "negative_mapping_status": "complete" if evidence.get("negative_mappings") else "incomplete",
@@ -62,8 +68,8 @@ def decide_next_action(track: dict[str, Any]) -> dict[str, Any]:
     if result.get("execution_status") == "awaiting_remote_sync" or result.get("remote_sync_status") == "awaiting_remote_sync":
         result.update(stage="research", blockers=["remote_sync_delay"], next_action="resume_remote_sync", assigned_agent="researcher", human_required=False)
         return result
-    if result["jd_count"] < 8 or result["company_count"] < 5:
-        if result["jd_count"] < 8:
+    if result["qualifying_jd_count"] < 8 or result["company_count"] < 5:
+        if result["qualifying_jd_count"] < 8:
             blockers.append("insufficient_jd_coverage")
         if result["company_count"] < 5:
             blockers.append("insufficient_company_coverage")

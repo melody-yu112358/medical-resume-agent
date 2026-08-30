@@ -118,6 +118,31 @@
 .profile-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
 .period-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
+.experience-heading,
+.experience-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.experience-tabs { display: grid; gap: 8px; }
+.experience-tab {
+  width: 100%;
+  min-height: 54px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+}
+.experience-tab.active { border-color: var(--blue); box-shadow: inset 3px 0 var(--blue); }
+.experience-tab:disabled { opacity: 1; cursor: default; }
+.experience-tab span,
+.experience-tab small { color: var(--muted); font-size: 10px; }
+.experience-tab b { flex: 1; }
+
 .primary:disabled { opacity: .4; cursor: not-allowed; }
 body.busy { cursor: progress; }
 body.busy button { pointer-events: none; opacity: .65; }

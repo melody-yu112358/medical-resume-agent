@@ -17,6 +17,12 @@ boundaries are clear.
 5. Open or update a PR targeting `main`, recording scope, verification,
    unresolved risks, and non-goals.
 
+## Remote synchronization
+
+Follow the shared [remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md).
+When a tested implementation awaits remote sync, preserve its existing branch
+and commit; do not create a replacement implementation or branch.
+
 ## Governance boundary
 
 If the task changes `.github/workflows/**`, `AGENTS.md`, `agents/**`,
@@ -28,8 +34,8 @@ changes.
 
 - Do not direct-push to `main`, enable auto-merge, merge, or treat a shared
   ChatGPT/Codex account as a human approver.
-- Do not weaken the Claim Gate, Confirmation Gate, the four canonical Role
-  Packs, schemas, routing, UI, or workflow contracts without a separately
+- Do not weaken the Claim Gate, Confirmation Gate, canonical Role Packs,
+  schemas, routing, UI, or workflow contracts without a separately
   scoped and human-reviewed PR.
 - Do not read, write, log, upload, or commit secrets, tokens, credentials,
   private keys, `.env` files, or other sensitive local configuration.

@@ -11,7 +11,8 @@ permissions:
 
 jobs:
   test:
-    name: role-pack and regression checks
+    # Keep this name stable: the repository's branch protection requires it.
+    name: pytest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -1,0 +1,77 @@
+{
+  "schema_version": "role-validation-evidence-v1",
+  "run_date": "2026-08-30",
+  "scope": "Research-only graduation evidence for two Beta target clusters. This file is not a Role Pack and is not routable or executable.",
+  "source_method": "Public employer job pages were retrieved on 2026-08-30. The compact snapshot is role-language evidence only, never candidate evidence.",
+  "clusters": {
+    "clinical_operations": {
+      "stable_core": ["study and care-workflow documentation", "data-quality follow-up", "coordination support", "protocol/process execution"],
+      "jd_dependent": ["clinic or site ownership", "KPI/process ownership", "people management", "vendor budget authority", "cross-functional program leadership"],
+      "jds": [
+        {"id":"co1","company":"Salma Health","title":"Clinical Operations Manager","level":"manager","url":"https://jobs.ashbyhq.com/salma-health/8b6c7365-acc8-4659-96d7-50e879aadc6c","snapshot":"Multi-clinic operations, team management, utilization and documentation metrics, workflow implementation and process improvement."},
+        {"id":"co2","company":"Generator Health","title":"Clinical Operations Specialist","level":"specialist","url":"https://jobs.ashbyhq.com/generatorhealth/f658142b-7f24-44db-bbda-7125a969667d","snapshot":"Prior-authorization accuracy and integrity; interpretation of medical records and clinical notes."},
+        {"id":"co3","company":"Capable Labs","title":"Clinical Operations, All Levels","level":"individual_contributor_to_lead","url":"https://jobs.ashbyhq.com/capable/9cfe1c48-0278-46ae-b0e5-a41b09d171b6/","snapshot":"Site and vendor execution, study operations, timelines, scopes, budgets and trial delivery."},
+        {"id":"co4","company":"Shasqi","title":"Senior Director / Executive Director, Clinical Operations","level":"executive","url":"https://jobs.ashbyhq.com/Shasqi/3b7615d7-d962-4346-9056-5ecca965dd49","snapshot":"Build and lead clinical operations, deliver Phase 1/2 studies, manage vendors, budgets and teams."},
+        {"id":"co5","company":"Tembo Health","title":"Clinical Systems & Product Operations Manager","level":"manager","url":"https://jobs.ashbyhq.com/Tembo-Health/f2daea94-373b-4ec0-894e-40ec56739739","snapshot":"Document and improve care workflows; translate frontline workflow into scoped product requirements."},
+        {"id":"co6","company":"Sprinter Health","title":"Senior Associate, Strategy & Operations, Patient Operations","level":"senior_individual_contributor","url":"https://jobs.ashbyhq.com/sprinter-health/47a672f8-a7b1-4f2a-8639-7919245bf787","snapshot":"Analyze and improve patient workflows, run pilots, coordinate schedules and help scale operational systems."},
+        {"id":"co7","company":"Virta Health","title":"Business Operations Associate Manager, Care Operations","level":"associate_manager","url":"https://jobs.ashbyhq.com/virtahealth/c5278e58-a44f-4d48-99c5-7b1fa4177beb","snapshot":"Operational efficiency and key metrics including workforce planning and care-team performance."},
+        {"id":"co8","company":"Flagler Health","title":"AI Operations Associate","level":"associate","url":"https://jobs.ashbyhq.com/flaglerhealth/5a5be878-38c9-483f-ad42-bf35dbdbc319/","snapshot":"Build and scale automation supporting back-office and clinical operations in a regulated healthcare setting."}
+      ],
+      "personas": [
+        {"id":"co-p1","kind":"positive","facts":"CRF maintenance, missing-data follow-up, internal study coordination; participant only","evaluated_jds":["co1","co2","co6"]},
+        {"id":"co-p2","kind":"positive","facts":"Screening logs, visit scheduling support, GCP training; no site ownership","evaluated_jds":["co2","co3","co6"]},
+        {"id":"co-p3","kind":"partial","facts":"Protocol document filing and data checks; no KPI or workflow redesign","evaluated_jds":["co1","co5","co7"]},
+        {"id":"co-p4","kind":"negative","facts":"Wet-lab experiments only; no clinical workflow evidence","evaluated_jds":["co2","co5","co8"]},
+        {"id":"co-p5","kind":"negative","facts":"Internal academic presentations only; no external stakeholder communication","evaluated_jds":["co1","co3","co6"]},
+        {"id":"co-p6","kind":"partial","facts":"Research-team scheduling coordination; no project or program ownership","evaluated_jds":["co1","co5","co7"]},
+        {"id":"co-p7","kind":"negative","facts":"R analysis of experimental data only; no care or clinical operations experience","evaluated_jds":["co2","co6","co8"]},
+        {"id":"co-p8","kind":"positive","facts":"Source-data verification support, query follow-up and investigator-file maintenance; no vendor or budget authority","evaluated_jds":["co2","co3","co4"]}
+      ],
+      "negative_mappings": ["coordination support is not project/program ownership", "documentation quality work is not KPI ownership", "internal research communication is not external or executive communication", "study support is not people, vendor, site or budget management"]
+    },
+    "heor_rwe_evidence_oriented": {
+      "stable_core": ["clinical evidence retrieval and synthesis", "transparent data preparation and analysis", "scientific result communication", "research-question documentation"],
+      "jd_dependent": ["claims/EHR access", "HEOR or economic modelling", "payer/market-access communication", "pricing, reimbursement or value-dossier ownership"],
+      "jds": [
+        {"id":"hr1","company":"GRAIL","title":"Managed Care Liaison / Health Economics Field Lead","level":"field_lead","url":"https://jobs.lever.co/grailbio/1bc78e07-19ca-4212-a047-476a9b9d905c?lever-source%5B%5D=jobs.gv.com","snapshot":"Communicate HEOR evidence for payer engagement, payer value materials and reimbursement discussions."},
+        {"id":"hr2","company":"Penumbra","title":"Market Access Analytics Manager","level":"manager","url":"https://jobs.lever.co/penumbrainc/8bc3db50-744e-4555-8ff6-80edc6ba3a7b","snapshot":"Market-access RWE reports, dashboards, research plans and analytical data-review work."},
+        {"id":"hr3","company":"Dandelion Health","title":"Health Economist and Outcomes Researcher","level":"researcher","url":"https://jobs.ashbyhq.com/dandelionhealth/33350a4e-2973-445e-a741-79c6896f6d1e","snapshot":"Own HEOR/RWE projects, curate clinical data and build health-economic models for stakeholder decisions."},
+        {"id":"hr4","company":"WHOOP","title":"Director of Health Economics & Outcomes Research","level":"director","url":"https://jobs.ashbyhq.com/whoop/75508f1e-4218-4ea9-839b-e604bf490321","snapshot":"Lead HEOR strategy, RWE analyses, economic models and enterprise value dossiers."},
+        {"id":"hr5","company":"Doctronic","title":"Director of Research","level":"director","url":"https://jobs.ashbyhq.com/doctronic/7a236473-7ca8-48d7-8c7f-58fc1b3e0bc0","snapshot":"Design studies, run analyses, publish evidence and work with health-economics partners on value demonstration."},
+        {"id":"hr6","company":"Circadia Health","title":"Real-World Evidence Scientist","level":"scientist","url":"https://jobs.lever.co/circadiahealth/b44738aa-954b-41e1-a0f4-df909b673385","snapshot":"Generate real-world evidence and communicate study findings in a digital-health setting."},
+        {"id":"hr7","company":"Lexeo Therapeutics","title":"Director, HEOR","level":"director","url":"https://jobs.lever.co/lexeotx/1895953b-f733-4e97-bae5-9b4670c0cf2e","snapshot":"Lead HEOR evidence generation and value communication for therapeutic development."},
+        {"id":"hr8","company":"Beghou Consulting","title":"Senior Consultant, Commercial Operations & Analytics","level":"senior_consultant","url":"https://jobs.lever.co/beghouconsulting/81dcd140-4926-4cde-957e-c8d1cb5728db","snapshot":"Analyze data into client deliverables and advise commercial-pharma project direction."}
+      ],
+      "personas": [
+        {"id":"hr-p1","kind":"positive","facts":"Systematic-review retrieval, screening and supervised R meta-analysis; internal academic presentation","evaluated_jds":["hr1","hr2","hr6"]},
+        {"id":"hr-p2","kind":"positive","facts":"Clinical study data cleaning, descriptive analysis and manuscript figure support; participant only","evaluated_jds":["hr2","hr5","hr6"]},
+        {"id":"hr-p3","kind":"partial","facts":"R analysis of public research dataset; no claims/EHR, HEOR model or payer evidence","evaluated_jds":["hr2","hr3","hr6"]},
+        {"id":"hr-p4","kind":"negative","facts":"Wet-lab only; no evidence synthesis or analysis deliverable","evaluated_jds":["hr1","hr5","hr7"]},
+        {"id":"hr-p5","kind":"negative","facts":"Internal journal-club presentation only; no payer, client or external communication","evaluated_jds":["hr1","hr4","hr8"]},
+        {"id":"hr-p6","kind":"partial","facts":"Meta-analysis collaborator; no economic model, reimbursement or market-access experience","evaluated_jds":["hr1","hr3","hr7"]},
+        {"id":"hr-p7","kind":"negative","facts":"Commercial dashboard course project only; no confirmed real-world or healthcare data work","evaluated_jds":["hr2","hr4","hr8"]},
+        {"id":"hr-p8","kind":"positive","facts":"Literature review, study table checking and internal research summary; no study ownership or external deliverable","evaluated_jds":["hr2","hr5","hr6"]}
+      ],
+      "negative_mappings": ["clinical evidence synthesis is not payer engagement", "R analysis is not cost-effectiveness, budget-impact or ROI modelling", "internal academic presentation is not client, payer or executive communication", "research collaboration is not HEOR, market-access, pricing or reimbursement strategy ownership"]
+    }
+  },
+  "standalone_model_conformance": {
+    "environment": "isolated copy of skill-lite/medical-resume-skill; no src/medical_career_agent assets used",
+    "model": "Codex GPT-5 runtime (deployment version not exposed)",
+    "runs": [
+      {"id":"co-m1","cluster":"clinical_operations","persona":"co-p1","jd":"co2","factuality":5,"ownership":5,"usefulness":5,"unsupported_claims":0},
+      {"id":"co-m2","cluster":"clinical_operations","persona":"co-p3","jd":"co1","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"co-m3","cluster":"clinical_operations","persona":"co-p4","jd":"co5","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"co-m4","cluster":"clinical_operations","persona":"co-p5","jd":"co3","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"co-m5","cluster":"clinical_operations","persona":"co-p6","jd":"co7","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"co-m6","cluster":"clinical_operations","persona":"co-p8","jd":"co4","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"hr-m1","cluster":"heor_rwe_evidence_oriented","persona":"hr-p1","jd":"hr6","factuality":5,"ownership":5,"usefulness":5,"unsupported_claims":0},
+      {"id":"hr-m2","cluster":"heor_rwe_evidence_oriented","persona":"hr-p3","jd":"hr3","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"hr-m3","cluster":"heor_rwe_evidence_oriented","persona":"hr-p4","jd":"hr5","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"hr-m4","cluster":"heor_rwe_evidence_oriented","persona":"hr-p5","jd":"hr1","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"hr-m5","cluster":"heor_rwe_evidence_oriented","persona":"hr-p6","jd":"hr7","factuality":5,"ownership":5,"usefulness":4,"unsupported_claims":0},
+      {"id":"hr-m6","cluster":"heor_rwe_evidence_oriented","persona":"hr-p8","jd":"hr2","factuality":5,"ownership":5,"usefulness":5,"unsupported_claims":0}
+    ],
+    "limitations": ["12 isolated runs are evidence, not the 30 runs across two model versions required for Validated.", "Scores are reviewer-recorded conformance observations; they do not establish production behavior."]
+  }
+}

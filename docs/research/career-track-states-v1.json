@@ -1,0 +1,101 @@
+{
+  "schema_version": "career-track-state-v1",
+  "generated_at": "2026-08-30",
+  "tracks": [
+    {
+      "career_id": "clinical_research_associate",
+      "current_tier": "beta",
+      "stage": "research",
+      "jd_count": 3,
+      "qualifying_jd_count": 3,
+      "company_count": 2,
+      "persona_count": 8,
+      "mapping_status": "complete",
+      "negative_mapping_status": "complete",
+      "review_status": "not_requested",
+      "conformance_status": "not_started",
+      "graduation_status": "not_eligible",
+      "blockers": [
+        "insufficient_jd_coverage",
+        "insufficient_company_coverage"
+      ],
+      "next_action": "collect_more_jds",
+      "assigned_agent": "researcher",
+      "human_required": false,
+      "execution_status": "completed_local",
+      "remote_sync_status": "synced",
+      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until JD coverage, audit cases, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+    },
+    {
+      "career_id": "clinical_data_management",
+      "current_tier": "beta",
+      "stage": "research",
+      "jd_count": 4,
+      "qualifying_jd_count": 3,
+      "company_count": 4,
+      "persona_count": 8,
+      "mapping_status": "complete",
+      "negative_mapping_status": "complete",
+      "review_status": "not_requested",
+      "conformance_status": "not_started",
+      "graduation_status": "not_eligible",
+      "blockers": [
+        "insufficient_jd_coverage",
+        "insufficient_company_coverage"
+      ],
+      "next_action": "collect_more_jds",
+      "assigned_agent": "researcher",
+      "human_required": false,
+      "execution_status": "completed_local",
+      "remote_sync_status": "synced",
+      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until full JD coverage, output audit, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+    },
+    {
+      "career_id": "medical_device_clinical_application_specialist",
+      "current_tier": "beta",
+      "stage": "research",
+      "jd_count": 5,
+      "qualifying_jd_count": 3,
+      "company_count": 4,
+      "persona_count": 8,
+      "mapping_status": "complete",
+      "negative_mapping_status": "complete",
+      "review_status": "not_requested",
+      "conformance_status": "not_started",
+      "graduation_status": "not_eligible",
+      "blockers": [
+        "insufficient_jd_coverage",
+        "insufficient_company_coverage"
+      ],
+      "next_action": "collect_more_jds",
+      "assigned_agent": "researcher",
+      "human_required": false,
+      "execution_status": "completed_local",
+      "remote_sync_status": "synced",
+      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until full China JD coverage, specialty-boundary audit, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+    },
+    {
+      "career_id": "pharmacovigilance_drug_safety",
+      "current_tier": "beta",
+      "stage": "research",
+      "jd_count": 5,
+      "qualifying_jd_count": 3,
+      "company_count": 5,
+      "persona_count": 8,
+      "mapping_status": "complete",
+      "negative_mapping_status": "complete",
+      "review_status": "not_requested",
+      "conformance_status": "not_started",
+      "graduation_status": "not_eligible",
+      "blockers": [
+        "insufficient_jd_coverage"
+      ],
+      "next_action": "collect_more_jds",
+      "assigned_agent": "researcher",
+      "human_required": false,
+      "execution_status": "completed_local",
+      "remote_sync_status": "synced",
+      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until verified JD coverage, audited output evidence, and conformance records meet ROLE_PACK_GRADUATION.md"
+    }
+  ]
+}

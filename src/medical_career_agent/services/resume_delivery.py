@@ -38,9 +38,15 @@ class ResumeDeliveryService:
         if not any(item.get("bullets") for item in experiences):
             raise ResumeDeliveryError("at least one ClaimGate-ready bullet is required")
 
+        document_basics = document.get("basics") or {}
+        confirmed_contact = " · ".join(
+            str(document_basics.get(field) or "").strip()
+            for field in ("phone", "email", "location")
+            if str(document_basics.get(field) or "").strip()
+        )
         resolved_basics = {
-            "name": str((basics or {}).get("name", "")).strip(),
-            "contact": str((basics or {}).get("contact", "")).strip(),
+            "name": str(document_basics.get("name") or (basics or {}).get("name", "")).strip(),
+            "contact": confirmed_contact or str((basics or {}).get("contact", "")).strip(),
         }
         markdown = self._markdown(document, resolved_basics)
         delivery_data = {
@@ -78,6 +84,21 @@ class ResumeDeliveryService:
             f"# {basics['name'] or '姓名（请填写）'}",
             f"> {target}" + (f" · {basics['contact']}" if basics["contact"] else ""),
         ]
+        education = document.get("education") or []
+        if education:
+            lines.extend(["", "## 教育背景"])
+            for item in education:
+                heading = " · ".join(
+                    value for value in (
+                        str(item.get("institution") or "").strip(),
+                        str(item.get("degree") or "").strip(),
+                        str(item.get("major") or "").strip(),
+                    ) if value
+                )
+                period = item.get("period") or {}
+                end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
+                dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
+                lines.append(f"### {heading or '教育经历'}" + (f" · {dates}" if dates else ""))
         lines.extend(["", "## 科研与实践经历"])
         for experience in document.get("research_experience", []):
             heading = " · ".join(

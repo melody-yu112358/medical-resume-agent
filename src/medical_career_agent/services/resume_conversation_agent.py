@@ -18,6 +18,7 @@ from .confirmation_gate import ConfirmationGateService
 from .experience_draft import ExperienceDraftService
 from .conversation_model_gateway import ConversationModelGateway
 from .question_guidance import QuestionGuidanceService
+from .candidate_profile_intake import CandidateProfileInputError, CandidateProfileIntakeService
 
 
 STAGES = (
@@ -47,6 +48,7 @@ class ResumeConversationAgent:
     def initial_state() -> dict[str, Any]:
         return {
             "conversation_version": "resume-conversation-v1", "stage": "intake",
+            "candidate_profile": CandidateProfileIntakeService.initial_state(),
             "raw_user_texts": [], "conversation_turns": [], "extracted_draft": None,
             "confirmed_canonical_experience": None, "evidence_records": [],
             "pending_questions": [], "question_card": None,
@@ -68,6 +70,7 @@ class ResumeConversationAgent:
         if isinstance(stored, dict):
             state.update(stored)
         state["resume_document"] = self._resume_document(session_id, state)
+        self._refresh_candidate_profile(state)
         self._refresh_question_card(state)
         return {"session_id": session_id, "state": state, "events": payload.get("events", [])}
 
@@ -125,7 +128,14 @@ class ResumeConversationAgent:
         if text:
             state["raw_user_texts"].append(text)
 
-        if action == "confirm_facts":
+        if action == "answer_candidate_profile":
+            response = self._answer_candidate_profile(state, payload)
+        elif action == "confirm_candidate_profile":
+            response = self._confirm_candidate_profile(state)
+        elif action == "edit_candidate_profile":
+            CandidateProfileIntakeService.restart(state["candidate_profile"])
+            response = self._response(state, "好的，我们从姓名开始逐项修改；旧答案会保留，提交新答案后覆盖。")
+        elif action == "confirm_facts":
             response = self._confirm(session_id, state, payload)
         elif action == "confirm_activity_proposals":
             response = self._confirm_activity_proposals(session_id, state, payload)
@@ -181,6 +191,7 @@ class ResumeConversationAgent:
             response = self._response(state, "请选择目标方向、确认事实，或提交需要审计的候选措辞。")
 
         state["resume_document"] = self._resume_document(session_id, state)
+        self._refresh_candidate_profile(state)
         self._refresh_question_card(state, response.get("pending_question"))
         if text:
             state["conversation_turns"].append({"user": text, "assistant": response["assistant_message"], "stage": state["stage"]})
@@ -194,6 +205,43 @@ class ResumeConversationAgent:
         response["stage"] = state["stage"]
         response["audit_status"] = self._audit_status(state)
         return response
+
+    @staticmethod
+    def _refresh_candidate_profile(state: dict[str, Any]) -> None:
+        profile = state.setdefault("candidate_profile", CandidateProfileIntakeService.initial_state())
+        profile["current_question"] = CandidateProfileIntakeService.current_question(profile)
+
+    @staticmethod
+    def _answer_candidate_profile(state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        profile = state.setdefault("candidate_profile", CandidateProfileIntakeService.initial_state())
+        try:
+            CandidateProfileIntakeService.answer(
+                profile,
+                question_id=str(payload.get("question_id", "")),
+                value=payload.get("value"),
+                skipped=bool(payload.get("skipped", False)),
+            )
+        except CandidateProfileInputError as exc:
+            return ResumeConversationAgent._response(state, str(exc))
+        question = CandidateProfileIntakeService.current_question(profile)
+        if question:
+            return ResumeConversationAgent._response(state, "已保存。我们继续下一项。", pending_question=question["label"])
+        return ResumeConversationAgent._response(
+            state, "基础资料和教育背景已经整理好，请确认后再开始采集经历。",
+            ui_events=["confirm_candidate_profile"],
+        )
+
+    @staticmethod
+    def _confirm_candidate_profile(state: dict[str, Any]) -> dict[str, Any]:
+        profile = state.setdefault("candidate_profile", CandidateProfileIntakeService.initial_state())
+        try:
+            CandidateProfileIntakeService.confirm(profile)
+        except CandidateProfileInputError as exc:
+            return ResumeConversationAgent._response(state, str(exc))
+        return ResumeConversationAgent._response(
+            state, "资料已确认。现在请告诉我一段最能体现你的真实经历。",
+            ui_events=["candidate_profile_confirmed"],
+        )
 
     @staticmethod
     def _refresh_question_card(state: dict[str, Any], pending_question: str | None = None) -> None:
@@ -998,17 +1046,21 @@ class ResumeConversationAgent:
                 # while both versions remain in the audit ledger.
                 continue
             bullets.append({"claim_id": claim_id, "text": claim["wording"], "evidence_ids": claim["evidence_ids"]})
+        basics, education, profile_evidence = CandidateProfileIntakeService.document_sections(
+            state.get("candidate_profile") or {}
+        )
         return {
             "schema_version": "resume-document-v1", "resume_id": session_id,
             "target": {"purpose": "general", "role": ", ".join(state.get("selected_role_packs", [])) or None, "organization": None, "jd_reference": None},
-            "basics": {"name": None, "phone": None, "email": None, "location": None, "summary": None, "evidence_ids": []},
+            "basics": basics,
+            "education": education,
             "research_experience": [{
                 "item_id": canonical["experience_id"], "organization": "待补充", "title": canonical["role"].get("title") or "已确认经历",
                 "department_or_field": canonical["context"].get("domain"), "period": {"start": None, "end": None, "ongoing": False},
                 "evidence_ids": canonical["evidence_ids"],
                 "bullets": [{"text": item["text"], "evidence_ids": item["evidence_ids"]} for item in bullets],
             }],
-            "evidence": [{"evidence_id": item["evidence_id"], "statement": item["source_text"], "source_document_id": None, "source_locator": None, "status": "user_confirmed", "confirmed_at": None} for item in state["evidence_records"]],
+            "evidence": profile_evidence + [{"evidence_id": item["evidence_id"], "statement": item["source_text"], "source_document_id": None, "source_locator": None, "status": "user_confirmed", "confirmed_at": None} for item in state["evidence_records"]],
             "review_events": [],
         }
 

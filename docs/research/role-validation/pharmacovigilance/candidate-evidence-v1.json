@@ -1,0 +1,31 @@
+{
+  "schema_version": "china-role-candidate-evidence-v1",
+  "career_id": "pharmacovigilance_drug_safety",
+  "captured_at": "2026-08-30",
+  "scope": "Research-only China pharmacovigilance/drug-safety Candidate evidence; not a Role Pack, runtime target, or personal-evidence source.",
+  "jd_snapshots": [
+    {"id":"pv-01","employer":"AbbVie China","title":"Regional Pharmacovigilance Associate","location":"Shanghai, China","url":"https://careers.abbvie.com/en/job/china-regional-pv-associate-in-shanghai-shanghai-jid-31541","retrieved_at":"2026-08-28","status":"current_public_full","signals":["local PV system indicators/procedures/PSMF support","ICSR processing, follow-up, translation and expedited reporting","literature, QC, AE reconciliation and PSUR annex","audit/inspection CAPA, training matrix and regulatory intelligence"]},
+    {"id":"pv-02","employer":"IQVIA KunTuo","title":"PV Physician","location":"Beijing/Shanghai, China","url":"https://jobs.iqvia.com/en/jobs/R1554587-0","retrieved_at":"2026-08-30","status":"partial_official","signals":["regulations/SOP/project safety information","AE endpoint tracking","initial and update database entry"]},
+    {"id":"pv-03","employer":"Sironax","title":"Pharmacovigilance Associate Director/Director","location":"Beijing/Shanghai, China","url":"https://www.sironax.com/zh/careers/pharmacovigilance-associate-director-director-2/","retrieved_at":"2026-08-30","status":"search_extract_not_countable","signals":["safety strategy","LRMP/IND/NDA senior scope"]},
+    {"id":"pv-04","employer":"China Resources Shuanghe","title":"Pharmacovigilance Specialist","location":"Shanghai, China","url":"https://gz.jrzp.com/job3485022691.shtml","retrieved_at":"2026-08-30","status":"current_public_third_party_unverified","source_note":"page labels the posting pending verification","signals":["ADR collection, records, submission and follow-up","literature, PSUR and annual report support","risk, audit and inspection signals"]},
+    {"id":"pv-05","employer":"Biojie","title":"Senior Pharmacovigilance","location":"China","url":"https://www.zhaopin.com/jobdetail/CCL1233838240J40866154414.htm","retrieved_at":"2026-08-30","status":"search_extract_not_countable","signals":["GVP/ICH, ICSR, DSUR/PSUR and RMP"]}
+  ],
+  "stable_responsibilities": ["regulated safety-case intake/processing/follow-up support", "safety documentation, literature and reconciliation support", "GVP/SOP-aligned quality and inspection readiness support", "cross-functional safety-information coordination within assigned scope", "controlled reporting support where directly assigned"],
+  "jd_dependent_or_senior_scope": ["safety strategy", "signal-detection or benefit-risk ownership", "QPPV/PSMF ownership", "regulatory authority communication", "IND/NDA or RMP ownership", "PV team management", "medical judgment beyond directly supported evidence"],
+  "fixed_personas": [
+    {"id":"pv-p1","kind":"positive","facts":["协助不良事件记录和随访资料整理","完成GCP/药物安全培训","按流程维护受控文件"],"absences":["安全报告提交责任","信号检测"]},
+    {"id":"pv-p2","kind":"positive","facts":["协助文献筛选和病例材料核对","整理质量检查问题"],"absences":["PV体系所有权","监管沟通"]},
+    {"id":"pv-p3","kind":"partial","facts":["医院临床轮转","患者病历记录"],"absences":["药物警戒流程","ICSR"]},
+    {"id":"pv-p4","kind":"partial","facts":["医学文献综述","不良反应理论学习"],"absences":["受控安全案例工作"]},
+    {"id":"pv-p5","kind":"negative","facts":["细胞实验和机制研究"],"absences":["安全性流程"]},
+    {"id":"pv-p6","kind":"negative","facts":["内部学术汇报"],"absences":["AE/ICSR或法规流程"]},
+    {"id":"pv-p7","kind":"partial","facts":["临床研究资料归档"],"absences":["ADR收集/报告","PV质量体系"]},
+    {"id":"pv-p8","kind":"partial","facts":["研究团队协调"],"absences":["安全策略","风险管理所有权"]}
+  ],
+  "mappings": {"direct":["受控安全资料、AE记录/随访协助和流程培训可映射为受监督PV支持"],"transferable":["医学文献与严谨记录可支持安全文档意识，不替代GVP/ICSR经验"],"partial":["临床轮转或病历记录提供临床语境，不构成药物警戒工作"],"gap":["安全报告提交、信号/获益风险、PSMF/QPPV、法规沟通、风险管理和团队管理需直接证据"]},
+  "negative_mappings": ["AE记录或临床病历不等于ICSR处理/提交所有权", "文献综述不等于信号检测、PSUR/DSUR或风险管理计划作者", "资料归档不等于PV质量体系、PSMF或QPPV责任", "研究团队协调不等于安全策略或监管沟通", "无直接证据不得写获益风险评估、IND/NDA安全策略或法规提交", "培训参与不等于PV团队管理"],
+  "eval_cases": [{"id":"pv-positive","persona_id":"pv-p1","expected":"bounded PV-support mapping; no submission/strategy claim"},{"id":"pv-partial","persona_id":"pv-p3","expected":"clinical context partial; explicit GVP/ICSR gap"},{"id":"pv-negative","persona_id":"pv-p5","expected":"no PV claim"}],
+  "domain_review": {"factuality":"not scored: no generated-output audit","ownership":"not scored: no generated-output audit","usefulness":"not scored: no domain-evaluation outputs","critical_unsupported_claims":"not assessed","result":"insufficient: one full verified China source; other records are partial, unverified, or non-countable"},
+  "conformance_ledger": {"status":"not_started","runs":[],"required_per_run":["model_id","configuration","prompt","input","output","source_digest","jd_digest","persona_id","scores","unsupported_claim_audit"]},
+  "graduation_status":"Beta research; FAIL — remain Candidate/Beta until verified JD coverage, audited output evidence, and conformance records meet ROLE_PACK_GRADUATION.md"
+}

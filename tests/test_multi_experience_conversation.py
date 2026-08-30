@@ -65,7 +65,10 @@ def test_two_confirmed_experiences_can_be_added_switched_and_composed_together()
     selected_second = _message(client, session_id, {"action": "select_experience", "experience_id": second_id})
     assert selected_second["state"]["active_experience_id"] == second_id
 
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    sample = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    assert sample["stage"] == "representative_sample"
+    assert len({item["experience_id"] for item in sample["state"]["generated_claims"]}) == 1
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     assert composed["stage"] == "factual_audit"
     assert {item["experience_id"] for item in composed["state"]["generated_claims"]} == {first_id, second_id}
     document = composed["state"]["resume_document"]
@@ -156,6 +159,9 @@ def test_claim_changes_use_source_experience_not_active_experience(
     composed = _message(
         client, session_id,
         {"action": "select_role_packs", "role_packs": ["doctoral_v1"]},
+    )
+    composed = _message(
+        client, session_id, {"action": "approve_representative_sample"},
     )
     source_claim = next(
         claim for claim in composed["state"]["generated_claims"]

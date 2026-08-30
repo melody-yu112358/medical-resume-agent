@@ -38,7 +38,9 @@ def _delivery_conversation(client, role_pack="doctoral_v1"):
         "proposal_ids": [],
     })
     assert confirmed["stage"] == "representative_sample"
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
+    sample = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
+    assert sample["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     assert composed["stage"] == "factual_audit"
     assert composed["audit_status"]["ready"] > 0
     delivered = _message(client, session_id, {"action": "accept_bullets"})
@@ -180,7 +182,7 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     for action in (
         "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
-        "select_rewrite_candidate", "select_resume_tier",
+        "select_rewrite_candidate", "select_resume_tier", "approve_representative_sample",
         "confirm_candidate_profile", "start_new_experience", "select_experience", "submit_experience",
     ):
         assert action in script

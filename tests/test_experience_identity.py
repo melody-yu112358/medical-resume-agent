@@ -54,7 +54,9 @@ def test_confirmed_experience_identity_reaches_canonical_preview_and_export():
     validate(instance=canonical, schema=canonical_schema)
     assert confirmed["state"]["confirmed_experiences"][0]["label"] == IDENTITY["project_name"]
 
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    sample = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    assert sample["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     delivered = _message(client, session_id, {"action": "accept_bullets"})
     assert composed["audit_status"]["ready"] > 0
     document = delivered["state"]["resume_document"]
@@ -112,6 +114,7 @@ def test_experience_identity_is_escaped_in_html_export():
         } for item in proposals],
     })
     _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    _message(client, session_id, {"action": "approve_representative_sample"})
     _message(client, session_id, {"action": "accept_bullets"})
 
     html = client.post(f"/api/conversations/{session_id}/export", json={}).get_json()["files"]["resume.html"]

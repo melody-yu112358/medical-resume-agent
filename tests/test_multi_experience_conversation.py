@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from jsonschema import validate
 
 from medical_career_agent.api import create_app
@@ -88,3 +89,101 @@ def test_new_experience_is_blocked_until_current_experience_is_confirmed():
     assert response["stage"] == "intake"
     assert response["state"]["confirmed_experiences"] == []
     assert "先确认当前经历" in response["assistant_message"]
+
+
+class RecordingRewriteGateway:
+    def __init__(self) -> None:
+        self.rewrite_canonical_ids: list[str] = []
+
+    def generate(self, *, task: str, context: dict) -> str:
+        if task == "resume_conversation_turn_plan":
+            return json.dumps({"assistant_message": None, "proposed_actions": []})
+        if task == "resume_activity_proposals":
+            facts = context["allowed_components"]
+            proposals = []
+            for action in facts.get("actions", []):
+                components = {
+                    key: list(facts.get(key, []))
+                    for key in ("methods", "tools", "techniques", "objects", "artifacts")
+                }
+                components["actions"] = [action]
+                proposals.append({
+                    "evidence_quote": context["user_text"],
+                    "components": components,
+                    "ownership_level": "unknown",
+                    "execution_mode": "unknown",
+                    "coverage": "unknown",
+                    "scope_note": None,
+                })
+            return json.dumps({"activity_proposals": proposals}, ensure_ascii=False)
+        if task == "resume_constrained_rewrite":
+            source = context["source_claim"]
+            self.rewrite_canonical_ids.append(
+                context["canonical_experience"]["experience_id"]
+            )
+            return json.dumps({
+                "wording": source["wording"],
+                "used_facts": source["used_facts"],
+                "dependency_refs": source["dependency_refs"],
+                "evidence_ids": source["evidence_ids"],
+            }, ensure_ascii=False)
+        raise AssertionError(f"unexpected model task: {task}")
+
+
+@pytest.mark.parametrize("action", ["edit_wording", "rewrite_claim"])
+@pytest.mark.parametrize(("source_index", "active_index"), [(0, 1), (1, 0)])
+def test_claim_changes_use_source_experience_not_active_experience(
+    action: str, source_index: int, active_index: int,
+):
+    gateway = RecordingRewriteGateway()
+    client = create_app(
+        model_gateway=gateway, load_model_from_environment=False,
+    ).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+
+    _confirm_material(client, session_id, MATERIALS[0])
+    _message(client, session_id, {"action": "start_new_experience"})
+    second = _confirm_material(client, session_id, MATERIALS[1])
+    experiences = second["state"]["confirmed_experiences"]
+    source_id = experiences[source_index]["experience_id"]
+    active_id = experiences[active_index]["experience_id"]
+    if active_index == 0:
+        _message(
+            client, session_id,
+            {"action": "select_experience", "experience_id": active_id},
+        )
+
+    composed = _message(
+        client, session_id,
+        {"action": "select_role_packs", "role_packs": ["doctoral_v1"]},
+    )
+    source_claim = next(
+        claim for claim in composed["state"]["generated_claims"]
+        if claim["experience_id"] == source_id and claim["verification_status"] == "ready"
+    )
+    payload = (
+        {
+            "action": "edit_wording", "claim_id": source_claim["claim_id"],
+            "wording": source_claim["wording"],
+        }
+        if action == "edit_wording"
+        else {
+            "action": "rewrite_claim", "source_claim_id": source_claim["claim_id"],
+            "tone": "Professional", "instruction": "保持原事实。",
+        }
+    )
+
+    changed = _message(client, session_id, payload)
+    result = next(
+        claim for claim in changed["state"]["generated_claims"]
+        if claim["claim_id"] != source_claim["claim_id"]
+        and claim["experience_id"] == source_id
+        and claim["wording"] == source_claim["wording"]
+    )
+
+    assert changed["state"]["active_experience_id"] == active_id
+    assert result["verification_status"] == "ready"
+    assert set(result["evidence_ids"]).issubset(experiences[source_index]["evidence_ids"])
+    assert set(result["evidence_ids"]).isdisjoint(experiences[active_index]["evidence_ids"])
+    if action == "rewrite_claim":
+        assert gateway.rewrite_canonical_ids[-1] == source_id

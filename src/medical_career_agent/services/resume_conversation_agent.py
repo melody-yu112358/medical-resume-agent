@@ -1013,6 +1013,19 @@ class ResumeConversationAgent:
             canonicals.append(current)
         return canonicals
 
+    @classmethod
+    def _canonical_for_claim(
+        cls, state: dict[str, Any], claim: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        experience_id = (claim or {}).get("experience_id")
+        return next(
+            (
+                canonical for canonical in cls._confirmed_canonicals(state)
+                if canonical.get("experience_id") == experience_id
+            ),
+            None,
+        )
+
     def _compose(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         canonicals = self._confirmed_canonicals(state)
         packs = payload.get("role_packs", [])
@@ -1042,8 +1055,8 @@ class ResumeConversationAgent:
 
     def _edit_wording(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         claim_id, wording = str(payload.get("claim_id", "")), str(payload.get("wording", "")).strip()
-        canonical = state.get("confirmed_canonical_experience")
         original = next((item for item in state["generated_claims"] if item["claim_id"] == claim_id), None)
+        canonical = self._canonical_for_claim(state, original)
         if not canonical or not original or not wording:
             return self._response(state, "请选择一个候选要点并提供新的措辞。")
         edited = deepcopy(original)
@@ -1059,9 +1072,9 @@ class ResumeConversationAgent:
         return self._response(state, "已按原确认事实重新审计措辞；未新增事实。", ui_events=["refresh_bullet_card", "refresh_resume_preview"])
 
     def _rewrite_claim(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
-        canonical = state.get("confirmed_canonical_experience")
         source_id = str(payload.get("source_claim_id", ""))
         source = next((item for item in state["generated_claims"] if item["claim_id"] == source_id), None)
+        canonical = self._canonical_for_claim(state, source)
         tone = str(payload.get("tone", "Conservative"))
         instruction = str(payload.get("instruction", ""))
         if not canonical or canonical.get("schema_version") != "canonical-experience-v2" or not source or source.get("schema_version") != "bullet-claim-v2":

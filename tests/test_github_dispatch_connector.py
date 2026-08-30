@@ -104,7 +104,7 @@ def test_remote_failure_is_an_awaiting_remote_sync_record():
     assert record["last_remote_error"] == "OSError"
 
 
-def test_current_four_track_dry_run_dispatches_researcher_collection_tasks():
+def test_current_track_dry_run_reflects_evidence_driven_next_actions():
     state = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
     schema = json.loads((Path(__file__).parents[1] / "schemas" / "career-dispatch-record.schema.json").read_text(encoding="utf-8"))
 
@@ -112,7 +112,12 @@ def test_current_four_track_dry_run_dispatches_researcher_collection_tasks():
 
     assert len(records) == 4
     assert all(record["dispatch_status"] == "planned" for record in records)
-    assert all(record["task_payload"]["assigned_agent"] == "researcher" for record in records)
-    assert all(record["task_payload"]["next_action"] == "collect_more_jds" for record in records)
+    by_career = {record["career_id"]: record["task_payload"] for record in records}
+    assert by_career["medical_device_clinical_application_specialist"]["assigned_agent"] == "reviewer"
+    assert by_career["medical_device_clinical_application_specialist"]["next_action"] == "request_independent_review"
+    for career_id, payload in by_career.items():
+        if career_id != "medical_device_clinical_application_specialist":
+            assert payload["assigned_agent"] == "researcher"
+            assert payload["next_action"] == "collect_more_jds"
     for record in records:
         validate(instance=record, schema=schema)

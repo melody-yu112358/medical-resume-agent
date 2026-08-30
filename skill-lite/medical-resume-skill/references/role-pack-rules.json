@@ -2,6 +2,7 @@
   "schema_version": "medical-resume-skill-role-pack-rules-v1",
   "generated_from": {
     "canonical_pack_versions": [
+      "clinical_operations_v1",
       "clinical_research_v1",
       "doctoral_v1",
       "health_ai_data_v1",
@@ -10,9 +11,64 @@
     "schema_id": "https://example.invalid/schemas/role-pack.schema.json",
     "schema_version": "medical-role-pack-schema-v1",
     "schema_sha256": "3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7",
-    "source_digest_sha256": "7b96b1c4d48e216938234919c99263df54bf93843b8125078debe5874fb87dc0"
+    "source_digest_sha256": "81c0eb42d2afbb22b2aa1353c58a304efc5ab92642d246b3c6a84075bdedc3a1"
   },
   "role_packs": [
+    {
+      "role_pack": "clinical_operations_v1",
+      "label": "临床运营协调",
+      "skill_reference": {
+        "target_scope": "初级至中级的临床运营、试验协调、研究资料、数据质量与既定流程支持岗位；只转换已确认的具体执行经历。",
+        "emphasis": [
+          "临床或研究流程中的资料完整性与文档维护",
+          "数据核对、查询跟进与质量支持",
+          "已确认的试验或研究团队协调支持",
+          "按既定方案、SOP 或流程进行的执行支持"
+        ],
+        "boundary_note": "协调、排期、文件维护或内部沟通不等于项目/流程所有权、运营管理、中心/供应商/患者/提供者管理、KPI 所有权或外部、客户及高管沟通；不得泛化为 healthcare/business operations 或管理层运营。"
+      },
+      "execution_projection_sha256": "8762aa67b5816759f51f21aec6a1f86a37194b3376b5684a95f748ed68e5ba5c",
+      "restricted_verbs": [
+        "负责",
+        "主导",
+        "管理",
+        "领导",
+        "独立完成",
+        "统筹",
+        "拥有"
+      ],
+      "forbidden_claims": [
+        "项目或项目群所有权",
+        "临床运营负责人",
+        "独立负责临床试验运营",
+        "流程或运营所有者",
+        "KPI 所有者",
+        "团队管理",
+        "管理研究中心",
+        "供应商、预算或合同管理",
+        "患者或提供者所有权",
+        "对外、客户或高管沟通",
+        "确保合规",
+        "独立制定或改造流程"
+      ],
+      "required_evidence": {
+        "owned_component": [
+          "specific_task",
+          "workflow_or_document_artifact",
+          "scope_of_responsibility"
+        ],
+        "led_delivery": [
+          "execution_evidence",
+          "coordination_evidence",
+          "completion_evidence"
+        ],
+        "project_owner": [
+          "scope_ownership_evidence",
+          "decision_authority",
+          "delivery_accountability"
+        ]
+      }
+    },
     {
       "role_pack": "clinical_research_v1",
       "label": "临床科研",

@@ -1,13 +1,33 @@
 <!-- GENERATED FILE — DO NOT EDIT MANUALLY.
 Source: data/role-packs/*.json
-Canonical packs: clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
+Canonical packs: clinical_operations_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
 Schema: medical-role-pack-schema-v1 (https://example.invalid/schemas/role-pack.schema.json)
 Schema SHA-256: 3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7
-Source digest SHA-256: 7b96b1c4d48e216938234919c99263df54bf93843b8125078debe5874fb87dc0 -->
+Source digest SHA-256: 81c0eb42d2afbb22b2aa1353c58a304efc5ab92642d246b3c6a84075bdedc3a1 -->
 
 # Target paths
 
 This reference is generated from the canonical Role Pack configuration. A target changes the ordering and emphasis of confirmed facts; it never adds facts or upgrades responsibility.
+
+## 临床运营协调 (`clinical_operations_v1`)
+
+初级至中级的临床运营、试验协调、研究资料、数据质量与既定流程支持岗位；只转换已确认的具体执行经历。
+
+### Prioritize
+
+- 临床或研究流程中的资料完整性与文档维护
+- 数据核对、查询跟进与质量支持
+- 已确认的试验或研究团队协调支持
+- 按既定方案、SOP 或流程进行的执行支持
+
+### Role-pack boundary
+
+协调、排期、文件维护或内部沟通不等于项目/流程所有权、运营管理、中心/供应商/患者/提供者管理、KPI 所有权或外部、客户及高管沟通；不得泛化为 healthcare/business operations 或管理层运营。
+
+### Execution guardrails
+
+- Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
+- Forbidden claims: 项目或项目群所有权、临床运营负责人、独立负责临床试验运营、流程或运营所有者、KPI 所有者、团队管理、管理研究中心、供应商、预算或合同管理、患者或提供者所有权、对外、客户或高管沟通、确保合规、独立制定或改造流程.
 
 ## 临床科研 (`clinical_research_v1`)
 

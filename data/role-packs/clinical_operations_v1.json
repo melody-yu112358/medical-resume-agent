@@ -1,0 +1,158 @@
+{
+  "role_pack": "clinical_operations_v1",
+  "label": "临床运营协调",
+  "skill_reference": {
+    "target_scope": "初级至中级的临床运营、试验协调、研究资料、数据质量与既定流程支持岗位；只转换已确认的具体执行经历。",
+    "emphasis": [
+      "临床或研究流程中的资料完整性与文档维护",
+      "数据核对、查询跟进与质量支持",
+      "已确认的试验或研究团队协调支持",
+      "按既定方案、SOP 或流程进行的执行支持"
+    ],
+    "boundary_note": "协调、排期、文件维护或内部沟通不等于项目/流程所有权、运营管理、中心/供应商/患者/提供者管理、KPI 所有权或外部、客户及高管沟通；不得泛化为 healthcare/business operations 或管理层运营。"
+  },
+  "priorities": ["clinical_research", "data_analysis", "medical_information"],
+  "value_mappings": {
+    "clinical_research": ["临床或研究流程执行支持与资料完整性", "相关经历首条 + 核心能力"],
+    "data_analysis": ["数据核对、查询跟进与质量支持", "相关经历首条 + 数据质量能力"],
+    "medical_information": ["研究资料、既定 SOP 或流程信息整理", "相关经历首条 + 文档能力"]
+  },
+  "preferred_actions": ["document", "check", "follow_up", "coordinate", "maintain", "support", "execute"],
+  "allowed_verbs": ["参与", "协助", "支持", "整理", "核对", "跟进", "维护", "执行", "记录"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成", "统筹", "拥有"],
+  "forbidden_claims": [
+    "项目或项目群所有权",
+    "临床运营负责人",
+    "独立负责临床试验运营",
+    "流程或运营所有者",
+    "KPI 所有者",
+    "团队管理",
+    "管理研究中心",
+    "供应商、预算或合同管理",
+    "患者或提供者所有权",
+    "对外、客户或高管沟通",
+    "确保合规",
+    "独立制定或改造流程"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_task", "workflow_or_document_artifact", "scope_of_responsibility"],
+    "led_delivery": ["execution_evidence", "coordination_evidence", "completion_evidence"],
+    "project_owner": ["scope_ownership_evidence", "decision_authority", "delivery_accountability"]
+  },
+  "sentence_patterns": [
+    "参与{object}的{action}，{method}支持{purpose}",
+    "协助{scope}的{action}与{deliverable}维护，支持{outcome}",
+    "{action}{object}并{method}跟进{constraint}，为{purpose}提供支持"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "case_id": "co-p1-positive-documentation-follow-up",
+        "case_type": "positive",
+        "persona_id": "co-p1",
+        "jd_ids": ["co-current-01", "co-current-05"],
+        "facts": ["CRF maintenance", "missing-data follow-up", "internal study coordination"],
+        "non_claims": ["project ownership", "program ownership"]
+      },
+      "expected_output": [
+        "维护 CRF 并跟进缺失数据，支持研究资料完整性与后续核对。",
+        "参与研究团队的内部协调，支持既定研究流程执行。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p2-positive-screening-scheduling",
+        "case_type": "positive",
+        "persona_id": "co-p2",
+        "jd_ids": ["co-current-01", "co-current-07"],
+        "facts": ["screening logs", "visit scheduling support", "GCP training"],
+        "non_claims": ["site ownership", "patient ownership"]
+      },
+      "expected_output": [
+        "整理筛选日志并协助访视排期，支持试验流程的资料与时间协调。",
+        "完成 GCP 培训并在既定流程下支持研究执行。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p8-positive-source-data-quality",
+        "case_type": "positive",
+        "persona_id": "co-p8",
+        "jd_ids": ["co-current-02", "co-current-06"],
+        "facts": ["source-data verification support", "query follow-up", "investigator-file maintenance"],
+        "non_claims": ["vendor authority", "budget authority"]
+      },
+      "expected_output": [
+        "协助源数据核对与查询跟进，支持研究数据质量检查。",
+        "维护研究者文件，支持试验资料的完整性与可追溯性。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p3-partial-document-support",
+        "case_type": "partial",
+        "persona_id": "co-p3",
+        "jd_ids": ["co-current-01", "co-current-05"],
+        "facts": ["protocol document filing", "data checks"],
+        "non_claims": ["KPI ownership", "workflow redesign"]
+      },
+      "expected_output": [
+        "整理方案相关文件并完成数据核对，支持既定资料管理流程。",
+        "现有证据支持文档与数据质量工作；不主张 KPI 所有权或流程改造。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p6-partial-coordination",
+        "case_type": "partial",
+        "persona_id": "co-p6",
+        "jd_ids": ["co-current-04", "co-current-07"],
+        "facts": ["research-team scheduling coordination"],
+        "non_claims": ["project ownership", "program ownership"]
+      },
+      "expected_output": [
+        "协助研究团队排期协调，支持既定工作安排。",
+        "现有证据仅支持协调参与，不主张项目或项目群所有权。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p5-negative-internal-communication",
+        "case_type": "negative",
+        "persona_id": "co-p5",
+        "jd_ids": ["co-current-02", "co-current-06"],
+        "facts": ["internal academic presentations"],
+        "non_claims": ["external communication", "client communication", "executive communication"]
+      },
+      "expected_output": [
+        "可表述为内部学术汇报；缺少对外、客户或高管沟通证据。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p4-negative-wet-lab-only",
+        "case_type": "negative",
+        "persona_id": "co-p4",
+        "jd_ids": ["co-current-01", "co-current-05"],
+        "facts": ["wet-lab experiments only"],
+        "non_claims": ["clinical workflow experience", "clinical operations experience"]
+      },
+      "expected_output": [
+        "缺少临床或研究流程、资料或协调证据；不将湿实验经历改写为临床运营经历。"
+      ]
+    },
+    {
+      "input": {
+        "case_id": "co-p7-negative-r-analysis-only",
+        "case_type": "negative",
+        "persona_id": "co-p7",
+        "jd_ids": ["co-current-01", "co-current-07"],
+        "facts": ["R analysis of experimental data only"],
+        "non_claims": ["care operations", "clinical operations"]
+      },
+      "expected_output": [
+        "R 数据分析本身不证明临床或照护运营经验；不生成临床运营表述。"
+      ]
+    }
+  ]
+}

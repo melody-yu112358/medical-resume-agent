@@ -324,10 +324,10 @@ function renderPreview() {
   const documentData = state().resume_document;
   const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
-  const fallbackBasics = savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
   const profileConfirmed = state().candidate_profile?.status === "confirmed";
-  const name = basics.name || (profileConfirmed ? "" : fallbackBasics.name) || "姓名（请填写）";
-  const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || (profileConfirmed ? "" : fallbackBasics.contact) || "";
+  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
+  const name = basics.name || fallbackBasics.name || "姓名（请填写）";
+  const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
   const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
   paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
@@ -337,9 +337,8 @@ function renderPreview() {
 async function downloadBundle() {
   if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();
   try {
-    const profileConfirmed = state().candidate_profile?.status === "confirmed";
-    const fallbackBasics = profileConfirmed ? {} : savedBasics();
-    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics: fallbackBasics, theme: $("#theme").value }) });
+    const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics();
+    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics, theme: $("#theme").value }) });
     Object.entries(bundle.files).forEach(([name, content]) => { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type: name.endsWith(".html") ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" })); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); });
     lastMessage = "完整交付包已下载；服务器没有另存导出副本。"; render();
   } catch (error) { showError(error.message); }

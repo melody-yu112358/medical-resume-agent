@@ -1,0 +1,46 @@
+{
+  "schema_version": "clinical-operations-conformance-ledger-v1",
+  "scope": "Validation-only evidence for the Clinical Operations Beta cluster. This is not a Role Pack and cannot enable routing or canonicalization.",
+  "status": "pending_cross_model_conformance",
+  "requirements": {
+    "minimum_complete_runs": 30,
+    "minimum_distinct_model_ids": 2,
+    "minimum_factuality_average": 4.5,
+    "minimum_ownership_average": 4.5,
+    "minimum_usefulness_median": 4.0,
+    "critical_unsupported_claims": 0,
+    "maximum_noncritical_unsupported_claim_rate": 0.02,
+    "required_fields_per_run": [
+      "run_id",
+      "model_id",
+      "model_reasoning_or_config",
+      "skill_source_digest_sha256",
+      "jd_snapshot_sha256",
+      "persona_id",
+      "prompt",
+      "input",
+      "output",
+      "scores",
+      "unsupported_claim_audit",
+      "reviewer_decision"
+    ]
+  },
+  "model_execution_plan": [
+    {
+      "model_id": "Codex runtime",
+      "exact_deployment_version": "unavailable",
+      "status": "may_record_only_when_full_run_artifacts_are_available"
+    },
+    {
+      "model_id": "gpt-5.4-2026-03-05",
+      "status": "pending_authorized_API_execution",
+      "note": "Do not record a run unless the exact API model ID and configuration are returned by the authorized execution environment."
+    }
+  ],
+  "legacy_observations": {
+    "source": "phase-2-role-validation-evidence.json",
+    "clinical_operations_rows": 6,
+    "eligibility": "not countable toward Validated because the required prompt, input, output, per-run skill digest, and exact model ID are absent"
+  },
+  "runs": []
+}

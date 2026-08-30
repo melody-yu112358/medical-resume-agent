@@ -126,6 +126,22 @@ class ResumeConversationApiTest(unittest.TestCase):
         self.assertEqual(after["stage"], "factual_audit")
         self.assertIn("候选要点已生成", response["assistant_message"])
 
+    def test_narrow_clinical_operations_phrases_select_the_fifth_pack(self):
+        self.establish_confirmed_experience()
+        response = self.message({"text": "临床项目协调"})
+        state = response["state"]
+
+        self.assertEqual(state["selected_role_packs"], ["clinical_operations_v1"])
+        self.assertEqual(state["stage"], "factual_audit")
+        self.assertTrue(state["generated_claims"])
+
+    def test_general_operations_phrases_do_not_select_clinical_operations(self):
+        self.establish_confirmed_experience()
+        for phrase in ("运营", "医疗运营", "商业运营", "产品运营", "business operations", "commercial operations", "product operations"):
+            with self.subTest(phrase=phrase):
+                response = self.message({"text": phrase})
+                self.assertEqual(response["state"]["selected_role_packs"], [])
+
     def test_natural_target_and_wording_request_composes(self):
         self.establish_confirmed_experience()
         response = self.message({"text": "保研，给我措辞"})

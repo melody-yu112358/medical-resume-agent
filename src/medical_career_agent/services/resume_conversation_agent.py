@@ -245,12 +245,13 @@ class ResumeConversationAgent:
             }
             return
         try:
+            question_candidates = self._question_candidates(state)
             result = self.language_gateway.summarize_intake_turn(
                 text=text,
                 selected_option_ids=selected_option_ids,
                 free_text=str(payload.get("free_text") or "").strip(),
                 session_context=self._conversation_context(state),
-                allowed_question_card=deepcopy(state.get("question_card")),
+                allowed_question_cards=question_candidates,
             )
             validated = IntakeSummaryValidationService.validate(
                 candidate=result.candidate,
@@ -259,16 +260,22 @@ class ResumeConversationAgent:
                     item.get("source_text", "") for item in state.get("evidence_records", [])
                     if item.get("evidence_id") in set(state.get("active_experience_evidence_ids") or [])
                 ],
-                question_card=state.get("question_card"),
+                question_cards=question_candidates,
             )
             validated["configured"] = True
             state["intake_model"] = validated
             next_question = validated.get("next_question")
-            if next_question and state.get("question_card"):
-                state["question_card"]["recommended_option_ids"] = next_question["recommended_option_ids"]
-                question_id = next_question["question_id"]
-                if question_id not in state["question_history"]:
-                    state["question_history"].append(question_id)
+            if next_question:
+                selected_card = next(
+                    (item for item in question_candidates if item["question_id"] == next_question["question_id"]),
+                    None,
+                )
+                if selected_card:
+                    state["question_card"] = deepcopy(selected_card)
+                    state["question_card"]["recommended_option_ids"] = next_question["recommended_option_ids"]
+                    question_id = next_question["question_id"]
+                    if question_id not in state["question_history"]:
+                        state["question_history"].append(question_id)
         except Exception as exc:
             state["intake_model"] = {
                 "configured": True, "status": "failed", "summary_source": "pending",
@@ -361,12 +368,35 @@ class ResumeConversationAgent:
         )
 
     @staticmethod
-    def _refresh_question_card(state: dict[str, Any], pending_question: str | None = None) -> None:
+    def _pending_question_cards(state: dict[str, Any]) -> list[dict[str, Any]]:
+        cards = [
+            QuestionGuidanceService.build(question, stage=str(state.get("stage", "")))
+            for question in (state.get("pending_questions") or [])[:3]
+        ]
+        return [card for card in cards if card]
+
+    @classmethod
+    def _refresh_question_card(cls, state: dict[str, Any], pending_question: str | None = None) -> None:
+        if pending_question is None and isinstance(state.get("question_card"), dict):
+            candidate_ids = {card["question_id"] for card in cls._pending_question_cards(state)}
+            if state["question_card"].get("question_id") in candidate_ids:
+                return
         question = pending_question or next(iter(state.get("pending_questions") or []), None)
         state["question_card"] = QuestionGuidanceService.build(
             question,
             stage=str(state.get("stage", "")),
         )
+
+    @classmethod
+    def _question_candidates(cls, state: dict[str, Any]) -> list[dict[str, Any]]:
+        cards = []
+        current = state.get("question_card")
+        if isinstance(current, dict):
+            cards.append(deepcopy(current))
+        for card in cls._pending_question_cards(state):
+            if not any(item["question_id"] == card["question_id"] for item in cards):
+                cards.append(card)
+        return cards
 
     @staticmethod
     def _conversation_context(state: dict[str, Any]) -> dict[str, Any]:

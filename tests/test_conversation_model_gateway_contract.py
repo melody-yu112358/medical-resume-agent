@@ -42,12 +42,18 @@ def test_intake_summary_prompt_receives_skill_constraints_and_backend_whitelists
             "extracted_facts": {"tools": ["pubmed"]}, "allowed_fact_refs": ["tools:pubmed"],
             "confirmed_facts": None, "previous_questions": [],
         },
-        allowed_question_card={"question_id": "research_steps", "options": [{"id": "screening"}]},
+        allowed_question_cards=[
+            {"question_id": "research_steps", "options": [{"id": "screening"}]},
+            {"question_id": "outputs", "options": [{"id": "analysis_tables"}]},
+        ],
     )
 
     task, context = recorder.calls[0]
     assert task == "resume_intake_skill_summary"
     assert context["user_answer"]["selected_option_ids"] == ["pubmed"]
     assert context["allowed_fact_refs"] == ["tools:pubmed"]
-    assert context["allowed_question_card"]["question_id"] == "research_steps"
+    assert [item["question_id"] for item in context["allowed_question_cards"]] == [
+        "research_steps", "outputs",
+    ]
+    assert "single highest-value unresolved gap" in context["instruction"]
     assert "Medical Resume Skill Stage 1" in context["instruction"]

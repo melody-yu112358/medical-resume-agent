@@ -26,3 +26,11 @@ review.  This role has no implementation authority.
 Report source provenance, conclusions, limitations, and the exact files that
 an Implementer would need to change.  A research conclusion is not approval
 to implement or merge.
+
+## Remote synchronization
+
+For a requested, committed research artifact, follow the shared
+[remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md). If GitHub is
+unreachable, preserve the single verified local branch and record
+`awaiting_remote_sync`; do not redo research or create a substitute branch to
+work around the delay.

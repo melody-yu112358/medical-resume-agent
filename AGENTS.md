@@ -34,6 +34,24 @@ For every phase, make the smallest scoped change and include:
 3. Push the branch and create or update one pull request to `main`; that PR is the handoff record for Codex and human reviewers. Do not merge it automatically.
 4. A PR report covering scope, files changed, commands/results, source and persona coverage, model-conformance results (if applicable), unresolved gaps, and an explicit statement of what was not changed.
 
+## Remote sync recovery
+
+All phases follow the [remote sync recovery protocol](docs/REMOTE_SYNC_PROTOCOL.md).
+Treat a GitHub connection failure as a `remote sync delay`, not as a product,
+test, or CI failure. Complete and verify local work first, then preserve its
+single committed branch if remote synchronization fails.
+
+After the first remote failure, make at most two short additional attempts.
+If they fail, stop remote operations, record the required handoff details, and
+report `execution_status: awaiting_remote_sync`. A later recovery may only
+verify the existing commit, push the existing branch without force, and create
+or update its intended PR. Do not create replacement branches or reimplement
+the phase to work around network failures.
+
+Every phase report must include one of the protocol's `execution_status`
+values. Direct pushes to `main`, automatic merges, and unapproved force-pushes
+remain prohibited.
+
 ## No scope creep
 
 Do not refactor adjacent code, add dependencies, modify production behavior, or promote a target family while completing research, documentation, fixture, or evaluation work. If the requested change would affect runtime semantics, the four stable packs, routing, UI, `workflow-contract.json`, or either gate, stop and request a separately scoped task.

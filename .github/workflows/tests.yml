@@ -1,4 +1,4 @@
-name: Tests
+name: PR CI
 
 on:
   pull_request:
@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   test:
+    # Keep this name stable: the repository's branch protection requires it.
     name: pytest
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +24,15 @@ jobs:
           node-version: "22"
       - name: Install test dependencies
         run: python -m pip install -e ".[dev,schema_validation]"
-      - name: Run tests
+      - name: Check generated Role Pack artifacts
+        run: python scripts/generate_skill_role_pack_reference.py --check
+      - name: Check Role Pack execution projection regression
+        run: python -m pytest -q tests/test_skill_role_pack_reference.py::test_execution_projection_matches_frozen_snapshot
+      - name: Check Skill reference tests
+        run: python -m pytest -q tests/test_skill_role_pack_reference.py
+      - name: Check Phase 1.5 and 1.6 boundaries
+        run: python -m pytest -q tests/test_phase_1_5_real_jd_conformance.py tests/test_phase_1_6_boundaries.py
+      - name: Run full pytest regression suite
         run: python -m pytest -q
       - name: Run frontend state tests
         run: node --test tests/test_resume_agent_reset_flow.js

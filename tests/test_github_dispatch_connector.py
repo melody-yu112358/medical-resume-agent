@@ -112,12 +112,18 @@ def test_current_track_dry_run_reflects_evidence_driven_next_actions():
 
     assert len(records) == 4
     assert all(record["dispatch_status"] == "planned" for record in records)
-    by_career = {record["career_id"]: record["task_payload"] for record in records}
-    assert by_career["medical_device_clinical_application_specialist"]["assigned_agent"] == "reviewer"
-    assert by_career["medical_device_clinical_application_specialist"]["next_action"] == "request_independent_review"
-    for career_id, payload in by_career.items():
-        if career_id != "medical_device_clinical_application_specialist":
-            assert payload["assigned_agent"] == "researcher"
-            assert payload["next_action"] == "collect_more_jds"
+    payloads = {record["career_id"]: record["task_payload"] for record in records}
+    for career_id in {
+        "clinical_research_associate",
+        "pharmacovigilance_drug_safety",
+    }:
+        assert payloads[career_id]["assigned_agent"] == "researcher"
+        assert payloads[career_id]["next_action"] == "collect_more_jds"
+    for career_id in {
+        "clinical_data_management",
+        "medical_device_clinical_application_specialist",
+    }:
+        assert payloads[career_id]["assigned_agent"] == "reviewer"
+        assert payloads[career_id]["next_action"] == "request_independent_review"
     for record in records:
         validate(instance=record, schema=schema)

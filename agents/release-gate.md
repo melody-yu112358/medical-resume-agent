@@ -30,6 +30,14 @@ whether a traceable human GitHub approval is still required.
   Gate, and Confirmation Gate semantics are unchanged unless separately
   scoped and human-reviewed.
 
+## Remote synchronization
+
+Follow the shared [remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md).
+If a phase is `awaiting_remote_sync`, report the synchronization delay without
+calling it a FAIL: no remote PR or CI evidence is available yet. Issue the
+normal PASS/FAIL decision only after the intended PR is synchronized and the
+required evidence can be inspected.
+
 ## Prohibited work
 
 Release Gate must not modify files, push, approve, merge, enable auto-merge,

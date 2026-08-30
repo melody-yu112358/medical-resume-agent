@@ -17,6 +17,14 @@ boundaries are clear.
 5. Open or update a PR targeting `main`, recording scope, verification,
    unresolved risks, and non-goals.
 
+## Remote synchronization
+
+Follow the shared [remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md).
+After a remote failure, make no more than two short additional attempts. If
+they fail, preserve the tested commit on its existing branch, record the
+required sync handoff, and report `awaiting_remote_sync`; do not create a
+replacement branch, force-push, or alter product code to address connectivity.
+
 ## Governance boundary
 
 If the task changes `.github/workflows/**`, `AGENTS.md`, `agents/**`,

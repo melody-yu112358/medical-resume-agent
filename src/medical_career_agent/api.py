@@ -81,17 +81,25 @@ def _model_gateway_from_environment() -> OpenAICompatibleModelGateway | None:
     model = os.environ.get("LLM_MODEL", "").strip()
     if not all((base_url, api_key, model)):
         return None
+    timeout_value = os.environ.get("LLM_TIMEOUT_SECONDS", "30").strip()
+    try:
+        timeout_seconds = float(timeout_value)
+    except ValueError as exc:
+        raise ValueError("LLM_TIMEOUT_SECONDS must be numeric") from exc
+    if not 5 <= timeout_seconds <= 300:
+        raise ValueError("LLM_TIMEOUT_SECONDS must be between 5 and 300")
     return OpenAICompatibleModelGateway(
         base_url=base_url,
         api_key=api_key,
         model=model,
+        timeout_seconds=timeout_seconds,
     )
 
 
 def _load_local_llm_environment(path: Path) -> None:
     if not path.exists():
         return
-    allowed = {"LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL"}
+    allowed = {"LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL", "LLM_TIMEOUT_SECONDS"}
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:

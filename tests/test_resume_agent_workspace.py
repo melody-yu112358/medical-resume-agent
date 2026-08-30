@@ -157,7 +157,7 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     for action in (
         "update_activity_proposals", "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
-        "confirm_candidate_profile",
+        "confirm_candidate_profile", "start_new_experience", "select_experience",
     ):
         assert action in script
     assert "/api/conversations/" in script
@@ -167,5 +167,7 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "localStorage" in script
     assert "基础资料与教育背景" in script
     assert "documentData.education" in script
+    assert "confirmed_experiences" in script
+    assert "添加另一段经历" in script
     assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script

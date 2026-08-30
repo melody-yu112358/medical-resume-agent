@@ -7,7 +7,7 @@ import pytest
 from jsonschema import validate
 
 from medical_career_agent.api import create_app
-from medical_career_agent.services.candidate_profile_intake import (
+from medical_career_agent.services.resume_delivery import ResumeDeliveryService`nfrom medical_career_agent.services.candidate_profile_intake import (
     CandidateProfileInputError,
     CandidateProfileIntakeService,
 )
@@ -143,3 +143,36 @@ def test_existing_direct_experience_intake_remains_compatible():
     payload = response.get_json()
     assert payload["stage"] == "fact_confirmation"
     assert payload["state"]["candidate_profile"]["status"] == "collecting"
+
+def test_confirmed_profile_export_rejects_unconfirmed_basics_fallback():
+    conversation = {
+        "session_id": "profile-boundary",
+        "state": {
+            "stage": "delivery",
+            "candidate_profile": {"status": "confirmed"},
+            "resume_document": {
+                "basics": {"name": "已确认姓名", "phone": None, "email": None, "location": None},
+                "target": {"role": "doctoral_v1"},
+                "research_experience": [{"title": "已确认经历", "bullets": [{"text": "完成已确认任务。"}]}],
+            },
+        },
+    }
+
+    bundle = ResumeDeliveryService().build_bundle(
+        conversation=conversation,
+        basics={"name": "临时覆盖名", "contact": "unconfirmed@example.invalid · 未确认城市"},
+    )
+    exported = json.loads(bundle["files"]["resume-data.json"])
+
+    assert exported["basics"] == {"name": "已确认姓名", "contact": ""}
+    assert "临时覆盖名" not in bundle["files"]["resume.md"]
+    assert "unconfirmed@example.invalid" not in bundle["files"]["resume.md"]
+    assert "未确认城市" not in bundle["files"]["resume.md"]
+
+
+def test_profile_ui_discloses_local_session_and_avoids_confirmed_fallback():
+    app = (Path(__file__).parents[1] / "demo" / "resume-agent" / "app.js").read_text(encoding="utf-8")
+
+    assert "你的回答会保存在本机 session；确认前不会进入最终简历。" in app
+    assert 'const fallbackBasics = profileConfirmed ? {} : savedBasics()' in app
+    assert 'const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics()' in app

@@ -137,7 +137,7 @@ function renderCandidateProfile(profile) {
     const period = previous || {};
     control = `<div class="period-grid"><label class="field">开始年月<input id="profileStart" type="month" value="${esc(period.start || "")}"></label><label class="field">结束年月<input id="profileEnd" type="month" value="${esc(period.end || "")}" ${period.ongoing ? "disabled" : ""}></label></div><label class="consent"><input id="profileOngoing" type="checkbox" ${period.ongoing ? "checked" : ""}><span>目前仍在读</span></label>`;
   }
-  return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
+  return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><p class="mode-note">你的回答会保存在本机 session；确认前不会进入最终简历。</p><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
 }
 
 function factGroups(facts) {
@@ -303,7 +303,7 @@ function renderPreview() {
   const documentData = state().resume_document;
   const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
-  const fallbackBasics = savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
+  const profileConfirmed = state().candidate_profile?.status === "confirmed";`n  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
   const name = basics.name || fallbackBasics.name || "姓名（请填写）";
   const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
@@ -315,7 +315,7 @@ function renderPreview() {
 async function downloadBundle() {
   if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();
   try {
-    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics: savedBasics(), theme: $("#theme").value }) });
+    const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics();`n    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics, theme: $("#theme").value }) });
     Object.entries(bundle.files).forEach(([name, content]) => { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type: name.endsWith(".html") ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" })); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); });
     lastMessage = "完整交付包已下载；服务器没有另存导出副本。"; render();
   } catch (error) { showError(error.message); }

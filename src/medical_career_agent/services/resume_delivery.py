@@ -39,16 +39,20 @@ class ResumeDeliveryService:
             raise ResumeDeliveryError("at least one ClaimGate-ready bullet is required")
 
         document_basics = document.get("basics") or {}
+        profile_confirmed = (state.get("candidate_profile") or {}).get("status") == "confirmed"
         confirmed_contact = " · ".join(
             str(document_basics.get(field) or "").strip()
             for field in ("phone", "email", "location")
             if str(document_basics.get(field) or "").strip()
         )
         resolved_basics = {
-            "name": str(document_basics.get("name") or (basics or {}).get("name", "")).strip(),
-            "contact": confirmed_contact or str((basics or {}).get("contact", "")).strip(),
-        }
-        markdown = self._markdown(document, resolved_basics)
+            "name": str(
+                document_basics.get("name")
+                or ("" if profile_confirmed else (basics or {}).get("name", ""))
+            ).strip(),
+            "contact": confirmed_contact
+            or ("" if profile_confirmed else str((basics or {}).get("contact", "")).strip()),
+        }        markdown = self._markdown(document, resolved_basics)
         delivery_data = {
             "schema_version": "medical-resume-delivery-v1",
             "session_id": conversation.get("session_id"),

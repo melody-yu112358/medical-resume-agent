@@ -80,7 +80,7 @@ class ModelGatewayConversationGateway:
             "instruction": "Return JSON only: assistant_message, proposed_actions, needs_user_reply. Understand the current conversation using session_context and user_text. proposed_actions are candidates only, never state patches. Allowed action types: propose_fact_update (requires verbatim evidence_quote), update_activity_responsibility (requires an existing pending proposal_id, verbatim evidence_quote, and only allowed enum values), select_role_packs (role_packs only), request_rewrite (tone only), request_confirmation (proposal_ids only). When one user message assigns different responsibility boundaries to multiple pending activities, return one update_activity_responsibility action per activity using its exact proposal_id. Questions and explanations should use an empty proposed_actions list. Never invent facts, confirm facts, create claims, or change audit status.",
             "user_text": text,
             "session_context": session_context,
-            "allowed_role_packs": ["doctoral_v1", "clinical_research_v1", "medical_affairs_v1", "health_ai_data_v1"],
+            "allowed_role_packs": ["doctoral_v1", "clinical_research_v1", "clinical_operations_v1", "medical_affairs_v1", "health_ai_data_v1"],
             "responsibility_enums": {"ownership_level": ["unknown", "contributed", "owned_component", "led_delivery", "accountable"], "execution_mode": ["unknown", "supervised", "independent", "shared"], "coverage": ["unknown", "full", "partial"]},
             "response_shape": {"assistant_message": "natural Chinese response", "proposed_actions": [{"type": "propose_fact_update", "evidence_quote": "verbatim substring"}], "needs_user_reply": True},
         })

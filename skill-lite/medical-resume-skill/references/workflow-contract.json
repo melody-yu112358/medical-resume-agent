@@ -11,6 +11,7 @@
   "targets": [
     {"id": "doctoral", "label": "学术升学与科研申请", "role_pack": "doctoral_v1"},
     {"id": "clinical_research", "label": "临床研究与医院科研", "role_pack": "clinical_research_v1"},
+    {"id": "clinical_operations", "label": "临床运营 / 临床项目协调", "role_pack": "clinical_operations_v1"},
     {"id": "medical_affairs", "label": "医学事务 / MSL", "role_pack": "medical_affairs_v1"},
     {"id": "health_data", "label": "医疗数据与数字健康", "role_pack": "health_ai_data_v1"}
   ],

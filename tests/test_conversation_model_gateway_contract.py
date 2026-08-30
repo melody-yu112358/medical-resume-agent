@@ -61,3 +61,13 @@ def test_turn_plan_filters_actions_to_the_allow_list():
     assert plan.assistant_message == "请确认范围。"
     assert plan.proposed_actions == [{"type": "update_activity_responsibility", "proposal_id": "p1"}]
     assert plan.needs_user_reply is True
+
+
+def test_turn_plan_exposes_clinical_operations_as_a_supported_pack():
+    recorder = RecordingGateway()
+
+    ModelGatewayConversationGateway(recorder).plan_turn(
+        text="临床项目协调", session_context={"stage": "representative_sample"}
+    )
+
+    assert "clinical_operations_v1" in recorder.calls[0][1]["allowed_role_packs"]

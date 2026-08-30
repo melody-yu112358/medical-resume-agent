@@ -240,7 +240,7 @@ class ResumeConversationAgent:
             return self._response(state, plan.assistant_message or "请在活动卡中选择需要补充责任边界的活动。", ui_events=["show_activity_cards"])
         if kind == "select_role_packs":
             packs = action.get("role_packs")
-            allowed = {"doctoral_v1", "clinical_research_v1", "medical_affairs_v1", "health_ai_data_v1"}
+            allowed = {"doctoral_v1", "clinical_research_v1", "clinical_operations_v1", "medical_affairs_v1", "health_ai_data_v1"}
             if state.get("confirmed_canonical_experience") and isinstance(packs, list) and packs and set(packs) <= allowed:
                 return self._with_planned_message(self._compose(session_id, state, {"role_packs": packs}), plan)
         if kind == "request_rewrite":
@@ -563,6 +563,7 @@ class ResumeConversationAgent:
         mapping = (
             (("保研", "夏令营", "申博", "科研申请", "academic", "doctoral"), "doctoral_v1"),
             (("临床科研", "医院科研", "clinical research"), "clinical_research_v1"),
+            (("临床试验运营", "临床项目协调", "临床试验协调", "临床运营", "clinical operations", "clinical trial coordination", "trial coordination"), "clinical_operations_v1"),
             (("msl", "医学事务", "medical affairs"), "medical_affairs_v1"),
             (("医疗数据", "数字健康", "健康科技", "health data", "digital health"), "health_ai_data_v1"),
         )

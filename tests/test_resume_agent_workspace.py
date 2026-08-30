@@ -16,7 +16,7 @@ def _message(client, session_id: str, payload: dict):
     return response.get_json()
 
 
-def _delivery_conversation(client):
+def _delivery_conversation(client, role_pack="doctoral_v1"):
     created = client.post("/api/conversations", json={})
     assert created.status_code == 201
     session_id = created.get_json()["session_id"]
@@ -36,7 +36,7 @@ def _delivery_conversation(client):
     _message(client, session_id, {"action": "update_activity_proposals", "activity_proposals": updated})
     confirmed = _message(client, session_id, {"action": "confirm_activity_proposals", "proposal_ids": []})
     assert confirmed["stage"] == "representative_sample"
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
     assert composed["stage"] == "factual_audit"
     assert composed["audit_status"]["ready"] > 0
     delivered = _message(client, session_id, {"action": "accept_bullets"})
@@ -53,6 +53,20 @@ def test_skill_contract_and_primary_workspace_are_connected():
     assert [stage["id"] for stage in config.get_json()["stages"]] == [
         "intake", "fact_confirmation", "representative_sample", "composition", "factual_audit", "delivery"
     ]
+
+
+def test_clinical_operations_runs_contract_workspace_claim_gate_and_delivery():
+    client = create_app(load_model_from_environment=False).test_client()
+    config = client.get("/api/resume-agent/config").get_json()
+
+    assert {"id": "clinical_operations", "label": "临床运营 / 临床项目协调", "role_pack": "clinical_operations_v1"} in config["targets"]
+    session_id, delivered = _delivery_conversation(client, "clinical_operations_v1")
+
+    assert delivered["state"]["selected_role_packs"] == ["clinical_operations_v1"]
+    assert delivered["audit_status"]["ready"] > 0
+    exported = client.post(f"/api/conversations/{session_id}/export", json={})
+    assert exported.status_code == 200
+    assert "临床运营与试验协调" in exported.get_json()["files"]["resume.md"]
     root = client.get("/")
     assert root.status_code == 302
     assert root.headers["Location"] == "/demo/resume-agent/index.html"

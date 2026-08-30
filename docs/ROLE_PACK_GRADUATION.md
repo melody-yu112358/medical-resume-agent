@@ -21,10 +21,20 @@ The generated artifacts must be committed with the canonical input change.
 | --- | --- | --- |
 | Beta | Research hypothesis with machine-readable fixtures and explicit uncertainty. | Not canonical; not routable/executable. |
 | Candidate | Beta evidence meets the required coverage and is ready for independent review. | Still not canonical or routable. |
-| Validated | Candidate has passed reproducible review and regression checks. | May be proposed in a separate, scoped canonicalization PR. |
-| Canonical | Reviewed JSON Role Pack in `data/role-packs/`, with generated projections current. | Executable under the existing Role Pack contract. |
+| Canonical v1 (domain validated) | A reviewed JSON Role Pack whose stable occupational semantics, evidence mappings, and boundary rules have passed domain validation. | Canonical source under the existing contract. Routing/execution support remains a separately scoped runtime decision; canonicalization does not silently add it. |
+| Cross-model validated | A Canonical v1 Pack whose model-execution behavior has also passed a reproducible, multi-model conformance program. | A post-canonical hardening status; it does not alter the Pack's domain semantics. |
 
-Promotion is sequential. No state label substitutes for passing the criteria below, and a Canonical promotion must be an explicit PR decision.
+Promotion is sequential. Domain validation and model-conformance validation are distinct: neither label substitutes for its own criteria, and a Canonical v1 promotion must be an explicit PR decision. Model conformance is important release hardening, but it does not determine whether a role family's occupational knowledge is stable.
+
+## Validation dimensions
+
+### Domain validation
+
+Domain validation establishes whether the Pack expresses stable career semantics rather than one employer's wording. It evaluates JD provenance and coverage, stable versus JD-dependent responsibilities, fixed confirmed personas, evidence mappings, negative mappings, usefulness, and factual and ownership boundaries. Its evidence is portable because it concerns the Pack's content, not a particular model deployment.
+
+### Model-conformance validation
+
+Model-conformance validation establishes whether one or more host-model executions preserve the Pack's domain boundaries. It evaluates exact model and configuration provenance, prompts and outputs, model-version regressions, unsupported-claim rates, and consistency across model versions. It must never be used to weaken the Pack's factuality, ownership, or critical-claim rules.
 
 ## Graduation criteria
 
@@ -36,21 +46,24 @@ Promotion is sequential. No state label substitutes for passing the criteria bel
 - Machine-readable positive, partial, gap, and negative-mapping fixtures. Negative rules must block ownership, client/external communication, commercial/payer, or management claims absent direct evidence.
 - No semantic change to the existing four canonical packs or runtime paths.
 
-### Candidate → Validated
+### Candidate → Canonical v1 (domain validated)
 
-- Reproducible tests validate fixture structure, provenance, fact references, prohibited claims, and ownership preservation.
-- At least 30 isolated model-conformance runs across 2 model versions, with factuality and ownership-preservation averages of at least 4.5/5 and no critical unsupported ownership claim.
-- Median usefulness/resume-quality score of at least 4/5. A merely safe but generic output does not pass.
-- Final audits show 0 critical unsupported claims and fewer than 2% noncritical unsupported claims.
-- The stable core yields useful, truthful output from more than one JD; a pack depending mainly on a single employer's vocabulary remains Beta/Candidate.
+- Reproducible domain tests validate fixture structure, source provenance, fact references, prohibited claims, ownership preservation, and stable negative mappings.
+- Stable evidence mappings and explicit gaps work across the fixed positive, partial, and negative personas and more than one JD. A Pack depending mainly on one employer's vocabulary remains Beta/Candidate.
+- Domain-reviewed evaluation cases achieve a median usefulness/resume-quality score of at least 4/5. A merely safe but generic output does not pass.
+- Domain audits show 0 critical unsupported claims. Factuality and ownership preservation remain mandatory: participation is not rewritten as ownership, leadership, management, independent delivery, external/client/executive communication, or other unsupported scope.
+- A narrowly scoped PR adds or changes the canonical JSON Pack, schema-valid positive, partial, and negative evaluation cases, and only the generated projections required by that canonical input.
+- Contract, reference-generation, targeted new-Pack, and practical full regression tests pass. Review confirms target scope, allowed/restricted wording, forbidden claims, required evidence, and explicit non-claims remain compatible with the existing Claim Gate and routing contract.
+- The PR documents sources, personas, domain-evaluation method and scores, tests, limitations, the current model-conformance status, and confirms no change to the four pre-existing Role Packs' execution semantics.
+- A traceable human reviewer approves the promotion. Automation must not merge it.
 
-### Validated → Canonical
+### Canonical v1 → Cross-model validated
 
-- A narrowly scoped PR adds or changes the canonical JSON pack, schema-valid evaluation cases, and only the generated projections required by that input.
-- Contract, reference-generation, and targeted new-pack tests pass; full regression coverage is run when practical and reported.
-- Review confirms target scope, allowed/restricted wording, forbidden claims, required evidence, and explicit non-claims are compatible with the existing Claim Gate and routing contract.
-- The PR documents sources, personas, model runs, test results, limitations, and confirms no change to the four pre-existing Role Packs' execution semantics.
-- A human reviewer approves the promotion. Automation must not merge it.
+- At least 30 isolated model-conformance runs across at least 2 identifiable model versions, with factuality and ownership-preservation averages of at least 4.5/5.
+- Every run retains the exact model ID, reasoning/configuration, prompt, input, output, Skill source digest, JD snapshot digest, persona ID, scores, unsupported-claim audit, and reviewer decision.
+- The cross-model audit shows 0 critical unsupported claims and fewer than 2% noncritical unsupported claims. A critical factuality or ownership failure fails this status regardless of averages.
+- Median usefulness/resume-quality remains at least 4/5 across the recorded runs, and the Pack remains useful and truthful across more than one JD.
+- Model-version regression runs repeat when the Pack prompt, Pack rules, or a host-model version changes. Any regression failure is a release-hardening issue, not evidence to rewrite or weaken the Pack's domain boundaries.
 
 ## Phase and PR handoff checklist
 
@@ -61,8 +74,9 @@ The PR description must state:
 1. phase goal and precise scope;
 2. changed files and whether any are generated;
 3. commands run and results;
-4. JD provenance/coverage, persona mix, and model-conformance coverage;
-5. negative mappings, gaps, and unresolved risks;
-6. explicit non-goals, including any untouched runtime contracts.
+4. JD provenance/coverage, persona mix, and domain-evaluation coverage;
+5. current cross-model-validation status, if any, without presenting pending work as a domain-validation failure;
+6. negative mappings, gaps, and unresolved risks;
+7. explicit non-goals, including any untouched runtime contracts.
 
 Do not broaden a research or documentation phase into UI, routing, contract, gate, schema, or existing-Pack work. Open a separately scoped task if any of those changes become necessary.

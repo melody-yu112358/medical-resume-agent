@@ -63,6 +63,10 @@ class ExperienceDraftService:
             r"质量评价", r"偏倚评估", r"偏倚风险评估",
             r"quality assessment", r"risk of bias",
         ],
+        "prepare_research_outputs": [
+            r"(?:形成|整理|制作).*(?:检索记录|筛选记录|数据提取表|分析代码|分析图表|研究报告|论文材料|SOP|流程文件)",
+            r"prepare.*(?:report|record|table|code|figure|manuscript|SOP)",
+        ],
         "perform_analysis": [
             r"统计分析", r"数据分析", r"敏感性分析", r"进行分析", r"R\s*分析", r"跑数据",
             r"(?:用|使用)\s*R.*完成.*[Mm]eta\s*分析",

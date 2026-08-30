@@ -69,6 +69,50 @@ class ActivityProposalConversationTest(unittest.TestCase):
             by_action["perform_analysis"]["methods"], ["sensitivity_analysis"]
         )
 
+    def test_rich_intake_binds_components_to_their_own_activity(self):
+        client = create_app(load_model_from_environment=False).test_client()
+        sid = self.create(client)
+        response = self.post(
+            client, sid,
+            {
+                "text": (
+                    "参与系统综述和 Meta 分析，明确研究问题并制定研究方案，设计检索式，"
+                    "使用 PubMed、Web of Science 和中国知网检索文献，完成文献筛选、"
+                    "数据提取、质量评价和 R 统计分析，形成检索记录、筛选记录、"
+                    "数据提取表、分析代码、分析图表和研究报告。"
+                ),
+                "consent_confirmed": True,
+            },
+        )
+
+        proposals = response["state"]["activity_proposals"]
+        by_action = {
+            item["components"]["actions"][0]: item["components"]
+            for item in proposals
+        }
+        self.assertEqual(
+            by_action["retrieve_literature"]["tools"],
+            ["pubmed", "web_of_science", "cnki"],
+        )
+        self.assertFalse(by_action["screen_studies"]["tools"])
+        self.assertEqual(
+            by_action["extract_data"]["artifacts"], []
+        )
+        self.assertEqual(by_action["perform_analysis"]["tools"], ["r"])
+        self.assertEqual(
+            by_action["perform_analysis"]["artifacts"], []
+        )
+        self.assertEqual(
+            by_action["prepare_research_outputs"]["artifacts"],
+            [
+                "search_record", "screening_record", "data_extraction_sheet",
+                "analysis_code", "analysis_figures", "research_report",
+            ],
+        )
+        for action in ("define_research_question", "screen_studies", "extract_data"):
+            self.assertFalse(by_action[action]["methods"])
+            self.assertFalse(by_action[action]["artifacts"])
+
     def test_multiturn_quotes_confirm_atomically_without_partial_update(self):
         client = create_app(load_model_from_environment=False).test_client()
         sid = self.create(client)

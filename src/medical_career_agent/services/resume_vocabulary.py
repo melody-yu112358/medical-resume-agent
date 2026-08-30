@@ -14,6 +14,7 @@ _FACT_LABELS = {
         "extract_data": "数据提取",
         "create_flowchart": "绘制研究流程图",
         "assess_quality": "质量评价 / 偏倚评估",
+        "prepare_research_outputs": "整理研究交付物",
         "perform_analysis": "统计分析",
         "write_manuscript": "论文材料撰写",
         "culture_cells": "细胞培养",

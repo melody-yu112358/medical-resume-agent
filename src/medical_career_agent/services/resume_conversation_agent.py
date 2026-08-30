@@ -892,13 +892,51 @@ class ResumeConversationAgent:
         all_components = {key: list(facts.get(key, [])) for key in ("methods", "tools", "techniques", "objects", "artifacts")}
         if action_count <= 1:
             return all_components
-        if action == "retrieve_literature":
-            return {"methods": [], "tools": [tool for tool in all_components["tools"] if tool in {"pubmed", "embase", "cochrane"}], "techniques": [], "objects": [item for item in all_components["objects"] if item == "medical_literature"], "artifacts": []}
-        if action == "screen_studies":
-            return {"methods": [], "tools": [], "techniques": [], "objects": [item for item in all_components["objects"] if item == "medical_literature"], "artifacts": []}
-        if action == "perform_analysis":
-            return {"methods": [method for method in all_components["methods"] if method in {"meta_analysis", "sensitivity_analysis", "mendelian_randomization"}], "tools": [tool for tool in all_components["tools"] if tool in {"r", "python", "spss", "stata", "sas", "revman"}], "techniques": all_components["techniques"], "objects": [item for item in all_components["objects"] if item == "research_data"], "artifacts": all_components["artifacts"]}
-        return all_components
+        database_tools = {"pubmed", "embase", "cochrane", "web_of_science", "cnki", "wanfang", "vip"}
+        analysis_tools = {"r", "python", "spss", "stata", "sas", "revman", "excel"}
+        analysis_methods = {"meta_analysis", "sensitivity_analysis", "mendelian_randomization"}
+        methods_by_action = {
+            "develop_protocol": set(all_components["methods"]),
+            "design_search_strategy": {"systematic_review"},
+            "assess_quality": {"systematic_review", "meta_analysis"},
+            "perform_analysis": analysis_methods,
+        }
+        tools_by_action = {
+            "design_search_strategy": database_tools,
+            "retrieve_literature": database_tools,
+            "perform_analysis": analysis_tools,
+        }
+        techniques_by_action = {
+            "culture_cells": {"cell_culture"},
+            "perform_qpcr": {"qpcr"},
+            "perform_western_blot": {"western_blot"},
+        }
+        objects_by_action = {
+            "design_search_strategy": {"medical_literature"},
+            "retrieve_literature": {"medical_literature"},
+            "screen_studies": {"medical_literature"},
+            "extract_data": {"medical_literature", "research_data"},
+            "assess_quality": {"medical_literature"},
+            "perform_analysis": {"research_data"},
+        }
+        artifacts_by_action = {
+            "create_flowchart": {"prisma_flowchart"},
+            "prepare_research_outputs": set(all_components["artifacts"]),
+            "write_manuscript": {"research_paper", "research_report"},
+            "prepare_case_presentation": {"case_presentation_material"},
+        }
+
+        def allowed(category: str, mapping: dict[str, set[str]]) -> list[str]:
+            accepted = mapping.get(action, set())
+            return [item for item in all_components[category] if item in accepted]
+
+        return {
+            "methods": allowed("methods", methods_by_action),
+            "tools": allowed("tools", tools_by_action),
+            "techniques": allowed("techniques", techniques_by_action),
+            "objects": allowed("objects", objects_by_action),
+            "artifacts": allowed("artifacts", artifacts_by_action),
+        }
 
     def _validate_activity_proposals(self, proposals: list[dict[str, Any]], source_text: str, facts: dict[str, Any]) -> list[dict[str, Any]]:
         return self._validate_activity_proposals_with_audit(proposals, source_text, facts)[0]

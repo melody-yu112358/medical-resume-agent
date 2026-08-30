@@ -7,7 +7,8 @@ import pytest
 from jsonschema import validate
 
 from medical_career_agent.api import create_app
-from medical_career_agent.services.resume_delivery import ResumeDeliveryService`nfrom medical_career_agent.services.candidate_profile_intake import (
+from medical_career_agent.services.resume_delivery import ResumeDeliveryService
+from medical_career_agent.services.candidate_profile_intake import (
     CandidateProfileInputError,
     CandidateProfileIntakeService,
 )

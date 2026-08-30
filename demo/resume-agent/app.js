@@ -303,7 +303,8 @@ function renderPreview() {
   const documentData = state().resume_document;
   const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
-  const profileConfirmed = state().candidate_profile?.status === "confirmed";`n  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
+  const profileConfirmed = state().candidate_profile?.status === "confirmed";
+  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
   const name = basics.name || fallbackBasics.name || "姓名（请填写）";
   const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
@@ -315,7 +316,8 @@ function renderPreview() {
 async function downloadBundle() {
   if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();
   try {
-    const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics();`n    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics, theme: $("#theme").value }) });
+    const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics();
+    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics, theme: $("#theme").value }) });
     Object.entries(bundle.files).forEach(([name, content]) => { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type: name.endsWith(".html") ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" })); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); });
     lastMessage = "完整交付包已下载；服务器没有另存导出副本。"; render();
   } catch (error) { showError(error.message); }

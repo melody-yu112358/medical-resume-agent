@@ -52,7 +52,8 @@ class ResumeDeliveryService:
             ).strip(),
             "contact": confirmed_contact
             or ("" if profile_confirmed else str((basics or {}).get("contact", "")).strip()),
-        }        markdown = self._markdown(document, resolved_basics)
+        }
+        markdown = self._markdown(document, resolved_basics)
         delivery_data = {
             "schema_version": "medical-resume-delivery-v1",
             "session_id": conversation.get("session_id"),

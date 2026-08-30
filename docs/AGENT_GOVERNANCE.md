@@ -5,9 +5,10 @@
 This policy governs automated or AI-assisted work in this repository.  It is
 designed for an environment in which a ChatGPT/Codex account may be shared by
 multiple people, including GitHub Writers.  It changes collaboration controls
-only; it does not change the application's four canonical Role Packs, workflow
-target, Claim Gate, Confirmation Gate, routing, UI, schemas, or product
-semantics.
+only; it does not change canonical Role Pack semantics, workflow targets,
+Claim Gate, Confirmation Gate, routing, UI, schemas, or product semantics.
+Role Pack lifecycle and graduation criteria are defined only in
+[ROLE_PACK_GRADUATION.md](ROLE_PACK_GRADUATION.md).
 
 ## Enforced by repository policy
 

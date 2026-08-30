@@ -26,7 +26,7 @@ whether a traceable human GitHub approval is still required.
 - Governance-sensitive changes, if any, are isolated in a governance PR.
 - No secrets, tokens, credentials, private keys, `.env` files, or sensitive
   local configuration are included.
-- Product invariants and the current four Role Pack, workflow target, Claim
+- Product invariants and current canonical Role Pack, workflow target, Claim
   Gate, and Confirmation Gate semantics are unchanged unless separately
   scoped and human-reviewed.
 

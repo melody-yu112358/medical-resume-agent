@@ -6,6 +6,7 @@ let health = null;
 let conversation = null;
 let selectedTarget = "doctoral";
 let lastMessage = "";
+let selectedQuestionOptions = new Set();
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -132,8 +133,19 @@ function renderFacts() {
   const pending = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation");
   return `<section class="panel"><h3>系统提取的事实卡</h3><p>这些是候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</section>
     ${pending.length ? `<section class="panel soft"><h3>逐项确认活动与责任边界</h3><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="primary" type="button">确认活动与事实 →</button></section>` : ""}
-    <section class="panel"><h3>补充事实或回答问题</h3><p>${esc((state().pending_questions || ["请补充你实际做过的步骤、工具和责任范围。"]).slice(0, 3).join(" · "))}</p>
-    <label class="field">补充内容<textarea id="supplement" placeholder="只写真实、可核验的信息；不确定的可以明确说不知道。"></textarea></label><button id="supplementFacts" class="secondary" type="button">补充并重新提取</button></section>`;
+    ${renderQuestionCard()}`;
+}
+
+function renderQuestionCard() {
+  const fallback = (state().pending_questions || ["请补充你实际做过的步骤、工具和责任范围。"])[0];
+  const card = state().question_card || { text: fallback, selection_mode: "multiple", options: [], allow_free_text: true };
+  const options = (card.options || []).map((option) => `<button class="answer-option" data-question-option="${esc(option.id)}" type="button" aria-pressed="false">${esc(option.label)}</button>`).join("");
+  return `<section class="panel question-panel" data-selection-mode="${esc(card.selection_mode || "multiple")}">
+    <span class="status-badge">本轮只回答这一题</span><h3>${esc(card.text)}</h3>
+    ${card.why_it_matters ? `<p>${esc(card.why_it_matters)}</p>` : ""}
+    ${options ? `<div class="answer-options" role="group" aria-label="预设答案，可选择一个或多个">${options}</div>` : ""}
+    <label class="field">补充说明（可选）<textarea id="supplement" placeholder="选项不完全符合时，在这里补充真实、可核验的信息。"></textarea></label>
+    <button id="supplementFacts" class="primary" type="button">发送这一题的回答</button></section>`;
 }
 
 function renderTargetSelection() {
@@ -168,7 +180,9 @@ function bindWorkspace(stage) {
   if (stage === "intake") {
     $("#submitMaterial").onclick = () => { const text = $("#material").value.trim(); if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。"); sendMessage({ text, consent_confirmed: true }); };
   } else if (stage === "fact_confirmation") {
-    if ($("#supplementFacts")) $("#supplementFacts").onclick = () => { const text = $("#supplement").value.trim(); if (!text) return showError("请填写需要补充的事实。"); sendMessage({ action: "update_facts", text, consent_confirmed: true }); };
+    selectedQuestionOptions = new Set();
+    document.querySelectorAll("[data-question-option]").forEach((button) => button.onclick = () => toggleQuestionOption(button));
+    if ($("#supplementFacts")) $("#supplementFacts").onclick = submitQuestionAnswer;
     if ($("#confirmActivities")) $("#confirmActivities").onclick = confirmActivities;
   } else if (stage === "representative_sample") {
     document.querySelectorAll("[data-target]").forEach((button) => button.onclick = () => { selectedTarget = button.dataset.target; render(); });
@@ -178,6 +192,29 @@ function bindWorkspace(stage) {
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
     if ($("#acceptClaims")) $("#acceptClaims").onclick = () => sendMessage({ action: "accept_bullets" });
   } else { $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
+}
+
+function toggleQuestionOption(button) {
+  const mode = button.closest("[data-selection-mode]")?.dataset.selectionMode || "multiple";
+  const optionId = button.dataset.questionOption;
+  if (mode === "single") {
+    selectedQuestionOptions.clear();
+    document.querySelectorAll("[data-question-option]").forEach((item) => { item.classList.remove("selected"); item.setAttribute("aria-pressed", "false"); });
+  }
+  if (button.classList.contains("selected") && mode !== "single") selectedQuestionOptions.delete(optionId);
+  else selectedQuestionOptions.add(optionId);
+  const selected = selectedQuestionOptions.has(optionId);
+  button.classList.toggle("selected", selected);
+  button.setAttribute("aria-pressed", String(selected));
+}
+
+function submitQuestionAnswer() {
+  const card = state().question_card || { options: [] };
+  const selected = (card.options || []).filter((option) => selectedQuestionOptions.has(option.id)).map((option) => option.answer_text || option.label);
+  const extra = $("#supplement").value.trim();
+  const text = [...selected, extra].filter(Boolean).join("；");
+  if (!text) return showError("请选择至少一个答案，或补充真实信息。");
+  sendMessage({ action: "update_facts", text, consent_confirmed: true });
 }
 
 async function confirmActivities() {

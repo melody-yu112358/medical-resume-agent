@@ -1,0 +1,31 @@
+{
+  "schema_version": "china-role-candidate-evidence-v1",
+  "career_id": "medical_device_clinical_application_specialist",
+  "captured_at": "2026-08-30",
+  "scope": "Research-only China medical-device clinical/application Candidate evidence; not a Role Pack, runtime target, or personal-evidence source.",
+  "jd_snapshots": [
+    {"id":"device-01","employer":"Mindray","title":"Clinical Application Specialist (CS03 campus)","location":"China","url":"https://career.hebut.edu.cn/correcruit/content/id/76248.html","retrieved_at":"2026-08-30","status":"historical_full_secondary","source_note":"university career-board mirror; not an employer-hosted source","signals":["IVD/life-information product clinical-use guidance and training","channel application-team development","department workflow and customer-need analysis","solution and on-site guidance"]},
+    {"id":"device-02","employer":"Dabo Medical","title":"Clinical Application Specialist","location":"Beijing, China","url":"https://www.zhaopin.com/jobdetail/CC203711210J40955581715.htm","retrieved_at":"2026-08-30","status":"current_public_full_third_party","signals":["pre/intra/post-operative equipment support and case archive","training for doctors, nurses and technicians","user feedback to R&D/marketing","support for materials and academic/marketing activities"]},
+    {"id":"device-03","employer":"Gaoshi Medical","title":"Ophthalmology Application Specialist","location":"Shanghai, China","url":"https://www.zhaopin.com/jobdetail/CC000286470J40876876414.htm","retrieved_at":"2026-08-30","status":"search_extract_not_countable","signals":["equipment training and on-machine support","clinical questions and product value","feedback and academic activity"]},
+    {"id":"device-04","employer":"Eyebright Medical","title":"Clinical Application Specialist","location":"Beijing, China","url":"https://www.ebmedical.com/join/2026-04-14/196.html","retrieved_at":"2026-08-30","status":"partial_official","signals":["doctor/distributor/internal training","clinical support","regional activities"]},
+    {"id":"device-05","employer":"Mindray","title":"IVD Application Specialist","location":"Kunming, China","url":"https://www.zhaopin.com/jobdetail/CC000577600J40789472401.htm","retrieved_at":"2026-08-30","status":"search_extract_not_countable","signals":["customer training and technical issue support","product evaluation and visits","channel/support-engineer training","sales-goal support"]}
+  ],
+  "stable_responsibilities": ["product-specific clinical/application training", "field technical and workflow support within product scope", "collecting and relaying user feedback", "channel/internal enablement and academic-activity support", "following applicable equipment and organizational processes"],
+  "jd_dependent_or_senior_scope": ["product portfolio or territory ownership", "sales quota/KPI ownership", "clinical decision-making or patient care", "surgical responsibility", "R&D roadmap/product-management ownership", "formal people management", "regulatory-submission authorship"],
+  "fixed_personas": [
+    {"id":"device-p1","kind":"positive","facts":["协助设备使用培训","记录临床用户反馈","参加产品知识培训"],"absences":["销售指标","临床决策"]},
+    {"id":"device-p2","kind":"positive","facts":["在医院协助设备演示","整理培训材料","跟进技术问题"],"absences":["手术操作责任","产品路线图"]},
+    {"id":"device-p3","kind":"partial","facts":["临床轮转","与医护人员沟通"],"absences":["器械产品培训","现场技术支持"]},
+    {"id":"device-p4","kind":"partial","facts":["医学科研和病例讨论"],"absences":["产品应用经验","客户现场支持"]},
+    {"id":"device-p5","kind":"negative","facts":["细胞培养和实验室研究"],"absences":["设备或临床应用"]},
+    {"id":"device-p6","kind":"negative","facts":["论文写作"],"absences":["用户培训和技术支持"]},
+    {"id":"device-p7","kind":"partial","facts":["协助医院项目资料整理"],"absences":["设备应用","产品培训"]},
+    {"id":"device-p8","kind":"partial","facts":["参与学术活动组织"],"absences":["临床应用责任","销售目标"]}
+  ],
+  "mappings": {"direct":["设备培训协助、技术问题记录和用户反馈可映射为受监督的应用支持"],"transferable":["医学/检验/影像等背景可支持产品理解，不能替代设备实操或客户培训"],"partial":["临床沟通和学术活动组织可映射为沟通支持，不是现场应用、销售或客户所有权"],"gap":["独立设备支持、临床决策、手术责任、销售KPI、产品路线图和人员管理均需直接证据"]},
+  "negative_mappings": ["用户反馈传递不等于R&D路线图或产品经理所有权", "设备培训/在场支持不等于临床决策、手术或患者责任", "销售和学术活动支持不等于收入/KPI/区域策略所有权", "设备现场支持不等于CRA、PI、医院运营或临床试验所有权", "病例归档/材料协助不等于科学作者或注册申报责任", "对经销商培训不等于人员管理"],
+  "eval_cases": [{"id":"device-positive","persona_id":"device-p1","expected":"bounded application-support mapping; preserve assist level"},{"id":"device-partial","persona_id":"device-p3","expected":"clinical-context partial; state device training/support gap"},{"id":"device-negative","persona_id":"device-p5","expected":"no clinical-application claim"}],
+  "domain_review": {"factuality":"not scored: no generated-output audit","ownership":"not scored: no generated-output audit","usefulness":"not scored: no domain-evaluation outputs","critical_unsupported_claims":"not assessed","result":"insufficient: two full records only; device specialties and senior commercial scope remain heterogeneous"},
+  "conformance_ledger": {"status":"not_started","runs":[],"required_per_run":["model_id","configuration","prompt","input","output","source_digest","jd_digest","persona_id","scores","unsupported_claim_audit"]},
+  "graduation_status":"Beta research; FAIL — remain Candidate/Beta until full China JD coverage, specialty-boundary audit, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+}

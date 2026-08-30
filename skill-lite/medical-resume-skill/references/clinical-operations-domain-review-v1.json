@@ -1,0 +1,46 @@
+{
+  "schema_version": "clinical-operations-domain-review-v1",
+  "scope": "Pre-approval domain-validation review for clinical_operations_v1. This is a review record, not a model-conformance run and not a routing decision.",
+  "source_provenance": {
+    "jd_snapshot_index": "clinical-operations-jd-snapshots/index.json",
+    "current_public_jds": 8,
+    "employers": 8,
+    "responsibility_bands": 7,
+    "captured_at": "2026-08-30T05:03:51+00:00"
+  },
+  "stable_core": [
+    "study and care-workflow documentation",
+    "data-quality follow-up",
+    "coordination support",
+    "protocol/process execution"
+  ],
+  "jd_dependent_exclusions": [
+    "clinic or site ownership",
+    "KPI/process ownership",
+    "people management",
+    "vendor budget authority",
+    "cross-functional program leadership"
+  ],
+  "method": "Static, evidence-bound review of the schema-valid evaluation cases against saved JD provenance and fixed personas. Each case is scored for factuality, ownership preservation, and resume usefulness; scores do not claim a model run or replace traceable human PR approval.",
+  "cases": [
+    {"case_id":"co-p1-positive-documentation-follow-up","persona_id":"co-p1","case_type":"positive","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":5,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p2-positive-screening-scheduling","persona_id":"co-p2","case_type":"positive","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":4,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p8-positive-source-data-quality","persona_id":"co-p8","case_type":"positive","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":5,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p3-partial-document-support","persona_id":"co-p3","case_type":"partial","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":4,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p6-partial-coordination","persona_id":"co-p6","case_type":"partial","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":4,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p5-negative-internal-communication","persona_id":"co-p5","case_type":"negative","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":4,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p4-negative-wet-lab-only","persona_id":"co-p4","case_type":"negative","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":4,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0},
+    {"case_id":"co-p7-negative-r-analysis-only","persona_id":"co-p7","case_type":"negative","factuality":5,"ownership_preservation":5,"usefulness_resume_quality":4,"critical_unsupported_claims":0,"noncritical_unsupported_claims":0}
+  ],
+  "result": {
+    "median_usefulness_resume_quality": 4,
+    "critical_unsupported_claims": 0,
+    "noncritical_unsupported_claims": 0,
+    "domain_validation": "pass_pending_traceable_human_pr_approval",
+    "cross_model_validation": "pending; exact deployment version unavailable and no second identifiable model run is recorded"
+  },
+  "limitations": [
+    "This review does not authorize merge, routing, UI changes, or model-conformance status.",
+    "The Pack deliberately excludes manager-level, external-facing, provider/patient/vendor ownership, KPI ownership, and healthcare/business-operations generalization unless direct candidate evidence separately supports them."
+  ]
+}

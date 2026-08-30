@@ -37,6 +37,9 @@ The recommended Windows flow stores the API key in a user environment variable
 and keeps all non-secret settings in versioned JSON:
 
 ```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[resume_extract]"
 .\set-llm-key.ps1
 .\start-with-llm.ps1
 ```

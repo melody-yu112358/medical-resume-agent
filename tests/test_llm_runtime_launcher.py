@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from medical_career_agent.api import _model_gateway_from_environment
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -24,6 +26,11 @@ def test_launcher_uses_existing_health_contract_and_never_prints_secret():
     assert 'Write-Host $apiKey' not in launcher
     assert 'Write-Output $apiKey' not in launcher
     assert 'Check completed; no model or health request was made.' in launcher
+    assert '[switch]$InstallDependencies' in launcher
+    assert 'if (-not $InstallDependencies)' in launcher
+    assert '$dependencyCheckExitCode = $LASTEXITCODE' in launcher
+    assert 'pip install -e ".[resume_extract]"' in launcher
+    assert 'Installing first-run dependencies' not in launcher
 
 
 def test_key_setup_uses_a_hidden_prompt_and_user_environment_only():
@@ -33,3 +40,14 @@ def test_key_setup_uses_a_hidden_prompt_and_user_environment_only():
     assert '[EnvironmentVariableTarget]::User' in setup
     assert 'ZeroFreeBSTR' in setup
     assert 'Write-Host $plainKey' not in setup
+
+def test_environment_timeout_is_wired_into_gateway(monkeypatch):
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.example.invalid")
+    monkeypatch.setenv("LLM_API_KEY", "test-key")
+    monkeypatch.setenv("LLM_MODEL", "test-model")
+    monkeypatch.setenv("LLM_TIMEOUT_SECONDS", "47")
+
+    gateway = _model_gateway_from_environment()
+
+    assert gateway is not None
+    assert gateway.timeout_seconds == 47

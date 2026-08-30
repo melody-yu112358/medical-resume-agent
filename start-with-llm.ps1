@@ -2,7 +2,8 @@ param(
     [string]$ConfigPath = "config\llm.runtime.json",
     [ValidateRange(1, 65535)]
     [int]$Port = 5000,
-    [switch]$CheckOnly
+    [switch]$CheckOnly,
+    [switch]$InstallDependencies
 )
 
 $ErrorActionPreference = "Stop"
@@ -97,13 +98,22 @@ if (-not $pythonCommand) {
     throw "Python 3.11+ is required."
 }
 
-try {
-    & $pythonCommand.Source -c "import flask, docx, pypdf" 2>$null
-} catch {
-    Write-Host "Installing first-run dependencies..." -ForegroundColor Cyan
-    & $pythonCommand.Source -m pip install "flask>=3.0,<4" "pypdf>=5.0,<6" "python-docx>=1.1,<2"
+& $pythonCommand.Source -c "import flask, docx, pypdf" 2>$null
+$dependencyCheckExitCode = $LASTEXITCODE
+if ($dependencyCheckExitCode -ne 0) {
+    if (-not $InstallDependencies) {
+        throw "Required Python packages are missing. Activate a virtual environment and run python -m pip install -e '.[resume_extract]', or rerun with -InstallDependencies."
+    }
+
+    Write-Host "Installing project dependencies by explicit request..." -ForegroundColor Cyan
+    & $pythonCommand.Source -m pip install -e ".[resume_extract]"
     if ($LASTEXITCODE -ne 0) {
         throw "Could not install required Python packages."
+    }
+
+    & $pythonCommand.Source -c "import flask, docx, pypdf" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Required Python packages are still unavailable after installation."
     }
 }
 

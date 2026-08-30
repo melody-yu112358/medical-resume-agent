@@ -33,16 +33,21 @@ input, and the user must confirm each evidence item before comparison.
 
 ## Local configuration
 
-Copy `.env.example` to `.env` and fill in a personal API key. `.env` is ignored
-by Git and must never be committed.
+The recommended Windows flow stores the API key in a user environment variable
+and keeps all non-secret settings in versioned JSON:
 
-DeepSeek example:
-
-```text
-LLM_BASE_URL=https://api.deepseek.com
-LLM_API_KEY=<your key>
-LLM_MODEL=deepseek-v4-flash
+```powershell
+.\set-llm-key.ps1
+.\start-with-llm.ps1
 ```
+
+The hidden prompt writes only `MEDICAL_RESUME_LLM_API_KEY` to the current-user
+environment. `config/llm.runtime.json` contains the provider label, base URL,
+model and timeout, but never the key. The launcher maps these values to
+process-only `LLM_*` variables used by the existing application gateways.
+
+Legacy `.env` loading remains supported for local development. `.env` is
+ignored by Git and must never be committed.
 
 The adapter uses the OpenAI-compatible `POST /chat/completions` shape and can
 also target another compatible provider by changing the three values. The
@@ -53,16 +58,16 @@ explicitly disables thinking for the official `api.deepseek.com` host so the
 token budget is used for the final bounded explanation rather than hidden
 reasoning. Other compatible hosts receive only the generic request fields.
 
-Run the local server:
+Validate the JSON and environment-variable configuration without making a
+model or health request:
 
 ```powershell
-python -m pip install -e .
-python -m medical_career_agent.api
+.\start-with-llm.ps1 -CheckOnly
 ```
 
-Then open `http://127.0.0.1:5000/demo/`. Deterministic comparison works without
-an API key. The model explanation button returns a clear configuration error
-until all three environment values are present.
+Then open `http://127.0.0.1:5000/`. `start-local.ps1` remains available for a
+model-free local preview. The health endpoint reports configuration status and
+non-secret model metadata; it never returns the API key.
 
 ## API boundary
 

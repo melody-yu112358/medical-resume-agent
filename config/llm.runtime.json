@@ -1,0 +1,9 @@
+{
+  "schema_version": "medical-resume-llm-runtime-v1",
+  "provider": "deepseek",
+  "base_url": "https://api.deepseek.com",
+  "model": "deepseek-v4-flash",
+  "api_key_environment_variable": "MEDICAL_RESUME_LLM_API_KEY",
+  "timeout_seconds": 60,
+  "notes": "This file contains no secret. Put the API key only in the named Windows environment variable."
+}

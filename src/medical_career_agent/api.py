@@ -5,6 +5,7 @@ import os
 import subprocess
 from dataclasses import asdict
 from datetime import datetime, timezone
+from importlib.resources import files
 from pathlib import Path
 from uuid import uuid4
 
@@ -168,7 +169,9 @@ def create_app(
         model_gateway=gateway,
     )
     resume_delivery = ResumeDeliveryService()
-    workflow_contract = root / "skill-lite" / "medical-resume-skill" / "references" / "workflow-contract.json"
+    workflow_contract = files("medical_career_agent").joinpath(
+        "assets/workflow-contract.json"
+    )
 
     def comparison_from_payload(payload: dict[str, object]):
         maximum_hypotheses = int(payload.get("maximum_hypotheses", 3))
@@ -214,7 +217,7 @@ def create_app(
 
     @app.get("/api/resume-agent/config")
     def resume_agent_config():
-        """Expose the Skill-owned workflow vocabulary to the browser workspace."""
+        """Expose the package-owned workflow vocabulary to the browser workspace."""
         return jsonify(json.loads(workflow_contract.read_text(encoding="utf-8")))
 
     @app.get("/api/jobs")

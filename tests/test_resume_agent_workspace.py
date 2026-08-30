@@ -214,3 +214,17 @@ def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():
     assert "skill-lite" not in service
     assert package_editor == skill_editor
     assert "__INITIAL_MARKDOWN_JSON__" in package_editor
+
+
+def test_workflow_contract_is_package_owned_and_kept_in_sync_with_skill_bundle():
+    api_source = (ROOT / "src/medical_career_agent/api.py").read_text(encoding="utf-8")
+    package_contract = (
+        ROOT / "src/medical_career_agent/assets/workflow-contract.json"
+    ).read_text(encoding="utf-8")
+    skill_contract = (
+        ROOT
+        / "skill-lite/medical-resume-skill/references/workflow-contract.json"
+    ).read_text(encoding="utf-8")
+
+    assert "skill-lite" not in api_source
+    assert json.loads(package_contract) == json.loads(skill_contract)

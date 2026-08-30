@@ -132,6 +132,62 @@ def test_v2_partial_scope_is_worded_as_assigned_work_not_complete_ownership():
     assert "完整" not in wording
 
 
+def test_v2_role_pack_priorities_change_order_without_changing_claim_set():
+    activities = [
+        {
+            "activity_id": "act_retrieve", "label": "检索",
+            "components": {
+                "actions": ["retrieve_literature"], "methods": [],
+                "tools": ["pubmed"], "techniques": [],
+                "objects": ["medical_literature"], "artifacts": [],
+            },
+            "evidence_ids": ["ev_retrieve"], "status": "user_confirmed",
+        },
+        {
+            "activity_id": "act_analysis", "label": "分析",
+            "components": {
+                "actions": ["perform_analysis"], "methods": ["meta_analysis"],
+                "tools": ["r"], "techniques": [],
+                "objects": ["research_data"], "artifacts": [],
+            },
+            "evidence_ids": ["ev_analysis"], "status": "user_confirmed",
+        },
+    ]
+    responsibilities = [{
+        "responsibility_id": f"resp_{name}", "activity_id": f"act_{name}",
+        "ownership_level": "contributed", "execution_mode": "supervised",
+        "scope": {"coverage": "full", "note": None},
+        "evidence_ids": [f"ev_{name}"],
+    } for name in ("retrieve", "analysis")]
+    canonical = {
+        "schema_version": "canonical-experience-v2", "experience_id": "exp_order",
+        "evidence_ids": ["ev_retrieve", "ev_analysis"], "context": {},
+        "role": {"title": None, "responsibility_level": "participated"},
+        "actions": ["retrieve_literature", "perform_analysis"],
+        "methods": ["meta_analysis"], "tools": ["pubmed", "r"],
+        "techniques": [], "objects": ["medical_literature", "research_data"],
+        "collaboration": [], "artifacts": [], "outcomes": [], "scope": {},
+        "unknowns": [], "activities": activities,
+        "task_responsibilities": responsibilities, "status": "user_confirmed",
+    }
+    composer = BulletComposerService(
+        role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs"
+    )
+
+    medical_affairs = composer.compose_bullets(
+        canonical_experience=canonical, role_pack_name="medical_affairs_v1"
+    )
+    health_data = composer.compose_bullets(
+        canonical_experience=canonical, role_pack_name="health_ai_data_v1"
+    )
+
+    assert medical_affairs[0].activity_id == "act_retrieve"
+    assert health_data[0].activity_id == "act_analysis"
+    assert {item.activity_id for item in medical_affairs} == {
+        item.activity_id for item in health_data
+    } == {"act_retrieve", "act_analysis"}
+
+
 def test_v2_composer_keeps_every_distinct_confirmed_responsibility_auditable():
     specs = [
         ("retrieve", "retrieve_literature", "systematic_review", "pubmed", "medical_literature"),

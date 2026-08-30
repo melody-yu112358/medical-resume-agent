@@ -166,7 +166,7 @@ class BulletComposerService:
     def _compose_v2(self, canonical_experience: Dict[str, Any], role_pack_name: str) -> List[BulletClaimV2]:
         if canonical_experience.get("status") != "user_confirmed":
             raise ValueError("canonical_experience must have status 'user_confirmed'")
-        self._load_role_pack(role_pack_name)
+        role_pack = self._load_role_pack(role_pack_name)
         activities = {item.get("activity_id"): item for item in canonical_experience.get("activities", [])}
         responsibilities = canonical_experience.get("task_responsibilities", [])
         if not responsibilities:
@@ -174,7 +174,13 @@ class BulletComposerService:
             # them from tools or methods; use no task-level candidate.
             return []
         claims: List[BulletClaimV2] = []
-        for responsibility in responsibilities:
+        ordered = sorted(
+            enumerate(responsibilities),
+            key=lambda item: self._v2_activity_priority(
+                activities.get(item[1].get("activity_id")), role_pack, item[0],
+            ),
+        )
+        for _, responsibility in ordered:
             activity = activities.get(responsibility.get("activity_id"))
             if not activity:
                 continue
@@ -197,6 +203,42 @@ class BulletComposerService:
                 omitted_unknowns=tuple(canonical_experience.get("unknowns", [])),
             ))
         return claims
+
+    @staticmethod
+    def _v2_activity_priority(
+        activity: Dict[str, Any] | None, role_pack: Dict[str, Any], stable_index: int,
+    ) -> tuple[int, int]:
+        """Order existing facts by Role Pack emphasis without changing them."""
+        components = (activity or {}).get("components", {})
+        actions = set(components.get("actions", []))
+        capabilities: set[str] = set()
+        if actions.intersection({
+            "define_research_question", "develop_protocol", "design_search_strategy",
+            "screen_studies", "assess_quality",
+        }) or components.get("methods"):
+            capabilities.add("research_method")
+        if actions.intersection({"extract_data", "perform_analysis"}) or set(
+            components.get("tools", [])
+        ).intersection({"r", "python", "spss", "stata", "sas", "revman", "excel"}):
+            capabilities.add("data_analysis")
+        if actions.intersection({
+            "culture_cells", "perform_qpcr", "perform_western_blot",
+        }) or components.get("techniques"):
+            capabilities.add("wet_lab")
+        if actions.intersection({
+            "review_clinical_case", "prepare_case_presentation", "develop_protocol",
+        }):
+            capabilities.add("clinical_research")
+        if actions.intersection({
+            "design_search_strategy", "retrieve_literature", "retrieve_guidelines",
+            "prepare_research_outputs",
+        }):
+            capabilities.add("medical_information")
+        ranks = {
+            capability: index
+            for index, capability in enumerate(role_pack.get("priorities", []))
+        }
+        return min((ranks[item] for item in capabilities if item in ranks), default=len(ranks)), stable_index
 
     @staticmethod
     def _render_v2_wording(

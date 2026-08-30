@@ -49,6 +49,62 @@ def test_composer_and_gate_use_activity_not_display_label():
     assert ClaimGateService(role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs").validate_claim(bullet_claim=claim, canonical_experience=canonical).status == "ready"
 
 
+def test_v2_composer_keeps_every_distinct_confirmed_responsibility_auditable():
+    specs = [
+        ("retrieve", "retrieve_literature", "systematic_review", "pubmed", "medical_literature"),
+        ("screen", "screen_studies", "systematic_review", "", "medical_literature"),
+        ("extract", "extract_data", "systematic_review", "", "research_data"),
+        ("meta", "perform_analysis", "meta_analysis", "revman", "research_data"),
+        ("sensitivity", "perform_analysis", "sensitivity_analysis", "r", "research_data"),
+    ]
+    activities = [
+        _activity(f"act_{name}", action, method, tool, obj, f"ev_{index:03d}")
+        for index, (name, action, method, tool, obj) in enumerate(specs, 1)
+    ]
+    responsibilities = [{
+        "responsibility_id": f"resp_{name}", "activity_id": f"act_{name}",
+        "ownership_level": "contributed", "execution_mode": "supervised",
+        "scope": {"coverage": "partial", "note": "完成已分配步骤"},
+        "evidence_ids": [f"ev_{index:03d}"],
+    } for index, (name, *_rest) in enumerate(specs, 1)]
+    canonical = {
+        "schema_version": "canonical-experience-v2", "experience_id": "exp_dense",
+        "evidence_ids": [f"ev_{index:03d}" for index in range(1, 6)],
+        "context": {"domain": "clinical_research", "setting": "research_project", "topic": "cardiovascular"},
+        "role": {"title": None, "responsibility_level": "participated"},
+        "actions": [item[1] for item in specs], "methods": [item[2] for item in specs],
+        "tools": [item[3] for item in specs if item[3]], "techniques": [],
+        "objects": [item[4] for item in specs], "collaboration": [],
+        "artifacts": [], "outcomes": [], "scope": {}, "unknowns": [],
+        "activities": activities, "task_responsibilities": responsibilities,
+        "status": "user_confirmed",
+    }
+    composer = BulletComposerService(
+        role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs"
+    )
+    gate = ClaimGateService(
+        role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs"
+    )
+
+    claims = [
+        item.to_dict() for item in composer.compose_bullets(
+            canonical_experience=canonical, role_pack_name="doctoral_v1"
+        )
+    ]
+
+    assert len(claims) == 5
+    assert len({item["wording"] for item in claims}) == 5
+    assert {
+        item["dependency_refs"]["activity_ids"][0] for item in claims
+    } == {item["activity_id"] for item in activities}
+    assert all(
+        gate.validate_claim(
+            bullet_claim=claim, canonical_experience=canonical
+        ).status == "ready"
+        for claim in claims
+    )
+
+
 def test_v2_gate_rejects_partial_activity_rendered_as_full():
     canonical = {"schema_version": "canonical-experience-v2", "experience_id": "exp_v2_2", "evidence_ids": ["ev_001"], "context": {}, "role": {"responsibility_level": "participated"}, "actions": ["perform_analysis"], "methods": ["sensitivity_analysis"], "tools": ["r"], "techniques": [], "objects": ["research_data"], "collaboration": [], "artifacts": [], "outcomes": [], "scope": {}, "unknowns": [], "activities": [_activity("act_r", "perform_analysis", "sensitivity_analysis", "r", "research_data")], "task_responsibilities": [{"responsibility_id": "resp_r", "activity_id": "act_r", "ownership_level": "owned_component", "execution_mode": "independent", "scope": {"coverage": "partial", "note": None}, "evidence_ids": ["ev_001"]}], "status": "user_confirmed"}
     claim = {"schema_version": "bullet-claim-v2", "claim_id": "claim_v2_2", "experience_id": "exp_v2_2", "role_pack": "doctoral_v1", "wording": "独立完成 R 完整流程。", "used_facts": ["actions:perform_analysis", "methods:sensitivity_analysis", "tools:r"], "dependency_refs": {"activity_ids": ["act_r"], "responsibility_ids": ["resp_r"], "completeness": "complete"}, "evidence_ids": ["ev_001"], "project_responsibility_level": "participated", "omitted_unknowns": [], "risk_flags": [], "verification_status": "candidate", "user_disposition": None}

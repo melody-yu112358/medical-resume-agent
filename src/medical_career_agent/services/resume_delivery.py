@@ -36,7 +36,10 @@ class ResumeDeliveryService:
             raise ResumeDeliveryError("conversation must reach delivery before export")
         if theme not in self.THEMES:
             raise ResumeDeliveryError("theme is invalid")
-        experiences = document.get("research_experience") or []
+        experiences = [
+            item for _, section in self._experience_groups(document)
+            for item in section
+        ]
         if not any(item.get("bullets") for item in experiences):
             raise ResumeDeliveryError("at least one ClaimGate-ready bullet is required")
 
@@ -79,7 +82,7 @@ class ResumeDeliveryService:
             },
             "fact_card": {
                 "confirmed_experience_ids": [
-                    item.get("item_id") for item in document.get("research_experience", [])
+                    item.get("item_id") for item in experiences
                     if item.get("item_id")
                 ],
                 "evidence_bound": True,
@@ -141,23 +144,26 @@ class ResumeDeliveryService:
                 end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
                 dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
                 lines.append(f"### {heading or '教育经历'}" + (f" · {dates}" if dates else ""))
-        lines.extend(["", "## 科研与实践经历"])
-        for experience in document.get("research_experience", []):
-            project_name = str(experience.get("project_name") or "").strip()
-            organization = "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip()
-            role_title = str(experience.get("title") or "").strip()
-            period = experience.get("period") or {}
-            end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
-            dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
-            if project_name:
-                lines.append(f"### {project_name}")
-                metadata = " · ".join(value for value in (organization, role_title, dates) if value)
-                if metadata:
-                    lines.append(metadata)
-            else:
-                heading = " · ".join(value for value in (organization, role_title) if value) or "已确认经历"
-                lines.append(f"### {heading}" + (f" · {dates}" if dates else ""))
-            lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        for section_label, experiences in ResumeDeliveryService._experience_groups(document):
+            if not experiences:
+                continue
+            lines.extend(["", f"## {section_label}"])
+            for experience in experiences:
+                project_name = str(experience.get("project_name") or "").strip()
+                organization = "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip()
+                role_title = str(experience.get("title") or "").strip()
+                period = experience.get("period") or {}
+                end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
+                dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
+                if project_name:
+                    lines.append(f"### {project_name}")
+                    metadata = " · ".join(value for value in (organization, role_title, dates) if value)
+                    if metadata:
+                        lines.append(metadata)
+                else:
+                    heading = " · ".join(value for value in (organization, role_title) if value) or "已确认经历"
+                    lines.append(f"### {heading}" + (f" · {dates}" if dates else ""))
+                lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
         skill_groups = (
             ("研究方法", "research"),
             ("数据与工具", "data"),
@@ -182,6 +188,18 @@ class ResumeDeliveryService:
         ).replace("__THEME__", theme)
 
     @staticmethod
+    def _experience_groups(document: dict[str, Any]) -> list[tuple[str, list[dict[str, Any]]]]:
+        projects = document.get("projects") or []
+        return [
+            ("科研经历", document.get("research_experience") or []),
+            ("临床实践", document.get("clinical_experience") or []),
+            ("工作经历", document.get("professional_experience") or []),
+            ("校园与领导力", [item for item in projects if item.get("experience_type") == "leadership"]),
+            ("志愿服务", [item for item in projects if item.get("experience_type") == "volunteer"]),
+            ("项目经历", [item for item in projects if item.get("experience_type") not in {"leadership", "volunteer"}]),
+        ]
+
+    @staticmethod
     def _rewrite_comparison(document: dict[str, Any]) -> str:
         evidence = [
             item.get("statement", "") for item in document.get("evidence", [])
@@ -189,7 +207,8 @@ class ResumeDeliveryService:
         ]
         bullets = [
             bullet.get("text", "")
-            for experience in document.get("research_experience", [])
+            for _, experiences in ResumeDeliveryService._experience_groups(document)
+            for experience in experiences
             for bullet in experience.get("bullets", []) if bullet.get("text")
         ]
         lines = ["# 改写对照", "", "## 用户确认的原始依据"]

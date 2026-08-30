@@ -198,6 +198,9 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "研究方法与技能" in script
     assert "experience_identity" in script
     assert "experienceName" in script
+    assert "experienceType" in script
+    assert "校园与领导力" in script
+    assert "志愿服务" in script
     assert "experienceOrganization" in script
     assert "experienceRole" in script
     assert "选择完整简历版本" in script

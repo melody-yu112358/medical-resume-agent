@@ -338,7 +338,8 @@ async function downloadBundle() {
   if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();
   try {
     const profileConfirmed = state().candidate_profile?.status === "confirmed";
-    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics: profileConfirmed ? {} : savedBasics(), theme: $("#theme").value }) });
+    const fallbackBasics = profileConfirmed ? {} : savedBasics();
+    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics: fallbackBasics, theme: $("#theme").value }) });
     Object.entries(bundle.files).forEach(([name, content]) => { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type: name.endsWith(".html") ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" })); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); });
     lastMessage = "完整交付包已下载；服务器没有另存导出副本。"; render();
   } catch (error) { showError(error.message); }

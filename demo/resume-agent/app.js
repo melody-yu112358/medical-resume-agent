@@ -106,11 +106,19 @@ function renderWorkspace(stage) {
 function renderIntake() {
   const profile = state().candidate_profile || {};
   if (profile.status !== "confirmed") return renderCandidateProfile(profile);
-  return `<section class="panel soft"><h3>先告诉我们一段真实经历</h3>
+  return `${renderExperienceNavigator(false)}<section class="panel soft"><h3>${(state().confirmed_experiences || []).length ? "继续添加一段真实经历" : "先告诉我们一段真实经历"}</h3>
     <p>写下研究背景、你实际做过的步骤、方法或工具。系统只把原文支持的内容变成待确认事实。</p>
     <label class="field">经历材料<textarea id="material" placeholder="例如：在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"></textarea></label>
     <label class="consent"><input id="consent" type="checkbox"><span>我确认材料来自本人真实经历，并同意在当前电脑的本机服务中保存该会话；点击“开始新简历”会删除当前会话文件。</span></label>
     <button id="submitMaterial" class="primary" type="button">建立事实卡 →</button></section>`;
+}
+
+function renderExperienceNavigator(allowActions) {
+  const experiences = state().confirmed_experiences || [];
+  if (!experiences.length) return "";
+  const activeId = state().active_experience_id;
+  const cards = experiences.map((item, index) => `<button class="experience-tab ${item.experience_id === activeId ? "active" : ""}" data-experience-id="${esc(item.experience_id)}" type="button" ${allowActions ? "" : "disabled"}><span>经历 ${index + 1}</span><b>${esc(item.label || "已确认经历")}</b><small>已确认</small></button>`).join("");
+  return `<section class="panel experience-navigator"><div class="experience-heading"><div><span class="status-badge">已确认 ${experiences.length} 段</span><h3>你的经历</h3></div>${allowActions ? '<button id="startNewExperience" class="secondary" type="button">＋ 添加另一段经历</button>' : ""}</div><div class="experience-tabs">${cards}</div></section>`;
 }
 
 function profileAnswerLabel(id) {
@@ -179,7 +187,7 @@ function renderQuestionCard() {
 }
 
 function renderTargetSelection() {
-  return `<section class="panel soft"><h3>事实已经冻结，选择表达方向</h3><p>方向只改变重点与排序，不会改变已确认的经历。</p><div class="target-grid">${contract.targets.map((target) => `<button class="choice ${selectedTarget === target.id ? "selected" : ""}" data-target="${target.id}" type="button"><b>${esc(target.label)}</b><span>${esc(target.role_pack)}</span></button>`).join("")}</div>
+  return `${renderExperienceNavigator(true)}<section class="panel soft"><h3>事实已经冻结，选择表达方向</h3><p>方向只改变重点与排序；系统会分别处理上方所有已确认经历。</p><div class="target-grid">${contract.targets.map((target) => `<button class="choice ${selectedTarget === target.id ? "selected" : ""}" data-target="${target.id}" type="button"><b>${esc(target.label)}</b><span>${esc(target.role_pack)}</span></button>`).join("")}</div>
     <div class="action-row"><button id="generateClaims" class="primary" type="button">生成代表要点并审计 →</button></div></section>`;
 }
 
@@ -211,6 +219,7 @@ function renderDelivery() {
 }
 
 function bindWorkspace(stage) {
+  bindExperienceNavigator();
   if (stage === "intake") {
     if ($("#submitCandidateProfile")) bindCandidateProfile();
     else if ($("#confirmCandidateProfile")) bindCandidateProfileConfirmation();
@@ -228,6 +237,11 @@ function bindWorkspace(stage) {
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
     if ($("#acceptClaims")) $("#acceptClaims").onclick = () => sendMessage({ action: "accept_bullets" });
   } else { if ($("#saveBasics")) $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
+}
+
+function bindExperienceNavigator() {
+  if ($("#startNewExperience")) $("#startNewExperience").onclick = () => sendMessage({ action: "start_new_experience" });
+  document.querySelectorAll("[data-experience-id]:not([disabled])").forEach((button) => button.onclick = () => sendMessage({ action: "select_experience", experience_id: button.dataset.experienceId }));
 }
 
 function bindCandidateProfile() {

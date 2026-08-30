@@ -48,7 +48,7 @@ def test_conversation_returns_and_restores_one_structured_question_card():
     card = state["question_card"]
     assert card["text"] == state["pending_questions"][0]
     assert card["options"]
-    assert "请先回答下方这一题" in assistant_message
+    assert f"请先回答：{state['pending_questions'][0]}" in assistant_message
     if len(state["pending_questions"]) > 1:
         assert state["pending_questions"][1] not in assistant_message
 

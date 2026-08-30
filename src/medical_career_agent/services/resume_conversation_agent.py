@@ -311,9 +311,10 @@ class ResumeConversationAgent:
             )
         questions = self._activity_clarification_questions(state)
         state["pending_questions"] = questions
+        next_question = questions[0] if questions else "请补充一项可核实的具体工作。"
         return self._response(
             state,
-            f"{introduced}，但目前信息还不足以形成活动卡。请先回答下方这一题；其余缺口会在后续轮次继续询问。",
+            f"{introduced}，但目前信息还不足以形成活动卡。请先回答：{next_question} 其余缺口会在后续轮次继续询问。",
             pending_question=questions[0] if questions else None,
             ui_events=["show_fact_card", "show_clarification"],
         )

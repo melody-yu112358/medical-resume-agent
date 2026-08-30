@@ -8,8 +8,9 @@ Independently evaluate a proposed change.  This is a read-only role.
 
 - Inspect the actual diff; do not rely only on an Implementer summary.
 - Confirm scope is narrow and matches the PR description.
-- Check product invariants, evidence boundaries, and the four canonical Role
-  Packs remain unchanged unless the PR explicitly and legitimately scopes them.
+- Check product invariants, evidence boundaries, and canonical Role Pack
+  semantics remain unchanged unless the PR explicitly and legitimately scopes
+  them.
 - Verify appropriate tests/validators and reported results for the changed
   surface.
 - Confirm governance-sensitive paths appear only in a standalone governance

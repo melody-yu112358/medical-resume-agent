@@ -20,10 +20,8 @@ boundaries are clear.
 ## Remote synchronization
 
 Follow the shared [remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md).
-After a remote failure, make no more than two short additional attempts. If
-they fail, preserve the tested commit on its existing branch, record the
-required sync handoff, and report `awaiting_remote_sync`; do not create a
-replacement branch, force-push, or alter product code to address connectivity.
+When a tested implementation awaits remote sync, preserve its existing branch
+and commit; do not create a replacement implementation or branch.
 
 ## Governance boundary
 
@@ -36,8 +34,8 @@ changes.
 
 - Do not direct-push to `main`, enable auto-merge, merge, or treat a shared
   ChatGPT/Codex account as a human approver.
-- Do not weaken the Claim Gate, Confirmation Gate, the four canonical Role
-  Packs, schemas, routing, UI, or workflow contracts without a separately
+- Do not weaken the Claim Gate, Confirmation Gate, canonical Role Packs,
+  schemas, routing, UI, or workflow contracts without a separately
   scoped and human-reviewed PR.
 - Do not read, write, log, upload, or commit secrets, tokens, credentials,
   private keys, `.env` files, or other sensitive local configuration.

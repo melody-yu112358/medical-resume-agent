@@ -24,6 +24,12 @@ from scripts.generate_skill_role_pack_reference import (
 SKILL = ROOT / "skill-lite" / "medical-resume-skill"
 PACK_DIR = ROOT / "data" / "role-packs"
 SNAPSHOT_PATH = ROOT / "tests" / "fixtures" / "role-pack-execution-projection-v1.json"
+PREEXISTING_PACKS = {
+    "clinical_research_v1": "c592b53c92a1d106fa779d553f00e06c192f235055b44caa90dc13eebff2139b",
+    "doctoral_v1": "5df02f35359bc09c628aaa134379ea84b5f4da2e0dd7a8ca6cf910522fae5786",
+    "health_ai_data_v1": "0985af03477dbe6aa677b44da804862107de825ea4f74585a7df00d963bcb566",
+    "medical_affairs_v1": "199b6e8bbffcc13a248d226309ba1d19ba127073f9c73e97cea50dc34dcd0eee",
+}
 
 
 def projection_digest(pack: dict) -> str:
@@ -41,6 +47,13 @@ def test_execution_projection_matches_frozen_snapshot():
         pack["role_pack"]: projection_digest(pack)
         for pack in packs
     } == snapshot["projections"]
+
+
+def test_preexisting_role_pack_execution_projections_are_unchanged():
+    packs, _ = load_canonical_packs()
+    actual = {pack["role_pack"]: projection_digest(pack) for pack in packs}
+
+    assert {name: actual[name] for name in PREEXISTING_PACKS} == PREEXISTING_PACKS
 
 
 def test_real_agent_loaders_accept_metadata_without_execution_change():

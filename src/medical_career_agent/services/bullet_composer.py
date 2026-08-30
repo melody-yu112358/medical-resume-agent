@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from uuid import uuid4
 
 from .resume_translation import TARGET_PROFILES
+from .resume_vocabulary import FACT_LABELS
 
 
 @dataclass(frozen=True)
@@ -172,9 +173,6 @@ class BulletComposerService:
             # A v2 record without confirmed task responsibilities must not infer
             # them from tools or methods; use no task-level candidate.
             return []
-        action_labels = {"retrieve_literature": "文献检索", "screen_studies": "文献筛选", "extract_data": "数据提取", "perform_analysis": "数据分析", "culture_cells": "细胞培养", "perform_qpcr": "qPCR 检测"}
-        method_labels = {"systematic_review": "系统综述", "meta_analysis": "Meta 分析", "sensitivity_analysis": "敏感性分析"}
-        tool_labels = {"r": "R", "python": "Python", "pubmed": "PubMed", "embase": "Embase", "revman": "RevMan"}
         claims: List[BulletClaimV2] = []
         for responsibility in responsibilities:
             activity = activities.get(responsibility.get("activity_id"))
@@ -183,10 +181,10 @@ class BulletComposerService:
             components = activity.get("components", {})
             facts: list[str] = []
             rendered: list[str] = []
-            for category, labels in (("actions", action_labels), ("methods", method_labels), ("tools", tool_labels)):
+            for category in ("actions", "methods", "tools", "techniques", "artifacts"):
                 values = components.get(category, [])
                 facts.extend(f"{category}:{value}" for value in values)
-                rendered.extend(labels.get(value, value) for value in values)
+                rendered.extend(FACT_LABELS[category].get(value, value) for value in values)
             if not rendered:
                 continue
             ownership, execution = responsibility.get("ownership_level"), responsibility.get("execution_mode")
@@ -268,33 +266,19 @@ class BulletComposerService:
         artifacts = facts.get("artifacts", [])
 
         action_labels = {
-            "retrieve_literature": "文献检索", "screen_studies": "文献筛选",
-            "extract_data": "数据提取", "perform_analysis": "数据分析",
-            "culture_cells": "细胞培养", "perform_qpcr": "qPCR 检测",
+            **FACT_LABELS["actions"],
+            "retrieve_literature": "文献检索", "perform_analysis": "数据分析",
+            "perform_qpcr": "qPCR 检测",
             "perform_western_blot": "Western Blot 检测",
-            "review_clinical_case": "病例分析",
             "prepare_case_presentation": "病例汇报材料制作",
             "retrieve_guidelines": "指南与文献检索",
         }
         method_labels = {
-            "meta_analysis": "Meta 分析",
+            **FACT_LABELS["methods"],
             "mendelian_randomization": "孟德尔随机化（MR）",
-            "systematic_review": "系统综述",
-            "randomized_trial": "随机对照试验",
-            "cohort_study": "队列研究",
-            "case_control": "病例对照研究",
-            "sensitivity_analysis": "敏感性分析",
         }
-        technique_labels = {
-            "cell_culture": "细胞培养", "qpcr": "qPCR",
-            "western_blot": "Western Blot", "flow_cytometry": "流式细胞术",
-            "elisa": "ELISA", "animal_experiment": "动物实验",
-        }
-        tool_labels = {
-            "r": "R", "python": "Python", "spss": "SPSS", "sql": "SQL",
-            "pubmed": "PubMed", "embase": "Embase", "cochrane": "Cochrane",
-            "graphpad_prism": "GraphPad Prism",
-        }
+        technique_labels = FACT_LABELS["techniques"]
+        tool_labels = FACT_LABELS["tools"]
 
         known_facts = (
             set(actions).intersection(action_labels)

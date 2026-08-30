@@ -49,6 +49,52 @@ def test_composer_and_gate_use_activity_not_display_label():
     assert ClaimGateService(role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs").validate_claim(bullet_claim=claim, canonical_experience=canonical).status == "ready"
 
 
+def test_v2_composer_renders_every_supported_component_without_internal_ids():
+    activity = {
+        "activity_id": "act_dense", "label": "已确认活动",
+        "components": {
+            "actions": ["perform_analysis"], "methods": ["meta_analysis"],
+            "tools": ["stata"], "techniques": ["qpcr"], "objects": ["research_data"],
+            "artifacts": ["analysis_figures"],
+        },
+        "evidence_ids": ["ev_001"], "status": "user_confirmed",
+    }
+    canonical = {
+        "schema_version": "canonical-experience-v2", "experience_id": "exp_dense_labels",
+        "evidence_ids": ["ev_001"], "context": {},
+        "role": {"title": None, "responsibility_level": "participated"},
+        "actions": ["perform_analysis"], "methods": ["meta_analysis"],
+        "tools": ["stata"], "techniques": ["qpcr"], "objects": ["research_data"],
+        "collaboration": [], "artifacts": ["analysis_figures"], "outcomes": [],
+        "scope": {}, "unknowns": [], "activities": [activity],
+        "task_responsibilities": [{
+            "responsibility_id": "resp_dense", "activity_id": "act_dense",
+            "ownership_level": "contributed", "execution_mode": "supervised",
+            "scope": {"coverage": "partial", "note": "完成已分配步骤"},
+            "evidence_ids": ["ev_001"],
+        }],
+        "status": "user_confirmed",
+    }
+    composer = BulletComposerService(
+        role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs"
+    )
+    claim = composer.compose_bullets(
+        canonical_experience=canonical, role_pack_name="doctoral_v1"
+    )[0].to_dict()
+
+    assert all(
+        label in claim["wording"]
+        for label in ("统计分析", "Meta 分析", "Stata", "qPCR", "分析图表")
+    )
+    assert all(
+        internal_id not in claim["wording"]
+        for internal_id in ("perform_analysis", "meta_analysis", "stata", "qpcr", "analysis_figures")
+    )
+    assert ClaimGateService(
+        role_packs_dir=Path(__file__).parent.parent / "data" / "role-packs"
+    ).validate_claim(bullet_claim=claim, canonical_experience=canonical).status == "ready"
+
+
 def test_v2_composer_keeps_every_distinct_confirmed_responsibility_auditable():
     specs = [
         ("retrieve", "retrieve_literature", "systematic_review", "pubmed", "medical_literature"),

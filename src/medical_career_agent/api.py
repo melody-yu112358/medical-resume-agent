@@ -54,6 +54,7 @@ from .services.resume_conversation_agent import ResumeConversationAgent
 from .services.chat_first_resume_agent import ChatFirstResumeAgent
 from .services.conversation_model_gateway import ModelGatewayConversationGateway
 from .services.resume_delivery import ResumeDeliveryError, ResumeDeliveryService
+from .services.resume_vocabulary import flat_fact_labels
 
 PROCESS_STARTED_AT = datetime.now(timezone.utc).isoformat()
 CONVERSATION_V2_VERSION = "runtime-observability-v1"
@@ -218,7 +219,9 @@ def create_app(
     @app.get("/api/resume-agent/config")
     def resume_agent_config():
         """Expose the package-owned workflow vocabulary to the browser workspace."""
-        return jsonify(json.loads(workflow_contract.read_text(encoding="utf-8")))
+        config = json.loads(workflow_contract.read_text(encoding="utf-8"))
+        config["fact_labels"] = flat_fact_labels()
+        return jsonify(config)
 
     @app.get("/api/jobs")
     def list_jobs():

@@ -243,10 +243,10 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "forced-colors" in workspace_css
     assert ".conversation-mode .preview-pane { display: none; }" in workspace_css
 
-    labels_source = script.split("const labels = {", 1)[1].split("};", 1)[0]
-    frontend_label_ids = set(re.findall(
-        r"(?:^|,)\s*([a-z][a-z0-9_]*)\s*:", labels_source,
-    ))
+    config = create_app(load_model_from_environment=False).test_client().get(
+        "/api/resume-agent/config"
+    ).get_json()
+    frontend_label_ids = set(config["fact_labels"])
     displayed_fact_ids = (
         set(ExperienceDraftService.ACTION_PATTERNS)
         | set(ExperienceDraftService.METHOD_PATTERNS)
@@ -256,8 +256,10 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
         | set(ExperienceDraftService.ARTIFACT_PATTERNS)
     )
     assert displayed_fact_ids <= frontend_label_ids
-    assert 'stata: "Stata"' in labels_source
-    assert 'analysis_figures: "分析图表"' in labels_source
+    assert config["fact_labels"]["stata"] == "Stata"
+    assert config["fact_labels"]["analysis_figures"] == "分析图表"
+    assert "const labels = {" not in script
+    assert "labels = contract.fact_labels || {}" in script
 
 
 def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():

@@ -8,26 +8,11 @@ let selectedTarget = "doctoral";
 let lastMessage = "";
 let selectedQuestionOptions = new Set();
 let selectedProfileOption = "";
+let labels = {};
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 }[character]));
-const labels = {
-  retrieve_literature: "医学文献检索", screen_studies: "文献筛选", extract_data: "数据提取",
-  create_flowchart: "绘制研究流程图", perform_analysis: "统计分析", write_manuscript: "论文材料撰写",
-  culture_cells: "细胞培养", perform_qpcr: "qPCR 实验", perform_western_blot: "Western Blot 实验",
-  review_clinical_case: "病例分析", prepare_case_presentation: "准备病例汇报", retrieve_guidelines: "临床指南检索",
-  meta_analysis: "Meta 分析", systematic_review: "系统综述", randomized_trial: "随机对照试验",
-  cohort_study: "队列研究", case_control: "病例对照研究", mendelian_randomization: "孟德尔随机化",
-  sensitivity_analysis: "敏感性分析", cell_culture: "细胞培养", qpcr: "qPCR", western_blot: "Western Blot",
-  flow_cytometry: "流式细胞术", elisa: "ELISA", animal_experiment: "动物实验",
-  r: "R", python: "Python", spss: "SPSS", sql: "SQL", stata: "Stata", sas: "SAS", excel: "Excel",
-  revman: "RevMan", endnote: "EndNote", noteexpress: "NoteExpress", graphpad_prism: "GraphPad Prism",
-  pubmed: "PubMed", embase: "Embase", cochrane: "Cochrane",
-  prisma_flowchart: "PRISMA 流程图", data_extraction_sheet: "数据提取表",
-  research_paper: "论文材料", analysis_figures: "分析图表", group_presentation: "组会汇报",
-  case_presentation_material: "病例汇报材料", research_team: "课题组", supervisor: "导师",
-};
 const targetLabels = {
   doctoral_v1: "学术升学与科研申请", clinical_research_v1: "临床研究与医院科研",
   clinical_operations_v1: "临床运营 / 临床项目协调",
@@ -510,6 +495,6 @@ $("#print").addEventListener("click", () => window.print());
 $("#reset").addEventListener("click", resetConversation);
 
 (async () => {
-  try { [contract, health] = await Promise.all([api("/api/resume-agent/config"), api("/api/health")]); await loadOrCreateConversation(); render(); }
+  try { [contract, health] = await Promise.all([api("/api/resume-agent/config"), api("/api/health")]); labels = contract.fact_labels || {}; await loadOrCreateConversation(); render(); }
   catch (error) { $("#connection").textContent = "本机服务连接失败"; $("#workspace").innerHTML = `<p class="error">${esc(error.message)}</p>`; }
 })();

@@ -2,19 +2,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from .resume_vocabulary import flat_fact_labels
+
 
 class IntakeSummaryValidationService:
     """Validate model-authored intake copy without granting fact authority."""
 
     _LABELS = {
-        "retrieve_literature": "医学文献检索", "screen_studies": "文献筛选",
-        "extract_data": "数据提取", "perform_analysis": "统计分析",
-        "write_manuscript": "论文材料撰写", "systematic_review": "系统综述",
-        "meta_analysis": "Meta 分析", "sensitivity_analysis": "敏感性分析",
-        "pubmed": "PubMed", "embase": "Embase", "cochrane": "Cochrane Library",
-        "r": "R", "python": "Python", "spss": "SPSS", "stata": "Stata",
-        "excel": "Excel", "revman": "RevMan", "supervisor": "导师",
-        "research_team": "课题组", "participated": "参与", "contributed": "参与 / 协助",
+        **flat_fact_labels(),
+        "participated": "参与", "contributed": "参与 / 协助",
         "owned_component": "负责明确模块", "supervised": "在指导下完成",
         "shared": "共同完成", "independent": "独立完成",
     }

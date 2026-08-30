@@ -66,3 +66,46 @@ def test_workspace_submits_selected_answer_text_to_existing_update_path():
     assert "selectedQuestionOptions" in script
     assert "selected_option_ids" in script
     assert "renderIntakeModelSummary" in script
+
+
+def test_answered_multi_selects_survive_full_evidence_replan_without_repeating_question():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    first = client.post(
+        f"/api/conversations/{session_id}/messages",
+        json={
+            "text": "参与 Meta 分析并执行文献检索。",
+            "consent_confirmed": True,
+        },
+    ).get_json()
+    assert first["state"]["question_card"]["question_id"] == "databases_used"
+
+    databases = client.post(
+        f"/api/conversations/{session_id}/messages",
+        json={
+            "action": "update_facts",
+            "text": "我使用了 Web of Science；我使用了中国知网 CNKI。",
+            "selected_option_ids": ["web_of_science", "cnki"],
+            "consent_confirmed": True,
+        },
+    ).get_json()
+    facts = databases["state"]["extracted_draft"]["extracted_facts"]
+    assert {"web_of_science", "cnki"}.issubset(facts["tools"])
+    assert "meta_analysis" in facts["methods"]
+    assert "retrieve_literature" in facts["actions"]
+    assert databases["state"]["question_card"]["question_id"] == "research_steps"
+
+    steps = client.post(
+        f"/api/conversations/{session_id}/messages",
+        json={
+            "action": "update_facts",
+            "text": "我参与设计检索式；我参与质量评价或偏倚评估。",
+            "selected_option_ids": ["search_strategy", "quality_assessment"],
+            "consent_confirmed": True,
+        },
+    ).get_json()
+    facts = steps["state"]["extracted_draft"]["extracted_facts"]
+    assert {"design_search_strategy", "assess_quality"}.issubset(facts["actions"])
+    assert steps["state"]["question_card"]["question_id"] not in {
+        "databases_used", "research_steps",
+    }

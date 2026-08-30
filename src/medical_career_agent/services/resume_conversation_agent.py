@@ -237,6 +237,9 @@ class ResumeConversationAgent:
             "free_text": str(payload.get("free_text") or "").strip(),
             "display_text": str(payload.get("display_text") or text).strip(),
         })
+        # Derive resolved gaps from the existing structured answer audit trail.
+        # No parallel question-state machine is needed.
+        self._refresh_question_card(state)
         if self.language_gateway is None:
             state["intake_model"] = {
                 "configured": False, "status": "not_configured", "summary_source": "pending",
@@ -369,22 +372,32 @@ class ResumeConversationAgent:
 
     @staticmethod
     def _pending_question_cards(state: dict[str, Any]) -> list[dict[str, Any]]:
+        answered = {
+            item.get("question_id") for item in state.get("structured_answers", [])
+            if isinstance(item, dict) and item.get("question_id")
+        }
         cards = [
             QuestionGuidanceService.build(question, stage=str(state.get("stage", "")))
             for question in (state.get("pending_questions") or [])[:3]
         ]
-        return [card for card in cards if card]
+        return [
+            card for card in cards
+            if card and card.get("question_id") not in answered
+        ]
 
     @classmethod
     def _refresh_question_card(cls, state: dict[str, Any], pending_question: str | None = None) -> None:
-        if pending_question is None and isinstance(state.get("question_card"), dict):
-            candidate_ids = {card["question_id"] for card in cls._pending_question_cards(state)}
-            if state["question_card"].get("question_id") in candidate_ids:
-                return
-        question = pending_question or next(iter(state.get("pending_questions") or []), None)
-        state["question_card"] = QuestionGuidanceService.build(
-            question,
-            stage=str(state.get("stage", "")),
+        cards = cls._pending_question_cards(state)
+        candidate_ids = {card["question_id"] for card in cards}
+        current = state.get("question_card")
+        if isinstance(current, dict) and current.get("question_id") in candidate_ids:
+            return
+        preferred = QuestionGuidanceService.build(
+            pending_question, stage=str(state.get("stage", "")),
+        ) if pending_question else None
+        state["question_card"] = deepcopy(
+            preferred if preferred and preferred.get("question_id") in candidate_ids
+            else (cards[0] if cards else None)
         )
 
     @classmethod
@@ -463,23 +476,22 @@ class ResumeConversationAgent:
     ) -> dict[str, Any]:
         if not text:
             return self._response(state, "请确认事实卡，或补充一条可核实的事实。", pending_question=(state["pending_questions"] or [None])[0])
-        draft = self.experience_drafter.draft(experience_text=text, context_hint=payload.get("context_hint"), consent_confirmed=True).to_dict()
-        previous = state.get("extracted_draft") or {"extracted_facts": {}}
-        merged = deepcopy(previous)
-        merged["extracted_facts"] = self._merge_facts(previous.get("extracted_facts", {}), draft["extracted_facts"])
-        merged["clarifying_questions"] = draft["clarifying_questions"]
-        merged["unknown_items"] = list(dict.fromkeys((previous.get("unknown_items", []) + draft["unknown_items"])))
-        state["extracted_draft"] = merged
+        combined_text = "\n".join(filter(None, (self._active_experience_text(state), text)))
+        draft = self.experience_drafter.draft(
+            experience_text=combined_text,
+            context_hint=payload.get("context_hint"), consent_confirmed=True,
+        ).to_dict()
+        state["extracted_draft"] = draft
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
         state.setdefault("active_experience_evidence_ids", []).append(next_id)
-        state["pending_questions"] = merged["clarifying_questions"]
+        state["pending_questions"] = draft["clarifying_questions"]
         self._supersede_pending_proposals(state)
         self._invalidate_claims_for_pending_fact_update(session_id, state)
         # Rebuild from all evidence: a later tool/responsibility clarification
         # must not leave the earlier action proposal superseded with no successor.
         self._propose_activities(
-            state, self._active_experience_text(state), merged["extracted_facts"],
+            state, self._active_experience_text(state), draft["extracted_facts"],
         )
         return self._fact_confirmation_response(state, introduced="已将补充内容作为待确认事实加入")
 
@@ -1342,19 +1354,6 @@ class ResumeConversationAgent:
             state, "已切换简历表达档位；事实、证据和责任边界保持不变。",
             ui_events=["refresh_resume_preview"],
         )
-
-    @staticmethod
-    def _merge_facts(base: dict[str, Any], added: dict[str, Any]) -> dict[str, Any]:
-        merged = deepcopy(base)
-        for key, value in added.items():
-            if isinstance(value, list):
-                merged[key] = list(dict.fromkeys((merged.get(key, []) or []) + value))
-            elif isinstance(value, dict):
-                current = merged.get(key, {}) or {}
-                merged[key] = {**current, **{k: v for k, v in value.items() if v not in (None, "")}}
-            elif value not in (None, ""):
-                merged[key] = value
-        return merged
 
     def resume_tier_documents(
         self, session_id: str, state: dict[str, Any] | None = None,

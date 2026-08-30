@@ -32,6 +32,17 @@ class ExperienceDraftService:
 
     # Medical research action patterns
     ACTION_PATTERNS = {
+        "define_research_question": [
+            r"明确研究问题", r"提出研究问题", r"定义研究问题",
+        ],
+        "develop_protocol": [
+            r"制定(?:或修改)?研究方案", r"修改研究方案", r"研究方案制定",
+            r"develop(?:ed)? protocol", r"study protocol",
+        ],
+        "design_search_strategy": [
+            r"设计检索式", r"制定检索策略", r"检索策略",
+            r"search strateg(?:y|ies)",
+        ],
         "retrieve_literature": [
             r"文献检索", r"检索文献", r"查找文献", r"搜索文献",
             r"literature search", r"search literature", r"find papers"
@@ -47,6 +58,10 @@ class ExperienceDraftService:
         "create_flowchart": [
             r"流程图", r"PRISMA流程图", r"绘制流程图",
             r"flowchart", r"PRISMA flowchart"
+        ],
+        "assess_quality": [
+            r"质量评价", r"偏倚评估", r"偏倚风险评估",
+            r"quality assessment", r"risk of bias",
         ],
         "perform_analysis": [
             r"统计分析", r"数据分析", r"敏感性分析", r"进行分析", r"R\s*分析", r"跑数据",
@@ -114,6 +129,10 @@ class ExperienceDraftService:
         (r"PubMed", "pubmed"),
         (r"Embase", "embase"),
         (r"Cochrane", "cochrane"),
+        (r"Web of Science", "web_of_science"),
+        (r"中国知网|CNKI", "cnki"),
+        (r"万方", "wanfang"),
+        (r"维普", "vip"),
         (r"GraphPad(?: Prism)?", "graphpad_prism"),
     )
 
@@ -124,9 +143,14 @@ class ExperienceDraftService:
 
     ARTIFACT_PATTERNS = {
         "prisma_flowchart": (r"流程图", r"flowchart"),
-        "data_extraction_sheet": (r"数据表", r"data sheet"),
+        "search_record": (r"检索式", r"检索记录", r"search strateg", r"search record"),
+        "screening_record": (r"筛选记录", r"screening record"),
+        "data_extraction_sheet": (r"数据表", r"数据提取表", r"data sheet", r"extraction sheet"),
+        "analysis_code": (r"分析代码", r"统计代码", r"analysis code", r"analysis script"),
         "research_paper": (r"论文", r"paper", r"manuscript"),
         "analysis_figures": (r"结果图表", r"森林图", r"图表"),
+        "research_report": (r"研究报告", r"汇报材料", r"research report"),
+        "sop": (r"SOP", r"流程文件", r"standard operating procedure"),
         "group_presentation": (r"组会汇报", r"组会讨论"),
         "case_presentation_material": (r"病例汇报材料", r"准备.*PPT", r"制作.*PPT", r"现场汇报"),
     }
@@ -315,9 +339,18 @@ class ExperienceDraftService:
 
     def _extract_outcomes(self, text: str) -> list[str]:
         """Extract outcomes (results, achievements)."""
-        # For now, don't extract outcomes deterministically
-        # This should be confirmed by user to avoid fabrication
-        return []
+        statuses = (
+            ("no_publication_plan", (r"暂无发表计划", r"没有发表计划", r"未计划发表")),
+            ("materials_preparing", (r"正在整理(?:论文)?材料", r"论文材料整理")),
+            ("submitted", (r"已经投稿", r"已投稿")),
+            ("under_review", (r"审稿中", r"under review")),
+            ("accepted", (r"已录用", r"accepted")),
+            ("published", (r"已发表", r"published")),
+        )
+        return [
+            status for status, patterns in statuses
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+        ]
 
     def _extract_scope(self, text: str) -> dict[str, str]:
         """Extract scope information (numbers, ranges, etc.)."""
@@ -329,7 +362,10 @@ class ExperienceDraftService:
         unknowns = []
 
         # If actions include literature retrieval, ask about databases
-        if "retrieve_literature" in facts["actions"]:
+        database_tools = {
+            "pubmed", "embase", "cochrane", "web_of_science", "cnki", "wanfang", "vip",
+        }
+        if "retrieve_literature" in facts["actions"] and not database_tools.intersection(facts["tools"]):
             unknowns.append("databases_used")
 
         # If methods include meta_analysis, ask about the workflow rather than
@@ -340,7 +376,9 @@ class ExperienceDraftService:
         # If no outcomes are specified, ask about results
         if not facts["outcomes"] and not re.search(r"没有发表|未发表|尚未发表", text, re.IGNORECASE):
             unknowns.append("publication_status")
-            unknowns.append("project_outcomes")
+
+        if not facts["artifacts"]:
+            unknowns.append("deliverables")
 
         # If responsibility is unclear, ask for clarification
         if facts["role"]["responsibility_level"] == "participated":
@@ -380,6 +418,9 @@ class ExperienceDraftService:
 
         if "specific_responsibilities" in unknowns:
             questions.append("你在项目中具体负责哪些任务？")
+
+        if "deliverables" in unknowns:
+            questions.append("你实际形成了哪些可复核的材料或结果？")
 
         if "publication_status" in unknowns:
             questions.append("这个项目是否有发表计划或已发表？")

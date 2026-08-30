@@ -6,10 +6,14 @@ from typing import Mapping
 
 _FACT_LABELS = {
     "actions": {
+        "define_research_question": "明确研究问题",
+        "develop_protocol": "制定或修改研究方案",
+        "design_search_strategy": "设计检索式",
         "retrieve_literature": "医学文献检索",
         "screen_studies": "文献筛选",
         "extract_data": "数据提取",
         "create_flowchart": "绘制研究流程图",
+        "assess_quality": "质量评价 / 偏倚评估",
         "perform_analysis": "统计分析",
         "write_manuscript": "论文材料撰写",
         "culture_cells": "细胞培养",
@@ -50,19 +54,36 @@ _FACT_LABELS = {
         "pubmed": "PubMed",
         "embase": "Embase",
         "cochrane": "Cochrane",
+        "web_of_science": "Web of Science",
+        "cnki": "中国知网 CNKI",
+        "wanfang": "万方",
+        "vip": "维普",
         "graphpad_prism": "GraphPad Prism",
     },
     "artifacts": {
         "prisma_flowchart": "PRISMA 流程图",
+        "search_record": "检索式 / 检索记录",
+        "screening_record": "筛选记录",
         "data_extraction_sheet": "数据提取表",
+        "analysis_code": "分析代码",
         "research_paper": "论文材料",
         "analysis_figures": "分析图表",
+        "research_report": "研究报告 / 汇报材料",
+        "sop": "SOP / 流程文件",
         "group_presentation": "组会汇报",
         "case_presentation_material": "病例汇报材料",
     },
     "collaboration": {
         "research_team": "课题组",
         "supervisor": "导师",
+    },
+    "outcomes": {
+        "no_publication_plan": "暂无发表计划",
+        "materials_preparing": "正在整理材料",
+        "submitted": "已经投稿",
+        "under_review": "审稿中",
+        "accepted": "已录用",
+        "published": "已发表",
     },
 }
 

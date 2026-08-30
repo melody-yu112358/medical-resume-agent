@@ -6,9 +6,9 @@
       "career_id": "clinical_research_associate",
       "current_tier": "beta",
       "stage": "research",
-      "jd_count": 3,
-      "qualifying_jd_count": 3,
-      "company_count": 2,
+      "jd_count": 5,
+      "qualifying_jd_count": 5,
+      "company_count": 5,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -16,15 +16,14 @@
       "conformance_status": "not_started",
       "graduation_status": "not_eligible",
       "blockers": [
-        "insufficient_jd_coverage",
-        "insufficient_company_coverage"
+        "insufficient_jd_coverage"
       ],
       "next_action": "collect_more_jds",
       "assigned_agent": "researcher",
       "human_required": false,
       "execution_status": "completed_local",
       "remote_sync_status": "synced",
-      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until JD coverage, audit cases, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta. Five qualifying JD snapshots are retained; three provenance-pending leads must be normalized or replaced before Candidate graduation review."
     },
     {
       "career_id": "clinical_data_management",

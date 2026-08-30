@@ -67,10 +67,15 @@ def project_confirmed_profile(canonicals: Iterable[dict[str, Any]]) -> dict[str,
         {"name": name, "category": category, "level": None, "evidence_ids": sorted(evidence_ids)}
         for (category, name), evidence_ids in projected.items()
     ]
-    methods = [item["name"] for item in skills if item["category"] == "research"]
-    summary = f"基于已确认经历，具备{'、'.join(methods)}相关实践基础。" if methods else None
+    methods = [item for item in skills if item["category"] == "research"]
+    positioning_skills = (methods + [item for item in skills if item["category"] != "research"])[:3]
+    if not methods or len(skills) < 2:
+        positioning_skills = []
+    names = [item["name"] for item in positioning_skills]
+    joined_names = f"{'、'.join(names[:-1])}与{names[-1]}" if len(names) > 1 else ""
+    summary = f"基于已确认经历，积累了{joined_names}相关实践。" if joined_names else None
     summary_evidence_ids = sorted({
-        evidence_id for item in skills if item["category"] == "research"
+        evidence_id for item in positioning_skills
         for evidence_id in item["evidence_ids"]
     })
     return {"summary": summary, "summary_evidence_ids": summary_evidence_ids, "skills": skills}

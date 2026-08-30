@@ -38,7 +38,7 @@ def test_v2_projection_uses_only_confirmed_activity_facts_and_their_evidence():
     ])
 
     by_name = {item["name"]: item for item in projection["skills"]}
-    assert projection["summary"] == "基于已确认经历，具备系统综述、Meta 分析、敏感性分析相关实践基础。"
+    assert projection["summary"] == "基于已确认经历，积累了系统综述、Meta 分析与敏感性分析相关实践。"
     assert by_name["系统综述"] == {"name": "系统综述", "category": "research", "level": None, "evidence_ids": ["ev_1"]}
     assert by_name["Meta 分析"]["evidence_ids"] == ["ev_1", "ev_2"]
     assert by_name["R"]["evidence_ids"] == ["ev_1", "ev_2"]
@@ -63,7 +63,7 @@ def test_legacy_confirmed_canonical_remains_supported_without_inferred_level():
         "tools": ["spss"],
     }])
 
-    assert projection["summary"] == "基于已确认经历，具备队列研究相关实践基础。"
+    assert projection["summary"] == "基于已确认经历，积累了队列研究与SPSS相关实践。"
     assert projection["skills"] == [
         {"name": "队列研究", "category": "research", "level": None, "evidence_ids": ["ev_legacy"]},
         {"name": "SPSS", "category": "data", "level": None, "evidence_ids": ["ev_legacy"]},
@@ -80,3 +80,13 @@ def test_tools_without_confirmed_methods_do_not_create_positioning_copy():
     assert projection["skills"] == [
         {"name": "Python", "category": "data", "level": None, "evidence_ids": ["ev_tools"]}
     ]
+
+
+def test_one_confirmed_method_is_not_enough_for_candidate_positioning():
+    projection = project_confirmed_profile([_canonical(
+        "exp_method", [_activity("act_method", ["systematic_review"], [], ["ev_method"])], ["ev_method"]
+    )])
+
+    assert projection["summary"] is None
+    assert projection["summary_evidence_ids"] == []
+    assert projection["skills"][0]["name"] == "系统综述"

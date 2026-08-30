@@ -156,7 +156,8 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "reset-flow.js" in html_text
     for action in (
         "update_activity_proposals", "confirm_activity_proposals", "select_role_packs",
-        "edit_wording", "rewrite_claim", "accept_bullets",
+        "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
+        "confirm_candidate_profile",
     ):
         assert action in script
     assert "/api/conversations/" in script
@@ -164,4 +165,7 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "旧会话删除失败，当前会话仍保留，未创建新简历" in script
     assert "positioning" not in script
     assert "localStorage" in script
+    assert "基础资料与教育背景" in script
+    assert "documentData.education" in script
+    assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script

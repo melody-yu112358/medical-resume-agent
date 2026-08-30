@@ -7,6 +7,7 @@ let conversation = null;
 let selectedTarget = "doctoral";
 let lastMessage = "";
 let selectedQuestionOptions = new Set();
+let selectedProfileOption = "";
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -103,11 +104,40 @@ function renderWorkspace(stage) {
 }
 
 function renderIntake() {
+  const profile = state().candidate_profile || {};
+  if (profile.status !== "confirmed") return renderCandidateProfile(profile);
   return `<section class="panel soft"><h3>先告诉我们一段真实经历</h3>
     <p>写下研究背景、你实际做过的步骤、方法或工具。系统只把原文支持的内容变成待确认事实。</p>
     <label class="field">经历材料<textarea id="material" placeholder="例如：在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"></textarea></label>
     <label class="consent"><input id="consent" type="checkbox"><span>我确认材料来自本人真实经历，并同意在当前电脑的本机服务中保存该会话；点击“开始新简历”会删除当前会话文件。</span></label>
     <button id="submitMaterial" class="primary" type="button">建立事实卡 →</button></section>`;
+}
+
+function profileAnswerLabel(id) {
+  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间" }[id] || id;
+}
+
+function renderProfileSummary(profile, confirmable = false) {
+  const answers = profile.answers || {};
+  const rows = Object.entries(answers).filter(([, value]) => value && (typeof value !== "object" || Object.values(value).some(Boolean))).map(([id, value]) => {
+    const shown = id === "period" ? `${value.start || "未填开始时间"} 至 ${value.ongoing ? "今" : (value.end || "未填结束时间")}` : value;
+    return `<div class="profile-summary-row"><span>${esc(profileAnswerLabel(id))}</span><b>${esc(shown)}</b></div>`;
+  }).join("");
+  return `<section class="panel profile-summary"><div class="profile-summary-head"><div><span class="status-badge">${confirmable ? "请你确认" : "已收集"}</span><h3>基础资料与教育背景</h3></div>${confirmable ? '<button id="editCandidateProfile" class="quiet" type="button">重新检查</button>' : ""}</div>${rows || "<p>还没有已填写资料。</p>"}${confirmable ? '<button id="confirmCandidateProfile" class="primary" type="button">信息准确，开始聊经历 →</button>' : ""}</section>`;
+}
+
+function renderCandidateProfile(profile) {
+  if (profile.status === "awaiting_confirmation") return renderProfileSummary(profile, true);
+  const question = profile.current_question || {};
+  const previous = (profile.answers || {})[question.id];
+  let control = `<input id="profileValue" type="${question.kind === "email" ? "email" : "text"}" value="${esc(previous || "")}" placeholder="${esc(question.placeholder || "")}">`;
+  if (question.kind === "single_choice") {
+    control = `<div class="profile-options" role="group" aria-label="学历或学位选项">${(question.options || []).map((option) => `<button class="answer-option profile-option" data-profile-option="${esc(option)}" aria-pressed="false" type="button">${esc(option)}</button>`).join("")}</div><label class="field">其他情况（可选）<input id="profileValue" value="${esc(previous || "")}" placeholder="${esc(question.placeholder || "")}"></label>`;
+  } else if (question.kind === "period") {
+    const period = previous || {};
+    control = `<div class="period-grid"><label class="field">开始年月<input id="profileStart" type="month" value="${esc(period.start || "")}"></label><label class="field">结束年月<input id="profileEnd" type="month" value="${esc(period.end || "")}" ${period.ongoing ? "disabled" : ""}></label></div><label class="consent"><input id="profileOngoing" type="checkbox" ${period.ongoing ? "checked" : ""}><span>目前仍在读</span></label>`;
+  }
+  return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><p class="mode-note">你的回答会保存在本机 session；确认前不会进入最终简历。</p><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
 }
 
 function factGroups(facts) {
@@ -170,6 +200,10 @@ function renderClaims() {
 
 function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStorageKey) || "{}"); } catch (_) { return {}; } }
 function renderDelivery() {
+  const profile = state().candidate_profile || {};
+  if (profile.status === "confirmed") {
+    return `${renderProfileSummary(profile)}<section class="panel"><h3>下载交付文件</h3><p>抬头和教育背景来自你刚才确认的资料；只有通过 Claim Gate 的经历要点会进入文件。</p><div class="action-row"><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>`;
+  }
   const basics = savedBasics();
   return `<section class="panel"><h3>补齐抬头并交付</h3><p>姓名和联系方式仅保存在当前浏览器，并在下载时随请求用于生成文件，不写回经历事实。</p><div class="basics-grid"><label class="field">姓名<input id="candidateName" value="${esc(basics.name || "")}" placeholder="姓名"></label><label class="field">联系方式<input id="candidateContact" value="${esc(basics.contact || "")}" placeholder="电话 · 邮箱 · 城市"></label></div>
     <div class="action-row"><button id="saveBasics" class="secondary" type="button">更新预览</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>
@@ -178,7 +212,9 @@ function renderDelivery() {
 
 function bindWorkspace(stage) {
   if (stage === "intake") {
-    $("#submitMaterial").onclick = () => { const text = $("#material").value.trim(); if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。"); sendMessage({ text, consent_confirmed: true }); };
+    if ($("#submitCandidateProfile")) bindCandidateProfile();
+    else if ($("#confirmCandidateProfile")) bindCandidateProfileConfirmation();
+    else $("#submitMaterial").onclick = () => { const text = $("#material").value.trim(); if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。"); sendMessage({ text, consent_confirmed: true }); };
   } else if (stage === "fact_confirmation") {
     selectedQuestionOptions = new Set();
     document.querySelectorAll("[data-question-option]").forEach((button) => button.onclick = () => toggleQuestionOption(button));
@@ -191,7 +227,40 @@ function bindWorkspace(stage) {
     document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
     if ($("#acceptClaims")) $("#acceptClaims").onclick = () => sendMessage({ action: "accept_bullets" });
-  } else { $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
+  } else { if ($("#saveBasics")) $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
+}
+
+function bindCandidateProfile() {
+  selectedProfileOption = "";
+  document.querySelectorAll("[data-profile-option]").forEach((button) => button.onclick = () => {
+    selectedProfileOption = button.dataset.profileOption;
+    document.querySelectorAll("[data-profile-option]").forEach((item) => {
+      const selected = item === button;
+      item.classList.toggle("selected", selected);
+      item.setAttribute("aria-pressed", String(selected));
+    });
+    if (selectedProfileOption !== "其他" && $("#profileValue")) $("#profileValue").value = "";
+  });
+  if ($("#profileOngoing")) $("#profileOngoing").onchange = () => { $("#profileEnd").disabled = $("#profileOngoing").checked; };
+  $("#submitCandidateProfile").onclick = () => submitCandidateProfile(false);
+  if ($("#skipCandidateProfile")) $("#skipCandidateProfile").onclick = () => submitCandidateProfile(true);
+}
+
+function bindCandidateProfileConfirmation() {
+  $("#confirmCandidateProfile").onclick = () => sendMessage({ action: "confirm_candidate_profile" });
+  $("#editCandidateProfile").onclick = () => sendMessage({ action: "edit_candidate_profile" });
+}
+
+function submitCandidateProfile(skipped) {
+  const question = state().candidate_profile?.current_question || {};
+  const customValue = $("#profileValue")?.value.trim() || "";
+  let value = customValue || selectedProfileOption;
+  if (question.kind === "single_choice" && selectedProfileOption && selectedProfileOption !== "其他") value = selectedProfileOption;
+  if (question.kind === "single_choice" && selectedProfileOption === "其他") value = customValue;
+  if (!skipped && question.kind === "single_choice" && selectedProfileOption === "其他" && !customValue) return showError("请选择具体学历，或填写其他真实情况。");
+  if (question.kind === "period") value = { start: $("#profileStart").value, end: $("#profileEnd").value, ongoing: $("#profileOngoing").checked };
+  if (!skipped && question.required && (!value || (typeof value === "object" && !Object.values(value).some(Boolean)))) return showError("请填写这一项后继续。");
+  sendMessage({ action: "answer_candidate_profile", question_id: question.id, value, skipped });
 }
 
 function toggleQuestionOption(button) {
@@ -234,16 +303,21 @@ function renderPreview() {
   const documentData = state().resume_document;
   const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
-  const basics = savedBasics(); const experiences = documentData.research_experience || [];
+  const profileConfirmed = state().candidate_profile?.status === "confirmed";
+  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
+  const name = basics.name || fallbackBasics.name || "姓名（请填写）";
+  const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
-  paper.innerHTML = `<h1>${esc(basics.name || "姓名（请填写）")}</h1><blockquote>${esc(target)}${basics.contact ? ` · ${esc(basics.contact)}` : ""}</blockquote><h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
+  const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
+  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 
 async function downloadBundle() {
-  saveBasicsAndPreview();
+  if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();
   try {
-    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics: savedBasics(), theme: $("#theme").value }) });
+    const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics();
+    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics, theme: $("#theme").value }) });
     Object.entries(bundle.files).forEach(([name, content]) => { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type: name.endsWith(".html") ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" })); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); });
     lastMessage = "完整交付包已下载；服务器没有另存导出副本。"; render();
   } catch (error) { showError(error.message); }

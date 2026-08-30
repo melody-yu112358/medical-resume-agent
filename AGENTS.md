@@ -6,7 +6,11 @@ This repository is an evidence-bounded medical-career system. Agents and reviewe
 
 - **Skill layer** (`skill-lite/medical-resume-skill/`) provides portable, human-readable guidance, fixtures, and validators. It translates confirmed experience; it never creates evidence or upgrades ownership.
 - **Application/agent layer** (`src/medical_career_agent/`) implements the product workflow, schemas, gates, routing, and UI. Do not change this layer while working on role-pack research or governance unless the task explicitly requires a runtime change.
-- **Canonical Role Packs** are the four JSON files in `data/role-packs/`: `clinical_research_v1`, `doctoral_v1`, `health_ai_data_v1`, and `medical_affairs_v1`. They are the single source of truth for their target semantics and execution guardrails. Preserve their current behavior unless a scoped, reviewed Role Pack change is explicitly requested.
+- **Canonical Role Packs** live in `data/role-packs/*.json` and are the single
+  source of truth for target semantics and execution guardrails. The current
+  runnable target list lives in
+  `skill-lite/medical-resume-skill/references/workflow-contract.json`. Do not
+  hard-code a Role Pack count in governance documents.
 
 ## Generated artifacts
 
@@ -21,7 +25,11 @@ Never hand-edit `skill-lite/medical-resume-skill/references/role-packs.md` or `s
 
 ## Role Pack research lifecycle
 
-New target families begin as **Beta** research artifacts, not Canonical Role Packs. Follow the lifecycle and graduation evidence in `docs/ROLE_PACK_GRADUATION.md`. A Beta artifact must not alter the four stable packs or become routable/executable merely because its examples appear promising.
+New target families begin as **Beta** research artifacts, not Canonical Role
+Packs. The complete lifecycle and graduation criteria are defined only in
+`docs/ROLE_PACK_GRADUATION.md`. A Beta artifact must not alter existing
+canonical-Pack semantics or become routable/executable merely because its
+examples appear promising.
 
 Real-JD research must retain traceable source snapshots/digests. Evaluate a fixed mix of positive, partial, and negative personas; run model-conformance checks separately from structural fixtures; and test prohibited claims and ownership boundaries as first-class requirements.
 
@@ -36,25 +44,14 @@ For every phase, make the smallest scoped change and include:
 
 ## Remote sync recovery
 
-All phases follow the [remote sync recovery protocol](docs/REMOTE_SYNC_PROTOCOL.md).
-Treat a GitHub connection failure as a `remote sync delay`, not as a product,
-test, or CI failure. Complete and verify local work first, then preserve its
-single committed branch if remote synchronization fails.
-
-After the first remote failure, make at most two short additional attempts.
-If they fail, stop remote operations, record the required handoff details, and
-report `execution_status: awaiting_remote_sync`. A later recovery may only
-verify the existing commit, push the existing branch without force, and create
-or update its intended PR. Do not create replacement branches or reimplement
-the phase to work around network failures.
-
-Every phase report must include one of the protocol's `execution_status`
-values. Direct pushes to `main`, automatic merges, and unapproved force-pushes
-remain prohibited.
+The complete remote-sync procedure and all `execution_status` values are
+defined only in [docs/REMOTE_SYNC_PROTOCOL.md](docs/REMOTE_SYNC_PROTOCOL.md).
+Treat a GitHub connection failure as a remote-sync delay and follow that
+protocol; do not reimplement a completed phase to work around connectivity.
 
 ## No scope creep
 
-Do not refactor adjacent code, add dependencies, modify production behavior, or promote a target family while completing research, documentation, fixture, or evaluation work. If the requested change would affect runtime semantics, the four stable packs, routing, UI, `workflow-contract.json`, or either gate, stop and request a separately scoped task.
+Do not refactor adjacent code, add dependencies, modify production behavior, or promote a target family while completing research, documentation, fixture, or evaluation work. If the requested change would affect runtime semantics, canonical-Pack semantics, routing, UI, `workflow-contract.json`, or either gate, stop and request a separately scoped task.
 
 ## Shared-account safety and merge controls
 

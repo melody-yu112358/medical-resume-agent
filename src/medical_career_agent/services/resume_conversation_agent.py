@@ -1377,7 +1377,7 @@ class ResumeConversationAgent:
                     "claim_id": claim_id, "text": claim["wording"],
                     "evidence_ids": claim["evidence_ids"],
                 })
-        basics, education, profile_evidence = CandidateProfileIntakeService.document_sections(
+        basics, education, profile_extras, profile_evidence = CandidateProfileIntakeService.document_sections(
             state.get("candidate_profile") or {}
         )
         profile_projection = project_confirmed_profile(canonicals)
@@ -1414,7 +1414,10 @@ class ResumeConversationAgent:
             "target": {"purpose": "general", "role": ", ".join(state.get("selected_role_packs", [])) or None, "organization": None, "jd_reference": None},
             "basics": basics,
             "education": education,
-            "skills": profile_projection["skills"],
+            "awards": profile_extras["awards"],
+            "languages": profile_extras["languages"],
+            "research_interests": profile_extras["research_interests"],
+            "skills": profile_projection["skills"] + profile_extras["certificates"],
             **experience_sections,
             "evidence": profile_evidence + [{"evidence_id": item["evidence_id"], "statement": item["source_text"], "source_document_id": None, "source_locator": None, "status": "user_confirmed", "confirmed_at": None} for item in state["evidence_records"]],
             "review_events": [],

@@ -164,10 +164,15 @@ class ResumeDeliveryService:
                     heading = " · ".join(value for value in (organization, role_title) if value) or "已确认经历"
                     lines.append(f"### {heading}" + (f" · {dates}" if dates else ""))
                 lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        awards = document.get("awards") or []
+        if awards:
+            lines.extend(["", "## 荣誉奖励"])
+            lines.extend(f"- {item['name']}" for item in awards if item.get("name"))
         skill_groups = (
             ("研究方法", "research"),
             ("数据与工具", "data"),
             ("文献与证据资源", "medical_information"),
+            ("证书与培训", "certificate"),
         )
         grouped = [
             (label, [item["name"] for item in document.get("skills", []) if item.get("category") == category and item.get("name")])
@@ -176,6 +181,17 @@ class ResumeDeliveryService:
         if any(items for _, items in grouped):
             lines.extend(["", "## 研究方法与技能"])
             lines.extend(f"- **{label}：** {'、'.join(items)}" for label, items in grouped if items)
+        languages = document.get("languages") or []
+        if languages:
+            lines.extend(["", "## 语言能力"])
+            lines.extend(
+                f"- {item['language']}" + (f"：{item['level_or_score']}" if item.get("level_or_score") else "")
+                for item in languages if item.get("language")
+            )
+        interests = document.get("research_interests") or []
+        if interests:
+            lines.extend(["", "## 研究兴趣"])
+            lines.extend(f"- {item['name']}" for item in interests if item.get("name"))
         return "\n".join(lines).strip() + "\n"
 
     @staticmethod

@@ -16,6 +16,7 @@ from typing import Any, Callable
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_STATE = ROOT / "docs" / "research" / "career-track-states-v1.json"
+REPOSITORY = "melody-yu112358/medical-resume-agent"
 
 
 def _utc_now() -> str:
@@ -25,6 +26,14 @@ def _utc_now() -> str:
 def _digest(value: Any) -> str:
     rendered = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(rendered.encode("utf-8")).hexdigest()
+
+
+def _semantic_track_state(track: dict[str, Any]) -> dict[str, Any]:
+    """Digest the complete dispatch-relevant source track, not presentation time."""
+    return {
+        key: value for key, value in track.items()
+        if key not in {"generated_at", "created_at", "updated_at"}
+    }
 
 
 def task_payload(track: dict[str, Any], state_version: str) -> dict[str, Any]:
@@ -54,7 +63,7 @@ def task_payload(track: dict[str, Any], state_version: str) -> dict[str, Any]:
 
 def build_record(track: dict[str, Any], state_version: str, *, status: str = "planned", task_reference: str | None = None, error: str | None = None) -> dict[str, Any]:
     payload = task_payload(track, state_version)
-    source_digest = _digest({"state_version": state_version, "career_id": track["career_id"], "next_action": track["next_action"], "assigned_agent": track["assigned_agent"], "human_required": track["human_required"], "blockers": track.get("blockers") or []})
+    source_digest = _digest({"state_version": state_version, "track": _semantic_track_state(track)})
     return {
         "schema_version": "career-dispatch-record-v1",
         "career_id": track["career_id"],
@@ -87,7 +96,7 @@ def _run_gh(arguments: list[str]) -> str:
 
 def _find_existing(record: dict[str, Any], runner: Callable[[list[str]], str]) -> dict[str, Any] | None:
     marker = issue_marker(record)
-    raw = runner(["issue", "list", "--state", "all", "--search", f'"{marker}" in:body', "--json", "number,url,body", "--limit", "100"])
+    raw = runner(["issue", "list", "--repo", REPOSITORY, "--state", "all", "--search", f'"{marker}" in:body', "--json", "number,url,body", "--limit", "100"])
     for issue in json.loads(raw or "[]"):
         if marker in str(issue.get("body") or ""):
             return issue
@@ -106,7 +115,7 @@ def dispatch_track(track: dict[str, Any], state_version: str, *, apply: bool, ru
             return record
         title_prefix = "[human-escalation]" if record["human_required"] else "[career-dispatch]"
         title = f"{title_prefix} {record['career_id']}: {record['task_payload']['next_action']}"
-        reference = runner(["issue", "create", "--title", title, "--body", issue_body(record)])
+        reference = runner(["issue", "create", "--repo", REPOSITORY, "--title", title, "--body", issue_body(record)])
         record["dispatch_status"] = "human_escalation_created" if record["human_required"] else "dispatch_created"
         record["task_reference"] = reference
         return record

@@ -31,7 +31,7 @@
       "stage": "research",
       "jd_count": 4,
       "qualifying_jd_count": 3,
-      "company_count": 4,
+      "company_count": 3,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -55,7 +55,7 @@
       "stage": "research",
       "jd_count": 5,
       "qualifying_jd_count": 3,
-      "company_count": 4,
+      "company_count": 3,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -79,7 +79,7 @@
       "stage": "research",
       "jd_count": 5,
       "qualifying_jd_count": 3,
-      "company_count": 5,
+      "company_count": 3,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -87,7 +87,8 @@
       "conformance_status": "not_started",
       "graduation_status": "not_eligible",
       "blockers": [
-        "insufficient_jd_coverage"
+        "insufficient_jd_coverage",
+        "insufficient_company_coverage"
       ],
       "next_action": "collect_more_jds",
       "assigned_agent": "researcher",

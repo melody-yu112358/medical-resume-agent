@@ -6,7 +6,11 @@ This repository is an evidence-bounded medical-career system. Agents and reviewe
 
 - **Skill layer** (`skill-lite/medical-resume-skill/`) provides portable, human-readable guidance, fixtures, and validators. It translates confirmed experience; it never creates evidence or upgrades ownership.
 - **Application/agent layer** (`src/medical_career_agent/`) implements the product workflow, schemas, gates, routing, and UI. Do not change this layer while working on role-pack research or governance unless the task explicitly requires a runtime change.
-- **Canonical Role Packs** are the four JSON files in `data/role-packs/`: `clinical_research_v1`, `doctoral_v1`, `health_ai_data_v1`, and `medical_affairs_v1`. They are the single source of truth for their target semantics and execution guardrails. Preserve their current behavior unless a scoped, reviewed Role Pack change is explicitly requested.
+- **Canonical Role Packs** live in `data/role-packs/*.json` and are the single
+  source of truth for target semantics and execution guardrails. The current
+  runnable target list lives in
+  `skill-lite/medical-resume-skill/references/workflow-contract.json`. Do not
+  hard-code a Role Pack count in governance documents.
 
 ## Generated artifacts
 
@@ -21,7 +25,11 @@ Never hand-edit `skill-lite/medical-resume-skill/references/role-packs.md` or `s
 
 ## Role Pack research lifecycle
 
-New target families begin as **Beta** research artifacts, not Canonical Role Packs. Follow the lifecycle and graduation evidence in `docs/ROLE_PACK_GRADUATION.md`. A Beta artifact must not alter the four stable packs or become routable/executable merely because its examples appear promising.
+New target families begin as **Beta** research artifacts, not Canonical Role
+Packs. The complete lifecycle and graduation criteria are defined only in
+`docs/ROLE_PACK_GRADUATION.md`. A Beta artifact must not alter existing
+canonical-Pack semantics or become routable/executable merely because its
+examples appear promising.
 
 Real-JD research must retain traceable source snapshots/digests. Evaluate a fixed mix of positive, partial, and negative personas; run model-conformance checks separately from structural fixtures; and test prohibited claims and ownership boundaries as first-class requirements.
 
@@ -34,9 +42,16 @@ For every phase, make the smallest scoped change and include:
 3. Push the branch and create or update one pull request to `main`; that PR is the handoff record for Codex and human reviewers. Do not merge it automatically.
 4. A PR report covering scope, files changed, commands/results, source and persona coverage, model-conformance results (if applicable), unresolved gaps, and an explicit statement of what was not changed.
 
+## Remote sync recovery
+
+The complete remote-sync procedure and all `execution_status` values are
+defined only in [docs/REMOTE_SYNC_PROTOCOL.md](docs/REMOTE_SYNC_PROTOCOL.md).
+Treat a GitHub connection failure as a remote-sync delay and follow that
+protocol; do not reimplement a completed phase to work around connectivity.
+
 ## No scope creep
 
-Do not refactor adjacent code, add dependencies, modify production behavior, or promote a target family while completing research, documentation, fixture, or evaluation work. If the requested change would affect runtime semantics, the four stable packs, routing, UI, `workflow-contract.json`, or either gate, stop and request a separately scoped task.
+Do not refactor adjacent code, add dependencies, modify production behavior, or promote a target family while completing research, documentation, fixture, or evaluation work. If the requested change would affect runtime semantics, canonical-Pack semantics, routing, UI, `workflow-contract.json`, or either gate, stop and request a separately scoped task.
 
 ## Shared-account safety and merge controls
 

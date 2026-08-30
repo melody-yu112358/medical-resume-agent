@@ -26,3 +26,9 @@ review.  This role has no implementation authority.
 Report source provenance, conclusions, limitations, and the exact files that
 an Implementer would need to change.  A research conclusion is not approval
 to implement or merge.
+
+## Remote synchronization
+
+Follow the shared [remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md).
+For a requested, committed research artifact awaiting remote sync, preserve
+the verified branch; do not redo research or create a substitute branch.

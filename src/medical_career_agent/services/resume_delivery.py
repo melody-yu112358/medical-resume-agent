@@ -16,6 +16,7 @@ class ResumeDeliveryService:
     TARGET_LABELS = {
         "doctoral_v1": "学术升学与科研申请",
         "clinical_research_v1": "临床研究与医院科研",
+        "clinical_operations_v1": "临床运营与试验协调",
         "medical_affairs_v1": "医学事务 / MSL",
         "health_ai_data_v1": "医疗数据与数字健康",
     }

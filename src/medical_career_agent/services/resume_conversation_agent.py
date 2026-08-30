@@ -17,6 +17,7 @@ from .claim_ledger import ClaimLedgerService
 from .confirmation_gate import ConfirmationGateService
 from .experience_draft import ExperienceDraftService
 from .conversation_model_gateway import ConversationModelGateway
+from .question_guidance import QuestionGuidanceService
 
 
 STAGES = (
@@ -48,7 +49,8 @@ class ResumeConversationAgent:
             "conversation_version": "resume-conversation-v1", "stage": "intake",
             "raw_user_texts": [], "conversation_turns": [], "extracted_draft": None,
             "confirmed_canonical_experience": None, "evidence_records": [],
-            "pending_questions": [], "selected_role_packs": [], "generated_claims": [],
+            "pending_questions": [], "question_card": None,
+            "selected_role_packs": [], "generated_claims": [],
             "claim_gate_results": {}, "claim_user_dispositions": {},
             "activity_proposals": [], "rewrite_candidates": [], "resume_document": None,
             "proposal_audits": [], "language_audit": [],
@@ -66,6 +68,7 @@ class ResumeConversationAgent:
         if isinstance(stored, dict):
             state.update(stored)
         state["resume_document"] = self._resume_document(session_id, state)
+        self._refresh_question_card(state)
         return {"session_id": session_id, "state": state, "events": payload.get("events", [])}
 
     def handle_message(self, session_id: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -178,6 +181,7 @@ class ResumeConversationAgent:
             response = self._response(state, "请选择目标方向、确认事实，或提交需要审计的候选措辞。")
 
         state["resume_document"] = self._resume_document(session_id, state)
+        self._refresh_question_card(state, response.get("pending_question"))
         if text:
             state["conversation_turns"].append({"user": text, "assistant": response["assistant_message"], "stage": state["stage"]})
             state["conversation_turns"] = state["conversation_turns"][-12:]
@@ -190,6 +194,14 @@ class ResumeConversationAgent:
         response["stage"] = state["stage"]
         response["audit_status"] = self._audit_status(state)
         return response
+
+    @staticmethod
+    def _refresh_question_card(state: dict[str, Any], pending_question: str | None = None) -> None:
+        question = pending_question or next(iter(state.get("pending_questions") or []), None)
+        state["question_card"] = QuestionGuidanceService.build(
+            question,
+            stage=str(state.get("stage", "")),
+        )
 
     @staticmethod
     def _conversation_context(state: dict[str, Any]) -> dict[str, Any]:
@@ -301,7 +313,7 @@ class ResumeConversationAgent:
         state["pending_questions"] = questions
         return self._response(
             state,
-            f"{introduced}，但目前信息还不足以形成活动卡。" + " ".join(questions),
+            f"{introduced}，但目前信息还不足以形成活动卡。请先回答下方这一题；其余缺口会在后续轮次继续询问。",
             pending_question=questions[0] if questions else None,
             ui_events=["show_fact_card", "show_clarification"],
         )

@@ -1,0 +1,33 @@
+{
+  "schema_version": "china-role-candidate-evidence-v1",
+  "career_id": "clinical_research_associate",
+  "captured_at": "2026-08-30",
+  "scope": "Research-only China CRA Candidate evidence. This is not a Role Pack, runtime target, or personal-evidence source.",
+  "jd_snapshots": [
+    {"id":"cra-01","employer":"IQVIA China","title":"Senior/Clinical Research Associate","location":"Beijing/Shanghai, China","url":"https://jobs.iqvia.com/en/jobs/R1521621-1","retrieved_at":"2026-08-30","status":"current_public","snapshot_completeness":"source URL and reviewed responsibility extract; immutable full-text digest pending","signals":["site selection/initiation/monitoring/close-out","GCP/ICH and protocol compliance","site communication and recruitment tracking","site financial work only where assigned"]},
+    {"id":"cra-02","employer":"ICON China","title":"Clinical Research Associate I","location":"Shanghai, China","url":"https://careers.iconplc.com/job/clinical-research-associate-i-in-china-shanghai-jid-52096","retrieved_at":"2026-08-30","status":"current_public","snapshot_completeness":"source URL and reviewed responsibility extract; immutable full-text digest pending","signals":["study setup and monitoring support","status reports and study documentation","query follow-up","ICH-GCP, degree, English, travel"]},
+    {"id":"cra-03","employer":"IQVIA China","title":"CRA 1/2/Sr (Device)","location":"Beijing/Shanghai, China","url":"https://jobs.iqvia.com/en/jobs/R1554376-1","retrieved_at":"2026-08-30","status":"current_public","snapshot_completeness":"source URL and reviewed responsibility extract; immutable full-text digest pending","signals":["site selection/start-up/monitoring/close-out","site training and communication","CRF/query and enrollment tracking","quality issues escalated to PM/manager"]}
+  ],
+  "stable_responsibilities": ["protocol/SOP/GCP-aligned site and study execution", "study documentation and visit/status reporting", "data/CRF/query follow-up", "site-facing coordination within assigned scope", "escalation of quality or compliance issues"],
+  "jd_dependent_or_senior_scope": ["independent site lifecycle ownership", "site financial management", "recruitment-plan ownership", "project/program leadership", "site staff training authority", "managerial responsibility"],
+  "fixed_personas": [
+    {"id":"cra-p1","kind":"positive","facts":["协助病历筛查和CRF维护","跟进缺失数据","完成GCP培训"],"absences":["独立中心监查","受试者招募所有权","预算所有权"]},
+    {"id":"cra-p2","kind":"positive","facts":["参与研究资料归档","协助访视前资料准备","与研究团队沟通时间节点"],"absences":["PI管理","项目负责人"]},
+    {"id":"cra-p3","kind":"partial","facts":["参与临床轮转和病例讨论"],"absences":["GCP","CRF","研究中心工作"]},
+    {"id":"cra-p4","kind":"partial","facts":["整理文献和Meta分析数据"],"absences":["临床试验执行","site monitoring"]},
+    {"id":"cra-p5","kind":"negative","facts":["细胞培养和qPCR实验"],"absences":["临床研究流程"]},
+    {"id":"cra-p6","kind":"negative","facts":["内部学术汇报"],"absences":["研究中心或外部沟通"]},
+    {"id":"cra-p7","kind":"negative","facts":["R数据清洗"],"absences":["临床数据管理流程"]},
+    {"id":"cra-p8","kind":"partial","facts":["协助患者随访记录"],"absences":["中心管理","监查访视"]}
+  ],
+  "mappings": {"direct":["CRF维护、源数据核对、研究资料归档、GCP培训可映射为研究执行/资料与数据质量支持"],"transferable":["医学文献检索和严谨记录可映射为受控文档与证据意识，不能替代GCP或中心监查经历"],"partial":["研究团队时间节点协调可映射为协调支持，不是中心或项目所有权"],"gap":["独立监查访视、site lifecycle、受试者招募、预算、研究中心财务和项目领导均需直接证据"]},
+  "negative_mappings": ["CRF/资料维护不等于独立CRA或site owner", "研究团队协调不等于项目/项目群管理", "临床轮转不等于GCP或临床试验经验", "内部汇报不等于PI、申办方或外部stakeholder沟通", "协助随访不等于受试者招募或中心管理", "无直接证据不得写监查访视、预算或质量体系所有权"],
+  "eval_cases": [
+    {"id":"cra-positive","persona_id":"cra-p1","expected":"direct/partial mapping; preserve participated/support level"},
+    {"id":"cra-partial","persona_id":"cra-p3","expected":"clinical context partial; explicit GCP/CRF/site-monitoring gaps"},
+    {"id":"cra-negative","persona_id":"cra-p5","expected":"explicit clinical-research execution gap; no CRA wording"}
+  ],
+  "domain_review": {"factuality":"not scored: no generated-output audit", "ownership":"not scored: no generated-output audit", "usefulness":"not scored: no domain-evaluation outputs", "critical_unsupported_claims":"not assessed", "result":"insufficient evidence for Candidate graduation: only 3 current China JD snapshots and no completed output audit"},
+  "conformance_ledger": {"status":"not_started","runs":[],"required_per_run":["model_id","configuration","prompt","input","output","source_digest","jd_digest","persona_id","scores","unsupported_claim_audit"]},
+  "graduation_status":"Beta research; FAIL — remain Candidate/Beta until JD coverage, audit cases, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+}

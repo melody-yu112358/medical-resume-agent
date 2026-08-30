@@ -145,7 +145,7 @@ function renderCandidateProfile(profile) {
     const period = previous || {};
     control = `<div class="period-grid"><label class="field">开始年月<input id="profileStart" type="month" value="${esc(period.start || "")}"></label><label class="field">结束年月<input id="profileEnd" type="month" value="${esc(period.end || "")}" ${period.ongoing ? "disabled" : ""}></label></div><label class="consent"><input id="profileOngoing" type="checkbox" ${period.ongoing ? "checked" : ""}><span>目前仍在读</span></label>`;
   }
-  return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><p class="mode-note">你的回答会保存在本机 session；确认前不会进入最终简历。</p><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
+  return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>你的回答会保存在本机 session；确认前不会进入最终简历。</p><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
 }
 
 function factGroups(facts) {
@@ -169,9 +169,17 @@ function renderFacts() {
   const draft = state().extracted_draft || {};
   const facts = draft.extracted_facts || {};
   const pending = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation");
-  return `<section class="panel"><h3>系统提取的事实卡</h3><p>这些是候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</section>
+  return `${renderIntakeModelSummary()}<section class="panel"><h3>系统提取的事实卡</h3><p>这些是候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</section>
     ${pending.length ? `<section class="panel soft"><h3>逐项确认活动与责任边界</h3><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="primary" type="button">确认活动与事实 →</button></section>` : ""}
     ${renderQuestionCard()}`;
+}
+
+function renderIntakeModelSummary() {
+  const model = state().intake_model || {};
+  if (model.status === "validated") return `<section class="panel model-summary"><span class="status-badge">AI 已按原文整理</span><h3>我目前的理解</h3><p>${esc(model.summary)}</p><small>这仍是待确认摘要，不会直接写入简历。</small></section>`;
+  if (model.status === "failed" || model.status === "rejected") return `<section class="panel model-summary warning"><span class="status-badge">本轮 AI 整理未完成</span><p>${esc(model.error || "原始回答已保留，请继续回答当前问题。")}</p></section>`;
+  if (model.status === "not_configured") return `<section class="panel model-summary warning"><span class="status-badge">尚未使用 AI 整理</span><p>原始回答已保留；配置模型后才会生成 Skill 约束下的自然语言摘要。</p></section>`;
+  return "";
 }
 
 function renderQuestionCard() {
@@ -223,7 +231,7 @@ function bindWorkspace(stage) {
   if (stage === "intake") {
     if ($("#submitCandidateProfile")) bindCandidateProfile();
     else if ($("#confirmCandidateProfile")) bindCandidateProfileConfirmation();
-    else $("#submitMaterial").onclick = () => { const text = $("#material").value.trim(); if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。"); sendMessage({ text, consent_confirmed: true }); };
+    else $("#submitMaterial").onclick = () => { const text = $("#material").value.trim(); if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。"); sendMessage({ action: "submit_experience", text, consent_confirmed: true }); };
   } else if (stage === "fact_confirmation") {
     selectedQuestionOptions = new Set();
     document.querySelectorAll("[data-question-option]").forEach((button) => button.onclick = () => toggleQuestionOption(button));
@@ -297,7 +305,7 @@ function submitQuestionAnswer() {
   const extra = $("#supplement").value.trim();
   const text = [...selected, extra].filter(Boolean).join("；");
   if (!text) return showError("请选择至少一个答案，或补充真实信息。");
-  sendMessage({ action: "update_facts", text, consent_confirmed: true });
+  sendMessage({ action: "update_facts", text, selected_option_ids: [...selectedQuestionOptions], free_text: extra, display_text: text, consent_confirmed: true });
 }
 
 async function confirmActivities() {
@@ -305,8 +313,7 @@ async function confirmActivities() {
   const cards = [...document.querySelectorAll(".activity-card")];
   const updated = proposals.map((proposal, index) => { const card = cards[index]; const value = (field) => card.querySelector(`[data-field="${field}"]`).value; return { evidence_quote: proposal.evidence_quote, components: proposal.components, ownership_level: value("ownership_level"), execution_mode: value("execution_mode"), coverage: value("coverage"), scope_note: value("scope_note").trim() || null }; });
   if (!updated.length) return showError("当前没有可确认活动，请先补充具体步骤。");
-  await sendMessage({ action: "update_activity_proposals", activity_proposals: updated });
-  await sendMessage({ action: "confirm_activity_proposals", proposal_ids: [] });
+  await sendMessage({ action: "confirm_activity_proposals", activity_proposals: updated, proposal_ids: [] });
 }
 
 function editClaim(button) { const card = button.closest("[data-claim]"); const wording = card.querySelector("textarea").value.trim(); if (!wording) return showError("要点不能为空。"); sendMessage({ action: "edit_wording", claim_id: card.dataset.claim, wording }); }
@@ -317,10 +324,10 @@ function renderPreview() {
   const documentData = state().resume_document;
   const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
+  const fallbackBasics = savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
   const profileConfirmed = state().candidate_profile?.status === "confirmed";
-  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
-  const name = basics.name || fallbackBasics.name || "姓名（请填写）";
-  const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
+  const name = basics.name || (profileConfirmed ? "" : fallbackBasics.name) || "姓名（请填写）";
+  const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || (profileConfirmed ? "" : fallbackBasics.contact) || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
   const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
   paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
@@ -330,8 +337,8 @@ function renderPreview() {
 async function downloadBundle() {
   if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();
   try {
-    const basics = state().candidate_profile?.status === "confirmed" ? {} : savedBasics();
-    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics, theme: $("#theme").value }) });
+    const profileConfirmed = state().candidate_profile?.status === "confirmed";
+    const bundle = await api(`/api/conversations/${encodeURIComponent(conversation.session_id)}/export`, { method: "POST", body: JSON.stringify({ basics: profileConfirmed ? {} : savedBasics(), theme: $("#theme").value }) });
     Object.entries(bundle.files).forEach(([name, content]) => { const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([content], { type: name.endsWith(".html") ? "text/html;charset=utf-8" : "text/plain;charset=utf-8" })); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); });
     lastMessage = "完整交付包已下载；服务器没有另存导出副本。"; render();
   } catch (error) { showError(error.message); }

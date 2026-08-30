@@ -64,3 +64,5 @@ def test_workspace_submits_selected_answer_text_to_existing_update_path():
     assert "option.answer_text" in script
     assert 'action: "update_facts"' in script
     assert "selectedQuestionOptions" in script
+    assert "selected_option_ids" in script
+    assert "renderIntakeModelSummary" in script

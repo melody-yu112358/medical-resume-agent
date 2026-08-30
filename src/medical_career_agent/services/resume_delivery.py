@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import json
+from importlib.resources import files
 from typing import Any
 
 
@@ -39,19 +40,20 @@ class ResumeDeliveryService:
             raise ResumeDeliveryError("at least one ClaimGate-ready bullet is required")
 
         document_basics = document.get("basics") or {}
-        profile_confirmed = (state.get("candidate_profile") or {}).get("status") == "confirmed"
         confirmed_contact = " · ".join(
             str(document_basics.get(field) or "").strip()
             for field in ("phone", "email", "location")
             if str(document_basics.get(field) or "").strip()
         )
+        profile_confirmed = (state.get("candidate_profile") or {}).get("status") == "confirmed"
         resolved_basics = {
             "name": str(
                 document_basics.get("name")
                 or ("" if profile_confirmed else (basics or {}).get("name", ""))
             ).strip(),
-            "contact": confirmed_contact
-            or ("" if profile_confirmed else str((basics or {}).get("contact", "")).strip()),
+            "contact": confirmed_contact or (
+                "" if profile_confirmed else str((basics or {}).get("contact", "")).strip()
+            ),
         }
         markdown = self._markdown(document, resolved_basics)
         delivery_data = {
@@ -67,12 +69,15 @@ class ResumeDeliveryService:
             "evidence": document.get("evidence", []),
             "claim_gate_results": state.get("claim_gate_results", {}),
         }
+        editor = self._editor(markdown, theme)
         return {
             "files": {
                 "resume.md": markdown,
                 "resume.html": self._html(markdown, theme),
+                "resume-editor.html": editor,
                 "resume-data.json": json.dumps(delivery_data, ensure_ascii=False, indent=2),
                 "evidence-summary.json": json.dumps(evidence, ensure_ascii=False, indent=2),
+                "rewrite-comparison.md": self._rewrite_comparison(document),
                 "export-instructions.txt": "下载 resume.html 后可直接打开；在浏览器中选择打印并另存为 PDF。",
             },
             "privacy": {
@@ -114,6 +119,33 @@ class ResumeDeliveryService:
             ) or "已确认经历"
             lines.append(f"### {heading}")
             lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        return "\n".join(lines).strip() + "\n"
+
+    @staticmethod
+    def _editor(markdown: str, theme: str) -> str:
+        template = files("medical_career_agent").joinpath(
+            "assets/resume-editor.html"
+        ).read_text(encoding="utf-8")
+        return template.replace(
+            "__INITIAL_MARKDOWN_JSON__", json.dumps(markdown, ensure_ascii=False)
+        ).replace("__THEME__", theme)
+
+    @staticmethod
+    def _rewrite_comparison(document: dict[str, Any]) -> str:
+        evidence = [
+            item.get("statement", "") for item in document.get("evidence", [])
+            if str(item.get("evidence_id", "")).startswith("ev_") and item.get("statement")
+        ]
+        bullets = [
+            bullet.get("text", "")
+            for experience in document.get("research_experience", [])
+            for bullet in experience.get("bullets", []) if bullet.get("text")
+        ]
+        lines = ["# 改写对照", "", "## 用户确认的原始依据"]
+        lines.extend(f"- {item}" for item in evidence)
+        lines.extend(["", "## 已采用的审计后要点"])
+        lines.extend(f"- {item}" for item in bullets)
+        lines.extend(["", "## 说明", "- 仅使用已确认事实；未推断数量、成果或更高责任等级。"])
         return "\n".join(lines).strip() + "\n"
 
     @staticmethod

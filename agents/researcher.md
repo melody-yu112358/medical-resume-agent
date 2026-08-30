@@ -29,8 +29,6 @@ to implement or merge.
 
 ## Remote synchronization
 
-For a requested, committed research artifact, follow the shared
-[remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md). If GitHub is
-unreachable, preserve the single verified local branch and record
-`awaiting_remote_sync`; do not redo research or create a substitute branch to
-work around the delay.
+Follow the shared [remote sync recovery protocol](../docs/REMOTE_SYNC_PROTOCOL.md).
+For a requested, committed research artifact awaiting remote sync, preserve
+the verified branch; do not redo research or create a substitute branch.

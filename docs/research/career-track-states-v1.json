@@ -5,10 +5,10 @@
     {
       "career_id": "clinical_research_associate",
       "current_tier": "beta",
-      "stage": "research",
-      "jd_count": 3,
-      "qualifying_jd_count": 3,
-      "company_count": 2,
+      "stage": "review",
+      "jd_count": 8,
+      "qualifying_jd_count": 8,
+      "company_count": 7,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -16,15 +16,14 @@
       "conformance_status": "not_started",
       "graduation_status": "not_eligible",
       "blockers": [
-        "insufficient_jd_coverage",
-        "insufficient_company_coverage"
+        "independent_review_required"
       ],
-      "next_action": "collect_more_jds",
-      "assigned_agent": "researcher",
+      "next_action": "request_independent_review",
+      "assigned_agent": "reviewer",
       "human_required": false,
       "execution_status": "completed_local",
       "remote_sync_status": "synced",
-      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until JD coverage, audit cases, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+      "source_graduation_status": "Candidate graduation review pending: structural JD/persona/mapping coverage is met; independent domain review, output audit, and conformance remain required. Not canonical and not routable."
     },
     {
       "career_id": "clinical_data_management",

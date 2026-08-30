@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Career Track State v1",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "tracks"],
+  "properties": {
+    "schema_version": {"const": "career-track-state-v1"},
+    "generated_at": {"type": "string"},
+    "tracks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/track"}}
+  },
+  "$defs": {
+    "track": {
+      "type": "object",
+      "required": ["career_id", "current_tier", "stage", "jd_count", "company_count", "persona_count", "mapping_status", "negative_mapping_status", "review_status", "conformance_status", "graduation_status", "blockers", "next_action", "assigned_agent", "human_required", "execution_status", "remote_sync_status"],
+      "properties": {
+        "career_id": {"type": "string"},
+        "current_tier": {"enum": ["beta", "candidate", "canonical_v1", "cross_model_validated"]},
+        "stage": {"enum": ["research", "candidate_builder", "review", "conformance", "release_gate", "human_escalation"]},
+        "jd_count": {"type": "integer", "minimum": 0},
+        "qualifying_jd_count": {"type": "integer", "minimum": 0},
+        "company_count": {"type": "integer", "minimum": 0},
+        "persona_count": {"type": "integer", "minimum": 0},
+        "mapping_status": {"enum": ["complete", "incomplete"]},
+        "negative_mapping_status": {"enum": ["complete", "incomplete"]},
+        "review_status": {"enum": ["not_requested", "pending", "passed", "changes_requested"]},
+        "conformance_status": {"enum": ["not_started", "in_progress", "passed", "failed"]},
+        "graduation_status": {"enum": ["not_eligible", "eligible_for_canonicalization", "canonicalized"]},
+        "blockers": {"type": "array", "items": {"type": "string"}},
+        "next_action": {"type": "string"},
+        "assigned_agent": {"enum": ["researcher", "candidate_builder", "reviewer", "implementer", "conformance", "release_gate", "human"]},
+        "human_required": {"type": "boolean"},
+        "execution_status": {"enum": ["completed_local", "awaiting_remote_sync", "pr_open", "review_pending", "changes_requested", "ci_failed", "ready_for_human_approval"]},
+        "remote_sync_status": {"enum": ["synced", "awaiting_remote_sync", "not_applicable"]}
+      },
+      "additionalProperties": true
+    }
+  }
+}

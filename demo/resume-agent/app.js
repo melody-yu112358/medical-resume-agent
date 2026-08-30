@@ -25,6 +25,12 @@ const targetLabels = {
   clinical_operations_v1: "临床运营 / 临床项目协调",
   medical_affairs_v1: "医学事务 / MSL", health_ai_data_v1: "医疗数据与数字健康",
 };
+const resumeTiers = [
+  { id: "conservative", label: "稳妥版" },
+  { id: "professional", label: "专业版" },
+  { id: "high_impact", label: "高竞争力版" },
+];
+const toneLabels = { Conservative: "稳妥版", Professional: "专业版", "High-impact": "高竞争力版" };
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -210,27 +216,44 @@ function renderClaim(claim) {
     <div class="action-row"><button class="secondary saveClaim" type="button">保存并重新审计</button>${health?.llm_configured ? `<button class="quiet rewriteClaim" data-tone="Conservative" type="button">稳妥版</button><button class="quiet rewriteClaim" data-tone="Professional" type="button">专业版</button><button class="quiet rewriteClaim" data-tone="High-impact" type="button">高竞争力版</button>` : ""}</div></article>`;
 }
 
+function renderTierSelector() {
+  const selected = state().selected_resume_tier || "professional";
+  return `<section class="panel tier-selector"><div><span class="status-badge">当前预览</span><h3>选择完整简历版本</h3><p>三档使用同一组已确认事实；未单独改写的要点沿用已审计基础版本。</p></div><div class="answer-options">${resumeTiers.map((tier) => `<button class="answer-option selectTier ${tier.id === selected ? "selected" : ""}" data-tier="${tier.id}" aria-pressed="${tier.id === selected}" type="button">${tier.label}</button>`).join("")}</div></section>`;
+}
+
+function renderRewriteCandidate(meta, claim) {
+  const gate = meta.gate || state().claim_gate_results?.[meta.claim_id] || {};
+  const ready = gate.status === "ready";
+  return `<article class="rewrite-option ${ready ? "ready" : ""} ${meta.selected ? "selected" : ""}"><div class="claim-meta"><b>${esc(toneLabels[meta.tone] || "候选版本")}</b><span>${ready ? (meta.selected ? "已应用" : "审计通过") : "未通过审计"}</span></div><p>${esc(claim?.wording || "候选措辞不可用")}</p>${gate.failed_checks?.length ? `<p class="audit-warning">${gate.failed_checks.map(esc).join("；")}</p>` : ""}<button class="secondary selectRewrite" data-candidate-id="${esc(meta.claim_id)}" type="button" ${ready ? "" : "disabled"}>${meta.selected ? "已应用到该档" : `应用到${esc(toneLabels[meta.tone] || "该档")}`}</button></article>`;
+}
+
 function renderClaims() {
   const claims = state().generated_claims || [];
-  const ready = claims.filter((claim) => state().claim_gate_results?.[claim.claim_id]?.status === "ready");
-  return `<section class="panel"><h3>代表要点与事实审计</h3><p>当前 ${ready.length}/${claims.length} 条可进入预览。修改措辞后会重新通过 v2 Claim Gate；未通过的内容不会显示在简历中。</p>${claims.map(renderClaim).join("") || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
-    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：可使用确定性要点并手动编辑；三档 AI 改写按钮仅在配置兼容模型后出现。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${ready.length ? "" : "disabled"}>批准当前要点并进入交付 →</button></div></section>`;
+  const rewriteMeta = state().rewrite_candidates || [];
+  const rewriteIds = new Set(rewriteMeta.map((item) => item.claim_id));
+  const baseClaims = claims.filter((claim) => !rewriteIds.has(claim.claim_id));
+  const claimById = Object.fromEntries(claims.map((claim) => [claim.claim_id, claim]));
+  const ready = baseClaims.filter((claim) => state().claim_gate_results?.[claim.claim_id]?.status === "ready");
+  const cards = baseClaims.map((claim) => `${renderClaim(claim)}<div class="rewrite-list">${rewriteMeta.filter((item) => item.source_claim_id === claim.claim_id).map((item) => renderRewriteCandidate(item, claimById[item.claim_id])).join("")}</div>`).join("");
+  return `${renderTierSelector()}<section class="panel"><h3>代表要点与事实审计</h3><p>当前 ${ready.length}/${baseClaims.length} 条基础要点可交付。每次只为一条要点生成一个档位候选；应用前必须通过原 v2 Claim Gate。</p>${cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
+    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍可使用同一组确定性要点；配置模型后可按需改写单条措辞。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
 }
 
 function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStorageKey) || "{}"); } catch (_) { return {}; } }
 function renderDelivery() {
   const profile = state().candidate_profile || {};
   if (profile.status === "confirmed") {
-    return `${renderProfileSummary(profile)}<section class="panel"><h3>下载交付文件</h3><p>抬头和教育背景来自你刚才确认的资料；只有通过 Claim Gate 的经历要点会进入文件。</p><div class="action-row"><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>`;
+    return `${renderProfileSummary(profile)}${renderTierSelector()}<section class="panel"><h3>下载交付文件</h3><p>抬头和教育背景来自你刚才确认的资料；交付包保存三档完整 Markdown，当前档位决定默认 HTML 和编辑器内容。</p><div class="action-row"><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>`;
   }
   const basics = savedBasics();
-  return `<section class="panel"><h3>补齐抬头并交付</h3><p>姓名和联系方式仅保存在当前浏览器，并在下载时随请求用于生成文件，不写回经历事实。</p><div class="basics-grid"><label class="field">姓名<input id="candidateName" value="${esc(basics.name || "")}" placeholder="姓名"></label><label class="field">联系方式<input id="candidateContact" value="${esc(basics.contact || "")}" placeholder="电话 · 邮箱 · 城市"></label></div>
+  return `${renderTierSelector()}<section class="panel"><h3>补齐抬头并交付</h3><p>姓名和联系方式仅保存在当前浏览器，并在下载时随请求用于生成文件，不写回经历事实。</p><div class="basics-grid"><label class="field">姓名<input id="candidateName" value="${esc(basics.name || "")}" placeholder="姓名"></label><label class="field">联系方式<input id="candidateContact" value="${esc(basics.contact || "")}" placeholder="电话 · 邮箱 · 城市"></label></div>
     <div class="action-row"><button id="saveBasics" class="secondary" type="button">更新预览</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>
     <section class="panel soft"><h3 class="audit-ready">已进入交付阶段</h3><p>只有通过 Claim Gate 的要点进入右侧预览和下载文件。</p></section>`;
 }
 
 function bindWorkspace(stage) {
   bindExperienceNavigator();
+  document.querySelectorAll(".selectTier").forEach((button) => button.onclick = () => sendMessage({ action: "select_resume_tier", tier: button.dataset.tier }));
   if (stage === "intake") {
     if ($("#submitCandidateProfile")) bindCandidateProfile();
     else if ($("#confirmCandidateProfile")) bindCandidateProfileConfirmation();
@@ -255,6 +278,7 @@ function bindWorkspace(stage) {
   } else if (stage === "composition" || stage === "factual_audit") {
     document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
+    document.querySelectorAll(".selectRewrite").forEach((button) => button.onclick = () => sendMessage({ action: "select_rewrite_candidate", claim_id: button.dataset.candidateId }));
     if ($("#acceptClaims")) $("#acceptClaims").onclick = () => sendMessage({ action: "accept_bullets" });
   } else { if ($("#saveBasics")) $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
 }

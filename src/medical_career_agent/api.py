@@ -672,10 +672,14 @@ def create_app(
     def export_conversation_resume(session_id: str):
         payload = request.get_json(silent=True) or {}
         try:
+            conversation = conversations.read(session_id)
             bundle = resume_delivery.build_bundle(
-                conversation=conversations.read(session_id),
+                conversation=conversation,
                 basics=payload.get("basics") if isinstance(payload.get("basics"), dict) else {},
                 theme=str(payload.get("theme", "clinical-blue")),
+                tier_documents=conversations.resume_tier_documents(
+                    session_id, conversation["state"],
+                ),
             )
         except ValueError as exc:
             return {"error": str(exc)}, 400

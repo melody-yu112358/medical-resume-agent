@@ -11,7 +11,7 @@ from scripts.career_track_orchestrator import OUTPUT_PATH, build_state, decide_n
 ROOT = Path(__file__).parents[1]
 
 
-def test_current_candidate_evidence_dry_run_routes_all_tracks_to_researcher():
+def test_current_candidate_evidence_dry_run_routes_tracks_to_their_next_agent():
     state = build_state()
 
     assert {track["career_id"] for track in state["tracks"]} == {
@@ -20,11 +20,15 @@ def test_current_candidate_evidence_dry_run_routes_all_tracks_to_researcher():
         "medical_device_clinical_application_specialist",
         "pharmacovigilance_drug_safety",
     }
+    expected_actions = {
+        "clinical_research_associate": ("research", "collect_more_jds", "researcher"),
+        "clinical_data_management": ("research", "collect_more_jds", "researcher"),
+        "medical_device_clinical_application_specialist": ("research", "collect_more_jds", "researcher"),
+        "pharmacovigilance_drug_safety": ("review", "request_independent_review", "reviewer"),
+    }
     for track in state["tracks"]:
         assert track["current_tier"] == "beta"
-        assert track["stage"] == "research"
-        assert track["next_action"] == "collect_more_jds"
-        assert track["assigned_agent"] == "researcher"
+        assert (track["stage"], track["next_action"], track["assigned_agent"]) == expected_actions[track["career_id"]]
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
 

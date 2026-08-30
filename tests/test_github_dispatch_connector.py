@@ -77,7 +77,7 @@ def test_remote_failure_is_an_awaiting_remote_sync_record():
     assert record["last_remote_error"] == "OSError"
 
 
-def test_current_four_track_dry_run_dispatches_researcher_collection_tasks():
+def test_current_four_track_dry_run_dispatches_the_state_selected_tasks():
     state = json.loads(DEFAULT_STATE.read_text(encoding="utf-8"))
     schema = json.loads((Path(__file__).parents[1] / "schemas" / "career-dispatch-record.schema.json").read_text(encoding="utf-8"))
 
@@ -85,7 +85,18 @@ def test_current_four_track_dry_run_dispatches_researcher_collection_tasks():
 
     assert len(records) == 4
     assert all(record["dispatch_status"] == "planned" for record in records)
-    assert all(record["task_payload"]["assigned_agent"] == "researcher" for record in records)
-    assert all(record["task_payload"]["next_action"] == "collect_more_jds" for record in records)
+    tasks_by_career = {
+        record["task_payload"]["career_id"]: (
+            record["task_payload"]["assigned_agent"],
+            record["task_payload"]["next_action"],
+        )
+        for record in records
+    }
+    assert tasks_by_career == {
+        "clinical_research_associate": ("researcher", "collect_more_jds"),
+        "clinical_data_management": ("researcher", "collect_more_jds"),
+        "medical_device_clinical_application_specialist": ("researcher", "collect_more_jds"),
+        "pharmacovigilance_drug_safety": ("reviewer", "request_independent_review"),
+    }
     for record in records:
         validate(instance=record, schema=schema)

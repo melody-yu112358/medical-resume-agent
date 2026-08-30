@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Career Dispatch Record v1",
+  "type": "object",
+  "required": ["schema_version", "career_id", "next_action", "assigned_agent", "human_required", "dispatch_status", "task_reference", "created_at", "source_state_digest", "task_payload"],
+  "properties": {
+    "schema_version": {"const": "career-dispatch-record-v1"},
+    "career_id": {"type": "string"},
+    "next_action": {"type": "string"},
+    "assigned_agent": {"type": "string"},
+    "human_required": {"type": "boolean"},
+    "dispatch_status": {"enum": ["planned", "dispatch_created", "already_dispatched", "human_escalation_created", "awaiting_remote_sync"]},
+    "task_reference": {"type": ["string", "null"]},
+    "created_at": {"type": "string"},
+    "source_state_digest": {"type": "string"},
+    "task_payload": {"type": "object"},
+    "last_remote_error": {"type": ["string", "null"]}
+  }
+}

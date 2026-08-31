@@ -100,6 +100,37 @@ class ExperienceDraftService:
         ],
     }
 
+    TOOL_PATTERNS = (
+        (r"SPSS", "spss"),
+        (r"R语言|R[- ]?script|(?<![A-Za-z])R(?![A-Za-z])", "r"),
+        (r"Python", "python"),
+        (r"SQL", "sql"),
+        (r"Stata", "stata"),
+        (r"SAS", "sas"),
+        (r"Excel", "excel"),
+        (r"RevMan", "revman"),
+        (r"EndNote", "endnote"),
+        (r"NoteExpress", "noteexpress"),
+        (r"PubMed", "pubmed"),
+        (r"Embase", "embase"),
+        (r"Cochrane", "cochrane"),
+        (r"GraphPad(?: Prism)?", "graphpad_prism"),
+    )
+
+    COLLABORATION_PATTERNS = {
+        "research_team": (r"课题组", r"team", r"group"),
+        "supervisor": (r"导师", r"supervisor"),
+    }
+
+    ARTIFACT_PATTERNS = {
+        "prisma_flowchart": (r"流程图", r"flowchart"),
+        "data_extraction_sheet": (r"数据表", r"data sheet"),
+        "research_paper": (r"论文", r"paper", r"manuscript"),
+        "analysis_figures": (r"结果图表", r"森林图", r"图表"),
+        "group_presentation": (r"组会汇报", r"组会讨论"),
+        "case_presentation_material": (r"病例汇报材料", r"准备.*PPT", r"制作.*PPT", r"现场汇报"),
+    }
+
     def draft(
         self,
         *,
@@ -248,24 +279,7 @@ class ExperienceDraftService:
     def _extract_tools(self, text: str) -> list[str]:
         """Extract tools (software, equipment, etc.)."""
         tools = []
-        # Common medical research tools
-        tool_patterns = [
-            (r"SPSS", "spss"),
-            (r"R语言|R[- ]?script|(?<![A-Za-z])R(?![A-Za-z])", "r"),
-            (r"Python", "python"),
-            (r"SQL", "sql"),
-            (r"Stata", "stata"),
-            (r"SAS", "sas"),
-            (r"Excel", "excel"),
-            (r"RevMan", "revman"),
-            (r"EndNote", "endnote"),
-            (r"NoteExpress", "noteexpress"),
-            (r"PubMed", "pubmed"),
-            (r"Embase", "embase"),
-            (r"Cochrane", "cochrane"),
-            (r"GraphPad(?: Prism)?", "graphpad_prism"),
-        ]
-        for pattern, tool_name in tool_patterns:
+        for pattern, tool_name in self.TOOL_PATTERNS:
             if re.search(pattern, text, re.IGNORECASE):
                 tools.append(tool_name)
         return tools
@@ -287,29 +301,17 @@ class ExperienceDraftService:
 
     def _extract_collaboration(self, text: str) -> list[str]:
         """Extract collaboration information."""
-        collaboration = []
-        if re.search(r"课题组|team|group", text, re.IGNORECASE):
-            collaboration.append("research_team")
-        if re.search(r"导师|supervisor", text, re.IGNORECASE):
-            collaboration.append("supervisor")
-        return collaboration
+        return [
+            item_id for item_id, patterns in self.COLLABORATION_PATTERNS.items()
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+        ]
 
     def _extract_artifacts(self, text: str) -> list[str]:
         """Extract artifacts (deliverables, outputs)."""
-        artifacts = []
-        if re.search(r"流程图|flowchart", text, re.IGNORECASE):
-            artifacts.append("prisma_flowchart")
-        if re.search(r"数据表|data sheet", text, re.IGNORECASE):
-            artifacts.append("data_extraction_sheet")
-        if re.search(r"论文|paper|manuscript", text, re.IGNORECASE):
-            artifacts.append("research_paper")
-        if re.search(r"结果图表|森林图|图表", text, re.IGNORECASE):
-            artifacts.append("analysis_figures")
-        if re.search(r"组会汇报|组会讨论", text, re.IGNORECASE):
-            artifacts.append("group_presentation")
-        if re.search(r"病例汇报材料|准备.*PPT|制作.*PPT|现场汇报", text, re.IGNORECASE):
-            artifacts.append("case_presentation_material")
-        return artifacts
+        return [
+            item_id for item_id, patterns in self.ARTIFACT_PATTERNS.items()
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+        ]
 
     def _extract_outcomes(self, text: str) -> list[str]:
         """Extract outcomes (results, achievements)."""

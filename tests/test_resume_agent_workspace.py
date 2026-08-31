@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 from medical_career_agent.api import create_app
+from medical_career_agent.services.experience_draft import ExperienceDraftService
 from medical_career_agent.services.resume_conversation_agent import ResumeConversationAgent
 
 
@@ -241,6 +242,22 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "prefers-reduced-motion" in workspace_css
     assert "forced-colors" in workspace_css
     assert ".conversation-mode .preview-pane { display: none; }" in workspace_css
+
+    labels_source = script.split("const labels = {", 1)[1].split("};", 1)[0]
+    frontend_label_ids = set(re.findall(
+        r"(?:^|,)\s*([a-z][a-z0-9_]*)\s*:", labels_source,
+    ))
+    displayed_fact_ids = (
+        set(ExperienceDraftService.ACTION_PATTERNS)
+        | set(ExperienceDraftService.METHOD_PATTERNS)
+        | set(ExperienceDraftService.TECHNIQUE_PATTERNS)
+        | {item_id for _, item_id in ExperienceDraftService.TOOL_PATTERNS}
+        | set(ExperienceDraftService.COLLABORATION_PATTERNS)
+        | set(ExperienceDraftService.ARTIFACT_PATTERNS)
+    )
+    assert displayed_fact_ids <= frontend_label_ids
+    assert 'stata: "Stata"' in labels_source
+    assert 'analysis_figures: "分析图表"' in labels_source
 
 
 def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():

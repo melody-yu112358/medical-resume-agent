@@ -34,6 +34,11 @@ TIER_TONES = {
     "professional": "Professional",
     "high_impact": "High-impact",
 }
+EXPERIENCE_TYPE_LABELS = {
+    "research": "科研经历", "clinical": "临床实践",
+    "professional": "工作经历", "leadership": "校园与领导力",
+    "volunteer": "志愿服务", "project": "其他项目",
+}
 
 
 class ResumeConversationAgent:
@@ -65,6 +70,7 @@ class ResumeConversationAgent:
             "active_experience_identity": None,
             "pending_questions": [], "question_card": None,
             "selected_role_packs": [], "generated_claims": [],
+            "representative_sample": None,
             "selected_resume_tier": "professional",
             "claim_gate_results": {}, "claim_user_dispositions": {},
             "activity_proposals": [], "rewrite_candidates": [], "resume_document": None,
@@ -144,6 +150,8 @@ class ResumeConversationAgent:
             response = self._supplement_facts(session_id, state, payload, text)
         elif action == "select_role_packs":
             response = self._compose(session_id, state, payload)
+        elif action == "approve_representative_sample":
+            response = self._approve_representative_sample(session_id, state)
         elif action == "edit_wording":
             response = self._edit_wording(session_id, state, payload)
         elif action == "rewrite_claim":
@@ -154,8 +162,11 @@ class ResumeConversationAgent:
             response = self._select_resume_tier(state, payload)
         elif action == "accept_bullets":
             ready = [item for item in state.get("generated_claims", []) if item.get("verification_status") == "ready"]
+            sample = state.get("representative_sample") or {}
             if not ready:
                 response = self._response(state, "尚无可交付的已审计要点；请先确认事实并生成通过审计的内容。")
+            elif state.get("stage") != "factual_audit" or sample.get("status") != "approved":
+                response = self._response(state, "请先确认代表样板，再生成和审计完整简历。")
             else:
                 state["stage"] = "delivery"
                 response = self._response(state, "已保存可交付的已审计要点。", ui_events=["delivery_ready"])
@@ -226,6 +237,9 @@ class ResumeConversationAgent:
             "free_text": str(payload.get("free_text") or "").strip(),
             "display_text": str(payload.get("display_text") or text).strip(),
         })
+        # Derive resolved gaps from the existing structured answer audit trail.
+        # No parallel question-state machine is needed.
+        self._refresh_question_card(state)
         if self.language_gateway is None:
             state["intake_model"] = {
                 "configured": False, "status": "not_configured", "summary_source": "pending",
@@ -234,12 +248,13 @@ class ResumeConversationAgent:
             }
             return
         try:
+            question_candidates = self._question_candidates(state)
             result = self.language_gateway.summarize_intake_turn(
                 text=text,
                 selected_option_ids=selected_option_ids,
                 free_text=str(payload.get("free_text") or "").strip(),
                 session_context=self._conversation_context(state),
-                allowed_question_card=deepcopy(state.get("question_card")),
+                allowed_question_cards=question_candidates,
             )
             validated = IntakeSummaryValidationService.validate(
                 candidate=result.candidate,
@@ -248,16 +263,22 @@ class ResumeConversationAgent:
                     item.get("source_text", "") for item in state.get("evidence_records", [])
                     if item.get("evidence_id") in set(state.get("active_experience_evidence_ids") or [])
                 ],
-                question_card=state.get("question_card"),
+                question_cards=question_candidates,
             )
             validated["configured"] = True
             state["intake_model"] = validated
             next_question = validated.get("next_question")
-            if next_question and state.get("question_card"):
-                state["question_card"]["recommended_option_ids"] = next_question["recommended_option_ids"]
-                question_id = next_question["question_id"]
-                if question_id not in state["question_history"]:
-                    state["question_history"].append(question_id)
+            if next_question:
+                selected_card = next(
+                    (item for item in question_candidates if item["question_id"] == next_question["question_id"]),
+                    None,
+                )
+                if selected_card:
+                    state["question_card"] = deepcopy(selected_card)
+                    state["question_card"]["recommended_option_ids"] = next_question["recommended_option_ids"]
+                    question_id = next_question["question_id"]
+                    if question_id not in state["question_history"]:
+                        state["question_history"].append(question_id)
         except Exception as exc:
             state["intake_model"] = {
                 "configured": True, "status": "failed", "summary_source": "pending",
@@ -350,12 +371,45 @@ class ResumeConversationAgent:
         )
 
     @staticmethod
-    def _refresh_question_card(state: dict[str, Any], pending_question: str | None = None) -> None:
-        question = pending_question or next(iter(state.get("pending_questions") or []), None)
-        state["question_card"] = QuestionGuidanceService.build(
-            question,
-            stage=str(state.get("stage", "")),
+    def _pending_question_cards(state: dict[str, Any]) -> list[dict[str, Any]]:
+        answered = {
+            item.get("question_id") for item in state.get("structured_answers", [])
+            if isinstance(item, dict) and item.get("question_id")
+        }
+        cards = [
+            QuestionGuidanceService.build(question, stage=str(state.get("stage", "")))
+            for question in (state.get("pending_questions") or [])[:3]
+        ]
+        return [
+            card for card in cards
+            if card and card.get("question_id") not in answered
+        ]
+
+    @classmethod
+    def _refresh_question_card(cls, state: dict[str, Any], pending_question: str | None = None) -> None:
+        cards = cls._pending_question_cards(state)
+        candidate_ids = {card["question_id"] for card in cards}
+        current = state.get("question_card")
+        if isinstance(current, dict) and current.get("question_id") in candidate_ids:
+            return
+        preferred = QuestionGuidanceService.build(
+            pending_question, stage=str(state.get("stage", "")),
+        ) if pending_question else None
+        state["question_card"] = deepcopy(
+            preferred if preferred and preferred.get("question_id") in candidate_ids
+            else (cards[0] if cards else None)
         )
+
+    @classmethod
+    def _question_candidates(cls, state: dict[str, Any]) -> list[dict[str, Any]]:
+        cards = []
+        current = state.get("question_card")
+        if isinstance(current, dict):
+            cards.append(deepcopy(current))
+        for card in cls._pending_question_cards(state):
+            if not any(item["question_id"] == card["question_id"] for item in cards):
+                cards.append(card)
+        return cards
 
     @staticmethod
     def _conversation_context(state: dict[str, Any]) -> dict[str, Any]:
@@ -399,6 +453,7 @@ class ResumeConversationAgent:
             period = identity["period"]
             period_text = "至今" if period["ongoing"] else (period["end"] or "未填写")
             values = [
+                f"经历类型：{EXPERIENCE_TYPE_LABELS[identity['experience_type']]}",
                 f"经历名称：{identity['project_name']}",
                 f"机构或团队：{identity['organization']}" if identity["organization"] else None,
                 f"身份或角色：{identity['role_title']}" if identity["role_title"] else None,
@@ -421,23 +476,22 @@ class ResumeConversationAgent:
     ) -> dict[str, Any]:
         if not text:
             return self._response(state, "请确认事实卡，或补充一条可核实的事实。", pending_question=(state["pending_questions"] or [None])[0])
-        draft = self.experience_drafter.draft(experience_text=text, context_hint=payload.get("context_hint"), consent_confirmed=True).to_dict()
-        previous = state.get("extracted_draft") or {"extracted_facts": {}}
-        merged = deepcopy(previous)
-        merged["extracted_facts"] = self._merge_facts(previous.get("extracted_facts", {}), draft["extracted_facts"])
-        merged["clarifying_questions"] = draft["clarifying_questions"]
-        merged["unknown_items"] = list(dict.fromkeys((previous.get("unknown_items", []) + draft["unknown_items"])))
-        state["extracted_draft"] = merged
+        combined_text = "\n".join(filter(None, (self._active_experience_text(state), text)))
+        draft = self.experience_drafter.draft(
+            experience_text=combined_text,
+            context_hint=payload.get("context_hint"), consent_confirmed=True,
+        ).to_dict()
+        state["extracted_draft"] = draft
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
         state.setdefault("active_experience_evidence_ids", []).append(next_id)
-        state["pending_questions"] = merged["clarifying_questions"]
+        state["pending_questions"] = draft["clarifying_questions"]
         self._supersede_pending_proposals(state)
         self._invalidate_claims_for_pending_fact_update(session_id, state)
         # Rebuild from all evidence: a later tool/responsibility clarification
         # must not leave the earlier action proposal superseded with no successor.
         self._propose_activities(
-            state, self._active_experience_text(state), merged["extracted_facts"],
+            state, self._active_experience_text(state), draft["extracted_facts"],
         )
         return self._fact_confirmation_response(state, introduced="已将补充内容作为待确认事实加入")
 
@@ -459,6 +513,9 @@ class ResumeConversationAgent:
         project_name = re.sub(r"\s+", " ", str(raw.get("project_name") or "").strip())
         organization = re.sub(r"\s+", " ", str(raw.get("organization") or "").strip()) or None
         role_title = re.sub(r"\s+", " ", str(raw.get("role_title") or "").strip()) or None
+        experience_type = str(raw.get("experience_type") or "project").strip()
+        if experience_type not in EXPERIENCE_TYPE_LABELS:
+            return None, "请选择有效的经历类型。"
         if not project_name:
             return None, "请填写真实的经历或项目名称；没有正式项目名时可填写研究主题或轮转名称。"
         if len(project_name) > 160 or any(value and len(value) > 120 for value in (organization, role_title)):
@@ -475,6 +532,7 @@ class ResumeConversationAgent:
         if start and end and end < start:
             return None, "经历结束时间不能早于开始时间。"
         return {
+            "experience_type": experience_type,
             "project_name": project_name, "organization": organization,
             "role_title": role_title,
             "period": {"start": start, "end": end, "ongoing": ongoing},
@@ -529,7 +587,9 @@ class ResumeConversationAgent:
                 ui_events=["show_fact_card", "show_activity_cards"],
             )
         if state["stage"] in {"representative_sample", "composition"} and not state.get("selected_role_packs"):
-            return self._response(state, "事实已确认。请选择至少一个目标方向后，我会生成并审计候选简历要点。", ui_events=["show_role_pack_chips"])
+            return self._response(state, "事实已确认。请选择至少一个目标方向后，我会先生成一段代表样板。", ui_events=["show_role_pack_chips"])
+        if state["stage"] == "representative_sample":
+            return self._response(state, "代表样板已经生成。请确认信息密度、语气和责任边界后，再生成完整简历。", ui_events=["show_representative_sample"])
         if state["stage"] == "factual_audit":
             return self._response(state, "候选要点已完成审计；只有 ClaimGate 为 ready 的内容会显示在简历预览中。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
         return self._response(state, "当前工作流已准备好继续。请按页面上的确认或目标方向入口操作。")
@@ -564,7 +624,9 @@ class ResumeConversationAgent:
                 ui_events=["show_fact_card", "show_clarification"],
             )
         if state["stage"] in {"representative_sample", "composition"}:
-            return self._response(state, "事实已确认；下一步是选择目标方向，以生成并审计候选简历要点。", ui_events=["show_role_pack_chips"])
+            if state.get("representative_sample"):
+                return self._response(state, "当前只展示一段代表样板；确认样板后才会组合其余经历。", ui_events=["show_representative_sample"])
+            return self._response(state, "事实已确认；下一步是选择目标方向并生成一段代表样板。", ui_events=["show_role_pack_chips"])
         if state["stage"] == "factual_audit":
             return self._response(state, "当前在审计阶段；只有 ClaimGate 为 ready 的候选要点会出现在右侧简历预览。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
         return self._response(state, "请先描述一段真实、可核实的经历；我会提取候选事实并说明还需要确认什么。")
@@ -830,13 +892,51 @@ class ResumeConversationAgent:
         all_components = {key: list(facts.get(key, [])) for key in ("methods", "tools", "techniques", "objects", "artifacts")}
         if action_count <= 1:
             return all_components
-        if action == "retrieve_literature":
-            return {"methods": [], "tools": [tool for tool in all_components["tools"] if tool in {"pubmed", "embase", "cochrane"}], "techniques": [], "objects": [item for item in all_components["objects"] if item == "medical_literature"], "artifacts": []}
-        if action == "screen_studies":
-            return {"methods": [], "tools": [], "techniques": [], "objects": [item for item in all_components["objects"] if item == "medical_literature"], "artifacts": []}
-        if action == "perform_analysis":
-            return {"methods": [method for method in all_components["methods"] if method in {"meta_analysis", "sensitivity_analysis", "mendelian_randomization"}], "tools": [tool for tool in all_components["tools"] if tool in {"r", "python", "spss", "stata", "sas", "revman"}], "techniques": all_components["techniques"], "objects": [item for item in all_components["objects"] if item == "research_data"], "artifacts": all_components["artifacts"]}
-        return all_components
+        database_tools = {"pubmed", "embase", "cochrane", "web_of_science", "cnki", "wanfang", "vip"}
+        analysis_tools = {"r", "python", "spss", "stata", "sas", "revman", "excel"}
+        analysis_methods = {"meta_analysis", "sensitivity_analysis", "mendelian_randomization"}
+        methods_by_action = {
+            "develop_protocol": set(all_components["methods"]),
+            "design_search_strategy": {"systematic_review"},
+            "assess_quality": {"systematic_review", "meta_analysis"},
+            "perform_analysis": analysis_methods,
+        }
+        tools_by_action = {
+            "design_search_strategy": database_tools,
+            "retrieve_literature": database_tools,
+            "perform_analysis": analysis_tools,
+        }
+        techniques_by_action = {
+            "culture_cells": {"cell_culture"},
+            "perform_qpcr": {"qpcr"},
+            "perform_western_blot": {"western_blot"},
+        }
+        objects_by_action = {
+            "design_search_strategy": {"medical_literature"},
+            "retrieve_literature": {"medical_literature"},
+            "screen_studies": {"medical_literature"},
+            "extract_data": {"medical_literature", "research_data"},
+            "assess_quality": {"medical_literature"},
+            "perform_analysis": {"research_data"},
+        }
+        artifacts_by_action = {
+            "create_flowchart": {"prisma_flowchart"},
+            "prepare_research_outputs": set(all_components["artifacts"]),
+            "write_manuscript": {"research_paper", "research_report"},
+            "prepare_case_presentation": {"case_presentation_material"},
+        }
+
+        def allowed(category: str, mapping: dict[str, set[str]]) -> list[str]:
+            accepted = mapping.get(action, set())
+            return [item for item in all_components[category] if item in accepted]
+
+        return {
+            "methods": allowed("methods", methods_by_action),
+            "tools": allowed("tools", tools_by_action),
+            "techniques": allowed("techniques", techniques_by_action),
+            "objects": allowed("objects", objects_by_action),
+            "artifacts": allowed("artifacts", artifacts_by_action),
+        }
 
     def _validate_activity_proposals(self, proposals: list[dict[str, Any]], source_text: str, facts: dict[str, Any]) -> list[dict[str, Any]]:
         return self._validate_activity_proposals_with_audit(proposals, source_text, facts)[0]
@@ -1109,14 +1209,45 @@ class ResumeConversationAgent:
             return self._pending_confirmation_response(state)
         if not isinstance(packs, list) or not packs:
             return self._response(state, "请至少选择一个目标方向。")
+        old_claim_ids = [item.get("claim_id") for item in state.get("generated_claims", []) if item.get("claim_id")]
+        if old_claim_ids:
+            self.claim_ledger.invalidate_claims_by_ids(
+                session_id, old_claim_ids, "representative_sample_replaced",
+            )
         state["selected_role_packs"] = [str(pack) for pack in packs]
         state["selected_resume_tier"] = "professional"
         state["rewrite_candidates"] = []
-        state["stage"] = "composition"
+        flagship = max(canonicals, key=self._representative_sample_score)
+        claims, gates = self._compose_claims(
+            session_id, [flagship], state["selected_role_packs"],
+        )
+        state["generated_claims"] = claims
+        state["claim_gate_results"] = gates
+        state["representative_sample"] = {
+            "experience_id": flagship["experience_id"], "status": "pending",
+        }
+        state["stage"] = "representative_sample"
+        return self._response(
+            state,
+            "已生成一段代表样板并完成 ClaimGate 审计。请先确认信息密度、语气和责任边界；批准后才会组合全部经历。",
+            ui_events=["show_representative_sample", "refresh_resume_preview"],
+        )
+
+    @staticmethod
+    def _representative_sample_score(canonical: dict[str, Any]) -> tuple[int, int, int]:
+        return (
+            len(canonical.get("task_responsibilities") or []),
+            len(canonical.get("activities") or []),
+            len(canonical.get("evidence_ids") or []),
+        )
+
+    def _compose_claims(
+        self, session_id: str, canonicals: list[dict[str, Any]], packs: list[str],
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         claims: list[dict[str, Any]] = []
         gates: dict[str, Any] = {}
         for canonical in canonicals:
-            for pack in state["selected_role_packs"]:
+            for pack in packs:
                 for claim in self.bullet_composer.compose_bullets(canonical_experience=canonical, role_pack_name=pack):
                     claim_data = claim.to_dict()
                     gate = self.claim_gate.validate_claim(bullet_claim=claim_data, canonical_experience=canonical).to_dict()
@@ -1124,10 +1255,44 @@ class ResumeConversationAgent:
                     self.claim_ledger.record_claim(session_id=session_id, bullet_claim=claim_data, gate_status=gate["status"], user_disposition=None)
                     claims.append(claim_data)
                     gates[claim_data["claim_id"]] = gate
-        state["generated_claims"] = claims
-        state["claim_gate_results"] = gates
+        return claims, gates
+
+    def _approve_representative_sample(
+        self, session_id: str, state: dict[str, Any],
+    ) -> dict[str, Any]:
+        sample = state.get("representative_sample") or {}
+        if state.get("stage") != "representative_sample" or sample.get("status") != "pending":
+            return self._response(state, "当前没有待确认的代表样板。")
+        rewrite_ids = {
+            item.get("claim_id") for item in state.get("rewrite_candidates", [])
+        }
+        sample_claims = [
+            claim for claim in state.get("generated_claims", [])
+            if claim.get("experience_id") == sample.get("experience_id")
+            and claim.get("claim_id") not in rewrite_ids
+        ]
+        if not sample_claims or any(
+            state.get("claim_gate_results", {}).get(claim.get("claim_id"), {}).get("status") != "ready"
+            for claim in sample_claims
+        ):
+            return self._response(state, "代表样板仍有未通过事实审计的要点，请修改或补充事实后再确认。")
+        sample["status"] = "approved"
+        state["stage"] = "composition"
+        remaining = [
+            canonical for canonical in self._confirmed_canonicals(state)
+            if canonical.get("experience_id") != sample.get("experience_id")
+        ]
+        claims, gates = self._compose_claims(
+            session_id, remaining, state.get("selected_role_packs", []),
+        )
+        state["generated_claims"].extend(claims)
+        state["claim_gate_results"].update(gates)
         state["stage"] = "factual_audit"
-        return self._response(state, "候选要点已生成并完成 ClaimGate 审计；只有 ready 项会进入右侧预览。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
+        return self._response(
+            state,
+            "代表样板已冻结；其余经历已按同一标准组合并完成 ClaimGate 审计。只有 ready 项会进入预览。",
+            ui_events=["sample_approved", "show_bullet_cards", "refresh_resume_preview"],
+        )
 
     def _edit_wording(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         claim_id, wording = str(payload.get("claim_id", "")), str(payload.get("wording", "")).strip()
@@ -1228,19 +1393,6 @@ class ResumeConversationAgent:
             ui_events=["refresh_resume_preview"],
         )
 
-    @staticmethod
-    def _merge_facts(base: dict[str, Any], added: dict[str, Any]) -> dict[str, Any]:
-        merged = deepcopy(base)
-        for key, value in added.items():
-            if isinstance(value, list):
-                merged[key] = list(dict.fromkeys((merged.get(key, []) or []) + value))
-            elif isinstance(value, dict):
-                current = merged.get(key, {}) or {}
-                merged[key] = {**current, **{k: v for k, v in value.items() if v not in (None, "")}}
-            elif value not in (None, ""):
-                merged[key] = value
-        return merged
-
     def resume_tier_documents(
         self, session_id: str, state: dict[str, Any] | None = None,
     ) -> dict[str, dict[str, Any] | None]:
@@ -1292,31 +1444,48 @@ class ResumeConversationAgent:
                     "claim_id": claim_id, "text": claim["wording"],
                     "evidence_ids": claim["evidence_ids"],
                 })
-        basics, education, profile_evidence = CandidateProfileIntakeService.document_sections(
+        basics, education, profile_extras, profile_evidence = CandidateProfileIntakeService.document_sections(
             state.get("candidate_profile") or {}
         )
         profile_projection = project_confirmed_profile(canonicals)
         basics["summary"] = profile_projection["summary"]
         basics["evidence_ids"] = sorted(set(basics.get("evidence_ids", [])) | set(profile_projection["summary_evidence_ids"]))
+        experience_sections = {
+            "research_experience": [], "clinical_experience": [],
+            "professional_experience": [], "projects": [],
+        }
+        section_by_type = {
+            "research": "research_experience", "clinical": "clinical_experience",
+            "professional": "professional_experience",
+        }
+        for canonical in canonicals:
+            identity = canonical.get("identity") or {}
+            experience_type = identity.get("experience_type") or "research"
+            item = {
+                "item_id": canonical["experience_id"],
+                "experience_type": experience_type,
+                "project_name": identity.get("project_name"),
+                "organization": identity.get("organization") or "",
+                "title": identity.get("role_title") or canonical["role"].get("title") or "",
+                "department_or_field": canonical["context"].get("topic"),
+                "period": deepcopy(identity.get("period") or {"start": None, "end": None, "ongoing": False}),
+                "evidence_ids": canonical["evidence_ids"],
+                "bullets": [
+                    {"text": bullet["text"], "evidence_ids": bullet["evidence_ids"]}
+                    for bullet in bullets_by_experience[canonical["experience_id"]]
+                ],
+            }
+            experience_sections[section_by_type.get(experience_type, "projects")].append(item)
         return {
             "schema_version": "resume-document-v1", "resume_id": session_id,
             "target": {"purpose": "general", "role": ", ".join(state.get("selected_role_packs", [])) or None, "organization": None, "jd_reference": None},
             "basics": basics,
             "education": education,
-            "skills": profile_projection["skills"],
-            "research_experience": [{
-                "item_id": canonical["experience_id"],
-                "project_name": (canonical.get("identity") or {}).get("project_name"),
-                "organization": (canonical.get("identity") or {}).get("organization") or "",
-                "title": (canonical.get("identity") or {}).get("role_title") or canonical["role"].get("title") or "",
-                "department_or_field": canonical["context"].get("topic"),
-                "period": deepcopy((canonical.get("identity") or {}).get("period") or {"start": None, "end": None, "ongoing": False}),
-                "evidence_ids": canonical["evidence_ids"],
-                "bullets": [
-                    {"text": item["text"], "evidence_ids": item["evidence_ids"]}
-                    for item in bullets_by_experience[canonical["experience_id"]]
-                ],
-            } for canonical in canonicals],
+            "awards": profile_extras["awards"],
+            "languages": profile_extras["languages"],
+            "research_interests": profile_extras["research_interests"],
+            "skills": profile_projection["skills"] + profile_extras["certificates"],
+            **experience_sections,
             "evidence": profile_evidence + [{"evidence_id": item["evidence_id"], "statement": item["source_text"], "source_document_id": None, "source_locator": None, "status": "user_confirmed", "confirmed_at": None} for item in state["evidence_records"]],
             "review_events": [],
         }

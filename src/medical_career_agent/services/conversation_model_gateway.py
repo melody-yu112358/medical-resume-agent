@@ -24,9 +24,9 @@ class IntakeSummaryResult:
 class ConversationModelGateway(Protocol):
     def summarize_intake_turn(
         self, *, text: str, selected_option_ids: list[str], free_text: str,
-        session_context: dict[str, Any], allowed_question_card: dict[str, Any] | None,
+        session_context: dict[str, Any], allowed_question_cards: list[dict[str, Any]],
     ) -> IntakeSummaryResult:
-        """Summarize candidate facts and phrase only the backend-selected gap."""
+        """Summarize facts and select one backend-owned unresolved gap."""
 
     def rewrite_claim(self, *, source_claim: dict[str, Any], canonical_experience: dict[str, Any], tone: str, instruction: str) -> ConversationLanguageResult:
         """Return a candidate wording and its complete traceability fields only."""
@@ -54,11 +54,12 @@ class ModelGatewayConversationGateway:
 
     def summarize_intake_turn(
         self, *, text: str, selected_option_ids: list[str], free_text: str,
-        session_context: dict[str, Any], allowed_question_card: dict[str, Any] | None,
+        session_context: dict[str, Any], allowed_question_cards: list[dict[str, Any]],
     ) -> IntakeSummaryResult:
-        allowed_card = allowed_question_card or {}
+        allowed_cards = allowed_question_cards or []
+        example_card = allowed_cards[0] if allowed_cards else {}
         raw = self.gateway.generate(task="resume_intake_skill_summary", context={
-            "instruction": "Return JSON only. Work under Medical Resume Skill Stage 1. Select only the backend fact refs that best summarize the user's evidence; do not write summary prose. The backend renders all candidate-facing wording. Preserve participation and responsibility boundaries, never create or confirm a fact, number, outcome, tool, method, or ownership level. allowed_fact_refs is the complete fact whitelist. evidence_quotes must be non-empty verbatim substrings from one active_evidence record. For the next gap, copy the supplied question_id exactly and recommend only its option IDs; do not write or rewrite question text. Do not decide readiness, canonical data, confirmation, claims, or audit status.",
+            "instruction": "Return JSON only. Work under Medical Resume Skill Stage 1. Select only the backend fact refs that best summarize the user's evidence; do not write summary prose. The backend renders all candidate-facing wording. Preserve participation and responsibility boundaries, never create or confirm a fact, number, outcome, tool, method, or ownership level. allowed_fact_refs is the complete fact whitelist. evidence_quotes must be non-empty verbatim substrings from one active_evidence record. Select the single highest-value unresolved gap from allowed_question_cards by copying its question_id exactly, then recommend only option IDs from that same card. Do not write or rewrite question text. Do not decide readiness, canonical data, confirmation, claims, or audit status.",
             "user_answer": {
                 "display_text": text, "selected_option_ids": selected_option_ids,
                 "free_text": free_text,
@@ -68,10 +69,10 @@ class ModelGatewayConversationGateway:
             "allowed_fact_refs": session_context.get("allowed_fact_refs", []),
             "confirmed_facts": session_context.get("confirmed_facts"),
             "previous_questions": session_context.get("previous_questions", []),
-            "allowed_question_card": allowed_card,
+            "allowed_question_cards": allowed_cards,
             "response_shape": {
                 "summary": {"fact_refs": ["actions:screen_studies"], "evidence_quotes": ["verbatim user substring"]},
-                "next_question": {"question_id": allowed_card.get("question_id"), "recommended_option_ids": []},
+                "next_question": {"question_id": example_card.get("question_id"), "recommended_option_ids": []},
             },
         })
         value = self._parse_json_object(raw)

@@ -10,29 +10,28 @@
 </head>
 <body>
   <header class="topbar">
-    <a href="/">未界</a>
+    <a href="/" aria-label="返回首页">未界</a>
     <div><b>医学简历 Agent</b><span id="connection">正在连接本机服务…</span></div>
     <button id="reset" class="quiet" type="button">开始新简历</button>
   </header>
   <main class="app-shell">
     <aside class="journey">
-      <p class="eyebrow">YOUR WORKFLOW</p>
+      <p class="eyebrow">简历进度</p>
       <h1>把真实经历<br>翻译成专业简历</h1>
       <p>每一步都保留事实边界。系统先理解，再追问、确认、改写和审计。</p>
       <ol id="steps"></ol>
       <div class="privacy-note"><b>隐私说明</b><span>会话保存在当前电脑的本机服务；“开始新简历”会删除当前会话与要点账本。</span></div>
-      <a class="legacy" href="/demo/resume-beta/index.html">打开旧版 Resume Beta</a>
     </aside>
 
     <section class="workbench">
       <div class="progress"><i id="progressBar"></i></div>
       <div class="stage-head"><div><span id="stageKicker">STEP</span><h2 id="stageTitle">材料输入</h2></div><span id="saveStatus">尚未保存</span></div>
-      <div id="workspace" aria-live="polite"></div>
-      <p id="error" class="error" role="alert"></p>
+      <div id="workspace"></div>
+      <p id="error" class="status-message" role="status" aria-live="polite"></p>
     </section>
 
     <aside class="preview-pane">
-      <div class="preview-head"><div><span>LIVE A4 PREVIEW</span><b>投递稿预览</b></div><select id="theme" aria-label="简历主题"><option value="clinical-blue">临床蓝</option><option value="academic-green">学术绿</option><option value="ats-mono">ATS 黑白</option></select></div>
+      <div class="preview-head"><div><span id="previewEyebrow">简历预览</span><b id="previewTitle">投递稿预览</b></div><select id="theme" aria-label="简历主题"><option value="clinical-blue">临床蓝</option><option value="academic-green">学术绿</option><option value="ats-mono">ATS 黑白</option></select></div>
       <article id="preview" class="paper theme-clinical-blue"><div class="empty-preview"><b>这里将出现你的简历</b><span>完成事实确认并批准代表样例后，右侧会实时生成 A4 投递稿。</span></div></article>
       <button id="print" class="print-button" type="button" disabled>打印 / 保存 PDF</button>
     </aside>

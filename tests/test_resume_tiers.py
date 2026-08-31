@@ -56,9 +56,11 @@ def _composed_conversation(gateway=None):
         "action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL],
         "proposal_ids": [],
     })
-    composed = _message(client, session_id, {
+    sample = _message(client, session_id, {
         "action": "select_role_packs", "role_packs": ["doctoral_v1"],
     })
+    assert sample["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     return client, session_id, composed
 
 
@@ -137,7 +139,7 @@ def test_three_complete_tiers_preserve_independent_selections_and_single_call_ac
     for tier in data["tiers"].values():
         markdown = tier["markdown"]
         assert "# 测试同学" in markdown
-        assert "## 科研与实践经历" in markdown
+        assert "## 科研经历" in markdown
         assert "evidence_id" not in markdown
         assert "doctoral_v1" not in markdown
     assert bundle["resume.md"] == data["tiers"]["professional"]["markdown"]
@@ -187,4 +189,4 @@ def test_no_model_still_exports_three_complete_professional_default_tiers():
     markdowns = [data["tiers"][tier]["markdown"] for tier in ("conservative", "professional", "high_impact")]
     assert data["selected_tier"] == "professional"
     assert markdowns[0] == markdowns[1] == markdowns[2]
-    assert "## 科研与实践经历" in markdowns[0]
+    assert "## 科研经历" in markdowns[0]

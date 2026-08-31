@@ -25,6 +25,7 @@
     "awards": { "type": "array", "items": { "$ref": "#/$defs/achievementItem" } },
     "skills": { "type": "array", "items": { "$ref": "#/$defs/skillItem" } },
     "languages": { "type": "array", "items": { "$ref": "#/$defs/languageItem" } },
+    "research_interests": { "type": "array", "items": { "$ref": "#/$defs/interestItem" } },
     "capability_profile": { "type": "array", "items": { "$ref": "#/$defs/capabilityItem" } },
     "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" }, "minItems": 1 },
     "review_events": { "type": "array", "items": { "$ref": "#/$defs/reviewEvent" } }
@@ -86,7 +87,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["item_id", "organization", "title", "evidence_ids"],
       "properties": {
-          "item_id": { "type": "string" }, "project_name": { "type": ["string", "null"] }, "organization": { "type": "string" }, "title": { "type": "string" },
+          "item_id": { "type": "string" }, "experience_type": { "enum": ["research", "clinical", "professional", "leadership", "volunteer", "project"] }, "project_name": { "type": ["string", "null"] }, "organization": { "type": "string" }, "title": { "type": "string" },
         "department_or_field": { "type": ["string", "null"] }, "period": { "$ref": "#/$defs/period" },
         "bullets": { "type": "array", "items": { "$ref": "#/$defs/bulletItem" } },
         "evidence_ids": { "$ref": "#/$defs/evidenceIds" }
@@ -121,6 +122,11 @@
       "type": "object", "additionalProperties": false,
       "required": ["language", "evidence_ids"],
       "properties": { "language": { "type": "string" }, "level_or_score": { "type": ["string", "null"] }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
+    },
+    "interestItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "evidence_ids"],
+      "properties": { "name": { "type": "string" }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
     },
     "capabilityItem": {
       "type": "object", "additionalProperties": false,

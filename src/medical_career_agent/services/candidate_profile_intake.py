@@ -55,6 +55,30 @@ class CandidateProfileIntakeService:
             "help": "填写开始年月；如果仍在读，结束时间选择“至今”。",
             "kind": "period", "required": False,
         },
+        {
+            "id": "awards", "section": "awards", "label": "有哪些希望展示的荣誉或奖项？",
+            "help": "一行填写一项，只写真实名称；颁发单位或年份不确定时不要补写。",
+            "kind": "multiline_list", "required": False,
+            "placeholder": "例如：2024 年国家奖学金\n校级科研竞赛一等奖",
+        },
+        {
+            "id": "languages", "section": "languages", "label": "有哪些语言成绩或能力需要展示？",
+            "help": "一行填写一项，分数或等级只在能够确认时填写。",
+            "kind": "multiline_list", "required": False,
+            "placeholder": "例如：CET-4：620\nCET-6：580",
+        },
+        {
+            "id": "certificates", "section": "certificates", "label": "有哪些证书或正式培训需要展示？",
+            "help": "一行填写一项；课程接触不等于持有证书，没有可以跳过。",
+            "kind": "multiline_list", "required": False,
+            "placeholder": "例如：GCP 培训证书",
+        },
+        {
+            "id": "research_interests", "section": "research_interests", "label": "有哪些真实的研究兴趣希望展示？",
+            "help": "一行填写一个方向；这只是兴趣陈述，不会被写成已有成果。",
+            "kind": "multiline_list", "required": False,
+            "placeholder": "例如：心血管循证医学\n临床预测模型",
+        },
     )
 
     @classmethod
@@ -113,14 +137,15 @@ class CandidateProfileIntakeService:
             value = answers.get(question["id"])
             if value in (None, "", {}):
                 continue
-            statement = cls._statement(question, value)
-            records.append({
-                "evidence_id": f"profile_ev_{index:03d}",
-                "field": question["id"],
-                "section": question["section"],
-                "source_text": statement,
-                "status": "confirmed",
-            })
+            items = value if question["kind"] == "multiline_list" else [value]
+            for item_index, item in enumerate(items, 1):
+                records.append({
+                    "evidence_id": f"profile_ev_{index:03d}_{item_index:02d}" if len(items) > 1 or question["kind"] == "multiline_list" else f"profile_ev_{index:03d}",
+                    "field": question["id"], "item_index": item_index,
+                    "section": question["section"],
+                    "source_text": cls._statement(question, item),
+                    "status": "confirmed",
+                })
         profile["profile_evidence_records"] = records
         profile["status"] = "confirmed"
         return profile
@@ -133,11 +158,12 @@ class CandidateProfileIntakeService:
         return profile
 
     @classmethod
-    def document_sections(cls, profile: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    def document_sections(cls, profile: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, list[dict[str, Any]]], list[dict[str, Any]]]:
         if profile.get("status") != "confirmed":
             return (
                 {"name": None, "phone": None, "email": None, "location": None, "summary": None, "evidence_ids": []},
                 [],
+                {"awards": [], "languages": [], "certificates": [], "research_interests": []},
                 [],
             )
         answers = profile.get("answers") or {}
@@ -146,6 +172,11 @@ class CandidateProfileIntakeService:
             section: [item["evidence_id"] for item in records if item.get("section") == section]
             for section in ("basics", "education")
         }
+        def item_evidence(field: str, item_index: int) -> list[str]:
+            return [
+                item["evidence_id"] for item in records
+                if item.get("field") == field and item.get("item_index") == item_index
+            ]
         period = answers.get("period") or {}
         basics = {
             "name": answers.get("name"), "phone": answers.get("phone"),
@@ -162,15 +193,42 @@ class CandidateProfileIntakeService:
             "ranking_or_gpa": None, "highlights": [],
             "evidence_ids": ids_by_section["education"],
         }]
+        extras = {
+            "awards": [{
+                "item_id": f"award_{index:03d}", "name": value,
+                "issuer": None, "year": None,
+                "evidence_ids": item_evidence("awards", index),
+            } for index, value in enumerate(answers.get("awards") or [], 1)],
+            "languages": [{
+                "language": value, "level_or_score": None,
+                "evidence_ids": item_evidence("languages", index),
+            } for index, value in enumerate(answers.get("languages") or [], 1)],
+            "certificates": [{
+                "name": value, "category": "certificate", "level": None,
+                "evidence_ids": item_evidence("certificates", index),
+            } for index, value in enumerate(answers.get("certificates") or [], 1)],
+            "research_interests": [{
+                "name": value,
+                "evidence_ids": item_evidence("research_interests", index),
+            } for index, value in enumerate(answers.get("research_interests") or [], 1)],
+        }
         evidence = [{
             "evidence_id": item["evidence_id"], "statement": item["source_text"],
             "source_document_id": None, "source_locator": None,
             "status": "user_confirmed", "confirmed_at": None,
         } for item in records]
-        return basics, education, evidence
+        return basics, education, extras, evidence
 
     @staticmethod
     def _normalize(question: dict[str, Any], value: Any) -> Any:
+        if question["kind"] == "multiline_list":
+            raw_items = value if isinstance(value, list) else str(value or "").splitlines()
+            items = list(dict.fromkeys(re.sub(r"\s+", " ", str(item).strip()) for item in raw_items if str(item).strip()))
+            if len(items) > 20:
+                raise CandidateProfileInputError("单个模块最多填写 20 项，请保留最相关内容。")
+            if any(len(item) > 200 for item in items):
+                raise CandidateProfileInputError("单个条目过长，请保留正式名称和必要信息。")
+            return items or None
         if question["kind"] == "period":
             if not isinstance(value, dict):
                 raise CandidateProfileInputError("就读时间格式不正确。")

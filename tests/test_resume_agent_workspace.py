@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import inspect
 import json
+import re
 from pathlib import Path
 
 from medical_career_agent.api import create_app
+from medical_career_agent.services.experience_draft import ExperienceDraftService
+from medical_career_agent.services.resume_conversation_agent import ResumeConversationAgent
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,7 +42,9 @@ def _delivery_conversation(client, role_pack="doctoral_v1"):
         "proposal_ids": [],
     })
     assert confirmed["stage"] == "representative_sample"
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
+    sample = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
+    assert sample["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     assert composed["stage"] == "factual_audit"
     assert composed["audit_status"]["ready"] > 0
     delivered = _message(client, session_id, {"action": "accept_bullets"})
@@ -173,14 +179,19 @@ def test_export_rejects_invalid_session_id_and_reports_unknown_valid_id():
 def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     html_text = (ROOT / "demo/resume-agent/index.html").read_text(encoding="utf-8")
     script = (ROOT / "demo/resume-agent/app.js").read_text(encoding="utf-8")
+    workspace_css = (ROOT / "demo/resume-agent/workspace.css").read_text(encoding="utf-8")
 
-    assert "LIVE A4 PREVIEW" in html_text
+    assert "简历预览" in html_text
+    assert "简历进度" in html_text
+    assert "打开旧版 Resume Beta" not in html_text
+    assert '<div id="workspace"></div>' in html_text
+    assert 'role="status" aria-live="polite"' in html_text
     assert "workspace.css" in html_text
     assert "reset-flow.js" in html_text
     for action in (
         "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
-        "select_rewrite_candidate", "select_resume_tier",
+        "select_rewrite_candidate", "select_resume_tier", "approve_representative_sample",
         "confirm_candidate_profile", "start_new_experience", "select_experience", "submit_experience",
     ):
         assert action in script
@@ -190,12 +201,33 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "positioning" not in script
     assert "localStorage" in script
     assert "基础资料与教育背景" in script
+    assert "荣誉奖励" in script
+    assert "语言能力" in script
+    assert "证书与培训" in script
+    assert "研究兴趣" in script
+    assert 'label: "聊经历"' in script
+    assert 'label: "定表达"' in script
+    assert 'label: "完成简历"' in script
+    assert 'internalStages: ["intake", "fact_confirmation"]' in script
+    assert 'internalStages: ["representative_sample", "composition"]' in script
+    assert 'internalStages: ["factual_audit", "delivery"]' in script
+    assert "contract.stages.map" not in script
+    assert 'visibleStage.id === "conversation"' in script
+    assert "已了解的你" in script
+    assert "已自动保存到本机" in script
+    assert "系统目前了解的信息" in script
+    assert "为什么问这个？" in script
+    assert "查看系统识别的候选事实" in script
+    assert 'class="secondary" type="button">核对完成' in script
     assert "documentData.education" in script
     assert "basics.summary" in script
     assert "documentData.skills" in script
     assert "研究方法与技能" in script
     assert "experience_identity" in script
     assert "experienceName" in script
+    assert "experienceType" in script
+    assert "校园与领导力" in script
+    assert "志愿服务" in script
     assert "experienceOrganization" in script
     assert "experienceRole" in script
     assert "选择完整简历版本" in script
@@ -205,6 +237,29 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "你的回答会保存在本机 session" in script
     assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script
+    assert "button:focus-visible" in workspace_css
+    assert "[hidden] { display: none !important; }" in workspace_css
+    assert "prefers-reduced-motion" in workspace_css
+    assert "forced-colors" in workspace_css
+    assert ".conversation-mode .preview-pane { display: none; }" in workspace_css
+
+    config = create_app(load_model_from_environment=False).test_client().get(
+        "/api/resume-agent/config"
+    ).get_json()
+    frontend_label_ids = set(config["fact_labels"])
+    displayed_fact_ids = (
+        set(ExperienceDraftService.ACTION_PATTERNS)
+        | set(ExperienceDraftService.METHOD_PATTERNS)
+        | set(ExperienceDraftService.TECHNIQUE_PATTERNS)
+        | {item_id for _, item_id in ExperienceDraftService.TOOL_PATTERNS}
+        | set(ExperienceDraftService.COLLABORATION_PATTERNS)
+        | set(ExperienceDraftService.ARTIFACT_PATTERNS)
+    )
+    assert displayed_fact_ids <= frontend_label_ids
+    assert config["fact_labels"]["stata"] == "Stata"
+    assert config["fact_labels"]["analysis_figures"] == "分析图表"
+    assert "const labels = {" not in script
+    assert "labels = contract.fact_labels || {}" in script
 
 
 def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():
@@ -233,5 +288,15 @@ def test_workflow_contract_is_package_owned_and_kept_in_sync_with_skill_bundle()
         / "skill-lite/medical-resume-skill/references/workflow-contract.json"
     ).read_text(encoding="utf-8")
 
+    contract = json.loads(package_contract)
+    dispatched_actions = set(re.findall(
+        r'action == "([^"]+)"', inspect.getsource(ResumeConversationAgent.handle_message),
+    ))
+
     assert "skill-lite" not in api_source
-    assert json.loads(package_contract) == json.loads(skill_contract)
+    assert contract == json.loads(skill_contract)
+    assert set(contract["actions"]) - dispatched_actions == {
+        "create_conversation", "provide_facts",
+    }
+    assert dispatched_actions <= set(contract["actions"])
+    assert contract["rules"]["maximum_questions_per_round"] == 1

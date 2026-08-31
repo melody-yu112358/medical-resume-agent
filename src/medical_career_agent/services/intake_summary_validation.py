@@ -2,19 +2,15 @@ from __future__ import annotations
 
 from typing import Any
 
+from .resume_vocabulary import flat_fact_labels
+
 
 class IntakeSummaryValidationService:
     """Validate model-authored intake copy without granting fact authority."""
 
     _LABELS = {
-        "retrieve_literature": "医学文献检索", "screen_studies": "文献筛选",
-        "extract_data": "数据提取", "perform_analysis": "统计分析",
-        "write_manuscript": "论文材料撰写", "systematic_review": "系统综述",
-        "meta_analysis": "Meta 分析", "sensitivity_analysis": "敏感性分析",
-        "pubmed": "PubMed", "embase": "Embase", "cochrane": "Cochrane Library",
-        "r": "R", "python": "Python", "spss": "SPSS", "stata": "Stata",
-        "excel": "Excel", "revman": "RevMan", "supervisor": "导师",
-        "research_team": "课题组", "participated": "参与", "contributed": "参与 / 协助",
+        **flat_fact_labels(),
+        "participated": "参与", "contributed": "参与 / 协助",
         "owned_component": "负责明确模块", "supervised": "在指导下完成",
         "shared": "共同完成", "independent": "独立完成",
     }
@@ -26,7 +22,7 @@ class IntakeSummaryValidationService:
         candidate: dict[str, Any] | None,
         extracted_facts: dict[str, Any],
         evidence_texts: list[str],
-        question_card: dict[str, Any] | None,
+        question_cards: list[dict[str, Any]],
     ) -> dict[str, Any]:
         if not isinstance(candidate, dict):
             return cls._rejected("模型没有返回结构化整理结果。")
@@ -46,7 +42,7 @@ class IntakeSummaryValidationService:
         allowed_refs = cls.fact_refs(extracted_facts)
         if not set(fact_refs).issubset(allowed_refs):
             return cls._rejected("模型摘要引用了后端事实白名单之外的内容。")
-        question = cls._validated_question(candidate.get("next_question"), question_card)
+        question = cls._validated_question(candidate.get("next_question"), question_cards)
         return {
             "status": "validated", "summary_source": "llm_validated",
             "summary": cls._render_summary(fact_refs), "fact_refs": fact_refs,
@@ -68,10 +64,14 @@ class IntakeSummaryValidationService:
         return refs
 
     @staticmethod
-    def _validated_question(candidate: Any, card: dict[str, Any] | None) -> dict[str, Any] | None:
-        if not isinstance(candidate, dict) or not isinstance(card, dict):
+    def _validated_question(candidate: Any, cards: list[dict[str, Any]]) -> dict[str, Any] | None:
+        if not isinstance(candidate, dict) or not isinstance(cards, list):
             return None
-        if candidate.get("question_id") != card.get("question_id"):
+        card = next(
+            (item for item in cards if item.get("question_id") == candidate.get("question_id")),
+            None,
+        )
+        if not isinstance(card, dict):
             return None
         recommended = candidate.get("recommended_option_ids", [])
         allowed_options = {item.get("id") for item in card.get("options", [])}

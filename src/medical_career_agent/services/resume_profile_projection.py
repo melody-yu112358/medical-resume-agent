@@ -3,33 +3,12 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
+from .resume_vocabulary import FACT_LABELS
 
 METHOD_LABELS = {
-    "systematic_review": "系统综述",
-    "meta_analysis": "Meta 分析",
-    "mendelian_randomization": "孟德尔随机化（MR）",
-    "sensitivity_analysis": "敏感性分析",
-    "randomized_trial": "随机对照试验",
-    "cohort_study": "队列研究",
-    "case_control": "病例对照研究",
+    **FACT_LABELS["methods"], "mendelian_randomization": "孟德尔随机化（MR）",
 }
-
-TOOL_LABELS = {
-    "spss": ("SPSS", "data"),
-    "r": ("R", "data"),
-    "python": ("Python", "data"),
-    "sql": ("SQL", "data"),
-    "stata": ("Stata", "data"),
-    "sas": ("SAS", "data"),
-    "excel": ("Excel", "data"),
-    "revman": ("RevMan", "data"),
-    "graphpad_prism": ("GraphPad Prism", "data"),
-    "endnote": ("EndNote", "data"),
-    "noteexpress": ("NoteExpress", "data"),
-    "pubmed": ("PubMed", "medical_information"),
-    "embase": ("Embase", "medical_information"),
-    "cochrane": ("Cochrane Library", "medical_information"),
-}
+MEDICAL_INFORMATION_TOOLS = {"pubmed", "embase", "cochrane"}
 
 
 def project_confirmed_profile(canonicals: Iterable[dict[str, Any]]) -> dict[str, Any]:
@@ -59,9 +38,9 @@ def project_confirmed_profile(canonicals: Iterable[dict[str, Any]]) -> dict[str,
                 if method_id in METHOD_LABELS:
                     add("research", METHOD_LABELS[method_id], evidence_ids)
             for tool_id in components.get("tools") or []:
-                if tool_id in TOOL_LABELS:
-                    name, category = TOOL_LABELS[tool_id]
-                    add(category, name, evidence_ids)
+                if tool_id in FACT_LABELS["tools"]:
+                    category = "medical_information" if tool_id in MEDICAL_INFORMATION_TOOLS else "data"
+                    add(category, FACT_LABELS["tools"][tool_id], evidence_ids)
 
     skills = [
         {"name": name, "category": category, "level": None, "evidence_ids": sorted(evidence_ids)}

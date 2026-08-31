@@ -8,18 +8,11 @@ let selectedTarget = "doctoral";
 let lastMessage = "";
 let selectedQuestionOptions = new Set();
 let selectedProfileOption = "";
+let labels = {};
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 }[character]));
-const labels = {
-  retrieve_literature: "医学文献检索", screen_studies: "文献筛选", extract_data: "数据提取",
-  perform_analysis: "统计分析", write_manuscript: "论文材料撰写", meta_analysis: "Meta 分析",
-  systematic_review: "系统综述", sensitivity_analysis: "敏感性分析", r: "R", python: "Python",
-  spss: "SPSS", pubmed: "PubMed", embase: "Embase", cochrane: "Cochrane",
-  prisma_flowchart: "PRISMA 流程图", data_extraction_sheet: "数据提取表",
-  group_presentation: "组会汇报", research_team: "课题组", supervisor: "导师",
-};
 const targetLabels = {
   doctoral_v1: "学术升学与科研申请", clinical_research_v1: "临床研究与医院科研",
   clinical_operations_v1: "临床运营 / 临床项目协调",
@@ -31,6 +24,11 @@ const resumeTiers = [
   { id: "high_impact", label: "高竞争力版" },
 ];
 const toneLabels = { Conservative: "稳妥版", Professional: "专业版", "High-impact": "高竞争力版" };
+const userStages = [
+  { id: "conversation", label: "聊经历", internalStages: ["intake", "fact_confirmation"], progress: 33 },
+  { id: "expression", label: "定表达", internalStages: ["representative_sample", "composition"], progress: 66 },
+  { id: "delivery", label: "完成简历", internalStages: ["factual_audit", "delivery"], progress: 100 },
+];
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -44,6 +42,7 @@ async function api(path, options = {}) {
 
 async function createConversation() {
   conversation = await api("/api/conversations", { method: "POST", body: "{}" });
+  syncSelectedTarget();
   localStorage.setItem(sessionStorageKey, conversation.session_id);
   lastMessage = "新会话已建立。先提交一段真实经历。";
 }
@@ -53,6 +52,7 @@ async function loadOrCreateConversation() {
   if (sessionId) {
     try {
       conversation = await api(`/api/conversations/${encodeURIComponent(sessionId)}`);
+      syncSelectedTarget();
       return;
     } catch (_) {
       localStorage.removeItem(sessionStorageKey);
@@ -68,6 +68,7 @@ async function sendMessage(payload) {
       method: "POST", body: JSON.stringify(payload),
     });
     conversation = { session_id: conversation.session_id, state: result.state, events: conversation.events || [] };
+    syncSelectedTarget();
     lastMessage = result.assistant_message || "";
     render();
     return result;
@@ -80,22 +81,25 @@ async function sendMessage(payload) {
 }
 
 function state() { return conversation?.state || {}; }
-function stageIndex(stage) { const index = contract.stages.findIndex((item) => item.id === stage); return index < 0 ? 0 : index; }
 function displayStage(stage) { return contract.stages.find((item) => item.id === stage) || contract.stages[0]; }
+function userStageFor(stage) { return userStages.find((item) => item.internalStages.includes(stage)) || userStages[0]; }
 
 function render() {
   const current = displayStage(state().stage || "intake");
-  const currentIndex = stageIndex(current.id);
-  $("#steps").innerHTML = contract.stages.map((item, index) =>
-    `<li class="${index === currentIndex ? "active" : index < currentIndex ? "done" : ""}">${esc(item.label)}</li>`
+  const visibleStage = userStageFor(current.id);
+  const visibleIndex = userStages.findIndex((item) => item.id === visibleStage.id);
+  document.body.classList.toggle("conversation-mode", visibleStage.id === "conversation");
+  $("#steps").innerHTML = userStages.map((item, index) =>
+    `<li class="${index === visibleIndex ? "active" : index < visibleIndex ? "done" : ""}">${index + 1} ${esc(item.label)}</li>`
   ).join("");
-  $("#progressBar").style.width = `${current.progress}%`;
-  $("#stageKicker").textContent = `STEP ${currentIndex + 1} / ${contract.stages.length}`;
-  $("#stageTitle").textContent = current.label;
-  $("#saveStatus").textContent = `本机会话 ${conversation.session_id.slice(0, 8)}`;
+  $("#progressBar").style.width = `${visibleStage.progress}%`;
+  $("#stageKicker").textContent = `阶段 ${visibleIndex + 1} / ${userStages.length}`;
+  $("#stageTitle").textContent = visibleStage.label;
+  $("#saveStatus").textContent = "已自动保存到本机";
   $("#connection").textContent = health?.llm_configured ? "本机 Agent 已连接 · 语言模型可用" : "本机 Agent 已连接 · 确定性模式";
   $("#workspace").innerHTML = renderWorkspace(current.id);
   $("#error").className = "status-message";
+  $("#error").setAttribute("role", "status");
   $("#error").textContent = lastMessage;
   bindWorkspace(current.id);
   renderPreview();
@@ -114,12 +118,19 @@ function renderIntake() {
   if (profile.status !== "confirmed") return renderCandidateProfile(profile);
   return `${renderExperienceNavigator(false)}<section class="panel soft"><h3>${(state().confirmed_experiences || []).length ? "继续添加一段真实经历" : "先告诉我们一段真实经历"}</h3>
     <p>先填写简历上要显示的经历名称，再写下实际步骤。抬头信息只用于识别这段经历，不会提高你的责任等级。</p>
+    <label class="field">简历章节（必选）<select id="experienceType"><option value="research">科研经历</option><option value="clinical">临床实践</option><option value="professional">工作经历</option><option value="leadership">校园与领导力</option><option value="volunteer">志愿服务</option><option value="project">其他项目</option></select></label>
     <label class="field">经历或项目名称（必填）<input id="experienceName" placeholder="例如：心血管风险因素 Meta 分析项目 / 内科临床轮转"></label>
     <div class="basics-grid"><label class="field">机构或团队（可选）<input id="experienceOrganization" placeholder="例如：某大学附属医院课题组"></label><label class="field">身份或角色（可选）<input id="experienceRole" placeholder="例如：课题成员 / 实习生"></label></div>
     <div class="period-grid"><label class="field">开始年月（可选）<input id="experienceStart" type="month"></label><label class="field">结束年月（可选）<input id="experienceEnd" type="month"></label></div><label class="consent"><input id="experienceOngoing" type="checkbox"><span>这段经历仍在进行</span></label>
     <label class="field">经历材料<textarea id="material" placeholder="例如：在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"></textarea></label>
     <label class="consent"><input id="consent" type="checkbox"><span>我确认材料来自本人真实经历，并同意在当前电脑的本机服务中保存该会话；点击“开始新简历”会删除当前会话文件。</span></label>
     <button id="submitMaterial" class="primary" type="button">建立事实卡 →</button></section>`;
+}
+
+function syncSelectedTarget() {
+  const selectedPacks = conversation?.state?.selected_role_packs || [];
+  const target = contract?.targets?.find((item) => selectedPacks.includes(item.role_pack));
+  if (target) selectedTarget = target.id;
 }
 
 function renderExperienceNavigator(allowActions) {
@@ -131,13 +142,13 @@ function renderExperienceNavigator(allowActions) {
 }
 
 function profileAnswerLabel(id) {
-  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间" }[id] || id;
+  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间", awards: "荣誉奖励", languages: "语言能力", certificates: "证书与培训", research_interests: "研究兴趣" }[id] || id;
 }
 
 function renderProfileSummary(profile, confirmable = false) {
   const answers = profile.answers || {};
   const rows = Object.entries(answers).filter(([, value]) => value && (typeof value !== "object" || Object.values(value).some(Boolean))).map(([id, value]) => {
-    const shown = id === "period" ? `${value.start || "未填开始时间"} 至 ${value.ongoing ? "今" : (value.end || "未填结束时间")}` : value;
+    const shown = id === "period" ? `${value.start || "未填开始时间"} 至 ${value.ongoing ? "今" : (value.end || "未填结束时间")}` : (Array.isArray(value) ? value.join("；") : value);
     return `<div class="profile-summary-row"><span>${esc(profileAnswerLabel(id))}</span><b>${esc(shown)}</b></div>`;
   }).join("");
   return `<section class="panel profile-summary"><div class="profile-summary-head"><div><span class="status-badge">${confirmable ? "请你确认" : "已收集"}</span><h3>基础资料与教育背景</h3></div>${confirmable ? '<button id="editCandidateProfile" class="quiet" type="button">重新检查</button>' : ""}</div>${rows || "<p>还没有已填写资料。</p>"}${confirmable ? '<button id="confirmCandidateProfile" class="primary" type="button">信息准确，开始聊经历 →</button>' : ""}</section>`;
@@ -153,6 +164,8 @@ function renderCandidateProfile(profile) {
   } else if (question.kind === "period") {
     const period = previous || {};
     control = `<div class="period-grid"><label class="field">开始年月<input id="profileStart" type="month" value="${esc(period.start || "")}"></label><label class="field">结束年月<input id="profileEnd" type="month" value="${esc(period.end || "")}" ${period.ongoing ? "disabled" : ""}></label></div><label class="consent"><input id="profileOngoing" type="checkbox" ${period.ongoing ? "checked" : ""}><span>目前仍在读</span></label>`;
+  } else if (question.kind === "multiline_list") {
+    control = `<textarea id="profileValue" placeholder="${esc(question.placeholder || "每行填写一项")}">${esc(Array.isArray(previous) ? previous.join("\n") : "")}</textarea>`;
   }
   return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>你的回答会保存在本机 session；确认前不会进入最终简历。</p><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
 }
@@ -178,14 +191,13 @@ function renderFacts() {
   const draft = state().extracted_draft || {};
   const facts = draft.extracted_facts || {};
   const pending = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation");
-  return `${renderIntakeModelSummary()}<section class="panel"><h3>系统提取的事实卡</h3><p>这些是候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</section>
-    ${pending.length ? `<section class="panel soft"><h3>逐项确认活动与责任边界</h3><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="primary" type="button">确认活动与事实 →</button></section>` : ""}
-    ${renderQuestionCard()}`;
+  const review = pending.length ? `<details class="panel soft activity-review"><summary><span>已有 ${pending.length} 项活动可以核对</span><small>如果暂时不再补充，可在这里确认责任边界</small></summary><div class="activity-review-body"><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="secondary" type="button">核对完成，确认这些活动 →</button></div></details>` : "";
+  return `${renderIntakeModelSummary()}${renderQuestionCard()}${review}<details class="panel fact-details"><summary>查看系统识别的候选事实</summary><div class="activity-review-body"><p>这些是从你原话中识别的候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</div></details>`;
 }
 
 function renderIntakeModelSummary() {
   const model = state().intake_model || {};
-  if (model.status === "validated") return `<section class="panel model-summary"><span class="status-badge">AI 已按原文整理</span><h3>我目前的理解</h3><p>${esc(model.summary)}</p><small>这仍是待确认摘要，不会直接写入简历。</small></section>`;
+  if (model.status === "validated") return `<section class="panel model-summary chat-message"><span class="status-badge">AI 已按原文整理</span><h3>我目前的理解</h3><p>${esc(model.summary)}</p><small>这仍是待确认摘要，不会直接写入简历。</small></section>`;
   if (model.status === "failed" || model.status === "rejected") return `<section class="panel model-summary warning"><span class="status-badge">本轮 AI 整理未完成</span><p>${esc(model.error || "原始回答已保留，请继续回答当前问题。")}</p></section>`;
   if (model.status === "not_configured") return `<section class="panel model-summary warning"><span class="status-badge">尚未使用 AI 整理</span><p>原始回答已保留；配置模型后才会生成 Skill 约束下的自然语言摘要。</p></section>`;
   return "";
@@ -195,17 +207,23 @@ function renderQuestionCard() {
   const fallback = (state().pending_questions || ["请补充你实际做过的步骤、工具和责任范围。"])[0];
   const card = state().question_card || { text: fallback, selection_mode: "multiple", options: [], allow_free_text: true };
   const options = (card.options || []).map((option) => `<button class="answer-option" data-question-option="${esc(option.id)}" type="button" aria-pressed="false">${esc(option.label)}</button>`).join("");
-  return `<section class="panel question-panel" data-selection-mode="${esc(card.selection_mode || "multiple")}">
+  return `<section class="panel question-panel chat-message" data-selection-mode="${esc(card.selection_mode || "multiple")}">
     <span class="status-badge">本轮只回答这一题</span><h3>${esc(card.text)}</h3>
-    ${card.why_it_matters ? `<p>${esc(card.why_it_matters)}</p>` : ""}
+    ${card.why_it_matters ? `<details class="why-question"><summary>为什么问这个？</summary><p>${esc(card.why_it_matters)}</p></details>` : ""}
     ${options ? `<div class="answer-options" role="group" aria-label="预设答案，可选择一个或多个">${options}</div>` : ""}
     <label class="field">补充说明（可选）<textarea id="supplement" placeholder="选项不完全符合时，在这里补充真实、可核验的信息。"></textarea></label>
     <button id="supplementFacts" class="primary" type="button">发送这一题的回答</button></section>`;
 }
 
 function renderTargetSelection() {
-  return `${renderExperienceNavigator(true)}<section class="panel soft"><h3>事实已经冻结，选择表达方向</h3><p>方向只改变重点与排序；系统会分别处理上方所有已确认经历。</p><div class="target-grid">${contract.targets.map((target) => `<button class="choice ${selectedTarget === target.id ? "selected" : ""}" data-target="${target.id}" type="button"><b>${esc(target.label)}</b><span>${esc(target.role_pack)}</span></button>`).join("")}</div>
-    <div class="action-row"><button id="generateClaims" class="primary" type="button">生成代表要点并审计 →</button></div></section>`;
+  const sample = state().representative_sample;
+  const targetPicker = `<section class="panel soft"><h3>选择表达方向</h3><p>方向只改变重点与排序，不改变已经确认的事实。</p><div class="target-grid">${contract.targets.map((target) => `<button class="choice ${selectedTarget === target.id ? "selected" : ""}" data-target="${target.id}" type="button"><b>${esc(target.label)}</b><span>${esc(target.role_pack)}</span></button>`).join("")}</div>
+    <div class="action-row"><button id="generateClaims" class="secondary" type="button">${sample ? "按当前方向重新生成样板" : "生成一段代表样板 →"}</button></div></section>`;
+  if (!sample) return `${renderExperienceNavigator(true)}${targetPicker}`;
+  const experience = (state().confirmed_experiences || []).find((item) => item.experience_id === sample.experience_id);
+  const review = reviewClaims((claim) => claim.experience_id === sample.experience_id);
+  const canApprove = review.baseClaims.length > 0 && review.ready.length === review.baseClaims.length;
+  return `${renderExperienceNavigator(true)}${targetPicker}${renderTierSelector()}<section class="panel representative-sample"><span class="status-badge">代表样板 · 待你冻结</span><h3>${esc(experience?.label || "旗舰经历样板")}</h3><p>请核对四件事：每条要点是否提供不同信息、语气是否适合申请、责任是否没有夸大、排序是否符合目标方向。</p>${review.cards || "<p>当前事实不足以形成可审计样板，请返回补充具体活动。</p>"}<div class="action-row"><button id="approveSample" class="primary" type="button" ${canApprove ? "" : "disabled"}>确认样板并生成完整简历 →</button></div></section>`;
 }
 
 function renderClaim(claim) {
@@ -227,16 +245,21 @@ function renderRewriteCandidate(meta, claim) {
   return `<article class="rewrite-option ${ready ? "ready" : ""} ${meta.selected ? "selected" : ""}"><div class="claim-meta"><b>${esc(toneLabels[meta.tone] || "候选版本")}</b><span>${ready ? (meta.selected ? "已应用" : "审计通过") : "未通过审计"}</span></div><p>${esc(claim?.wording || "候选措辞不可用")}</p>${gate.failed_checks?.length ? `<p class="audit-warning">${gate.failed_checks.map(esc).join("；")}</p>` : ""}<button class="secondary selectRewrite" data-candidate-id="${esc(meta.claim_id)}" type="button" ${ready ? "" : "disabled"}>${meta.selected ? "已应用到该档" : `应用到${esc(toneLabels[meta.tone] || "该档")}`}</button></article>`;
 }
 
-function renderClaims() {
+function reviewClaims(predicate = () => true) {
   const claims = state().generated_claims || [];
   const rewriteMeta = state().rewrite_candidates || [];
   const rewriteIds = new Set(rewriteMeta.map((item) => item.claim_id));
-  const baseClaims = claims.filter((claim) => !rewriteIds.has(claim.claim_id));
+  const baseClaims = claims.filter((claim) => !rewriteIds.has(claim.claim_id) && predicate(claim));
   const claimById = Object.fromEntries(claims.map((claim) => [claim.claim_id, claim]));
   const ready = baseClaims.filter((claim) => state().claim_gate_results?.[claim.claim_id]?.status === "ready");
   const cards = baseClaims.map((claim) => `${renderClaim(claim)}<div class="rewrite-list">${rewriteMeta.filter((item) => item.source_claim_id === claim.claim_id).map((item) => renderRewriteCandidate(item, claimById[item.claim_id])).join("")}</div>`).join("");
-  return `${renderTierSelector()}<section class="panel"><h3>代表要点与事实审计</h3><p>当前 ${ready.length}/${baseClaims.length} 条基础要点可交付。每次只为一条要点生成一个档位候选；应用前必须通过原 v2 Claim Gate。</p>${cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
-    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍可使用同一组确定性要点；配置模型后可按需改写单条措辞。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
+  return { baseClaims, ready, cards };
+}
+
+function renderClaims() {
+  const review = reviewClaims();
+  return `${renderTierSelector()}<section class="panel"><h3>完整简历与事实审计</h3><p>样板已冻结；当前 ${review.ready.length}/${review.baseClaims.length} 条基础要点可交付。每次只为一条要点生成一个档位候选；应用前必须通过原 v2 Claim Gate。</p>${review.cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
+    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍可使用同一组确定性要点；配置模型后可按需改写单条措辞。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${review.ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
 }
 
 function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStorageKey) || "{}"); } catch (_) { return {}; } }
@@ -264,7 +287,7 @@ function bindWorkspace(stage) {
         if (!projectName) return showError("请填写真实的经历或项目名称；没有正式名称时可填写研究主题或轮转名称。");
         if (!text || !$("#consent").checked) return showError("请填写经历并确认本机处理说明。");
         const ongoing = $("#experienceOngoing").checked;
-        sendMessage({ action: "submit_experience", text, consent_confirmed: true, experience_identity: { project_name: projectName, organization: $("#experienceOrganization").value.trim(), role_title: $("#experienceRole").value.trim(), period: { start: $("#experienceStart").value, end: ongoing ? "" : $("#experienceEnd").value, ongoing } } });
+        sendMessage({ action: "submit_experience", text, consent_confirmed: true, experience_identity: { experience_type: $("#experienceType").value, project_name: projectName, organization: $("#experienceOrganization").value.trim(), role_title: $("#experienceRole").value.trim(), period: { start: $("#experienceStart").value, end: ongoing ? "" : $("#experienceEnd").value, ongoing } } });
       };
     }
   } else if (stage === "fact_confirmation") {
@@ -275,6 +298,10 @@ function bindWorkspace(stage) {
   } else if (stage === "representative_sample") {
     document.querySelectorAll("[data-target]").forEach((button) => button.onclick = () => { selectedTarget = button.dataset.target; render(); });
     $("#generateClaims").onclick = () => { const target = contract.targets.find((item) => item.id === selectedTarget); sendMessage({ action: "select_role_packs", role_packs: [target.role_pack] }); };
+    document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
+    document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
+    document.querySelectorAll(".selectRewrite").forEach((button) => button.onclick = () => sendMessage({ action: "select_rewrite_candidate", claim_id: button.dataset.candidateId }));
+    if ($("#approveSample")) $("#approveSample").onclick = () => sendMessage({ action: "approve_representative_sample" });
   } else if (stage === "composition" || stage === "factual_audit") {
     document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
@@ -356,21 +383,70 @@ function editClaim(button) { const card = button.closest("[data-claim]"); const 
 function rewriteClaim(button) { const card = button.closest("[data-claim]"); sendMessage({ action: "rewrite_claim", source_claim_id: card.dataset.claim, tone: button.dataset.tone, instruction: "保持事实与责任边界，提升医学简历的信息密度。" }); }
 function saveBasicsAndPreview() { const basics = { name: $("#candidateName").value.trim(), contact: $("#candidateContact").value.trim() }; localStorage.setItem(basicsStorageKey, JSON.stringify(basics)); lastMessage = "抬头信息已保存到当前浏览器。"; render(); }
 
+function renderPreviewExperienceSection(label, experiences) {
+  if (!experiences.length) return "";
+  const items = experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const period = experience.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); const projectName = experience.project_name || ""; const heading = projectName || [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; const metadata = projectName ? [organization, experience.title, dates].filter(Boolean).join(" · ") : dates; return `<h3>${esc(heading)}</h3>${metadata ? `<p>${esc(metadata)}</p>` : ""}<ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("");
+  return `<h2>${esc(label)}</h2>${items}`;
+}
+
+function insightCard(title, values, status = "已了解") {
+  const content = (values || []).filter(Boolean);
+  return `<article class="insight-card"><span class="insight-status">${esc(content.length ? status : "待补充")}</span><h3>${esc(title)}</h3><p>${content.length ? content.map(esc).join("、") : "继续回答问题后，这里会自动整理。"}</p></article>`;
+}
+
+function renderConversationInsight(paper) {
+  const profile = state().candidate_profile || {};
+  const answers = profile.answers || {};
+  const draft = state().extracted_draft || {};
+  const facts = draft.extracted_facts || {};
+  const identity = state().active_experience_identity || {};
+  const confirmed = state().confirmed_experiences || [];
+  const pendingCount = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation").length;
+  const profileLine = [answers.name, answers.institution, answers.degree, answers.major].filter(Boolean);
+  const projectLine = [identity.project_name, identity.organization, identity.role_title].filter(Boolean);
+  const methodsAndTools = [...(facts.methods || []), ...(facts.tools || []), ...(facts.techniques || [])].map((item) => labels[item] || item);
+  const actions = (facts.actions || []).map((item) => labels[item] || item);
+  const outputs = (facts.artifacts || []).map((item) => labels[item] || item);
+  paper.className = "paper insight-paper";
+  paper.innerHTML = `<div class="insight-intro"><span class="status-badge">随回答实时更新</span><h2>系统目前了解的信息</h2><p>${profileLine.length ? profileLine.map(esc).join(" · ") : "先完成基础资料，我会在这里整理关键信息。"}</p></div>
+    ${insightCard("项目是什么", projectLine)}
+    ${insightCard("你做了什么", actions, pendingCount ? "请你确认" : "已了解")}
+    ${insightCard("用了什么", methodsAndTools, "已了解")}
+    ${insightCard("形成什么结果", outputs, "已了解")}
+    <div class="insight-foot"><b>已确认 ${confirmed.length} 段经历</b><span>${pendingCount ? `还有 ${pendingCount} 项活动边界待确认` : "回答会先保留为原始证据"}</span></div>`;
+}
+
 function renderPreview() {
   const documentData = state().resume_document;
-  const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
+  const paper = $("#preview");
+  const conversationMode = userStageFor(state().stage || "intake").id === "conversation";
+  $("#previewEyebrow").textContent = conversationMode ? "当前采集" : "简历预览";
+  $("#previewTitle").textContent = conversationMode ? "已了解的你" : "投递稿预览";
+  $("#theme").hidden = conversationMode;
+  $("#print").hidden = conversationMode;
+  if (conversationMode) { renderConversationInsight(paper); return; }
+  paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
   const profileConfirmed = state().candidate_profile?.status === "confirmed";
-  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {}; const experiences = documentData.research_experience || [];
+  const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {};
   const name = basics.name || fallbackBasics.name || "姓名（请填写）";
   const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
   const summary = basics.summary ? `<h2>候选人定位</h2><p>${esc(basics.summary)}</p>` : "";
   const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
-  const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源" };
+  const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源", certificate: "证书与培训" };
   const skillGroups = Object.entries(skillLabels).map(([category, label]) => [label, (documentData.skills || []).filter((item) => item.category === category).map((item) => item.name)]).filter(([, items]) => items.length);
   const skills = skillGroups.length ? `<h2>研究方法与技能</h2>${skillGroups.map(([label, items]) => `<p><b>${esc(label)}：</b>${items.map(esc).join("、")}</p>`).join("")}` : "";
-  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const period = experience.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); const projectName = experience.project_name || ""; const heading = projectName || [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; const metadata = projectName ? [organization, experience.title, dates].filter(Boolean).join(" · ") : dates; return `<h3>${esc(heading)}</h3>${metadata ? `<p>${esc(metadata)}</p>` : ""}<ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}${skills}`;
+  const projects = documentData.projects || [];
+  const experienceSections = [
+    ["科研经历", documentData.research_experience || []], ["临床实践", documentData.clinical_experience || []],
+    ["工作经历", documentData.professional_experience || []], ["校园与领导力", projects.filter((item) => item.experience_type === "leadership")],
+    ["志愿服务", projects.filter((item) => item.experience_type === "volunteer")], ["项目经历", projects.filter((item) => !["leadership", "volunteer"].includes(item.experience_type))],
+  ];
+  const awards = (documentData.awards || []).length ? `<h2>荣誉奖励</h2><ul>${documentData.awards.map((item) => `<li>${esc(item.name)}</li>`).join("")}</ul>` : "";
+  const languages = (documentData.languages || []).length ? `<h2>语言能力</h2><ul>${documentData.languages.map((item) => `<li>${esc(item.language)}${item.level_or_score ? `：${esc(item.level_or_score)}` : ""}</li>`).join("")}</ul>` : "";
+  const interests = (documentData.research_interests || []).length ? `<h2>研究兴趣</h2><ul>${documentData.research_interests.map((item) => `<li>${esc(item.name)}</li>`).join("")}</ul>` : "";
+  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}${experienceSections.map(([label, items]) => renderPreviewExperienceSection(label, items)).join("")}${awards}${skills}${languages}${interests}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 
@@ -405,13 +481,20 @@ async function resetConversation() {
   }
 }
 
-function setBusy(busy) { document.body.classList.toggle("busy", busy); }
-function showError(message) { lastMessage = message; $("#error").className = "error"; $("#error").textContent = message; }
+function setBusy(busy) {
+  document.body.classList.toggle("busy", busy);
+  document.body.setAttribute("aria-busy", String(busy));
+  if (busy && $("#error")) {
+    $("#error").className = "status-message";
+    $("#error").textContent = "正在整理你的回答…";
+  }
+}
+function showError(message) { lastMessage = message; $("#error").className = "error"; $("#error").setAttribute("role", "alert"); $("#error").textContent = message; }
 $("#theme").addEventListener("change", renderPreview);
 $("#print").addEventListener("click", () => window.print());
 $("#reset").addEventListener("click", resetConversation);
 
 (async () => {
-  try { [contract, health] = await Promise.all([api("/api/resume-agent/config"), api("/api/health")]); await loadOrCreateConversation(); render(); }
+  try { [contract, health] = await Promise.all([api("/api/resume-agent/config"), api("/api/health")]); labels = contract.fact_labels || {}; await loadOrCreateConversation(); render(); }
   catch (error) { $("#connection").textContent = "本机服务连接失败"; $("#workspace").innerHTML = `<p class="error">${esc(error.message)}</p>`; }
 })();

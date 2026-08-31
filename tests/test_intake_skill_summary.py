@@ -10,17 +10,25 @@ MATERIAL = "在导师指导下参与系统综述，使用 PubMed 检索文献并
 
 
 class SkillSummaryGateway:
-    def __init__(self, *, fact_refs: list[str] | None = None, fail: bool = False):
+    def __init__(
+        self, *, fact_refs: list[str] | None = None, fail: bool = False,
+        selected_question_id: str = "responsibility_boundary",
+    ):
         self.calls = []
         self.fact_refs = fact_refs or ["actions:retrieve_literature", "actions:screen_studies", "tools:pubmed"]
         self.fail = fail
+        self.selected_question_id = selected_question_id
 
     def generate(self, *, task, context):
         self.calls.append((task, context))
         if task == "resume_intake_skill_summary":
             if self.fail:
                 raise RuntimeError("model unavailable")
-            card = context.get("allowed_question_card") or {}
+            cards = context.get("allowed_question_cards") or []
+            card = next(
+                (item for item in cards if item.get("question_id") == self.selected_question_id),
+                cards[0] if cards else {},
+            )
             option_ids = [item["id"] for item in card.get("options", [])[:2]]
             return json.dumps({
                 "summary": {
@@ -59,6 +67,9 @@ def test_obvious_fact_turn_uses_one_skill_summary_call_and_applies_only_allowed_
     assert not any(task == "resume_activity_proposals" for task, _ in gateway.calls)
     assert response["state"]["intake_model"]["status"] == "validated"
     assert response["state"]["intake_model"]["summary_source"] == "llm_validated"
+    assert response["state"]["question_card"]["question_id"] == "responsibility_boundary"
+    restored = client.get(f"/api/conversations/{session_id}").get_json()
+    assert restored["state"]["question_card"]["question_id"] == "responsibility_boundary"
     assert not response["state"]["question_card"]["text"].startswith("接下来请只确认")
     assert set(response["state"]["question_card"]["recommended_option_ids"]).issubset(
         {item["id"] for item in response["state"]["question_card"]["options"]}
@@ -68,6 +79,7 @@ def test_obvious_fact_turn_uses_one_skill_summary_call_and_applies_only_allowed_
     assert context["active_evidence"][0]["source_text"] == MATERIAL
     assert "系统综述项目" not in str(context["active_evidence"])
     assert "actions:screen_studies" in context["allowed_fact_refs"]
+    assert len(context["allowed_question_cards"]) >= 2
     assert "never create or confirm a fact" in context["instruction"]
 
 
@@ -135,7 +147,7 @@ def test_model_responsibility_prose_and_empty_quote_cannot_reach_rendered_summar
         },
         extracted_facts={"methods": ["systematic_review"]},
         evidence_texts=["我参与了系统综述。"],
-        question_card=None,
+        question_cards=[],
     )
 
     assert result["status"] == "validated"
@@ -148,9 +160,34 @@ def test_model_responsibility_prose_and_empty_quote_cannot_reach_rendered_summar
         },
         extracted_facts={"methods": ["systematic_review"]},
         evidence_texts=["我参与了系统综述。"],
-        question_card=None,
+        question_cards=[],
     )
     assert empty_quote["status"] == "rejected"
+
+
+def test_model_cannot_select_a_question_or_options_outside_backend_candidates():
+    for next_question in (
+        {"question_id": "forged_question", "recommended_option_ids": []},
+        {"question_id": "research_steps", "recommended_option_ids": ["forged_option"]},
+    ):
+        result = IntakeSummaryValidationService.validate(
+            candidate={
+                "summary": {
+                    "fact_refs": ["methods:systematic_review"],
+                    "evidence_quotes": ["我参与了系统综述。"],
+                },
+                "next_question": next_question,
+            },
+            extracted_facts={"methods": ["systematic_review"]},
+            evidence_texts=["我参与了系统综述。"],
+            question_cards=[{
+                "question_id": "research_steps",
+                "options": [{"id": "screening"}],
+            }],
+        )
+
+        assert result["status"] == "validated"
+        assert result["next_question"] is None
 
 
 def test_legacy_natural_language_intake_is_deterministic_and_never_calls_model():

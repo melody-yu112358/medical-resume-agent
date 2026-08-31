@@ -44,7 +44,13 @@ def test_obvious_fact_turn_uses_one_skill_summary_call_and_applies_only_allowed_
 
     response = client.post(
         f"/api/conversations/{session_id}/messages",
-        json={"action": "submit_experience", "text": MATERIAL, "consent_confirmed": True},
+        json={
+            "action": "submit_experience", "text": MATERIAL, "consent_confirmed": True,
+            "experience_identity": {
+                "project_name": "系统综述项目", "organization": "某课题组",
+                "role_title": "课题成员", "period": {},
+            },
+        },
     ).get_json()
 
     summary_calls = [context for task, context in gateway.calls if task == "resume_intake_skill_summary"]
@@ -58,7 +64,9 @@ def test_obvious_fact_turn_uses_one_skill_summary_call_and_applies_only_allowed_
         {item["id"] for item in response["state"]["question_card"]["options"]}
     )
     context = summary_calls[0]
+    assert len(context["active_evidence"]) == 1
     assert context["active_evidence"][0]["source_text"] == MATERIAL
+    assert "系统综述项目" not in str(context["active_evidence"])
     assert "actions:screen_studies" in context["allowed_fact_refs"]
     assert "never create or confirm a fact" in context["instruction"]
 

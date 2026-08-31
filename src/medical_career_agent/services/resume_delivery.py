@@ -114,13 +114,20 @@ class ResumeDeliveryService:
                 lines.append(f"### {heading or '教育经历'}" + (f" · {dates}" if dates else ""))
         lines.extend(["", "## 科研与实践经历"])
         for experience in document.get("research_experience", []):
-            heading = " · ".join(
-                value for value in (
-                    "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip(),
-                    str(experience.get("title") or "").strip(),
-                ) if value
-            ) or "已确认经历"
-            lines.append(f"### {heading}")
+            project_name = str(experience.get("project_name") or "").strip()
+            organization = "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip()
+            role_title = str(experience.get("title") or "").strip()
+            period = experience.get("period") or {}
+            end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
+            dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
+            if project_name:
+                lines.append(f"### {project_name}")
+                metadata = " · ".join(value for value in (organization, role_title, dates) if value)
+                if metadata:
+                    lines.append(metadata)
+            else:
+                heading = " · ".join(value for value in (organization, role_title) if value) or "已确认经历"
+                lines.append(f"### {heading}" + (f" · {dates}" if dates else ""))
             lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
         skill_groups = (
             ("研究方法", "research"),

@@ -6,6 +6,7 @@ audit services, and persists the resulting source-of-truth state in sessions.
 """
 from __future__ import annotations
 
+import re
 from copy import deepcopy
 from typing import Any
 from uuid import uuid4
@@ -55,6 +56,7 @@ class ResumeConversationAgent:
             "confirmed_canonical_experience": None, "evidence_records": [],
             "confirmed_experiences": [], "active_experience_id": None,
             "active_experience_evidence_ids": [],
+            "active_experience_identity": None,
             "pending_questions": [], "question_card": None,
             "selected_role_packs": [], "generated_claims": [],
             "claim_gate_results": {}, "claim_user_dispositions": {},
@@ -271,6 +273,7 @@ class ResumeConversationAgent:
             ("pending_questions", []), ("question_card", None),
             ("activity_proposals", []), ("proposal_audits", []),
             ("active_experience_evidence_ids", []),
+            ("active_experience_identity", None),
         ):
             state[key] = empty
         state["active_experience_id"] = None
@@ -295,6 +298,9 @@ class ResumeConversationAgent:
         state["extracted_draft"] = deepcopy(entry.get("extracted_draft"))
         state["activity_proposals"] = deepcopy(entry.get("activity_proposals") or [])
         state["active_experience_evidence_ids"] = list(entry.get("evidence_ids") or [])
+        state["active_experience_identity"] = deepcopy(
+            (entry.get("canonical_experience") or {}).get("identity")
+        )
         state["active_experience_id"] = experience_id
         state["pending_questions"] = []
         return ResumeConversationAgent._response(
@@ -356,6 +362,7 @@ class ResumeConversationAgent:
                 {"evidence_id": item.get("evidence_id"), "source_text": item.get("source_text")}
                 for item in state.get("evidence_records", [])
                 if not active_ids or item.get("evidence_id") in active_ids
+                if item.get("kind") != "experience_identity"
             ],
             "confirmed_facts": state.get("confirmed_canonical_experience"),
             "previous_questions": state.get("question_history", []),
@@ -369,11 +376,32 @@ class ResumeConversationAgent:
             return self._response(state, "请用自然语言描述一段真实经历；我会先提取事实，再请你确认。")
         if payload.get("consent_confirmed") is not True:
             return self._response(state, "请先确认这段经历真实准确并同意在本机服务处理后再继续。")
+        identity, identity_error = self._normalise_experience_identity(payload.get("experience_identity"))
+        if identity_error:
+            return self._response(state, identity_error)
         draft = self.experience_drafter.draft(experience_text=text, context_hint=payload.get("context_hint"), consent_confirmed=True).to_dict()
         state["extracted_draft"] = draft
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
         state["active_experience_evidence_ids"] = [next_id]
+        state["active_experience_identity"] = identity
+        if identity:
+            identity_evidence_id = f"ev_{len(state['evidence_records']) + 1:03d}"
+            period = identity["period"]
+            period_text = "至今" if period["ongoing"] else (period["end"] or "未填写")
+            values = [
+                f"经历名称：{identity['project_name']}",
+                f"机构或团队：{identity['organization']}" if identity["organization"] else None,
+                f"身份或角色：{identity['role_title']}" if identity["role_title"] else None,
+                f"经历时间：{period['start'] or '未填写'} 至 {period_text}" if any(period.values()) else None,
+            ]
+            state["evidence_records"].append({
+                "evidence_id": identity_evidence_id,
+                "source_text": "；".join(item for item in values if item),
+                "status": "confirmed", "kind": "experience_identity",
+            })
+            state["active_experience_evidence_ids"].append(identity_evidence_id)
+            identity["evidence_ids"] = [identity_evidence_id]
         state["pending_questions"] = draft["clarifying_questions"]
         state["stage"] = "fact_confirmation"
         self._propose_activities(state, text, draft["extracted_facts"])
@@ -410,7 +438,39 @@ class ResumeConversationAgent:
         return "\n".join(
             item.get("source_text", "") for item in state.get("evidence_records", [])
             if item.get("evidence_id") in active_ids
+            and item.get("kind") != "experience_identity"
         )
+
+    @staticmethod
+    def _normalise_experience_identity(raw: Any) -> tuple[dict[str, Any] | None, str | None]:
+        if raw is None:
+            return None, None
+        if not isinstance(raw, dict):
+            return None, "经历抬头格式不正确，请重新填写。"
+        project_name = re.sub(r"\s+", " ", str(raw.get("project_name") or "").strip())
+        organization = re.sub(r"\s+", " ", str(raw.get("organization") or "").strip()) or None
+        role_title = re.sub(r"\s+", " ", str(raw.get("role_title") or "").strip()) or None
+        if not project_name:
+            return None, "请填写真实的经历或项目名称；没有正式项目名时可填写研究主题或轮转名称。"
+        if len(project_name) > 160 or any(value and len(value) > 120 for value in (organization, role_title)):
+            return None, "经历抬头内容过长，请保留正式名称和必要信息。"
+        raw_period = raw.get("period") or {}
+        if not isinstance(raw_period, dict):
+            return None, "经历时间格式不正确，请重新填写。"
+        start = str(raw_period.get("start") or "").strip() or None
+        ongoing = bool(raw_period.get("ongoing", False))
+        end = None if ongoing else (str(raw_period.get("end") or "").strip() or None)
+        month_pattern = re.compile(r"^\d{4}-(0[1-9]|1[0-2])$")
+        if any(value and not month_pattern.fullmatch(value) for value in (start, end)):
+            return None, "经历时间请使用有效的年月。"
+        if start and end and end < start:
+            return None, "经历结束时间不能早于开始时间。"
+        return {
+            "project_name": project_name, "organization": organization,
+            "role_title": role_title,
+            "period": {"start": start, "end": end, "ongoing": ongoing},
+            "evidence_ids": [],
+        }, None
 
     def _fact_confirmation_response(self, state: dict[str, Any], *, introduced: str) -> dict[str, Any]:
         pending = self._pending_activity_proposals(state)
@@ -956,7 +1016,10 @@ class ResumeConversationAgent:
             for claim in state["generated_claims"]:
                 if claim["experience_id"] == old["experience_id"]:
                     claim["verification_status"] = "superseded"
-        state["confirmed_canonical_experience"] = result["canonical_experience"]
+        canonical = result["canonical_experience"]
+        if state.get("active_experience_identity"):
+            canonical["identity"] = deepcopy(state["active_experience_identity"])
+        state["confirmed_canonical_experience"] = canonical
         state["pending_questions"] = []
         self._upsert_confirmed_experience(state)
         pending = self._pending_activity_proposals(state)
@@ -979,7 +1042,8 @@ class ResumeConversationAgent:
         experience_id = canonical["experience_id"]
         context = canonical.get("context") or {}
         role = canonical.get("role") or {}
-        label = " · ".join(
+        identity = canonical.get("identity") or {}
+        label = identity.get("project_name") or " · ".join(
             value for value in (context.get("domain"), role.get("title"))
             if isinstance(value, str) and value.strip()
         ) or f"已确认经历 {len(state.get('confirmed_experiences', [])) + 1}"
@@ -1198,8 +1262,12 @@ class ResumeConversationAgent:
             "education": education,
             "skills": profile_projection["skills"],
             "research_experience": [{
-                "item_id": canonical["experience_id"], "organization": "待补充", "title": canonical["role"].get("title") or "已确认经历",
-                "department_or_field": canonical["context"].get("domain"), "period": {"start": None, "end": None, "ongoing": False},
+                "item_id": canonical["experience_id"],
+                "project_name": (canonical.get("identity") or {}).get("project_name"),
+                "organization": (canonical.get("identity") or {}).get("organization") or "",
+                "title": (canonical.get("identity") or {}).get("role_title") or canonical["role"].get("title") or "",
+                "department_or_field": canonical["context"].get("topic"),
+                "period": deepcopy((canonical.get("identity") or {}).get("period") or {"start": None, "end": None, "ongoing": False}),
                 "evidence_ids": canonical["evidence_ids"],
                 "bullets": [
                     {"text": item["text"], "evidence_ids": item["evidence_ids"]}

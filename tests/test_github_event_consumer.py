@@ -90,11 +90,16 @@ def test_adapter_failure_reuses_the_same_execution_record_for_recovery():
     assert attempt_id == recovered["attempt_id"]
 
 
-def test_current_four_dispatches_map_to_researcher_contracts_without_external_starts():
+def test_current_four_dispatches_match_state_contracts_without_external_starts():
     state = json.loads((ROOT / "docs" / "research" / "career-track-states-v1.json").read_text(encoding="utf-8"))
     from scripts.github_dispatch_connector import dispatch_state
 
     dispatches = dispatch_state(state, apply=False)
     assert len(dispatches) == 4
-    assert all(item["task_payload"]["assigned_agent"] == "researcher" for item in dispatches)
+    tracks = {track["career_id"]: track for track in state["tracks"]}
+    for item in dispatches:
+        track = tracks[item["career_id"]]
+        payload = item["task_payload"]
+        assert payload["assigned_agent"] == track["assigned_agent"]
+        assert payload["next_action"] == track["next_action"]
     assert all(item["task_payload"]["agent_started"] is False for item in dispatches)

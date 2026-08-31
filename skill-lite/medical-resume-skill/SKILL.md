@@ -75,7 +75,9 @@ For example, R is a programming/statistical tool, MR and Meta-analysis are analy
 
 ## Confirmation before composition
 
-Show the fact card and ask the user to confirm or correct it. Ask no more than three high-value follow-up questions at once. Prefer questions about responsibility, data/material source, method details, measurable results, and deliverables.
+Show the card under the exact heading `### 待确认事实卡` (or `### Draft fact card`) and ask the user to reply with confirmation or corrections. A raw statement supplied by the user is evidence-backed, but is not user-confirmed until the user explicitly confirms the extracted card or supplies a correction. Ask no more than three high-value follow-up questions at once. Prefer questions about responsibility, data/material source, method details, measurable results, and deliverables.
+
+Do not label a draft card `已确认` / `Confirmed`, and do not produce resume bullets, a candidate-positioning statement, a skills section, or a ready-to-submit resume in the same turn as a draft card. Wait for an explicit confirmation (for example, “确认”, “无误”, or corrected facts). Only then rename it `### 已确认事实卡` / `### Confirmed fact card` and proceed to the representative sample. If the user has already explicitly confirmed the same card earlier in the conversation, do not ask again.
 
 Use conservative responsibility language such as “participated”, “supported”, or “completed under supervision” when ownership is uncertain. Do not turn a collaborator into an owner, an assistant into a lead, or a draft into a publication.
 

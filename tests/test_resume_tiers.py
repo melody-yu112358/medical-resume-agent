@@ -42,6 +42,32 @@ class TierGateway:
         }, ensure_ascii=False)
 
 
+class BatchedTierGateway:
+    def __init__(self, *, omit_high_impact=False, unsafe_high_impact=False):
+        self.calls = []
+        self.omit_high_impact = omit_high_impact
+        self.unsafe_high_impact = unsafe_high_impact
+
+    def generate(self, *, task, context):
+        assert task == "resume_experience_tier_rewrite"
+        self.calls.append(context)
+        candidates = []
+        for source in context["source_claims"]:
+            for tone in ("Conservative", "Professional", "High-impact"):
+                if self.omit_high_impact and tone == "High-impact":
+                    continue
+                wording = SAFE_WORDING[tone]
+                if self.unsafe_high_impact and tone == "High-impact":
+                    wording = "主导项目并负责全部系统综述流程。"
+                candidates.append({
+                    "source_claim_id": source["claim_id"], "tone": tone,
+                    "wording": wording, "used_facts": source["used_facts"],
+                    "dependency_refs": source["dependency_refs"],
+                    "evidence_ids": source["evidence_ids"],
+                })
+        return json.dumps({"rewrite_candidates": candidates}, ensure_ascii=False)
+
+
 def _message(client, session_id, payload):
     response = client.post(f"/api/conversations/{session_id}/messages", json=payload)
     assert response.status_code == 200, response.get_json()
@@ -175,6 +201,67 @@ def test_rejected_high_impact_candidate_never_enters_tier_or_export():
     ).get_json()["files"]["resume-data.json"])
     assert "主导项目" not in data["tiers"]["high_impact"]["markdown"]
     assert base_wording in data["tiers"]["high_impact"]["markdown"]
+
+
+def test_one_batched_call_generates_and_selects_all_three_audited_tiers():
+    gateway = BatchedTierGateway()
+    client, session_id, composed = _composed_conversation(gateway)
+    source = composed["state"]["generated_claims"][0]
+
+    generated = _message(client, session_id, {"action": "generate_resume_tiers"})
+
+    assert len(gateway.calls) == 1
+    assert len(gateway.calls[0]["source_claims"]) == 1
+    assert {
+        item["tone"] for item in generated["state"]["rewrite_candidates"]
+    } == {"Conservative", "Professional", "High-impact"}
+    assert all(item["selected"] for item in generated["state"]["rewrite_candidates"])
+    assert all(
+        item["source_claim_id"] == source["claim_id"]
+        for item in generated["state"]["rewrite_candidates"]
+    )
+    for tier, wording in (
+        ("conservative", SAFE_WORDING["Conservative"]),
+        ("professional", SAFE_WORDING["Professional"]),
+        ("high_impact", SAFE_WORDING["High-impact"]),
+    ):
+        switched = _message(
+            client, session_id, {"action": "select_resume_tier", "tier": tier},
+        )
+        assert switched["resume_document"]["research_experience"][0]["bullets"][0]["text"] == wording
+
+
+def test_incomplete_batched_response_is_atomic_and_keeps_existing_candidates():
+    gateway = BatchedTierGateway(omit_high_impact=True)
+    client, session_id, composed = _composed_conversation(gateway)
+    before_claim_ids = {
+        item["claim_id"] for item in composed["state"]["generated_claims"]
+    }
+
+    rejected = _message(client, session_id, {"action": "generate_resume_tiers"})
+
+    assert len(gateway.calls) == 1
+    assert {item["claim_id"] for item in rejected["state"]["generated_claims"]} == before_claim_ids
+    assert rejected["state"]["rewrite_candidates"] == []
+    assert "已保留原审计要点" in rejected["assistant_message"]
+
+
+def test_batched_unsafe_candidate_falls_back_without_blocking_safe_tiers():
+    gateway = BatchedTierGateway(unsafe_high_impact=True)
+    client, session_id, composed = _composed_conversation(gateway)
+    base_wording = composed["resume_document"]["research_experience"][0]["bullets"][0]["text"]
+
+    generated = _message(client, session_id, {"action": "generate_resume_tiers"})
+
+    candidates = {item["tone"]: item for item in generated["state"]["rewrite_candidates"]}
+    assert candidates["Conservative"]["selected"] is True
+    assert candidates["Professional"]["selected"] is True
+    assert candidates["High-impact"]["selected"] is False
+    switched = _message(
+        client, session_id, {"action": "select_resume_tier", "tier": "high_impact"},
+    )
+    assert switched["resume_document"]["research_experience"][0]["bullets"][0]["text"] == base_wording
+    assert "主导项目" not in switched["resume_document"]["research_experience"][0]["bullets"][0]["text"]
 
 
 def test_no_model_still_exports_three_complete_professional_default_tiers():

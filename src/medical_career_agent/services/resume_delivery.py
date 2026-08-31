@@ -147,6 +147,10 @@ class ResumeDeliveryService:
                 end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
                 dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
                 lines.append(f"### {heading or '教育经历'}" + (f" · {dates}" if dates else ""))
+                if item.get("ranking_or_gpa"):
+                    lines.append(f"- 成绩与排名：{item['ranking_or_gpa']}")
+                if item.get("highlights"):
+                    lines.append(f"- 核心课程与教育亮点：{'、'.join(item['highlights'])}")
         for section_label, experiences in ResumeDeliveryService._experience_groups(document):
             if not experiences:
                 continue
@@ -167,6 +171,10 @@ class ResumeDeliveryService:
                     heading = " · ".join(value for value in (organization, role_title) if value) or "已确认经历"
                     lines.append(f"### {heading}" + (f" · {dates}" if dates else ""))
                 lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        publications = document.get("publications") or []
+        if publications:
+            lines.extend(["", "## 论文与学术成果"])
+            lines.extend(f"- {item['title']}" for item in publications if item.get("title"))
         awards = document.get("awards") or []
         if awards:
             lines.extend(["", "## 荣誉奖励"])

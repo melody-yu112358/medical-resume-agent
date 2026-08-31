@@ -15,6 +15,7 @@ class ExperienceDraft:
     unknown_items: list[str]
     possible_value_angles: list[str]
     clarifying_questions: list[str]
+    all_clarifying_questions: list[str]
     risk_flags: list[str]
 
     def to_dict(self) -> dict[str, Any]:
@@ -23,6 +24,7 @@ class ExperienceDraft:
             "unknown_items": self.unknown_items,
             "possible_value_angles": self.possible_value_angles,
             "clarifying_questions": self.clarifying_questions,
+            "all_clarifying_questions": self.all_clarifying_questions,
             "risk_flags": self.risk_flags,
         }
 
@@ -62,6 +64,14 @@ class ExperienceDraftService:
         "assess_quality": [
             r"质量评价", r"偏倚评估", r"偏倚风险评估",
             r"quality assessment", r"risk of bias",
+        ],
+        "verify_research_quality": [
+            r"交叉复核", r"回查原文", r"核对原始数据", r"一致性检查",
+            r"核对(?:纳入|排除|提取)", r"提交.*(?:导师|团队).*复核",
+        ],
+        "resolve_workflow_issue": [
+            r"处理.*(?:分歧|异常|问题)", r"核查.*修正", r"调整检索",
+            r"排查.*(?:分析|代码)", r"优化实验条件",
         ],
         "prepare_research_outputs": [
             r"(?:形成|整理|制作).*(?:检索记录|筛选记录|数据提取表|分析代码|分析图表|研究报告|论文材料|SOP|流程文件)",
@@ -143,6 +153,9 @@ class ExperienceDraftService:
     COLLABORATION_PATTERNS = {
         "research_team": (r"课题组", r"team", r"group"),
         "supervisor": (r"导师", r"supervisor"),
+        "peer": (r"同学", r"团队成员"),
+        "clinician": (r"临床医生",),
+        "statistician": (r"统计人员", r"数据人员"),
     }
 
     ARTIFACT_PATTERNS = {
@@ -183,7 +196,8 @@ class ExperienceDraftService:
             extracted_facts=extracted_facts,
             unknown_items=unknown_items,
             possible_value_angles=possible_value_angles,
-            clarifying_questions=clarifying_questions[:3],  # Limit to 3 questions
+            clarifying_questions=clarifying_questions[:3],
+            all_clarifying_questions=clarifying_questions,
             risk_flags=risk_flags,
         )
 
@@ -249,10 +263,15 @@ class ExperienceDraftService:
             elif "数据" in hint_lower or "data" in hint_lower:
                 domain = "data_analysis"
 
+        topic_match = re.search(
+            r"(?:研究目的|研究目标)(?:是|为|：|:)?\s*([^。；;\n]{2,120})",
+            text,
+            re.IGNORECASE,
+        )
         return {
             "domain": domain,
             "setting": setting,
-            "topic": None  # Topic requires more sophisticated extraction
+            "topic": topic_match.group(1).strip() if topic_match else None,
         }
 
     def _extract_role(self, text: str) -> dict[str, str | None]:
@@ -388,7 +407,18 @@ class ExperienceDraftService:
         if facts["role"]["responsibility_level"] == "participated":
             unknowns.append("specific_responsibilities")
 
-        return unknowns[:5]  # Limit to 5 unknowns
+        if not re.search(r"研究目的|研究目标|旨在|探讨|评估|比较|验证|分析.*关系", text, re.IGNORECASE):
+            unknowns.append("objective")
+        if not re.search(r"复核|核对|回查|质控|质量控制|一致性|偏倚|重复分析|双人", text, re.IGNORECASE):
+            unknowns.append("quality_control")
+        if not facts["collaboration"] and not re.search(r"共同|协作|分工|沟通|讨论", text, re.IGNORECASE):
+            unknowns.append("collaboration")
+        if not re.search(r"解决|排查|调整|修正|处理.*(?:问题|分歧|异常)|优化", text, re.IGNORECASE):
+            unknowns.append("problem_solving")
+        if not re.search(r"\d+|完整流程|部分步骤|持续|周期|范围", text, re.IGNORECASE):
+            unknowns.append("scope")
+
+        return unknowns
 
     def _generate_value_angles(self, facts: dict[str, Any]) -> list[str]:
         """Generate possible value angles for different roles."""
@@ -429,7 +459,18 @@ class ExperienceDraftService:
         if "publication_status" in unknowns:
             questions.append("这个项目是否有发表计划或已发表？")
 
-        return questions[:3]  # Limit to 3 questions as required
+        if "objective" in unknowns:
+            questions.append("这项工作的研究目标或希望回答的问题是什么？")
+        if "quality_control" in unknowns:
+            questions.append("你在执行过程中做过哪些质量控制、复核或一致性检查？")
+        if "collaboration" in unknowns:
+            questions.append("这项工作与谁协作，你和其他人的分工是什么？")
+        if "problem_solving" in unknowns:
+            questions.append("过程中遇到过什么问题或分歧，你具体如何处理？")
+        if "scope" in unknowns:
+            questions.append("这项任务的实际范围、周期或可确认数量是什么？")
+
+        return questions
 
     def _identify_risk_flags(self, facts: dict[str, Any], text: str) -> list[str]:
         """Identify potential risks in the input text."""

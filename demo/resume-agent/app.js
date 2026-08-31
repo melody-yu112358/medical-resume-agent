@@ -8,6 +8,7 @@ let selectedTarget = "doctoral";
 let lastMessage = "";
 let selectedQuestionOptions = new Set();
 let selectedProfileOption = "";
+let selectedProfileOptions = new Set();
 let labels = {};
 
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
@@ -89,6 +90,7 @@ function render() {
   const visibleStage = userStageFor(current.id);
   const visibleIndex = userStages.findIndex((item) => item.id === visibleStage.id);
   document.body.classList.toggle("conversation-mode", visibleStage.id === "conversation");
+  document.body.classList.toggle("delivery-mode", visibleStage.id === "delivery");
   $("#steps").innerHTML = userStages.map((item, index) =>
     `<li class="${index === visibleIndex ? "active" : index < visibleIndex ? "done" : ""}">${index + 1} ${esc(item.label)}</li>`
   ).join("");
@@ -116,7 +118,7 @@ function renderWorkspace(stage) {
 function renderIntake() {
   const profile = state().candidate_profile || {};
   if (profile.status !== "confirmed") return renderCandidateProfile(profile);
-  return `${renderExperienceNavigator(false)}<section class="panel soft"><h3>${(state().confirmed_experiences || []).length ? "继续添加一段真实经历" : "先告诉我们一段真实经历"}</h3>
+  return `${renderExperienceNavigator(false)}${renderExperienceInventory(profile)}<section id="experienceForm" class="panel soft"><h3>${(state().confirmed_experiences || []).length ? "继续添加一段真实经历" : "先告诉我们一段真实经历"}</h3>
     <p>先填写简历上要显示的经历名称，再写下实际步骤。抬头信息只用于识别这段经历，不会提高你的责任等级。</p>
     <label class="field">简历章节（必选）<select id="experienceType"><option value="research">科研经历</option><option value="clinical">临床实践</option><option value="professional">工作经历</option><option value="leadership">校园与领导力</option><option value="volunteer">志愿服务</option><option value="project">其他项目</option></select></label>
     <label class="field">经历或项目名称（必填）<input id="experienceName" placeholder="例如：心血管风险因素 Meta 分析项目 / 内科临床轮转"></label>
@@ -125,6 +127,22 @@ function renderIntake() {
     <label class="field">经历材料<textarea id="material" placeholder="例如：在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"></textarea></label>
     <label class="consent"><input id="consent" type="checkbox"><span>我确认材料来自本人真实经历，并同意在当前电脑的本机服务中保存该会话；点击“开始新简历”会删除当前会话文件。</span></label>
     <button id="submitMaterial" class="primary" type="button">建立事实卡 →</button></section>`;
+}
+
+function renderExperienceInventory(profile) {
+  const selected = (profile.answers || {}).experience_inventory || [];
+  const mapping = {
+    "临床见习或轮转": "clinical", "实习或工作": "professional",
+    "校园组织与领导力": "leadership", "志愿服务或社会实践": "volunteer",
+    "其他项目": "project",
+  };
+  const confirmedTypes = new Set((state().confirmed_experiences || []).map((item) => item.canonical_experience?.identity?.experience_type));
+  const cards = selected.filter((item) => mapping[item]).map((item) => {
+    const type = mapping[item]; const complete = confirmedTypes.has(type);
+    return `<article class="inventory-item ${complete ? "complete" : ""}"><div><b>${esc(item)}</b><span>${complete ? "已添加" : "建议补充"}</span></div>${complete ? "" : `<button class="quiet addSuggestedExperience" data-experience-type="${type}" type="button">添加这类经历</button>`}</article>`;
+  }).join("");
+  if (!cards) return "";
+  return `<section class="panel inventory-panel"><span class="status-badge">简历完整性盘点</span><h3>科研之外，别遗漏这些经历</h3><p>你之前选择了以下模块。只有继续提供具体内容并确认后，它们才会进入简历。</p><div class="inventory-list">${cards}</div></section>`;
 }
 
 function syncSelectedTarget() {
@@ -142,7 +160,7 @@ function renderExperienceNavigator(allowActions) {
 }
 
 function profileAnswerLabel(id) {
-  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间", awards: "荣誉奖励", languages: "语言能力", certificates: "证书与培训", research_interests: "研究兴趣" }[id] || id;
+  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间", ranking_or_gpa: "成绩与排名", education_highlights: "核心课程与教育亮点", awards: "荣誉奖励", languages: "语言能力", certificates: "证书与培训", academic_outputs: "论文与学术成果", research_interests: "研究兴趣", experience_inventory: "后续经历盘点" }[id] || id;
 }
 
 function renderProfileSummary(profile, confirmable = false) {
@@ -161,6 +179,9 @@ function renderCandidateProfile(profile) {
   let control = `<input id="profileValue" type="${question.kind === "email" ? "email" : "text"}" value="${esc(previous || "")}" placeholder="${esc(question.placeholder || "")}">`;
   if (question.kind === "single_choice") {
     control = `<div class="profile-options" role="group" aria-label="学历或学位选项">${(question.options || []).map((option) => `<button class="answer-option profile-option" data-profile-option="${esc(option)}" aria-pressed="false" type="button">${esc(option)}</button>`).join("")}</div><label class="field">其他情况（可选）<input id="profileValue" value="${esc(previous || "")}" placeholder="${esc(question.placeholder || "")}"></label>`;
+  } else if (question.kind === "multi_choice") {
+    const chosen = new Set(Array.isArray(previous) ? previous : []);
+    control = `<div class="profile-options" role="group" aria-label="经历类型，可多选">${(question.options || []).map((option) => `<button class="answer-option profile-multi-option ${chosen.has(option) ? "selected" : ""}" data-profile-multi-option="${esc(option)}" aria-pressed="${chosen.has(option)}" type="button">${esc(option)}</button>`).join("")}</div>`;
   } else if (question.kind === "period") {
     const period = previous || {};
     control = `<div class="period-grid"><label class="field">开始年月<input id="profileStart" type="month" value="${esc(period.start || "")}"></label><label class="field">结束年月<input id="profileEnd" type="month" value="${esc(period.end || "")}" ${period.ongoing ? "disabled" : ""}></label></div><label class="consent"><input id="profileOngoing" type="checkbox" ${period.ongoing ? "checked" : ""}><span>目前仍在读</span></label>`;
@@ -179,11 +200,14 @@ function factGroups(facts) {
 
 function renderProposal(proposal, index) {
   const components = Object.values(proposal.components || {}).flat().map((item) => labels[item] || item);
+  const selected = (field, value) => proposal[field] === value ? "selected" : "";
+  const coverage = proposal.scope?.coverage;
   return `<article class="activity-card" data-index="${index}"><span class="status-badge">待确认活动 ${index + 1}</span><h3>${esc(components.join(" · ") || "已识别活动")}</h3>
     <p class="evidence-quote">原文依据：${esc(proposal.evidence_quote)}</p><div class="boundary-grid">
-    <label class="field">任务责任<select data-field="ownership_level"><option value="contributed">参与 / 协助</option><option value="owned_component">负责明确模块</option><option value="led_delivery">推动交付</option><option value="accountable">最终责任人</option></select></label>
-    <label class="field">执行方式<select data-field="execution_mode"><option value="supervised">在指导下</option><option value="shared">共同完成</option><option value="independent">独立完成</option></select></label>
-    <label class="field">覆盖范围<select data-field="coverage"><option value="partial">部分步骤</option><option value="full">完整活动</option></select></label></div>
+    <label class="field">任务责任<select data-field="ownership_level"><option value="">请选择本人责任</option><option value="contributed" ${selected("ownership_level", "contributed")}>完成分配任务 / 协助</option><option value="owned_component" ${selected("ownership_level", "owned_component")}>负责明确模块</option><option value="led_delivery" ${selected("ownership_level", "led_delivery")}>协调并推动交付</option><option value="accountable" ${selected("ownership_level", "accountable")}>最终责任人</option></select></label>
+    <label class="field">这项任务怎样完成<select data-field="execution_mode"><option value="">请选择执行方式</option><option value="independent" ${selected("execution_mode", "independent")}>按既定要求自行完成</option><option value="shared" ${selected("execution_mode", "shared")}>与他人共同完成</option><option value="supervised" ${selected("execution_mode", "supervised")}>需要逐步指导或复核</option></select></label>
+    <label class="field">覆盖范围<select data-field="coverage"><option value="">请选择完成范围</option><option value="partial" ${coverage === "partial" ? "selected" : ""}>其中部分步骤</option><option value="full" ${coverage === "full" ? "selected" : ""}>该活动完整流程</option></select></label></div>
+    <p class="mode-note">项目由导师指导，不等于每项任务都“在指导下完成”；请按这项具体任务选择。</p>
     <label class="field">具体范围（建议填写）<input data-field="scope_note" placeholder="例如：按既定检索式执行 PubMed 检索"></label></article>`;
 }
 
@@ -191,14 +215,15 @@ function renderFacts() {
   const draft = state().extracted_draft || {};
   const facts = draft.extracted_facts || {};
   const pending = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation");
-  const review = pending.length ? `<details class="panel soft activity-review"><summary><span>已有 ${pending.length} 项活动可以核对</span><small>如果暂时不再补充，可在这里确认责任边界</small></summary><div class="activity-review-body"><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="secondary" type="button">核对完成，确认这些活动 →</button></div></details>` : "";
-  return `${renderIntakeModelSummary()}${renderQuestionCard()}${review}<details class="panel fact-details"><summary>查看系统识别的候选事实</summary><div class="activity-review-body"><p>这些是从你原话中识别的候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</div></details>`;
+  const review = pending.length ? `<details id="activityReview" class="panel soft activity-review"><summary><span>已有 ${pending.length} 项活动可以核对</span><small>如果暂时不再补充，可在这里确认责任边界</small></summary><div class="activity-review-body"><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="secondary" type="button">核对完成，确认这些活动 →</button></div></details>` : "";
+  const finish = `<section class="panel intake-exit"><h3>这段经历暂时就这些？</h3><p>${pending.length ? "可以停止追问，直接核对目前已经识别出的活动；以后仍可继续添加其他经历。" : "目前还没有形成可写入简历的具体活动。你可以继续回答，也可以暂时不使用这段经历。"}</p><div class="action-row">${pending.length ? '<button id="reviewCurrentExperience" class="secondary" type="button">停止追问，核对已有活动 →</button>' : '<button id="discardCurrentExperience" class="quiet" type="button">暂不使用这段经历</button>'}</div></section>`;
+  return `${renderIntakeModelSummary()}${renderQuestionCard()}${finish}${review}<details class="panel fact-details"><summary>查看系统识别的候选事实</summary><div class="activity-review-body"><p>这些是从你原话中识别的候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</div></details>`;
 }
 
 function renderIntakeModelSummary() {
   const model = state().intake_model || {};
   if (model.status === "validated") return `<section class="panel model-summary chat-message"><span class="status-badge">AI 已按原文整理</span><h3>我目前的理解</h3><p>${esc(model.summary)}</p><small>这仍是待确认摘要，不会直接写入简历。</small></section>`;
-  if (model.status === "failed" || model.status === "rejected") return `<section class="panel model-summary warning"><span class="status-badge">本轮 AI 整理未完成</span><p>${esc(model.error || "原始回答已保留，请继续回答当前问题。")}</p></section>`;
+  if (model.status === "failed" || model.status === "rejected") return `<section class="panel model-summary warning"><span class="status-badge">AI 服务异常 · 不是你的信息不足</span><h3>回答已经保存，可以继续</h3><p>${esc(model.error || "原始回答已保留，请继续回答当前问题。")}</p><small>后端问题仍然可用；无需重复填写刚才的内容。</small></section>`;
   if (model.status === "not_configured") return `<section class="panel model-summary warning"><span class="status-badge">尚未使用 AI 整理</span><p>原始回答已保留；配置模型后才会生成 Skill 约束下的自然语言摘要。</p></section>`;
   return "";
 }
@@ -236,7 +261,8 @@ function renderClaim(claim) {
 
 function renderTierSelector() {
   const selected = state().selected_resume_tier || "professional";
-  return `<section class="panel tier-selector"><div><span class="status-badge">当前预览</span><h3>选择完整简历版本</h3><p>三档使用同一组已确认事实；未单独改写的要点沿用已审计基础版本。</p></div><div class="answer-options">${resumeTiers.map((tier) => `<button class="answer-option selectTier ${tier.id === selected ? "selected" : ""}" data-tier="${tier.id}" aria-pressed="${tier.id === selected}" type="button">${tier.label}</button>`).join("")}</div></section>`;
+  const descriptions = { conservative: "明确边界，使用最窄的可证实表达", professional: "组合行动、方法、范围与交付物", high_impact: "前置最强证据与岗位价值，不升级事实" };
+  return `<section class="panel tier-selector"><div><span class="status-badge">当前预览</span><h3>选择完整简历版本</h3><p>三档使用同一组已确认事实，但信息组织必须有实质差异；未单独改写的要点沿用已审计基础版本。</p><p class="mode-note">${esc(descriptions[selected])}</p></div><div class="answer-options">${resumeTiers.map((tier) => `<button class="answer-option selectTier ${tier.id === selected ? "selected" : ""}" data-tier="${tier.id}" aria-pressed="${tier.id === selected}" type="button">${tier.label}</button>`).join("")}</div></section>`;
 }
 
 function renderRewriteCandidate(meta, claim) {
@@ -281,6 +307,11 @@ function bindWorkspace(stage) {
     if ($("#submitCandidateProfile")) bindCandidateProfile();
     else if ($("#confirmCandidateProfile")) bindCandidateProfileConfirmation();
     else {
+      document.querySelectorAll(".addSuggestedExperience").forEach((button) => button.onclick = () => {
+        $("#experienceType").value = button.dataset.experienceType;
+        $("#experienceForm").scrollIntoView({ behavior: "smooth", block: "start" });
+        $("#experienceName").focus();
+      });
       $("#experienceOngoing").onchange = () => { $("#experienceEnd").disabled = $("#experienceOngoing").checked; };
       $("#submitMaterial").onclick = () => {
         const text = $("#material").value.trim(); const projectName = $("#experienceName").value.trim();
@@ -295,6 +326,10 @@ function bindWorkspace(stage) {
     document.querySelectorAll("[data-question-option]").forEach((button) => button.onclick = () => toggleQuestionOption(button));
     if ($("#supplementFacts")) $("#supplementFacts").onclick = submitQuestionAnswer;
     if ($("#confirmActivities")) $("#confirmActivities").onclick = confirmActivities;
+    if ($("#reviewCurrentExperience")) $("#reviewCurrentExperience").onclick = () => {
+      const review = $("#activityReview"); review.open = true; review.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    if ($("#discardCurrentExperience")) $("#discardCurrentExperience").onclick = () => sendMessage({ action: "discard_current_experience" });
   } else if (stage === "representative_sample") {
     document.querySelectorAll("[data-target]").forEach((button) => button.onclick = () => { selectedTarget = button.dataset.target; render(); });
     $("#generateClaims").onclick = () => { const target = contract.targets.find((item) => item.id === selectedTarget); sendMessage({ action: "select_role_packs", role_packs: [target.role_pack] }); };
@@ -319,6 +354,7 @@ function bindExperienceNavigator() {
 
 function bindCandidateProfile() {
   selectedProfileOption = "";
+  selectedProfileOptions = new Set(Array.isArray((state().candidate_profile?.answers || {})[state().candidate_profile?.current_question?.id]) ? (state().candidate_profile.answers[state().candidate_profile.current_question.id]) : []);
   document.querySelectorAll("[data-profile-option]").forEach((button) => button.onclick = () => {
     selectedProfileOption = button.dataset.profileOption;
     document.querySelectorAll("[data-profile-option]").forEach((item) => {
@@ -327,6 +363,17 @@ function bindCandidateProfile() {
       item.setAttribute("aria-pressed", String(selected));
     });
     if (selectedProfileOption !== "其他" && $("#profileValue")) $("#profileValue").value = "";
+  });
+  document.querySelectorAll("[data-profile-multi-option]").forEach((button) => button.onclick = () => {
+    const option = button.dataset.profileMultiOption;
+    if (option === "目前没有其他经历") selectedProfileOptions.clear();
+    else selectedProfileOptions.delete("目前没有其他经历");
+    if (button.classList.contains("selected")) selectedProfileOptions.delete(option);
+    else selectedProfileOptions.add(option);
+    document.querySelectorAll("[data-profile-multi-option]").forEach((item) => {
+      const selected = selectedProfileOptions.has(item.dataset.profileMultiOption);
+      item.classList.toggle("selected", selected); item.setAttribute("aria-pressed", String(selected));
+    });
   });
   if ($("#profileOngoing")) $("#profileOngoing").onchange = () => { $("#profileEnd").disabled = $("#profileOngoing").checked; };
   $("#submitCandidateProfile").onclick = () => submitCandidateProfile(false);
@@ -346,6 +393,7 @@ function submitCandidateProfile(skipped) {
   if (question.kind === "single_choice" && selectedProfileOption === "其他") value = customValue;
   if (!skipped && question.kind === "single_choice" && selectedProfileOption === "其他" && !customValue) return showError("请选择具体学历，或填写其他真实情况。");
   if (question.kind === "period") value = { start: $("#profileStart").value, end: $("#profileEnd").value, ongoing: $("#profileOngoing").checked };
+  if (question.kind === "multi_choice") value = [...selectedProfileOptions];
   if (!skipped && question.required && (!value || (typeof value === "object" && !Object.values(value).some(Boolean)))) return showError("请填写这一项后继续。");
   sendMessage({ action: "answer_candidate_profile", question_id: question.id, value, skipped });
 }
@@ -378,6 +426,7 @@ async function confirmActivities() {
   const cards = [...document.querySelectorAll(".activity-card")];
   const updated = proposals.map((proposal, index) => { const card = cards[index]; const value = (field) => card.querySelector(`[data-field="${field}"]`).value; return { evidence_quote: proposal.evidence_quote, components: proposal.components, ownership_level: value("ownership_level"), execution_mode: value("execution_mode"), coverage: value("coverage"), scope_note: value("scope_note").trim() || null }; });
   if (!updated.length) return showError("当前没有可确认活动，请先补充具体步骤。");
+  if (updated.some((item) => !item.ownership_level || !item.execution_mode || !item.coverage)) return showError("请为每项活动明确选择本人责任、执行方式和完成范围。");
   await sendMessage({ action: "confirm_activity_proposals", activity_proposals: updated, proposal_ids: [] });
 }
 
@@ -435,7 +484,7 @@ function renderPreview() {
   const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
   const summary = basics.summary ? `<h2>候选人定位</h2><p>${esc(basics.summary)}</p>` : "";
-  const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
+  const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); const details = [item.ranking_or_gpa ? `成绩与排名：${item.ranking_or_gpa}` : "", (item.highlights || []).length ? `核心课程与教育亮点：${item.highlights.join("、")}` : ""].filter(Boolean).map((value) => `<p>${esc(value)}</p>`).join(""); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}${details}`; }).join("");
   const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源", certificate: "证书与培训" };
   const skillGroups = Object.entries(skillLabels).map(([category, label]) => [label, (documentData.skills || []).filter((item) => item.category === category).map((item) => item.name)]).filter(([, items]) => items.length);
   const skills = skillGroups.length ? `<h2>研究方法与技能</h2>${skillGroups.map(([label, items]) => `<p><b>${esc(label)}：</b>${items.map(esc).join("、")}</p>`).join("")}` : "";
@@ -446,9 +495,10 @@ function renderPreview() {
     ["志愿服务", projects.filter((item) => item.experience_type === "volunteer")], ["项目经历", projects.filter((item) => !["leadership", "volunteer"].includes(item.experience_type))],
   ];
   const awards = (documentData.awards || []).length ? `<h2>荣誉奖励</h2><ul>${documentData.awards.map((item) => `<li>${esc(item.name)}</li>`).join("")}</ul>` : "";
+  const publications = (documentData.publications || []).length ? `<h2>论文与学术成果</h2><ul>${documentData.publications.map((item) => `<li>${esc(item.title)}</li>`).join("")}</ul>` : "";
   const languages = (documentData.languages || []).length ? `<h2>语言能力</h2><ul>${documentData.languages.map((item) => `<li>${esc(item.language)}${item.level_or_score ? `：${esc(item.level_or_score)}` : ""}</li>`).join("")}</ul>` : "";
   const interests = (documentData.research_interests || []).length ? `<h2>研究兴趣</h2><ul>${documentData.research_interests.map((item) => `<li>${esc(item.name)}</li>`).join("")}</ul>` : "";
-  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}${experienceSections.map(([label, items]) => renderPreviewExperienceSection(label, items)).join("")}${awards}${skills}${languages}${interests}`;
+  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}${experienceSections.map(([label, items]) => renderPreviewExperienceSection(label, items)).join("")}${publications}${awards}${skills}${languages}${interests}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 

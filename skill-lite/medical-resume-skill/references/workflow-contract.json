@@ -26,6 +26,7 @@
     "confirm_candidate_profile",
     "edit_candidate_profile",
     "start_new_experience",
+    "discard_current_experience",
     "select_experience",
     "submit_experience",
     "provide_facts",

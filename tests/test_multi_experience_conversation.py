@@ -134,12 +134,17 @@ class RecordingRewriteGateway:
         if task == "resume_experience_tier_rewrite":
             canonical_id = context["canonical_experience"]["experience_id"]
             self.tier_batch_canonical_ids.append(canonical_id)
+            tier_wording = {
+                "Conservative": "在确认范围内完成相关工作。",
+                "Professional": "按研究流程完成相关工作并形成可复核材料。",
+                "High-impact": "围绕研究目标推进相关工作并交付可复核成果。",
+            }
             candidates = []
             for source in context["source_claims"]:
                 for tone in ("Conservative", "Professional", "High-impact"):
                     candidates.append({
                         "source_claim_id": source["claim_id"], "tone": tone,
-                        "wording": source["wording"],
+                        "wording": tier_wording[tone],
                         "used_facts": source["used_facts"],
                         "dependency_refs": source["dependency_refs"],
                         "evidence_ids": source["evidence_ids"],

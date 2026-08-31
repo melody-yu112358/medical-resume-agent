@@ -33,6 +33,21 @@ def test_question_card_is_absent_outside_fact_confirmation():
     assert QuestionGuidanceService.build(None, stage="fact_confirmation") is None
 
 
+def test_dense_experience_gaps_have_bounded_backend_owned_cards():
+    expected = {
+        "这项工作的研究目标或希望回答的问题是什么？": "objective",
+        "你在执行过程中做过哪些质量控制、复核或一致性检查？": "quality_control",
+        "这项工作与谁协作，你和其他人的分工是什么？": "collaboration",
+        "过程中遇到过什么问题或分歧，你具体如何处理？": "problem_solving",
+        "这项任务的实际范围、周期或可确认数量是什么？": "scope",
+    }
+    for question, question_id in expected.items():
+        card = QuestionGuidanceService.build(question, stage="fact_confirmation")
+        assert card["question_id"] == question_id
+        assert len(card["options"]) >= 5
+        assert card["options"][-1]["id"] == "unknown"
+
+
 def test_conversation_returns_and_restores_one_structured_question_card():
     client = create_app(load_model_from_environment=False).test_client()
     created = client.post("/api/conversations", json={}).get_json()
@@ -109,3 +124,33 @@ def test_answered_multi_selects_survive_full_evidence_replan_without_repeating_q
     assert steps["state"]["question_card"]["question_id"] not in {
         "databases_used", "research_steps",
     }
+
+
+def test_answered_top_gaps_do_not_hide_later_objective_and_quality_questions():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    response = client.post(
+        f"/api/conversations/{session_id}/messages",
+        json={"text": "参与 Meta 分析并执行文献检索。", "consent_confirmed": True},
+    ).get_json()
+    answers = [
+        ("databases_used", "pubmed"),
+        ("research_steps", "screening"),
+        ("responsibility_boundary", "independent"),
+        ("outputs", "analysis_tables"),
+        ("publication_status", "no_plan"),
+    ]
+    for question_id, option_id in answers:
+        card = response["state"]["question_card"]
+        assert card["question_id"] == question_id
+        option = next(item for item in card["options"] if item["id"] == option_id)
+        response = client.post(
+            f"/api/conversations/{session_id}/messages",
+            json={
+                "action": "update_facts", "text": option["answer_text"],
+                "selected_option_ids": [option_id], "consent_confirmed": True,
+            },
+        ).get_json()
+
+    assert response["state"]["question_card"]["question_id"] == "objective"
+    assert len(response["state"]["pending_questions"]) >= 4

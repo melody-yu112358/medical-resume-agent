@@ -196,6 +196,22 @@ class ExperienceDraftServiceTest(unittest.TestCase):
         # Check that questions are limited to 3
         self.assertLessEqual(len(draft.clarifying_questions), 3)
 
+    def test_objective_quality_review_and_problem_solving_become_traceable_facts(self):
+        draft = self.service.draft(
+            experience_text=(
+                "这项工作的研究目标是总结现有证据。"
+                "我通过回查原文核对原始数据，并核查修正了数据问题。"
+            ),
+            consent_confirmed=True,
+        )
+
+        facts = draft.extracted_facts
+        self.assertEqual(facts["context"]["topic"], "总结现有证据")
+        self.assertIn("verify_research_quality", facts["actions"])
+        self.assertIn("resolve_workflow_issue", facts["actions"])
+        self.assertNotIn("quality_control", draft.unknown_items)
+        self.assertNotIn("problem_solving", draft.unknown_items)
+
         # Check to_dict method
         draft_dict = draft.to_dict()
         self.assertIsInstance(draft_dict, dict)

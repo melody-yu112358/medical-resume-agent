@@ -43,10 +43,11 @@ class TierGateway:
 
 
 class BatchedTierGateway:
-    def __init__(self, *, omit_high_impact=False, unsafe_high_impact=False):
+    def __init__(self, *, omit_high_impact=False, unsafe_high_impact=False, identical=False):
         self.calls = []
         self.omit_high_impact = omit_high_impact
         self.unsafe_high_impact = unsafe_high_impact
+        self.identical = identical
 
     def generate(self, *, task, context):
         assert task == "resume_experience_tier_rewrite"
@@ -57,6 +58,8 @@ class BatchedTierGateway:
                 if self.omit_high_impact and tone == "High-impact":
                     continue
                 wording = SAFE_WORDING[tone]
+                if self.identical:
+                    wording = SAFE_WORDING["Professional"]
                 if self.unsafe_high_impact and tone == "High-impact":
                     wording = "主导项目并负责全部系统综述流程。"
                 candidates.append({
@@ -242,6 +245,16 @@ def test_incomplete_batched_response_is_atomic_and_keeps_existing_candidates():
 
     assert len(gateway.calls) == 1
     assert {item["claim_id"] for item in rejected["state"]["generated_claims"]} == before_claim_ids
+    assert rejected["state"]["rewrite_candidates"] == []
+
+
+def test_identical_tier_wordings_are_rejected_atomically():
+    gateway = BatchedTierGateway(identical=True)
+    client, session_id, composed = _composed_conversation(gateway)
+
+    rejected = _message(client, session_id, {"action": "generate_resume_tiers"})
+
+    assert "模型未返回完整" in rejected["assistant_message"]
     assert rejected["state"]["rewrite_candidates"] == []
     assert "已保留原审计要点" in rejected["assistant_message"]
 

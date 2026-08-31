@@ -24,16 +24,22 @@ def _answer_all(client, session_id: str) -> dict:
         "degree": "医学硕士",
         "major": "临床医学",
         "period": {"start": "2023-09", "end": None, "ongoing": True},
+        "ranking_or_gpa": "GPA 3.6/4.0；专业前 15%",
+        "education_highlights": "医学统计学\n循证医学",
         "awards": "2024 年国家奖学金\n校级科研竞赛一等奖",
         "languages": "CET-4：620\nCET-6：580",
         "certificates": "GCP 培训证书",
+        "academic_outputs": "心血管系统综述论文初稿，共同作者，尚未投稿",
         "research_interests": "心血管循证医学\n临床预测模型",
+        "experience_inventory": ["临床见习或轮转", "志愿服务或社会实践"],
     }
     response = None
-    for question_id, value in answers.items():
+    for question in CandidateProfileIntakeService.QUESTIONS:
+        question_id = question["id"]
+        value = answers.get(question_id)
         response = client.post(
             f"/api/conversations/{session_id}/messages",
-            json={"action": "answer_candidate_profile", "question_id": question_id, "value": value},
+            json={"action": "answer_candidate_profile", "question_id": question_id, "value": value, "skipped": value is None},
         )
         assert response.status_code == 200
     return response.get_json()
@@ -146,6 +152,8 @@ def test_confirmed_profile_persists_and_maps_to_resume_document_and_export():
     validate(instance=document, schema=schema)
     assert document["basics"]["name"] == "测试同学"
     assert document["education"][0]["institution"] == "示例医科大学"
+    assert document["education"][0]["ranking_or_gpa"] == "GPA 3.6/4.0；专业前 15%"
+    assert document["education"][0]["highlights"] == ["医学统计学", "循证医学"]
     profile_ids = {item["evidence_id"] for item in document["evidence"] if item["evidence_id"].startswith("profile_ev_")}
     assert set(document["basics"]["evidence_ids"]).issubset(profile_ids)
     assert set(document["education"][0]["evidence_ids"]).issubset(profile_ids)
@@ -156,6 +164,7 @@ def test_confirmed_profile_persists_and_maps_to_resume_document_and_export():
     assert [item["name"] for item in document["awards"]] == ["2024 年国家奖学金", "校级科研竞赛一等奖"]
     assert [item["language"] for item in document["languages"]] == ["CET-4：620", "CET-6：580"]
     assert [item["name"] for item in document["skills"] if item["category"] == "certificate"] == ["GCP 培训证书"]
+    assert [item["title"] for item in document["publications"]] == ["心血管系统综述论文初稿，共同作者，尚未投稿"]
     assert [item["name"] for item in document["research_interests"]] == ["心血管循证医学", "临床预测模型"]
     for section in (document["awards"], document["languages"], document["research_interests"]):
         assert all(item["evidence_ids"] and set(item["evidence_ids"]) <= evidence_ids for item in section)
@@ -167,6 +176,28 @@ def test_confirmed_profile_persists_and_maps_to_resume_document_and_export():
         assert f"## {heading}" in bundle["files"]["resume.md"] or f"**{heading}：**" in bundle["files"]["resume.md"]
     assert "错误覆盖名" not in bundle["files"]["resume.md"]
     assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["education"][0]["major"] == "临床医学"
+    assert "## 论文与学术成果" in bundle["files"]["resume.md"]
+    assert "GPA 3.6/4.0" in bundle["files"]["resume.md"]
+
+
+def test_experience_inventory_guides_workflow_without_becoming_resume_evidence():
+    profile = CandidateProfileIntakeService.initial_state()
+    values = {
+        "name": "测试同学", "institution": "示例医科大学",
+        "experience_inventory": ["临床见习或轮转", "志愿服务或社会实践"],
+    }
+    for question in CandidateProfileIntakeService.QUESTIONS:
+        value = values.get(question["id"])
+        CandidateProfileIntakeService.answer(
+            profile, question_id=question["id"], value=value, skipped=value is None,
+        )
+    CandidateProfileIntakeService.confirm(profile)
+
+    assert profile["answers"]["experience_inventory"] == ["临床见习或轮转", "志愿服务或社会实践"]
+    assert not any(item["field"] == "experience_inventory" for item in profile["profile_evidence_records"])
+    _, _, extras, evidence = CandidateProfileIntakeService.document_sections(profile)
+    assert "experience_inventory" not in extras
+    assert not any("临床见习或轮转" in item["statement"] for item in evidence)
 
 
 def test_existing_direct_experience_intake_remains_compatible():

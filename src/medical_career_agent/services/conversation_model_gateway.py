@@ -12,6 +12,7 @@ from ..ports.repositories import ModelGateway
 @dataclass(frozen=True)
 class ConversationLanguageResult:
     rewrite_candidate: dict[str, Any] | None = None
+    rewrite_candidates: list[dict[str, Any]] | None = None
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,12 @@ class ConversationModelGateway(Protocol):
 
     def rewrite_claim(self, *, source_claim: dict[str, Any], canonical_experience: dict[str, Any], tone: str, instruction: str) -> ConversationLanguageResult:
         """Return a candidate wording and its complete traceability fields only."""
+
+    def rewrite_experience_tiers(
+        self, *, source_claims: list[dict[str, Any]],
+        canonical_experience: dict[str, Any], instruction: str,
+    ) -> ConversationLanguageResult:
+        """Return all three expression tiers for one experience in one call."""
 
 
 class ModelGatewayConversationGateway:
@@ -88,3 +95,28 @@ class ModelGatewayConversationGateway:
         if value is None:
             return ConversationLanguageResult()
         return ConversationLanguageResult(rewrite_candidate=value if isinstance(value, dict) else None)
+
+    def rewrite_experience_tiers(
+        self, *, source_claims: list[dict[str, Any]],
+        canonical_experience: dict[str, Any], instruction: str,
+    ) -> ConversationLanguageResult:
+        raw = self.gateway.generate(task="resume_experience_tier_rewrite", context={
+            "instruction": "Return JSON only. For every source claim, return exactly one Conservative, one Professional, and one High-impact candidate. Rewrite wording only; copy source_claim_id, used_facts, dependency_refs and evidence_ids verbatim. Never add facts, activities, responsibility, numbers or outcomes. Conservative foregrounds limits, Professional is concise and information-dense, and High-impact strengthens ordering and role relevance without upgrading factual meaning. Return a flat rewrite_candidates array. Do not omit a source/tone pair.",
+            "user_instruction": instruction,
+            "source_claims": source_claims,
+            "canonical_experience": canonical_experience,
+            "response_shape": {
+                "rewrite_candidates": [{
+                    "source_claim_id": "claim_id", "tone": "Conservative|Professional|High-impact",
+                    "wording": "candidate wording", "used_facts": [],
+                    "dependency_refs": {}, "evidence_ids": [],
+                }],
+            },
+        })
+        value = self._parse_json_object(raw)
+        candidates = (value or {}).get("rewrite_candidates")
+        if not isinstance(candidates, list):
+            return ConversationLanguageResult()
+        return ConversationLanguageResult(
+            rewrite_candidates=[item for item in candidates if isinstance(item, dict)],
+        )

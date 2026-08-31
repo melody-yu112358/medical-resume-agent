@@ -156,6 +156,8 @@ class ResumeConversationAgent:
             response = self._edit_wording(session_id, state, payload)
         elif action == "rewrite_claim":
             response = self._rewrite_claim(session_id, state, payload)
+        elif action == "generate_resume_tiers":
+            response = self._generate_resume_tiers(session_id, state, payload)
         elif action == "select_rewrite_candidate":
             response = self._select_rewrite_candidate(state, payload)
         elif action == "select_resume_tier":
@@ -1329,7 +1331,18 @@ class ResumeConversationAgent:
         model_candidate = self.language_gateway.rewrite_claim(source_claim=source, canonical_experience=canonical, tone=tone, instruction=instruction).rewrite_candidate
         if not isinstance(model_candidate, dict):
             return self._response(state, "模型没有返回可审计的候选措辞。")
-        # The model proposes text and traceability only.  It cannot choose an
+        candidate, gate = self._build_rewrite_candidate(source, canonical, model_candidate)
+        self.claim_ledger.record_claim(session_id=session_id, bullet_claim=candidate, gate_status=gate["status"], user_disposition=None)
+        state["generated_claims"].append(candidate)
+        state["rewrite_candidates"].append({"claim_id": candidate["claim_id"], "source_claim_id": source_id, "tone": tone, "instruction": instruction, "gate": gate, "selected": False})
+        state["claim_gate_results"][candidate["claim_id"]] = gate
+        return self._response(state, "已生成新的候选版本并完成 ClaimGate；旧要点未被覆盖。", ui_events=["show_rewrite_candidate", "refresh_resume_preview"])
+
+    def _build_rewrite_candidate(
+        self, source: dict[str, Any], canonical: dict[str, Any],
+        model_candidate: dict[str, Any],
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        # The model proposes text and traceability only. It cannot choose an
         # experience, role pack, canonical fact, or audit decision.
         candidate = {
             "schema_version": "bullet-claim-v2", "claim_id": f"claim_{uuid4().hex[:8]}",
@@ -1353,11 +1366,116 @@ class ResumeConversationAgent:
                 "rewrite_source_traceability: rewrite must preserve source " + ", ".join(traceability_errors)
             )
         candidate["verification_status"] = gate["status"]
-        self.claim_ledger.record_claim(session_id=session_id, bullet_claim=candidate, gate_status=gate["status"], user_disposition=None)
-        state["generated_claims"].append(candidate)
-        state["rewrite_candidates"].append({"claim_id": candidate["claim_id"], "source_claim_id": source_id, "tone": tone, "instruction": instruction, "gate": gate, "selected": False})
-        state["claim_gate_results"][candidate["claim_id"]] = gate
-        return self._response(state, "已生成新的候选版本并完成 ClaimGate；旧要点未被覆盖。", ui_events=["show_rewrite_candidate", "refresh_resume_preview"])
+        return candidate, gate
+
+    def _generate_resume_tiers(
+        self, session_id: str, state: dict[str, Any], payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        if state.get("stage") not in {"representative_sample", "factual_audit"}:
+            return self._response(state, "请先确认事实并生成可审计的基础要点。")
+        if self.language_gateway is None:
+            return self._response(state, "未配置语言模型；三档将安全沿用已审计基础要点。")
+        rewrite_ids = {item.get("claim_id") for item in state.get("rewrite_candidates", [])}
+        base_claims = [
+            item for item in state.get("generated_claims", [])
+            if item.get("claim_id") not in rewrite_ids
+            and item.get("verification_status") == "ready"
+        ]
+        requested_id = str(payload.get("experience_id") or "")
+        if state.get("stage") == "representative_sample":
+            requested_id = str((state.get("representative_sample") or {}).get("experience_id") or "")
+        if requested_id:
+            base_claims = [item for item in base_claims if item.get("experience_id") == requested_id]
+        canonicals = {
+            item.get("experience_id"): item for item in self._confirmed_canonicals(state)
+        }
+        grouped: dict[str, list[dict[str, Any]]] = {}
+        for claim in base_claims:
+            grouped.setdefault(str(claim.get("experience_id")), []).append(claim)
+        if not grouped:
+            return self._response(state, "没有可用于生成三档的 ClaimGate-ready 基础要点。")
+
+        completed = 0
+        rejected = 0
+        for experience_id, sources in grouped.items():
+            canonical = canonicals.get(experience_id)
+            if not canonical:
+                continue
+            try:
+                result = self.language_gateway.rewrite_experience_tiers(
+                    source_claims=sources, canonical_experience=canonical,
+                    instruction="使用同一组已确认事实生成完整稳妥、专业和高竞争力三档。",
+                )
+            except Exception:
+                continue
+            raw_candidates = result.rewrite_candidates or []
+            source_by_id = {item["claim_id"]: item for item in sources}
+            expected = {
+                (source_id, tone) for source_id in source_by_id
+                for tone in TIER_TONES.values()
+            }
+            received: dict[tuple[str, str], dict[str, Any]] = {}
+            for item in raw_candidates:
+                key = (str(item.get("source_claim_id", "")), str(item.get("tone", "")))
+                if (
+                    key in expected and key not in received
+                    and str(item.get("wording", "")).strip()
+                ):
+                    received[key] = item
+            if len(raw_candidates) != len(expected) or set(received) != expected:
+                continue
+
+            prepared = []
+            for (source_id, tone), item in received.items():
+                candidate, gate = self._build_rewrite_candidate(
+                    source_by_id[source_id], canonical, item,
+                )
+                prepared.append((source_id, tone, candidate, gate))
+            old_meta = [
+                item for item in state.get("rewrite_candidates", [])
+                if item.get("source_claim_id") in source_by_id
+            ]
+            old_ids = {item.get("claim_id") for item in old_meta}
+            if old_ids:
+                self.claim_ledger.invalidate_claims_by_ids(
+                    session_id, list(old_ids), "experience_tiers_replaced",
+                )
+                state["generated_claims"] = [
+                    item for item in state["generated_claims"]
+                    if item.get("claim_id") not in old_ids
+                ]
+                state["rewrite_candidates"] = [
+                    item for item in state["rewrite_candidates"]
+                    if item.get("claim_id") not in old_ids
+                ]
+                for claim_id in old_ids:
+                    state["claim_gate_results"].pop(claim_id, None)
+                    state["claim_user_dispositions"].pop(claim_id, None)
+            for source_id, tone, candidate, gate in prepared:
+                selected = gate["status"] == "ready"
+                rejected += int(not selected)
+                self.claim_ledger.record_claim(
+                    session_id=session_id, bullet_claim=candidate,
+                    gate_status=gate["status"], user_disposition="accepted" if selected else None,
+                )
+                state["generated_claims"].append(candidate)
+                state["rewrite_candidates"].append({
+                    "claim_id": candidate["claim_id"], "source_claim_id": source_id,
+                    "tone": tone, "instruction": "批量生成完整三档", "gate": gate,
+                    "selected": selected,
+                })
+                state["claim_gate_results"][candidate["claim_id"]] = gate
+            completed += 1
+        if not completed:
+            return self._response(state, "模型未返回完整的 source claim × 三档结构；已保留原审计要点。")
+        state["selected_resume_tier"] = "professional"
+        message = f"已用 {completed} 次模型调用完成 {completed} 段经历的三档生成与逐条 ClaimGate 审计。"
+        if rejected:
+            message += f"{rejected} 条候选未通过，对应档位已回退到基础要点。"
+        return self._response(
+            state, message,
+            ui_events=["show_rewrite_candidate", "refresh_resume_preview"],
+        )
 
     def _select_rewrite_candidate(self, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         claim_id = str(payload.get("claim_id", ""))

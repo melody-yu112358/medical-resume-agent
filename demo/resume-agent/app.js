@@ -223,7 +223,7 @@ function renderTargetSelection() {
   const experience = (state().confirmed_experiences || []).find((item) => item.experience_id === sample.experience_id);
   const review = reviewClaims((claim) => claim.experience_id === sample.experience_id);
   const canApprove = review.baseClaims.length > 0 && review.ready.length === review.baseClaims.length;
-  return `${renderExperienceNavigator(true)}${targetPicker}${renderTierSelector()}<section class="panel representative-sample"><span class="status-badge">代表样板 · 待你冻结</span><h3>${esc(experience?.label || "旗舰经历样板")}</h3><p>请核对四件事：每条要点是否提供不同信息、语气是否适合申请、责任是否没有夸大、排序是否符合目标方向。</p>${review.cards || "<p>当前事实不足以形成可审计样板，请返回补充具体活动。</p>"}<div class="action-row"><button id="approveSample" class="primary" type="button" ${canApprove ? "" : "disabled"}>确认样板并生成完整简历 →</button></div></section>`;
+  return `${renderExperienceNavigator(true)}${targetPicker}${renderTierSelector()}<section class="panel representative-sample"><span class="status-badge">代表样板 · 待你冻结</span><h3>${esc(experience?.label || "旗舰经历样板")}</h3><p>请核对四件事：每条要点是否提供不同信息、语气是否适合申请、责任是否没有夸大、排序是否符合目标方向。</p>${review.cards || "<p>当前事实不足以形成可审计样板，请返回补充具体活动。</p>"}<div class="action-row">${health?.llm_configured ? '<button id="generateSampleTiers" class="secondary" type="button">一次生成样板三档</button>' : ""}<button id="approveSample" class="primary" type="button" ${canApprove ? "" : "disabled"}>确认样板并生成完整简历 →</button></div></section>`;
 }
 
 function renderClaim(claim) {
@@ -258,8 +258,8 @@ function reviewClaims(predicate = () => true) {
 
 function renderClaims() {
   const review = reviewClaims();
-  return `${renderTierSelector()}<section class="panel"><h3>完整简历与事实审计</h3><p>样板已冻结；当前 ${review.ready.length}/${review.baseClaims.length} 条基础要点可交付。每次只为一条要点生成一个档位候选；应用前必须通过原 v2 Claim Gate。</p>${review.cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
-    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍可使用同一组确定性要点；配置模型后可按需改写单条措辞。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${review.ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
+  return `${renderTierSelector()}<section class="panel"><h3>完整简历与事实审计</h3><p>样板已冻结；当前 ${review.ready.length}/${review.baseClaims.length} 条基础要点可交付。一次生成会按经历各调用模型一次，每条候选仍独立通过 v2 ClaimGate。</p>${review.cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
+    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍安全沿用已审计基础要点。</p>' : ""}<div class="action-row">${health?.llm_configured ? '<button id="generateAllTiers" class="secondary" type="button">一次生成完整三档</button>' : ""}<button id="acceptClaims" class="primary" type="button" ${review.ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
 }
 
 function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStorageKey) || "{}"); } catch (_) { return {}; } }
@@ -301,11 +301,13 @@ function bindWorkspace(stage) {
     document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
     document.querySelectorAll(".selectRewrite").forEach((button) => button.onclick = () => sendMessage({ action: "select_rewrite_candidate", claim_id: button.dataset.candidateId }));
+    if ($("#generateSampleTiers")) $("#generateSampleTiers").onclick = () => sendMessage({ action: "generate_resume_tiers" });
     if ($("#approveSample")) $("#approveSample").onclick = () => sendMessage({ action: "approve_representative_sample" });
   } else if (stage === "composition" || stage === "factual_audit") {
     document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
     document.querySelectorAll(".selectRewrite").forEach((button) => button.onclick = () => sendMessage({ action: "select_rewrite_candidate", claim_id: button.dataset.candidateId }));
+    if ($("#generateAllTiers")) $("#generateAllTiers").onclick = () => sendMessage({ action: "generate_resume_tiers" });
     if ($("#acceptClaims")) $("#acceptClaims").onclick = () => sendMessage({ action: "accept_bullets" });
   } else { if ($("#saveBasics")) $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
 }

@@ -228,15 +228,45 @@ summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 .conversation-mode .app-shell { grid-template-columns: 220px minmax(520px, 1fr) 340px; }
 .conversation-mode .preview-pane { padding: 26px 20px; background: #f3f5f3; }
 
+/* Delivery is a document workspace, not a thumbnail embedded in a form. */
+.delivery-mode .app-shell { grid-template-columns: 220px minmax(360px, .62fr) minmax(640px, 1.38fr); }
+.delivery-mode .preview-pane {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: calc(100vh - 66px);
+  overflow-y: auto;
+  padding: 24px;
+}
+.delivery-mode .paper {
+  width: min(210mm, 100%);
+  min-height: 297mm;
+  aspect-ratio: auto;
+  margin: 0 auto;
+  overflow: visible;
+  padding: 15mm 16mm;
+  font-size: 11px;
+}
+.intake-exit { border-style: dashed; }
+.inventory-list { display: grid; gap: 8px; margin-top: 14px; }
+.inventory-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; }
+.inventory-item div { display: grid; gap: 4px; }
+.inventory-item span { color: var(--muted); font-size: 12px; }
+.inventory-item.complete { border-color: #bcd8cb; background: #f3faf6; }
+
 @media (max-width: 1050px) {
   .conversation-mode .app-shell { grid-template-columns: 210px 1fr; }
   .conversation-mode .preview-pane { grid-column: 1 / -1; border-top: 1px solid var(--line); border-left: 0; }
+  .delivery-mode .app-shell { grid-template-columns: 210px 1fr; }
+  .delivery-mode .preview-pane { position: static; grid-column: 1 / -1; width: 100%; height: auto; overflow: visible; }
 }
 
 @media (max-width: 760px) {
   .conversation-mode .preview-pane { display: none; }
   .stage-head > span { max-width: 45%; text-align: right; }
   .field textarea { min-height: 120px; }
+  .delivery-mode .paper { width: 100%; min-height: 0; padding: 24px 20px; }
+  .inventory-item { align-items: stretch; flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce) {

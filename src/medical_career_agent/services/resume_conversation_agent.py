@@ -129,6 +129,8 @@ class ResumeConversationAgent:
             response = self._response(state, "好的，我们从姓名开始逐项修改；旧答案会保留，提交新答案后覆盖。")
         elif action == "start_new_experience":
             response = self._start_new_experience(state)
+        elif action == "discard_current_experience":
+            response = self._discard_current_experience(state)
         elif action == "select_experience":
             response = self._select_experience(state, payload)
         elif action == "submit_experience":
@@ -333,6 +335,25 @@ class ResumeConversationAgent:
         )
 
     @staticmethod
+    def _discard_current_experience(state: dict[str, Any]) -> dict[str, Any]:
+        if state.get("stage") != "fact_confirmation":
+            return ResumeConversationAgent._response(state, "当前没有可暂缓的经历采集。")
+        for key, empty in (
+            ("extracted_draft", None), ("confirmed_canonical_experience", None),
+            ("pending_questions", []), ("question_card", None),
+            ("activity_proposals", []), ("proposal_audits", []),
+            ("active_experience_evidence_ids", []), ("active_experience_identity", None),
+        ):
+            state[key] = empty
+        state["active_experience_id"] = None
+        state["stage"] = "intake"
+        return ResumeConversationAgent._response(
+            state,
+            "已暂缓这段经历；原始回答仍保留在本机会话记录中，但不会进入简历。你可以填写另一段经历。",
+            ui_events=["experience_deferred"],
+        )
+
+    @staticmethod
     def _select_experience(state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         if state.get("stage") != "representative_sample":
             return ResumeConversationAgent._response(state, "请先完成当前经历，再切换已确认经历。")
@@ -397,11 +418,22 @@ class ResumeConversationAgent:
         }
         cards = [
             QuestionGuidanceService.build(question, stage=str(state.get("stage", "")))
-            for question in (state.get("pending_questions") or [])[:3]
+            for question in (state.get("pending_questions") or [])
         ]
         return [
             card for card in cards
             if card and card.get("question_id") not in answered
+        ][:3]
+
+    @staticmethod
+    def _unanswered_questions(state: dict[str, Any], questions: list[str]) -> list[str]:
+        answered = {
+            item.get("question_id") for item in state.get("structured_answers", [])
+            if isinstance(item, dict) and item.get("question_id")
+        }
+        return [
+            question for question in questions
+            if (QuestionGuidanceService.build(question, stage="fact_confirmation") or {}).get("question_id") not in answered
         ]
 
     @classmethod
@@ -485,7 +517,9 @@ class ResumeConversationAgent:
             })
             state["active_experience_evidence_ids"].append(identity_evidence_id)
             identity["evidence_ids"] = [identity_evidence_id]
-        state["pending_questions"] = draft["clarifying_questions"]
+        state["pending_questions"] = self._unanswered_questions(
+            state, draft.get("all_clarifying_questions", draft["clarifying_questions"]),
+        )
         state["stage"] = "fact_confirmation"
         self._propose_activities(state, text, draft["extracted_facts"])
         return self._fact_confirmation_response(state, introduced="我已提取出候选事实")
@@ -504,7 +538,9 @@ class ResumeConversationAgent:
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
         state.setdefault("active_experience_evidence_ids", []).append(next_id)
-        state["pending_questions"] = draft["clarifying_questions"]
+        state["pending_questions"] = self._unanswered_questions(
+            state, draft.get("all_clarifying_questions", draft["clarifying_questions"]),
+        )
         self._supersede_pending_proposals(state)
         self._invalidate_claims_for_pending_fact_update(session_id, state)
         # Rebuild from all evidence: a later tool/responsibility clarification
@@ -691,6 +727,8 @@ class ResumeConversationAgent:
             "retrieve_literature": "文献检索",
             "screen_studies": "文献筛选",
             "perform_analysis": "R / 数据分析",
+            "verify_research_quality": "研究质量复核",
+            "resolve_workflow_issue": "流程问题处理",
         }
         actions = proposal.get("components", {}).get("actions", [])
         return "、".join(labels.get(action, action) for action in actions) or "该活动"
@@ -936,6 +974,8 @@ class ResumeConversationAgent:
             "screen_studies": {"medical_literature"},
             "extract_data": {"medical_literature", "research_data"},
             "assess_quality": {"medical_literature"},
+            "verify_research_quality": {"medical_literature", "research_data"},
+            "resolve_workflow_issue": {"medical_literature", "research_data", "laboratory_samples"},
             "perform_analysis": {"research_data"},
         }
         artifacts_by_action = {
@@ -1466,6 +1506,14 @@ class ResumeConversationAgent:
                     received[key] = item
             if len(raw_candidates) != len(expected) or set(received) != expected:
                 continue
+            if any(
+                len({
+                    re.sub(r"[\s，。；、,:：;]+", "", str(received[(source_id, tone)].get("wording", "")))
+                    for tone in TIER_TONES.values()
+                }) != len(TIER_TONES)
+                for source_id in source_by_id
+            ):
+                continue
 
             prepared = []
             for (source_id, tone), item in received.items():
@@ -1642,6 +1690,7 @@ class ResumeConversationAgent:
             "basics": basics,
             "education": education,
             "awards": profile_extras["awards"],
+            "publications": profile_extras["publications"],
             "languages": profile_extras["languages"],
             "research_interests": profile_extras["research_interests"],
             "skills": profile_projection["skills"] + profile_extras["certificates"],

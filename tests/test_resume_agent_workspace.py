@@ -40,8 +40,13 @@ def test_live_acceptance_covers_bounded_tiers_and_user_edit_reaudit():
     assert "CALL_LIMIT = 5" in script
     assert '"action": "generate_resume_tiers"' in script
     assert '"resume_experience_tier_rewrite"' in script
-    assert '"all_tier_candidates_ready"' in script
+    assert '"all_tier_candidates_accounted_for"' in script
+    assert '"each_tier_has_a_safe_rewrite"' in script
+    assert '"rejected_candidates_never_selected"' in script
+    assert '"three_final_tiers_substantively_distinct"' in script
     assert '"three_distinct_tier_wordings_per_claim"' in script
+    assert '"rejected_tier_gates"' in script
+    assert '{"extract_data", "perform_analysis"}' in script
     assert '"action": "reopen_audit"' in script
     assert '"action": "edit_wording"' in script
     assert 'delivery_data["edit_status"] == "user-edited"' in script
@@ -94,6 +99,27 @@ def test_skill_contract_and_primary_workspace_are_connected():
     assert [stage["id"] for stage in config.get_json()["stages"]] == [
         "intake", "fact_confirmation", "representative_sample", "composition", "factual_audit", "delivery"
     ]
+
+
+def test_user_can_defer_an_incomplete_experience_without_losing_raw_input():
+    client = create_app(load_model_from_environment=False).test_client()
+    created = client.post("/api/conversations", json={}).get_json()
+    session_id = created["session_id"]
+    intake = _message(client, session_id, {
+        "text": "参加过一次科研训练，但暂时不记得具体任务。",
+        "consent_confirmed": True,
+        "experience_identity": {"experience_type": "research", "project_name": "科研训练"},
+    })
+    assert intake["stage"] == "fact_confirmation"
+
+    deferred = _message(client, session_id, {"action": "discard_current_experience"})
+
+    assert deferred["stage"] == "intake"
+    assert deferred["state"]["active_experience_id"] is None
+    assert deferred["state"]["active_experience_evidence_ids"] == []
+    assert deferred["state"]["extracted_draft"] is None
+    assert any("参加过一次科研训练" in item for item in deferred["state"]["raw_user_texts"])
+    assert deferred["state"]["confirmed_experiences"] == []
 
 
 def test_clinical_operations_runs_contract_workspace_claim_gate_and_delivery():
@@ -265,7 +291,8 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
         "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
         "select_rewrite_candidate", "select_resume_tier", "approve_representative_sample",
-        "confirm_candidate_profile", "start_new_experience", "select_experience", "submit_experience",
+        "confirm_candidate_profile", "start_new_experience", "discard_current_experience",
+        "select_experience", "submit_experience",
     ):
         assert action in script
     assert "/api/conversations/" in script
@@ -278,6 +305,10 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "语言能力" in script
     assert "证书与培训" in script
     assert "研究兴趣" in script
+    assert "简历完整性盘点" in script
+    assert "item.canonical_experience?.identity?.experience_type" in script
+    assert "论文与学术成果" in script
+    assert "ranking_or_gpa" in script
     assert 'label: "聊经历"' in script
     assert 'label: "定表达"' in script
     assert 'label: "完成简历"' in script
@@ -307,6 +338,11 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "应用到该档" in script
     assert "confirmed_experiences" in script
     assert "添加另一段经历" in script
+    assert "停止追问，核对已有活动" in script
+    assert "AI 服务异常 · 不是你的信息不足" in script
+    assert "项目由导师指导，不等于每项任务都“在指导下完成”" in script
+    assert "请选择本人责任" in script
+    assert "请为每项活动明确选择本人责任、执行方式和完成范围" in script
     assert "你的回答会保存在本机 session" in script
     assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script
@@ -315,6 +351,8 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "prefers-reduced-motion" in workspace_css
     assert "forced-colors" in workspace_css
     assert ".conversation-mode .preview-pane { display: none; }" in workspace_css
+    assert ".delivery-mode .paper" in workspace_css
+    assert "overflow: visible" in workspace_css
 
     config = create_app(load_model_from_environment=False).test_client().get(
         "/api/resume-agent/config"

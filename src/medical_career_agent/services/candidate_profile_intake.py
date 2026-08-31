@@ -56,28 +56,54 @@ class CandidateProfileIntakeService:
             "kind": "period", "required": False,
         },
         {
-            "id": "awards", "section": "awards", "label": "有哪些希望展示的荣誉或奖项？",
+            "id": "ranking_or_gpa", "section": "education", "evidence_index": 13,
+            "label": "是否希望展示 GPA、成绩排名或综合排名？",
+            "help": "只填写可以确认的原始表述；没有或不适合展示可以跳过。",
+            "kind": "text", "required": False, "placeholder": "例如：GPA 3.6/4.0；专业前 15%",
+        },
+        {
+            "id": "education_highlights", "section": "education", "evidence_index": 14,
+            "label": "有哪些与申请方向相关的核心课程或教育亮点？",
+            "help": "一行填写一项，只保留确实修读或完成的内容。",
+            "kind": "multiline_list", "required": False,
+            "placeholder": "例如：医学统计学\n循证医学\n流行病学",
+        },
+        {
+            "id": "awards", "section": "awards", "evidence_index": 9, "label": "有哪些希望展示的荣誉或奖项？",
             "help": "一行填写一项，只写真实名称；颁发单位或年份不确定时不要补写。",
             "kind": "multiline_list", "required": False,
             "placeholder": "例如：2024 年国家奖学金\n校级科研竞赛一等奖",
         },
         {
-            "id": "languages", "section": "languages", "label": "有哪些语言成绩或能力需要展示？",
+            "id": "languages", "section": "languages", "evidence_index": 10, "label": "有哪些语言成绩或能力需要展示？",
             "help": "一行填写一项，分数或等级只在能够确认时填写。",
             "kind": "multiline_list", "required": False,
             "placeholder": "例如：CET-4：620\nCET-6：580",
         },
         {
-            "id": "certificates", "section": "certificates", "label": "有哪些证书或正式培训需要展示？",
+            "id": "certificates", "section": "certificates", "evidence_index": 11, "label": "有哪些证书或正式培训需要展示？",
             "help": "一行填写一项；课程接触不等于持有证书，没有可以跳过。",
             "kind": "multiline_list", "required": False,
             "placeholder": "例如：GCP 培训证书",
         },
         {
-            "id": "research_interests", "section": "research_interests", "label": "有哪些真实的研究兴趣希望展示？",
+            "id": "academic_outputs", "section": "publications", "evidence_index": 15,
+            "label": "是否有论文、投稿、会议摘要、海报或学术汇报？",
+            "help": "一行填写一项，并保留真实状态和作者信息；未投稿不能写成已投稿。",
+            "kind": "multiline_list", "required": False,
+            "placeholder": "例如：心血管系统综述论文初稿，共同作者，尚未投稿",
+        },
+        {
+            "id": "research_interests", "section": "research_interests", "evidence_index": 12, "label": "有哪些真实的研究兴趣希望展示？",
             "help": "一行填写一个方向；这只是兴趣陈述，不会被写成已有成果。",
             "kind": "multiline_list", "required": False,
             "placeholder": "例如：心血管循证医学\n临床预测模型",
+        },
+        {
+            "id": "experience_inventory", "section": "workflow", "label": "除科研外，还有哪些经历可能值得写入简历？",
+            "help": "可多选。这一步只帮助安排后续采集，不会直接写进简历。",
+            "kind": "multi_choice", "required": False,
+            "options": ["临床见习或轮转", "实习或工作", "校园组织与领导力", "志愿服务或社会实践", "其他项目", "目前没有其他经历"],
         },
     )
 
@@ -137,10 +163,13 @@ class CandidateProfileIntakeService:
             value = answers.get(question["id"])
             if value in (None, "", {}):
                 continue
-            items = value if question["kind"] == "multiline_list" else [value]
+            if question["section"] == "workflow":
+                continue
+            evidence_index = question.get("evidence_index", index)
+            items = value if question["kind"] in {"multiline_list", "multi_choice"} else [value]
             for item_index, item in enumerate(items, 1):
                 records.append({
-                    "evidence_id": f"profile_ev_{index:03d}_{item_index:02d}" if len(items) > 1 or question["kind"] == "multiline_list" else f"profile_ev_{index:03d}",
+                    "evidence_id": f"profile_ev_{evidence_index:03d}_{item_index:02d}" if len(items) > 1 or question["kind"] in {"multiline_list", "multi_choice"} else f"profile_ev_{evidence_index:03d}",
                     "field": question["id"], "item_index": item_index,
                     "section": question["section"],
                     "source_text": cls._statement(question, item),
@@ -163,7 +192,7 @@ class CandidateProfileIntakeService:
             return (
                 {"name": None, "phone": None, "email": None, "location": None, "summary": None, "evidence_ids": []},
                 [],
-                {"awards": [], "languages": [], "certificates": [], "research_interests": []},
+                {"awards": [], "languages": [], "certificates": [], "research_interests": [], "publications": []},
                 [],
             )
         answers = profile.get("answers") or {}
@@ -190,7 +219,8 @@ class CandidateProfileIntakeService:
                 "start": period.get("start"), "end": period.get("end"),
                 "ongoing": bool(period.get("ongoing", False)),
             },
-            "ranking_or_gpa": None, "highlights": [],
+            "ranking_or_gpa": answers.get("ranking_or_gpa"),
+            "highlights": answers.get("education_highlights") or [],
             "evidence_ids": ids_by_section["education"],
         }]
         extras = {
@@ -211,6 +241,11 @@ class CandidateProfileIntakeService:
                 "name": value,
                 "evidence_ids": item_evidence("research_interests", index),
             } for index, value in enumerate(answers.get("research_interests") or [], 1)],
+            "publications": [{
+                "item_id": f"publication_{index:03d}", "title": value,
+                "venue": None, "status": "unknown", "author_position": None,
+                "year": None, "evidence_ids": item_evidence("academic_outputs", index),
+            } for index, value in enumerate(answers.get("academic_outputs") or [], 1)],
         }
         evidence = [{
             "evidence_id": item["evidence_id"], "statement": item["source_text"],
@@ -221,9 +256,15 @@ class CandidateProfileIntakeService:
 
     @staticmethod
     def _normalize(question: dict[str, Any], value: Any) -> Any:
-        if question["kind"] == "multiline_list":
+        if question["kind"] in {"multiline_list", "multi_choice"}:
             raw_items = value if isinstance(value, list) else str(value or "").splitlines()
             items = list(dict.fromkeys(re.sub(r"\s+", " ", str(item).strip()) for item in raw_items if str(item).strip()))
+            if question["kind"] == "multi_choice":
+                allowed = set(question.get("options") or [])
+                if not set(items).issubset(allowed):
+                    raise CandidateProfileInputError("经历盘点包含未提供的选项，请重新选择。")
+                if "目前没有其他经历" in items and len(items) > 1:
+                    raise CandidateProfileInputError("“目前没有其他经历”不能与其他选项同时选择。")
             if len(items) > 20:
                 raise CandidateProfileInputError("单个模块最多填写 20 项，请保留最相关内容。")
             if any(len(item) > 200 for item in items):

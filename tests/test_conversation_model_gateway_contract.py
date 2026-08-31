@@ -32,6 +32,22 @@ def test_rewrite_prompt_contract_defines_distinct_safe_tiers():
     assert "主导" in instruction
 
 
+def test_batched_tier_prompt_explicitly_forbids_unsupported_leadership():
+    recorder = RecordingGateway()
+    gateway = ModelGatewayConversationGateway(recorder)
+
+    gateway.rewrite_experience_tiers(
+        source_claims=[], canonical_experience={}, instruction="生成三档",
+    )
+
+    instruction = recorder.calls[0][1]["instruction"]
+    assert recorder.calls[0][0] == "resume_experience_tier_rewrite"
+    for wording in ("主导", "项目负责人", "负责全部", "完整流程", "独立完成"):
+        assert wording in instruction
+    assert "Responsibility words are immutable per source claim" in instruction
+    assert "never add, remove, strengthen, or move" in instruction
+
+
 def test_intake_summary_prompt_receives_skill_constraints_and_backend_whitelists():
     recorder = RecordingGateway()
 

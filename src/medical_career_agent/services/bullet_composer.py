@@ -214,7 +214,8 @@ class BulletComposerService:
         capabilities: set[str] = set()
         if actions.intersection({
             "define_research_question", "develop_protocol", "design_search_strategy",
-            "screen_studies", "assess_quality",
+            "screen_studies", "assess_quality", "verify_research_quality",
+            "resolve_workflow_issue",
         }) or components.get("methods"):
             capabilities.add("research_method")
         if actions.intersection({"extract_data", "perform_analysis"}) or set(
@@ -274,6 +275,10 @@ class BulletComposerService:
             body = "研究数据提取"
         elif action == "assess_quality":
             body = f"{method_phrase}的质量评价与偏倚评估" if methods else "质量评价与偏倚评估"
+        elif action == "verify_research_quality":
+            body = "研究过程的质量复核与一致性检查"
+        elif action == "resolve_workflow_issue":
+            body = "研究流程中的问题核查与处理"
         elif action == "prepare_research_outputs":
             body = "研究材料整理"
             if artifacts:

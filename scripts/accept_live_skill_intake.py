@@ -80,10 +80,13 @@ def main() -> int:
         "name": "测试同学", "email": "student@example.invalid", "phone": None,
         "location": "上海", "institution": "示例医科大学", "degree": "医学硕士",
         "major": "临床医学", "period": {"start": "2023-09", "end": None, "ongoing": True},
+        "ranking_or_gpa": None, "education_highlights": None,
         "awards": "校级科研竞赛一等奖",
         "languages": "CET-6：580",
         "certificates": "GCP 培训证书",
+        "academic_outputs": None,
         "research_interests": "心血管循证医学",
+        "experience_inventory": ["目前没有其他经历"],
     }
     for question_id, value in profile.items():
         message({"action": "answer_candidate_profile", "question_id": question_id,
@@ -113,7 +116,13 @@ def main() -> int:
                if item["status"] == "needs_user_confirmation"]
     confirmed = [{
         "evidence_quote": item["evidence_quote"], "components": item["components"],
-        "ownership_level": "contributed", "execution_mode": "supervised",
+        "ownership_level": (
+            "owned_component"
+            if set(item["components"].get("actions", []))
+            & {"extract_data", "perform_analysis"}
+            else "contributed"
+        ),
+        "execution_mode": "supervised",
         "coverage": "partial", "scope_note": "在导师指导下完成已分配步骤",
     } for item in pending]
     state = message({"action": "confirm_activity_proposals", "activity_proposals": confirmed,
@@ -174,6 +183,14 @@ def main() -> int:
         delivery_data["tiers"][tier]["markdown"]
         for tier in ("conservative", "professional", "high_impact")
     ]
+    rejected_tier_gates = [
+        {
+            "tone": item["tone"],
+            "failed_checks": item["gate"].get("failed_checks", []),
+        }
+        for item in state_before_edit["rewrite_candidates"]
+        if item["gate"].get("status") != "ready"
+    ]
     checks = {
         "bounded_expected_model_calls": gateway.tasks == (
             ["resume_intake_skill_summary"] * 4
@@ -210,14 +227,32 @@ def main() -> int:
             and len(re.findall(r"^- ", value, flags=re.MULTILINE)) >= len(experience_bullets)
             for value in tier_markdown
         ),
-        "all_tier_candidates_ready": bool(candidates_by_source) and all(
+        "all_tier_candidates_accounted_for": bool(candidates_by_source) and all(
             {item["tone"] for item in candidates} == {
                 "Conservative", "Professional", "High-impact",
             }
-            and all(item["selected"] and item["gate"]["status"] == "ready"
-                    for item in candidates)
+            and all(
+                item["selected"] == (item["gate"]["status"] == "ready")
+                for item in candidates
+            )
             for candidates in candidates_by_source.values()
         ),
+        "each_tier_has_a_safe_rewrite": {
+            item["tone"]
+            for candidates in candidates_by_source.values()
+            for item in candidates
+            if item["selected"] and item["gate"]["status"] == "ready"
+        } == {"Conservative", "Professional", "High-impact"},
+        "rejected_candidates_never_selected": all(
+            not item["selected"]
+            for candidates in candidates_by_source.values()
+            for item in candidates
+            if item["gate"]["status"] != "ready"
+        ),
+        "three_final_tiers_substantively_distinct": len({
+            re.sub(r"[\s，。；、,:：;]+", "", value)
+            for value in tier_markdown
+        }) == 3,
         "three_distinct_tier_wordings_per_claim": all(
             len({
                 next(item for item in state_before_edit["generated_claims"]
@@ -239,6 +274,7 @@ def main() -> int:
         "status": "passed" if all(checks.values()) else "failed",
         "model_calls": len(gateway.tasks), "model_tasks": gateway.tasks,
         "model_summary_statuses": model_statuses, "checks": checks,
+        "rejected_tier_gates": rejected_tier_gates,
         "counts": {"experiences": len(state["confirmed_experiences"]),
                    "claims": len(state["generated_claims"]), "bullets": len(bullets),
                    "experience_bullets": len(experience_bullets)},

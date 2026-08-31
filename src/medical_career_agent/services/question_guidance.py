@@ -37,6 +37,16 @@ class QuestionGuidanceService:
             card = cls._methods_and_tools(text)
         elif any(term in normalized for term in ("结果", "产出", "材料", "形成")):
             card = cls._outputs(text)
+        elif any(term in normalized for term in ("研究目标", "回答的问题")):
+            card = cls._objective(text)
+        elif any(term in normalized for term in ("质量控制", "复核", "一致性检查")):
+            card = cls._quality_control(text)
+        elif any(term in normalized for term in ("协作", "分工")):
+            card = cls._collaboration(text)
+        elif any(term in normalized for term in ("遇到过什么问题", "分歧", "如何处理")):
+            card = cls._problem_solving(text)
+        elif any(term in normalized for term in ("实际范围", "周期", "可确认数量")):
+            card = cls._scope(text)
         else:
             card = cls._general_details(text)
 
@@ -150,6 +160,79 @@ class QuestionGuidanceService:
                 _option("report", "研究报告 / 汇报材料", "我形成了研究报告或汇报材料。"),
                 _option("manuscript", "论文材料", "我参与形成论文材料。"),
                 _option("sop", "SOP / 流程文件", "我参与形成 SOP 或流程文件。"),
+            ],
+        }
+
+    @staticmethod
+    def _objective(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "objective",
+            "why_it_matters": "明确目标能让简历说明这项工作为什么开展，而不只是罗列操作。",
+            "options": [
+                _option("association", "探索因素与结局的关系", "这项工作的研究目标是探索因素与结局的关系。"),
+                _option("intervention", "评估干预或方案效果", "这项工作的研究目标是评估干预或方案效果。"),
+                _option("comparison", "比较不同方法或人群", "这项工作的研究目标是比较不同方法或人群。"),
+                _option("description", "描述疾病或样本特征", "这项工作的研究目标是描述疾病或样本特征。"),
+                _option("model", "建立或验证模型", "这项工作的研究目标是建立或验证模型。"),
+                _option("evidence", "总结现有证据", "这项工作的研究目标是总结现有证据。"),
+            ],
+        }
+
+    @staticmethod
+    def _quality_control(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "quality_control",
+            "why_it_matters": "质量控制能证明工作可靠性，但只能选择实际做过的步骤。",
+            "options": [
+                _option("double_review", "双人独立处理或交叉复核", "我与团队成员进行了交叉复核。"),
+                _option("source_check", "回查原文或原始数据", "我通过回查原文或核对原始数据进行质量复核。"),
+                _option("criteria_check", "按标准核对纳入或排除", "我按标准核对纳入排除结果。"),
+                _option("bias_assessment", "质量评价或偏倚评估", "我参与质量评价或偏倚评估。"),
+                _option("repeat_analysis", "重复分析或敏感性检查", "我进行了重复分析或敏感性分析。"),
+                _option("team_review", "提交导师或团队复核", "我将阶段结果提交导师或团队复核。"),
+            ],
+        }
+
+    @staticmethod
+    def _collaboration(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "collaboration",
+            "why_it_matters": "说明分工有助于区分个人贡献和团队成果。",
+            "options": [
+                _option("supervisor", "与导师协作", "这项工作与导师协作完成。"),
+                _option("peer", "与同学或课题组成员协作", "这项工作与同学或课题组成员协作完成。"),
+                _option("clinician", "与临床医生协作", "这项工作与临床医生协作完成。"),
+                _option("statistician", "与统计或数据人员协作", "这项工作与统计或数据人员协作完成。"),
+                _option("independent", "该任务主要由我独立完成", "这项任务主要由我独立完成。"),
+            ],
+        }
+
+    @staticmethod
+    def _problem_solving(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "problem_solving",
+            "why_it_matters": "具体问题与处理方式比笼统的“能力强”更有说服力。",
+            "options": [
+                _option("disagreement", "处理筛选、判断或记录分歧", "我参与处理筛选、判断或记录分歧。"),
+                _option("data_issue", "核查并修正数据问题", "我核查并修正了数据问题。"),
+                _option("search_issue", "调整检索或资料获取方式", "我根据问题调整了检索或资料获取方式。"),
+                _option("analysis_issue", "排查分析或代码问题", "我排查并处理了分析或代码问题。"),
+                _option("experiment_issue", "优化实验条件或操作", "我参与优化实验条件或操作。"),
+                _option("none", "没有需要特别说明的问题", "过程中没有需要特别说明的问题或分歧。"),
+            ],
+        }
+
+    @staticmethod
+    def _scope(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "scope",
+            "why_it_matters": "范围和周期能增强具体性；不记得数字时可以只说明完整或部分范围。",
+            "options": [
+                _option("full", "完成完整流程", "这项任务覆盖完整流程。"),
+                _option("partial", "完成其中部分步骤", "这项任务只覆盖部分步骤。"),
+                _option("ongoing", "目前仍在进行", "这项任务目前仍在进行。"),
+                _option("remember_period", "记得大致周期，可补充"),
+                _option("remember_count", "记得确切数量，可补充"),
             ],
         }
 

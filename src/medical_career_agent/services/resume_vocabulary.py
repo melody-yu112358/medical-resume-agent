@@ -14,6 +14,8 @@ _FACT_LABELS = {
         "extract_data": "数据提取",
         "create_flowchart": "绘制研究流程图",
         "assess_quality": "质量评价 / 偏倚评估",
+        "verify_research_quality": "研究质量复核",
+        "resolve_workflow_issue": "处理流程问题",
         "prepare_research_outputs": "整理研究交付物",
         "perform_analysis": "统计分析",
         "write_manuscript": "论文材料撰写",
@@ -77,6 +79,9 @@ _FACT_LABELS = {
     "collaboration": {
         "research_team": "课题组",
         "supervisor": "导师",
+        "peer": "同学 / 团队成员",
+        "clinician": "临床医生",
+        "statistician": "统计 / 数据人员",
     },
     "outcomes": {
         "no_publication_plan": "暂无发表计划",

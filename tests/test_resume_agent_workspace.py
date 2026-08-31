@@ -180,6 +180,7 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     for action in (
         "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
+        "select_rewrite_candidate", "select_resume_tier",
         "confirm_candidate_profile", "start_new_experience", "select_experience", "submit_experience",
     ):
         assert action in script
@@ -197,6 +198,8 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "experienceName" in script
     assert "experienceOrganization" in script
     assert "experienceRole" in script
+    assert "选择完整简历版本" in script
+    assert "应用到该档" in script
     assert "confirmed_experiences" in script
     assert "添加另一段经历" in script
     assert "你的回答会保存在本机 session" in script

@@ -28,6 +28,12 @@ STAGES = (
     "intake", "fact_confirmation", "representative_sample", "composition",
     "factual_audit", "delivery",
 )
+RESUME_TIERS = ("conservative", "professional", "high_impact")
+TIER_TONES = {
+    "conservative": "Conservative",
+    "professional": "Professional",
+    "high_impact": "High-impact",
+}
 
 
 class ResumeConversationAgent:
@@ -59,6 +65,7 @@ class ResumeConversationAgent:
             "active_experience_identity": None,
             "pending_questions": [], "question_card": None,
             "selected_role_packs": [], "generated_claims": [],
+            "selected_resume_tier": "professional",
             "claim_gate_results": {}, "claim_user_dispositions": {},
             "activity_proposals": [], "rewrite_candidates": [], "resume_document": None,
             "proposal_audits": [], "language_audit": [],
@@ -143,6 +150,8 @@ class ResumeConversationAgent:
             response = self._rewrite_claim(session_id, state, payload)
         elif action == "select_rewrite_candidate":
             response = self._select_rewrite_candidate(state, payload)
+        elif action == "select_resume_tier":
+            response = self._select_resume_tier(state, payload)
         elif action == "accept_bullets":
             ready = [item for item in state.get("generated_claims", []) if item.get("verification_status") == "ready"]
             if not ready:
@@ -1101,6 +1110,8 @@ class ResumeConversationAgent:
         if not isinstance(packs, list) or not packs:
             return self._response(state, "请至少选择一个目标方向。")
         state["selected_role_packs"] = [str(pack) for pack in packs]
+        state["selected_resume_tier"] = "professional"
+        state["rewrite_candidates"] = []
         state["stage"] = "composition"
         claims: list[dict[str, Any]] = []
         gates: dict[str, Any] = {}
@@ -1142,6 +1153,8 @@ class ResumeConversationAgent:
         canonical = self._canonical_for_claim(state, source)
         tone = str(payload.get("tone", "Conservative"))
         instruction = str(payload.get("instruction", ""))
+        if any(item.get("claim_id") == source_id for item in state.get("rewrite_candidates", [])):
+            return self._response(state, "请从基础要点创建档位版本，避免对候选改写再次改写。")
         if not canonical or canonical.get("schema_version") != "canonical-experience-v2" or not source or source.get("schema_version") != "bullet-claim-v2":
             return self._response(state, "请先选择一条已确认活动生成的 v2 候选要点。")
         if tone not in {"Conservative", "Professional", "High-impact"}:
@@ -1188,13 +1201,32 @@ class ResumeConversationAgent:
                 if candidate.get("gate", {}).get("status") != "ready":
                     return self._response(state, "这版措辞尚未通过 ClaimGate，因此不能用于简历预览。")
                 source_id = candidate.get("source_claim_id")
+                tone = candidate.get("tone")
                 for other in state["rewrite_candidates"]:
-                    if other.get("source_claim_id") == source_id:
+                    if other.get("source_claim_id") == source_id and other.get("tone") == tone:
                         other["selected"] = other.get("claim_id") == claim_id
                 candidate["selected"] = True
+                state["selected_resume_tier"] = self._tier_for_tone(str(tone))
                 state["claim_user_dispositions"][claim_id] = "accepted"
-                return self._response(state, "已选用这版措辞；右侧预览已切换到该已审计版本。", ui_events=["refresh_resume_preview"])
+                return self._response(state, "已应用到对应档位；右侧预览已切换到该已审计版本。", ui_events=["refresh_resume_preview"])
         return self._response(state, "未找到该候选版本。")
+
+    @staticmethod
+    def _tier_for_tone(tone: str) -> str:
+        return next((tier for tier, value in TIER_TONES.items() if value == tone), "professional")
+
+    @staticmethod
+    def _select_resume_tier(state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+        tier = str(payload.get("tier", ""))
+        if tier not in RESUME_TIERS:
+            return ResumeConversationAgent._response(state, "请选择稳妥版、专业版或高竞争力版。")
+        if not state.get("generated_claims"):
+            return ResumeConversationAgent._response(state, "请先生成并审计简历要点，再切换表达档位。")
+        state["selected_resume_tier"] = tier
+        return ResumeConversationAgent._response(
+            state, "已切换简历表达档位；事实、证据和责任边界保持不变。",
+            ui_events=["refresh_resume_preview"],
+        )
 
     @staticmethod
     def _merge_facts(base: dict[str, Any], added: dict[str, Any]) -> dict[str, Any]:
@@ -1209,10 +1241,20 @@ class ResumeConversationAgent:
                 merged[key] = value
         return merged
 
-    def _resume_document(self, session_id: str, state: dict[str, Any]) -> dict[str, Any] | None:
+    def resume_tier_documents(
+        self, session_id: str, state: dict[str, Any] | None = None,
+    ) -> dict[str, dict[str, Any] | None]:
+        source_state = state if state is not None else self.read(session_id)["state"]
+        return {tier: self._resume_document(session_id, source_state, tier=tier) for tier in RESUME_TIERS}
+
+    def _resume_document(
+        self, session_id: str, state: dict[str, Any], *, tier: str | None = None,
+    ) -> dict[str, Any] | None:
         canonicals = self._confirmed_canonicals(state)
         if not canonicals:
             return None
+        selected_tier = tier if tier in RESUME_TIERS else state.get("selected_resume_tier", "professional")
+        selected_tone = TIER_TONES.get(str(selected_tier), "Professional")
         valid = {
             item.claim_id
             for canonical in canonicals
@@ -1222,7 +1264,8 @@ class ResumeConversationAgent:
         selected_rewrites = {
             item["source_claim_id"]: item["claim_id"]
             for item in state.get("rewrite_candidates", [])
-            if item.get("selected") and item.get("gate", {}).get("status") == "ready"
+            if item.get("selected") and item.get("tone") == selected_tone
+            and item.get("gate", {}).get("status") == "ready"
         }
         rewrite_source_by_id = {
             item["claim_id"]: item.get("source_claim_id")

@@ -28,6 +28,7 @@ class ResumeDeliveryService:
         conversation: dict[str, Any],
         basics: dict[str, Any] | None = None,
         theme: str = "clinical-blue",
+        tier_documents: dict[str, dict[str, Any] | None] | None = None,
     ) -> dict[str, Any]:
         state = conversation.get("state") or {}
         document = state.get("resume_document")
@@ -55,11 +56,39 @@ class ResumeDeliveryService:
                 "" if profile_confirmed else str((basics or {}).get("contact", "")).strip()
             ),
         }
-        markdown = self._markdown(document, resolved_basics)
+        selected_tier = str(state.get("selected_resume_tier") or "professional")
+        if selected_tier not in {"conservative", "professional", "high_impact"}:
+            selected_tier = "professional"
+        documents = {
+            tier: ((tier_documents or {}).get(tier) or document)
+            for tier in ("conservative", "professional", "high_impact")
+        }
+        tier_markdown = {
+            tier: self._markdown(tier_document, resolved_basics)
+            for tier, tier_document in documents.items()
+        }
+        markdown = tier_markdown[selected_tier]
+        target_value = (document.get("target") or {}).get("role") or "医学相关方向"
+        target = self.TARGET_LABELS.get(target_value, target_value)
         delivery_data = {
-            "schema_version": "medical-resume-delivery-v1",
+            "schema_version": "medical-resume-data-v1",
             "session_id": conversation.get("session_id"),
+            "candidate": {
+                "name": resolved_basics["name"], "target_direction": target,
+                "contact": resolved_basics["contact"], "photo": None,
+            },
+            "fact_card": {
+                "confirmed_experience_ids": [
+                    item.get("item_id") for item in document.get("research_experience", [])
+                    if item.get("item_id")
+                ],
+                "evidence_bound": True,
+            },
+            "tiers": {tier: {"markdown": value} for tier, value in tier_markdown.items()},
+            "selected_tier": selected_tier,
             "theme": theme,
+            "edit_status": "generated",
+            "audit": {"status": "ready", "claim_gate_results": state.get("claim_gate_results", {})},
             "basics": resolved_basics,
             "resume_document": document,
             "audit_status": state.get("claim_gate_results", {}),

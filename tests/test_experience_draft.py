@@ -195,6 +195,7 @@ class ExperienceDraftServiceTest(unittest.TestCase):
 
         # Check that questions are limited to 3
         self.assertLessEqual(len(draft.clarifying_questions), 3)
+        self.assertLessEqual(len(draft.all_clarifying_questions), 8)
 
     def test_objective_quality_review_and_problem_solving_become_traceable_facts(self):
         draft = self.service.draft(

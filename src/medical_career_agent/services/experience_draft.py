@@ -197,7 +197,7 @@ class ExperienceDraftService:
             unknown_items=unknown_items,
             possible_value_angles=possible_value_angles,
             clarifying_questions=clarifying_questions[:3],
-            all_clarifying_questions=clarifying_questions,
+            all_clarifying_questions=clarifying_questions[:8],
             risk_flags=risk_flags,
         )
 

@@ -30,6 +30,7 @@ class ConstrainedRewriteTest(unittest.TestCase):
             "action": "confirm_activity_proposals",
             "activity_proposals": [PROPOSAL],
             "proposal_ids": [],
+            "accept_sparse_result": True,
         })
         self.post({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         self.source_claim = self.state()["generated_claims"][0]
@@ -147,7 +148,7 @@ class ConstrainedRewriteTest(unittest.TestCase):
         client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
         sid = client.post("/api/conversations", json={}).get_json()["session_id"]
         client.post(f"/api/conversations/{sid}/messages", json={"text": SOURCE, "consent_confirmed": True})
-        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL], "proposal_ids": []})
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL], "proposal_ids": [], "accept_sparse_result": True})
         client.post(f"/api/conversations/{sid}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         source = client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][0]
         candidates = []

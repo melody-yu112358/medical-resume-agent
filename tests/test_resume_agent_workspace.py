@@ -122,6 +122,118 @@ def test_user_can_defer_an_incomplete_experience_without_losing_raw_input():
     assert deferred["state"]["confirmed_experiences"] == []
 
 
+def test_sparse_experience_cannot_skip_skill_questions_and_generate_one_line():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    intake = _message(client, session_id, {
+        "text": "完成文献筛选", "consent_confirmed": True,
+        "experience_identity": {
+            "experience_type": "research", "project_name": "心血管 Meta 分析",
+            "role_title": "课题成员",
+        },
+    })
+    card = intake["state"]["question_card"]
+    supplemented = _message(client, session_id, {
+        "action": "update_facts", "text": "相关工作由我独立完成。",
+        "display_text": "相关工作由我独立完成。", "free_text": "",
+        "question_id": card["question_id"], "selected_option_ids": [],
+    })
+    proposals = [
+        {
+            "evidence_quote": item["evidence_quote"],
+            "components": item["components"],
+            "ownership_level": "contributed", "execution_mode": "independent",
+            "coverage": "full", "scope_note": None,
+        }
+        for item in supplemented["state"]["activity_proposals"]
+        if item["status"] == "needs_user_confirmation"
+    ]
+
+    blocked = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "activity_proposals": proposals,
+        "proposal_ids": [],
+    })
+
+    assert blocked["stage"] == "fact_confirmation"
+    assert blocked["state"]["confirmed_experiences"] == []
+    assert blocked["state"]["question_card"]
+    assert "信息还不足以形成专业简历" in blocked["assistant_message"]
+
+    state = blocked["state"]
+    asked_question_ids = []
+    for _ in range(10):
+        card = state.get("question_card")
+        if not card:
+            break
+        asked_question_ids.append(card["question_id"])
+        unknown = next(item for item in card["options"] if item["id"] == "unknown")
+        state = _message(client, session_id, {
+            "action": "update_facts", "text": unknown["answer_text"],
+            "display_text": unknown["label"], "free_text": "",
+            "question_id": card["question_id"],
+            "selected_option_ids": ["unknown"],
+        })["state"]
+    assert len(asked_question_ids) == len(set(asked_question_ids)), asked_question_ids
+    assert state["pending_questions"] == [], asked_question_ids
+    assert state["question_card"] is None
+
+    proposals = [
+        {
+            "evidence_quote": item["evidence_quote"],
+            "components": item["components"],
+            "ownership_level": "contributed", "execution_mode": "independent",
+            "coverage": "full", "scope_note": None,
+        }
+        for item in state["activity_proposals"]
+        if item["status"] == "needs_user_confirmation"
+    ]
+    finished = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "activity_proposals": proposals,
+        "proposal_ids": [],
+    })
+    assert finished["stage"] == "representative_sample"
+
+
+def test_new_experience_does_not_inherit_previous_question_answers():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    first = _message(client, session_id, {
+        "text": "完成文献筛选", "consent_confirmed": True,
+    })
+    first_card = first["state"]["question_card"]
+    unknown = next(item for item in first_card["options"] if item["id"] == "unknown")
+    answered = _message(client, session_id, {
+        "action": "update_facts", "text": unknown["answer_text"],
+        "display_text": unknown["label"], "free_text": "",
+        "question_id": first_card["question_id"],
+        "selected_option_ids": ["unknown"],
+    })
+    proposals = [
+        {
+            "evidence_quote": item["evidence_quote"],
+            "components": item["components"],
+            "ownership_level": "contributed", "execution_mode": "shared",
+            "coverage": "partial", "scope_note": None,
+        }
+        for item in answered["state"]["activity_proposals"]
+        if item["status"] == "needs_user_confirmation"
+    ]
+    confirmed = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "activity_proposals": proposals,
+        "proposal_ids": [], "accept_sparse_result": True,
+    })
+    assert confirmed["stage"] == "representative_sample"
+    _message(client, session_id, {"action": "start_new_experience"})
+
+    second = _message(client, session_id, {
+        "text": "完成文献筛选", "consent_confirmed": True,
+    })
+
+    assert second["state"]["question_card"]["question_id"] == first_card["question_id"]
+    answers = second["state"]["structured_answers"]
+    assert len({item.get("experience_key") for item in answers}) == 1
+
+
 def test_clinical_operations_runs_contract_workspace_claim_gate_and_delivery():
     client = create_app(load_model_from_environment=False).test_client()
     config = client.get("/api/resume-agent/config").get_json()

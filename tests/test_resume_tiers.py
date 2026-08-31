@@ -83,7 +83,7 @@ def _composed_conversation(gateway=None):
     _message(client, session_id, {"text": SOURCE, "consent_confirmed": True})
     _message(client, session_id, {
         "action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL],
-        "proposal_ids": [],
+        "proposal_ids": [], "accept_sparse_result": True,
     })
     sample = _message(client, session_id, {
         "action": "select_role_packs", "role_packs": ["doctoral_v1"],

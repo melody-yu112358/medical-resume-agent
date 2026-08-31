@@ -2,6 +2,7 @@ from pathlib import Path
 
 from medical_career_agent.api import create_app
 from medical_career_agent.services.question_guidance import QuestionGuidanceService
+from medical_career_agent.services.resume_conversation_agent import ResumeConversationAgent
 
 
 def test_database_question_exposes_rich_multiple_choice_without_asserting_facts():
@@ -153,4 +154,9 @@ def test_answered_top_gaps_do_not_hide_later_objective_and_quality_questions():
         ).get_json()
 
     assert response["state"]["question_card"]["question_id"] == "objective"
-    assert len(response["state"]["pending_questions"]) >= 4
+    assert len(response["state"]["pending_questions"]) == 3
+    pending_ids = {
+        item["question_id"]
+        for item in ResumeConversationAgent._pending_question_cards(response["state"])
+    }
+    assert pending_ids == {"objective", "quality_control", "collaboration"}

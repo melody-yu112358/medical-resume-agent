@@ -31,7 +31,10 @@ def _confirm_material(client, session_id: str, material: str) -> dict:
         "coverage": "partial", "scope_note": "按既定流程完成部分步骤",
     } for item in proposals]
     _message(client, session_id, {"action": "update_activity_proposals", "activity_proposals": updated})
-    confirmed = _message(client, session_id, {"action": "confirm_activity_proposals", "proposal_ids": []})
+    confirmed = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "proposal_ids": [],
+        "accept_sparse_result": True,
+    })
     assert confirmed["stage"] == "representative_sample"
     return confirmed
 

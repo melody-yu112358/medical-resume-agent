@@ -253,6 +253,7 @@ class ResumeConversationAgent:
             if isinstance(item, str) and item in allowed_answer_ids
         ]
         state["structured_answers"].append({
+            "experience_key": self._active_experience_key(state),
             "question_id": (answer_question_card or {}).get("question_id"),
             "selected_option_ids": selected_option_ids,
             "free_text": str(payload.get("free_text") or "").strip(),
@@ -260,6 +261,9 @@ class ResumeConversationAgent:
         })
         # Derive resolved gaps from the existing structured answer audit trail.
         # No parallel question-state machine is needed.
+        state["pending_questions"] = self._unanswered_questions(
+            state, state.get("pending_questions") or [],
+        )
         self._refresh_question_card(state)
         if self.language_gateway is None:
             state["intake_model"] = {
@@ -411,10 +415,31 @@ class ResumeConversationAgent:
         )
 
     @staticmethod
-    def _pending_question_cards(state: dict[str, Any]) -> list[dict[str, Any]]:
+    def _active_experience_key(state: dict[str, Any]) -> str | None:
+        active_id = state.get("active_experience_id")
+        if active_id:
+            return str(active_id)
+        evidence_ids = state.get("active_experience_evidence_ids") or []
+        return str(evidence_ids[0]) if evidence_ids else None
+
+    @classmethod
+    def _active_structured_answers(cls, state: dict[str, Any]) -> list[dict[str, Any]]:
+        active_key = cls._active_experience_key(state)
+        allow_legacy = not state.get("confirmed_experiences")
+        return [
+            item for item in state.get("structured_answers", [])
+            if isinstance(item, dict)
+            and (
+                item.get("experience_key") == active_key
+                or (allow_legacy and item.get("experience_key") is None)
+            )
+        ]
+
+    @classmethod
+    def _pending_question_cards(cls, state: dict[str, Any]) -> list[dict[str, Any]]:
         answered = {
-            item.get("question_id") for item in state.get("structured_answers", [])
-            if isinstance(item, dict) and item.get("question_id")
+            item.get("question_id") for item in cls._active_structured_answers(state)
+            if item.get("question_id")
         }
         cards = [
             QuestionGuidanceService.build(question, stage=str(state.get("stage", "")))
@@ -425,16 +450,30 @@ class ResumeConversationAgent:
             if card and card.get("question_id") not in answered
         ][:3]
 
-    @staticmethod
-    def _unanswered_questions(state: dict[str, Any], questions: list[str]) -> list[str]:
+    @classmethod
+    def _unanswered_questions(cls, state: dict[str, Any], questions: list[str]) -> list[str]:
         answered = {
-            item.get("question_id") for item in state.get("structured_answers", [])
-            if isinstance(item, dict) and item.get("question_id")
+            item.get("question_id") for item in cls._active_structured_answers(state)
+            if item.get("question_id")
         }
+        remaining_slots = max(0, 8 - len(answered))
         return [
             question for question in questions
             if (QuestionGuidanceService.build(question, stage="fact_confirmation") or {}).get("question_id") not in answered
-        ]
+        ][:remaining_slots]
+
+    @classmethod
+    def _intake_dimension_count(cls, state: dict[str, Any]) -> int:
+        facts = (state.get("extracted_draft") or {}).get("extracted_facts") or {}
+        dimensions = (
+            "actions", "methods", "tools", "techniques", "collaboration",
+            "artifacts", "outcomes", "scope",
+        )
+        count = sum(bool(facts.get(key)) for key in dimensions)
+        answered = {
+            item.get("question_id") for item in cls._active_structured_answers(state)
+        }
+        return count + int("responsibility_boundary" in answered)
 
     @classmethod
     def _refresh_question_card(cls, state: dict[str, Any], pending_question: str | None = None) -> None:
@@ -1125,6 +1164,17 @@ class ResumeConversationAgent:
         if any(item["ownership_level"] == "unknown" or item["execution_mode"] == "unknown" or item["scope"]["coverage"] == "unknown" for item in proposals):
             state["activity_proposals"] = original_proposals
             return self._response(state, "这些活动仍缺少责任或范围确认；请先补充是在指导下、独立还是共同完成，以及完整或部分范围。")
+        if (
+            self._pending_question_cards(state)
+            and self._intake_dimension_count(state) < 4
+            and payload.get("accept_sparse_result") is not True
+        ):
+            return self._response(
+                state,
+                "责任选择已保存，但这段经历的信息还不足以形成专业简历。请继续回答当前问题；不记得时可以直接选择“不知道”。",
+                pending_question=state["pending_questions"][0],
+                ui_events=["continue_intake"],
+            )
         activities, responsibilities, overrides = [], [], {}
         active_evidence_ids = set(state.get("active_experience_evidence_ids") or [])
         for proposal in proposals:

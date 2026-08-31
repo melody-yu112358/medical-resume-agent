@@ -95,16 +95,18 @@ function render() {
   const current = displayStage(state().stage || "intake");
   const visibleStage = userStageFor(current.id);
   const visibleIndex = userStages.findIndex((item) => item.id === visibleStage.id);
+  document.body.classList.toggle("conversation-mode", visibleStage.id === "conversation");
   $("#steps").innerHTML = userStages.map((item, index) =>
     `<li class="${index === visibleIndex ? "active" : index < visibleIndex ? "done" : ""}">${index + 1} ${esc(item.label)}</li>`
   ).join("");
   $("#progressBar").style.width = `${visibleStage.progress}%`;
   $("#stageKicker").textContent = `阶段 ${visibleIndex + 1} / ${userStages.length}`;
   $("#stageTitle").textContent = visibleStage.label;
-  $("#saveStatus").textContent = `本机会话 ${conversation.session_id.slice(0, 8)}`;
+  $("#saveStatus").textContent = "已自动保存到本机";
   $("#connection").textContent = health?.llm_configured ? "本机 Agent 已连接 · 语言模型可用" : "本机 Agent 已连接 · 确定性模式";
   $("#workspace").innerHTML = renderWorkspace(current.id);
   $("#error").className = "status-message";
+  $("#error").setAttribute("role", "status");
   $("#error").textContent = lastMessage;
   bindWorkspace(current.id);
   renderPreview();
@@ -196,14 +198,13 @@ function renderFacts() {
   const draft = state().extracted_draft || {};
   const facts = draft.extracted_facts || {};
   const pending = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation");
-  return `${renderIntakeModelSummary()}<section class="panel"><h3>系统提取的事实卡</h3><p>这些是候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</section>
-    ${pending.length ? `<section class="panel soft"><h3>逐项确认活动与责任边界</h3><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="primary" type="button">确认活动与事实 →</button></section>` : ""}
-    ${renderQuestionCard()}`;
+  const review = pending.length ? `<details class="panel soft activity-review"><summary><span>已有 ${pending.length} 项活动可以核对</span><small>如果暂时不再补充，可在这里确认责任边界</small></summary><div class="activity-review-body"><p>每张卡分别确认“做了什么、怎样完成、覆盖多少”。强责任必须由你的选择和原文共同支持。</p>${pending.map(renderProposal).join("")}<button id="confirmActivities" class="secondary" type="button">核对完成，确认这些活动 →</button></div></details>` : "";
+  return `${renderIntakeModelSummary()}${renderQuestionCard()}${review}<details class="panel fact-details"><summary>查看系统识别的候选事实</summary><div class="activity-review-body"><p>这些是从你原话中识别的候选事实，不等于系统替你认定了责任。</p>${factGroups(facts) || "<p>暂未提取到足够事实。</p>"}</div></details>`;
 }
 
 function renderIntakeModelSummary() {
   const model = state().intake_model || {};
-  if (model.status === "validated") return `<section class="panel model-summary"><span class="status-badge">AI 已按原文整理</span><h3>我目前的理解</h3><p>${esc(model.summary)}</p><small>这仍是待确认摘要，不会直接写入简历。</small></section>`;
+  if (model.status === "validated") return `<section class="panel model-summary chat-message"><span class="status-badge">AI 已按原文整理</span><h3>我目前的理解</h3><p>${esc(model.summary)}</p><small>这仍是待确认摘要，不会直接写入简历。</small></section>`;
   if (model.status === "failed" || model.status === "rejected") return `<section class="panel model-summary warning"><span class="status-badge">本轮 AI 整理未完成</span><p>${esc(model.error || "原始回答已保留，请继续回答当前问题。")}</p></section>`;
   if (model.status === "not_configured") return `<section class="panel model-summary warning"><span class="status-badge">尚未使用 AI 整理</span><p>原始回答已保留；配置模型后才会生成 Skill 约束下的自然语言摘要。</p></section>`;
   return "";
@@ -213,9 +214,9 @@ function renderQuestionCard() {
   const fallback = (state().pending_questions || ["请补充你实际做过的步骤、工具和责任范围。"])[0];
   const card = state().question_card || { text: fallback, selection_mode: "multiple", options: [], allow_free_text: true };
   const options = (card.options || []).map((option) => `<button class="answer-option" data-question-option="${esc(option.id)}" type="button" aria-pressed="false">${esc(option.label)}</button>`).join("");
-  return `<section class="panel question-panel" data-selection-mode="${esc(card.selection_mode || "multiple")}">
+  return `<section class="panel question-panel chat-message" data-selection-mode="${esc(card.selection_mode || "multiple")}">
     <span class="status-badge">本轮只回答这一题</span><h3>${esc(card.text)}</h3>
-    ${card.why_it_matters ? `<p>${esc(card.why_it_matters)}</p>` : ""}
+    ${card.why_it_matters ? `<details class="why-question"><summary>为什么问这个？</summary><p>${esc(card.why_it_matters)}</p></details>` : ""}
     ${options ? `<div class="answer-options" role="group" aria-label="预设答案，可选择一个或多个">${options}</div>` : ""}
     <label class="field">补充说明（可选）<textarea id="supplement" placeholder="选项不完全符合时，在这里补充真实、可核验的信息。"></textarea></label>
     <button id="supplementFacts" class="primary" type="button">发送这一题的回答</button></section>`;
@@ -395,9 +396,43 @@ function renderPreviewExperienceSection(label, experiences) {
   return `<h2>${esc(label)}</h2>${items}`;
 }
 
+function insightCard(title, values, status = "已了解") {
+  const content = (values || []).filter(Boolean);
+  return `<article class="insight-card"><span class="insight-status">${esc(content.length ? status : "待补充")}</span><h3>${esc(title)}</h3><p>${content.length ? content.map(esc).join("、") : "继续回答问题后，这里会自动整理。"}</p></article>`;
+}
+
+function renderConversationInsight(paper) {
+  const profile = state().candidate_profile || {};
+  const answers = profile.answers || {};
+  const draft = state().extracted_draft || {};
+  const facts = draft.extracted_facts || {};
+  const identity = state().active_experience_identity || {};
+  const confirmed = state().confirmed_experiences || [];
+  const pendingCount = (state().activity_proposals || []).filter((item) => item.status === "needs_user_confirmation").length;
+  const profileLine = [answers.name, answers.institution, answers.degree, answers.major].filter(Boolean);
+  const projectLine = [identity.project_name, identity.organization, identity.role_title].filter(Boolean);
+  const methodsAndTools = [...(facts.methods || []), ...(facts.tools || []), ...(facts.techniques || [])].map((item) => labels[item] || item);
+  const actions = (facts.actions || []).map((item) => labels[item] || item);
+  const outputs = (facts.artifacts || []).map((item) => labels[item] || item);
+  paper.className = "paper insight-paper";
+  paper.innerHTML = `<div class="insight-intro"><span class="status-badge">随回答实时更新</span><h2>系统目前了解的信息</h2><p>${profileLine.length ? profileLine.map(esc).join(" · ") : "先完成基础资料，我会在这里整理关键信息。"}</p></div>
+    ${insightCard("项目是什么", projectLine)}
+    ${insightCard("你做了什么", actions, pendingCount ? "请你确认" : "已了解")}
+    ${insightCard("用了什么", methodsAndTools, "已了解")}
+    ${insightCard("形成什么结果", outputs, "已了解")}
+    <div class="insight-foot"><b>已确认 ${confirmed.length} 段经历</b><span>${pendingCount ? `还有 ${pendingCount} 项活动边界待确认` : "回答会先保留为原始证据"}</span></div>`;
+}
+
 function renderPreview() {
   const documentData = state().resume_document;
-  const paper = $("#preview"); paper.className = `paper theme-${$("#theme").value}`;
+  const paper = $("#preview");
+  const conversationMode = userStageFor(state().stage || "intake").id === "conversation";
+  $("#previewEyebrow").textContent = conversationMode ? "当前采集" : "简历预览";
+  $("#previewTitle").textContent = conversationMode ? "已了解的你" : "投递稿预览";
+  $("#theme").hidden = conversationMode;
+  $("#print").hidden = conversationMode;
+  if (conversationMode) { renderConversationInsight(paper); return; }
+  paper.className = `paper theme-${$("#theme").value}`;
   if (!documentData) { paper.innerHTML = '<div class="empty-preview"><b>这里将出现你的简历</b><span>确认活动责任并通过 Claim Gate 后，右侧会显示可交付内容。</span></div>'; $("#print").disabled = true; return; }
   const profileConfirmed = state().candidate_profile?.status === "confirmed";
   const fallbackBasics = profileConfirmed ? {} : savedBasics(); const basics = documentData.basics || {};
@@ -453,8 +488,15 @@ async function resetConversation() {
   }
 }
 
-function setBusy(busy) { document.body.classList.toggle("busy", busy); }
-function showError(message) { lastMessage = message; $("#error").className = "error"; $("#error").textContent = message; }
+function setBusy(busy) {
+  document.body.classList.toggle("busy", busy);
+  document.body.setAttribute("aria-busy", String(busy));
+  if (busy && $("#error")) {
+    $("#error").className = "status-message";
+    $("#error").textContent = "正在整理你的回答…";
+  }
+}
+function showError(message) { lastMessage = message; $("#error").className = "error"; $("#error").setAttribute("role", "alert"); $("#error").textContent = message; }
 $("#theme").addEventListener("change", renderPreview);
 $("#print").addEventListener("click", () => window.print());
 $("#reset").addEventListener("click", resetConversation);

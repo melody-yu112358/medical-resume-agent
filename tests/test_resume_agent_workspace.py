@@ -175,8 +175,13 @@ def test_export_rejects_invalid_session_id_and_reports_unknown_valid_id():
 def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     html_text = (ROOT / "demo/resume-agent/index.html").read_text(encoding="utf-8")
     script = (ROOT / "demo/resume-agent/app.js").read_text(encoding="utf-8")
+    workspace_css = (ROOT / "demo/resume-agent/workspace.css").read_text(encoding="utf-8")
 
-    assert "LIVE A4 PREVIEW" in html_text
+    assert "简历预览" in html_text
+    assert "简历进度" in html_text
+    assert "打开旧版 Resume Beta" not in html_text
+    assert '<div id="workspace"></div>' in html_text
+    assert 'role="status" aria-live="polite"' in html_text
     assert "workspace.css" in html_text
     assert "reset-flow.js" in html_text
     for action in (
@@ -203,6 +208,13 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert 'internalStages: ["representative_sample", "composition"]' in script
     assert 'internalStages: ["factual_audit", "delivery"]' in script
     assert "contract.stages.map" not in script
+    assert 'visibleStage.id === "conversation"' in script
+    assert "已了解的你" in script
+    assert "已自动保存到本机" in script
+    assert "系统目前了解的信息" in script
+    assert "为什么问这个？" in script
+    assert "查看系统识别的候选事实" in script
+    assert 'class="secondary" type="button">核对完成' in script
     assert "documentData.education" in script
     assert "basics.summary" in script
     assert "documentData.skills" in script
@@ -221,6 +233,11 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "你的回答会保存在本机 session" in script
     assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script
+    assert "button:focus-visible" in workspace_css
+    assert "[hidden] { display: none !important; }" in workspace_css
+    assert "prefers-reduced-motion" in workspace_css
+    assert "forced-colors" in workspace_css
+    assert ".conversation-mode .preview-pane { display: none; }" in workspace_css
 
 
 def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():

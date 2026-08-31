@@ -14,7 +14,7 @@
   border-radius: 99px;
   background: var(--blue-soft);
   color: var(--blue);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -23,7 +23,7 @@
   border-left: 3px solid #c7d8e2;
   background: #f7fafb;
   color: #53616a;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
@@ -43,7 +43,7 @@
   border: 1px solid #d4dfe3;
   border-radius: 7px;
   background: #fff;
-  font: 11px/1.65 "Microsoft YaHei", sans-serif;
+  font: 14px/1.65 "Microsoft YaHei", sans-serif;
   resize: vertical;
 }
 
@@ -56,7 +56,7 @@
 .claim-meta span,
 .mode-note {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .tier-selector { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; }
@@ -68,7 +68,7 @@
 .rewrite-option.selected { border-color: var(--blue); box-shadow: inset 3px 0 var(--blue); }
 .rewrite-option p { margin: 6px 0 10px; }
 
-.status-message { color: var(--muted); font-size: 11px; }
+.status-message { color: var(--muted); font-size: 14px; }
 
 .question-panel h3 {
   margin-top: 12px;
@@ -90,7 +90,7 @@
   border-radius: 999px;
   background: #fff;
   color: var(--ink);
-  font: 12px/1.35 "Microsoft YaHei", sans-serif;
+  font: 14px/1.35 "Microsoft YaHei", sans-serif;
   cursor: pointer;
 }
 
@@ -119,7 +119,7 @@
 .profile-summary-row {
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .profile-summary-row span { color: var(--muted); }
@@ -149,12 +149,107 @@
 .experience-tab.active { border-color: var(--blue); box-shadow: inset 3px 0 var(--blue); }
 .experience-tab:disabled { opacity: 1; cursor: default; }
 .experience-tab span,
-.experience-tab small { color: var(--muted); font-size: 10px; }
+.experience-tab small { color: var(--muted); font-size: 12px; }
 .experience-tab b { flex: 1; }
 
 .primary:disabled { opacity: .4; cursor: not-allowed; }
 body.busy { cursor: progress; }
 body.busy button { pointer-events: none; opacity: .65; }
+[hidden] { display: none !important; }
+
+.chat-message { max-width: 720px; }
+.model-summary { border-left: 3px solid var(--green); }
+.question-panel { border-left: 3px solid var(--blue); }
+.why-question { margin: 12px 0; color: var(--muted); }
+.why-question summary,
+.activity-review summary,
+.fact-details summary { cursor: pointer; font-weight: 700; }
+.why-question p { margin: 8px 0 0; font-size: 14px; line-height: 1.6; }
+.activity-review summary span,
+.activity-review summary small { display: block; }
+.activity-review summary small { margin-top: 4px; color: var(--muted); font-weight: 400; }
+.activity-review-body { padding-top: 14px; }
+.activity-review-body > p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.fact-details { background: #fbfcfc; }
+
+.insight-paper {
+  min-height: 0;
+  aspect-ratio: auto;
+  overflow: visible;
+  padding: 22px;
+  box-shadow: none;
+  background: transparent;
+  font: 14px/1.6 "Microsoft YaHei", sans-serif;
+}
+.insight-intro { padding: 18px; border-radius: 12px; background: #fff; }
+.insight-intro h2 { margin: 10px 0 6px; padding: 0; border: 0; color: var(--ink); font-size: 19px; }
+.insight-intro p { margin: 0; color: var(--muted); }
+.insight-card { position: relative; margin-top: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.insight-card h3 { margin: 0 84px 8px 0; font-size: 15px; }
+.insight-card p { margin: 0; color: #45545d; text-align: left; }
+.insight-status { position: absolute; top: 14px; right: 14px; color: var(--green); font-size: 12px; font-weight: 700; }
+.insight-foot { display: flex; flex-direction: column; gap: 4px; margin-top: 14px; padding: 14px 4px; }
+.insight-foot span { color: var(--muted); font-size: 13px; }
+
+/* User-interface readability and keyboard access. A4 typography remains compact. */
+.topbar span,
+.stage-head > span,
+.eyebrow,
+.preview-head span,
+.stage-head > div > span { font-size: 12px; }
+.journey > p:not(.eyebrow),
+.panel > p { font-size: 14px; }
+.journey li,
+.field,
+.consent { font-size: 14px; }
+.journey li { padding-bottom: 24px; }
+.privacy-note b { font-size: 13px; }
+.privacy-note span,
+.legacy,
+.choice span { font-size: 12px; }
+.panel h3 { font-size: 17px; line-height: 1.45; }
+.field input,
+.field textarea,
+.field select,
+select { font-size: 14px; line-height: 1.5; }
+.primary,
+.secondary,
+.quiet,
+.choice { min-height: 44px; font-size: 14px; }
+.fact-group > b { font-size: 14px; }
+.chip { font-size: 13px; }
+.error { font-size: 14px; }
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.conversation-mode .app-shell { grid-template-columns: 220px minmax(520px, 1fr) 340px; }
+.conversation-mode .preview-pane { padding: 26px 20px; background: #f3f5f3; }
+
+@media (max-width: 1050px) {
+  .conversation-mode .app-shell { grid-template-columns: 210px 1fr; }
+  .conversation-mode .preview-pane { grid-column: 1 / -1; border-top: 1px solid var(--line); border-left: 0; }
+}
+
+@media (max-width: 760px) {
+  .conversation-mode .preview-pane { display: none; }
+  .stage-head > span { max-width: 45%; text-align: right; }
+  .field textarea { min-height: 120px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; }
+}
+
+@media (forced-colors: active) {
+  .answer-option.selected,
+  .choice.selected,
+  .experience-tab.active { outline: 2px solid ButtonText; }
+  .status-badge,
+  .chip { border: 1px solid ButtonText; }
+}
 
 @media (max-width: 760px) {
   .boundary-grid,

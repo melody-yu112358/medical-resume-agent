@@ -164,6 +164,46 @@ def test_accept_bullets_cannot_fake_delivery_before_audit():
     assert "尚无可交付" in response["assistant_message"]
 
 
+def test_delivery_edit_returns_to_audit_and_exports_user_edited_status():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id, delivered = _delivery_conversation(client)
+    claim = delivered["state"]["generated_claims"][0]
+
+    reopened = _message(client, session_id, {"action": "reopen_audit"})
+    edited = _message(client, session_id, {
+        "action": "edit_wording", "claim_id": claim["claim_id"],
+        "wording": claim["wording"],
+    })
+    redelivered = _message(client, session_id, {"action": "accept_bullets"})
+    exported = client.post(f"/api/conversations/{session_id}/export", json={})
+
+    assert reopened["stage"] == "factual_audit"
+    assert edited["stage"] == "factual_audit"
+    assert redelivered["stage"] == "delivery"
+    assert exported.status_code == 200
+    data = json.loads(exported.get_json()["files"]["resume-data.json"])
+    assert data["edit_status"] == "user-edited"
+
+
+def test_unready_delivery_edit_blocks_redelivery_and_export():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id, delivered = _delivery_conversation(client)
+    claim = delivered["state"]["generated_claims"][0]
+    _message(client, session_id, {"action": "reopen_audit"})
+
+    edited = _message(client, session_id, {
+        "action": "edit_wording", "claim_id": claim["claim_id"],
+        "wording": "主导 999 项临床研究并获得国际大奖。",
+    })
+    refused = _message(client, session_id, {"action": "accept_bullets"})
+    exported = client.post(f"/api/conversations/{session_id}/export", json={})
+
+    assert edited["stage"] == "factual_audit"
+    assert refused["stage"] == "factual_audit"
+    assert "仍有基础要点未通过" in refused["assistant_message"]
+    assert exported.status_code == 400
+
+
 def test_claim_cleanup_failure_preserves_conversation(monkeypatch):
     client = create_app(load_model_from_environment=False).test_client()
     session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
@@ -294,6 +334,8 @@ def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():
     assert "skill-lite" not in service
     assert package_editor == skill_editor
     assert "__INITIAL_MARKDOWN_JSON__" in package_editor
+    assert "尚未重新事实审计" in package_editor
+    assert "-unaudited-draft" in package_editor
 
 
 def test_workflow_contract_is_package_owned_and_kept_in_sync_with_skill_bundle():

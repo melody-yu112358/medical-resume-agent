@@ -49,7 +49,7 @@
     <button id="exportHtml">导出独立 HTML</button>
     <button id="printPdf">打印 / PDF</button>
     <button id="clearLocal">恢复初始稿</button>
-    <small id="status">仅保存在当前浏览器</small>
+    <small id="status">仅保存在当前浏览器；本地修改后需返回网页重新审计</small>
   </nav>
   <main class="workspace">
     <section class="editor-pane"><textarea id="source" spellcheck="false" aria-label="Markdown 简历正文"></textarea></section>
@@ -81,8 +81,10 @@
       }
       closeList(); return out.join("\n");
     }
-    function persist() { localStorage.setItem(storageKey, JSON.stringify({markdown:source.value,theme:theme.value,photo:photo.src||""})); status.textContent="已自动保存到当前浏览器"; }
-    function update() { content.innerHTML=renderMarkdown(source.value); document.body.className="theme-"+theme.value; persist(); }
+    function persist() { localStorage.setItem(storageKey, JSON.stringify({markdown:source.value,theme:theme.value,photo:photo.src||""})); status.textContent=source.value===initialMarkdown?"已审计原稿":"本地草稿已保存，但尚未重新事实审计"; }
+    function update(save=true) { content.innerHTML=renderMarkdown(source.value); document.body.className="theme-"+theme.value; if(save)persist(); }
+    function draftName(name) { return source.value===initialMarkdown?name:name.replace(".","-unaudited-draft."); }
+    function confirmDraft() { return source.value===initialMarkdown||confirm("当前本地修改尚未重新事实审计，只能作为草稿导出。是否继续？"); }
     let saved={}; try { saved=JSON.parse(localStorage.getItem(storageKey)||"{}"); } catch (_) {}
     source.value=saved.markdown||initialMarkdown; theme.value=saved.theme||initialTheme;
     if(saved.photo){ photo.src=saved.photo; photo.classList.remove("hidden"); }
@@ -90,11 +92,11 @@
     document.getElementById("mdFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{source.value=r.result;update();}; r.readAsText(f,"utf-8"); });
     document.getElementById("photoFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{photo.src=r.result;photo.classList.remove("hidden");persist();}; r.readAsDataURL(f); });
     const download=(name,text,type)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
-    document.getElementById("downloadMd").onclick=()=>download("resume.md",source.value,"text/markdown;charset=utf-8");
-    document.getElementById("exportHtml").onclick=()=>{ const css=document.querySelector("style").textContent; const img=photo.classList.contains("hidden")?"":`<img id="photo" src="${photo.src}" alt="个人照片">`; download("resume.html",`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Resume</title><style>${css}</style><body class="theme-${theme.value}"><main class="paper">${img}${renderMarkdown(source.value)}</main></body></html>`,"text/html;charset=utf-8"); };
-    document.getElementById("printPdf").onclick=()=>window.print();
+    document.getElementById("downloadMd").onclick=()=>{if(confirmDraft())download(draftName("resume.md"),source.value,"text/markdown;charset=utf-8");};
+    document.getElementById("exportHtml").onclick=()=>{ if(!confirmDraft())return; const css=document.querySelector("style").textContent; const img=photo.classList.contains("hidden")?"":`<img id="photo" src="${photo.src}" alt="个人照片">`; download(draftName("resume.html"),`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Resume</title><style>${css}</style><body class="theme-${theme.value}"><main class="paper">${img}${renderMarkdown(source.value)}</main></body></html>`,"text/html;charset=utf-8"); };
+    document.getElementById("printPdf").onclick=()=>{if(confirmDraft())window.print();};
     document.getElementById("clearLocal").onclick=()=>{localStorage.removeItem(storageKey);source.value=initialMarkdown;theme.value=initialTheme;photo.src="";photo.classList.add("hidden");update();};
-    update();
+    update(false); status.textContent=source.value===initialMarkdown?"仅保存在当前浏览器；本地修改后需返回网页重新审计":"已恢复本地草稿，但尚未重新事实审计";
   </script>
 </body>
 </html>

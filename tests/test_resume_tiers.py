@@ -56,9 +56,11 @@ def _composed_conversation(gateway=None):
         "action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL],
         "proposal_ids": [],
     })
-    composed = _message(client, session_id, {
+    sample = _message(client, session_id, {
         "action": "select_role_packs", "role_packs": ["doctoral_v1"],
     })
+    assert sample["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     return client, session_id, composed
 
 

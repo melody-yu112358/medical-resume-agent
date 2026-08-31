@@ -65,6 +65,7 @@ class ResumeConversationAgent:
             "active_experience_identity": None,
             "pending_questions": [], "question_card": None,
             "selected_role_packs": [], "generated_claims": [],
+            "representative_sample": None,
             "selected_resume_tier": "professional",
             "claim_gate_results": {}, "claim_user_dispositions": {},
             "activity_proposals": [], "rewrite_candidates": [], "resume_document": None,
@@ -144,6 +145,8 @@ class ResumeConversationAgent:
             response = self._supplement_facts(session_id, state, payload, text)
         elif action == "select_role_packs":
             response = self._compose(session_id, state, payload)
+        elif action == "approve_representative_sample":
+            response = self._approve_representative_sample(session_id, state)
         elif action == "edit_wording":
             response = self._edit_wording(session_id, state, payload)
         elif action == "rewrite_claim":
@@ -154,8 +157,11 @@ class ResumeConversationAgent:
             response = self._select_resume_tier(state, payload)
         elif action == "accept_bullets":
             ready = [item for item in state.get("generated_claims", []) if item.get("verification_status") == "ready"]
+            sample = state.get("representative_sample") or {}
             if not ready:
                 response = self._response(state, "尚无可交付的已审计要点；请先确认事实并生成通过审计的内容。")
+            elif state.get("stage") != "factual_audit" or sample.get("status") != "approved":
+                response = self._response(state, "请先确认代表样板，再生成和审计完整简历。")
             else:
                 state["stage"] = "delivery"
                 response = self._response(state, "已保存可交付的已审计要点。", ui_events=["delivery_ready"])
@@ -529,7 +535,9 @@ class ResumeConversationAgent:
                 ui_events=["show_fact_card", "show_activity_cards"],
             )
         if state["stage"] in {"representative_sample", "composition"} and not state.get("selected_role_packs"):
-            return self._response(state, "事实已确认。请选择至少一个目标方向后，我会生成并审计候选简历要点。", ui_events=["show_role_pack_chips"])
+            return self._response(state, "事实已确认。请选择至少一个目标方向后，我会先生成一段代表样板。", ui_events=["show_role_pack_chips"])
+        if state["stage"] == "representative_sample":
+            return self._response(state, "代表样板已经生成。请确认信息密度、语气和责任边界后，再生成完整简历。", ui_events=["show_representative_sample"])
         if state["stage"] == "factual_audit":
             return self._response(state, "候选要点已完成审计；只有 ClaimGate 为 ready 的内容会显示在简历预览中。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
         return self._response(state, "当前工作流已准备好继续。请按页面上的确认或目标方向入口操作。")
@@ -564,7 +572,9 @@ class ResumeConversationAgent:
                 ui_events=["show_fact_card", "show_clarification"],
             )
         if state["stage"] in {"representative_sample", "composition"}:
-            return self._response(state, "事实已确认；下一步是选择目标方向，以生成并审计候选简历要点。", ui_events=["show_role_pack_chips"])
+            if state.get("representative_sample"):
+                return self._response(state, "当前只展示一段代表样板；确认样板后才会组合其余经历。", ui_events=["show_representative_sample"])
+            return self._response(state, "事实已确认；下一步是选择目标方向并生成一段代表样板。", ui_events=["show_role_pack_chips"])
         if state["stage"] == "factual_audit":
             return self._response(state, "当前在审计阶段；只有 ClaimGate 为 ready 的候选要点会出现在右侧简历预览。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
         return self._response(state, "请先描述一段真实、可核实的经历；我会提取候选事实并说明还需要确认什么。")
@@ -1109,14 +1119,45 @@ class ResumeConversationAgent:
             return self._pending_confirmation_response(state)
         if not isinstance(packs, list) or not packs:
             return self._response(state, "请至少选择一个目标方向。")
+        old_claim_ids = [item.get("claim_id") for item in state.get("generated_claims", []) if item.get("claim_id")]
+        if old_claim_ids:
+            self.claim_ledger.invalidate_claims_by_ids(
+                session_id, old_claim_ids, "representative_sample_replaced",
+            )
         state["selected_role_packs"] = [str(pack) for pack in packs]
         state["selected_resume_tier"] = "professional"
         state["rewrite_candidates"] = []
-        state["stage"] = "composition"
+        flagship = max(canonicals, key=self._representative_sample_score)
+        claims, gates = self._compose_claims(
+            session_id, [flagship], state["selected_role_packs"],
+        )
+        state["generated_claims"] = claims
+        state["claim_gate_results"] = gates
+        state["representative_sample"] = {
+            "experience_id": flagship["experience_id"], "status": "pending",
+        }
+        state["stage"] = "representative_sample"
+        return self._response(
+            state,
+            "已生成一段代表样板并完成 ClaimGate 审计。请先确认信息密度、语气和责任边界；批准后才会组合全部经历。",
+            ui_events=["show_representative_sample", "refresh_resume_preview"],
+        )
+
+    @staticmethod
+    def _representative_sample_score(canonical: dict[str, Any]) -> tuple[int, int, int]:
+        return (
+            len(canonical.get("task_responsibilities") or []),
+            len(canonical.get("activities") or []),
+            len(canonical.get("evidence_ids") or []),
+        )
+
+    def _compose_claims(
+        self, session_id: str, canonicals: list[dict[str, Any]], packs: list[str],
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         claims: list[dict[str, Any]] = []
         gates: dict[str, Any] = {}
         for canonical in canonicals:
-            for pack in state["selected_role_packs"]:
+            for pack in packs:
                 for claim in self.bullet_composer.compose_bullets(canonical_experience=canonical, role_pack_name=pack):
                     claim_data = claim.to_dict()
                     gate = self.claim_gate.validate_claim(bullet_claim=claim_data, canonical_experience=canonical).to_dict()
@@ -1124,10 +1165,44 @@ class ResumeConversationAgent:
                     self.claim_ledger.record_claim(session_id=session_id, bullet_claim=claim_data, gate_status=gate["status"], user_disposition=None)
                     claims.append(claim_data)
                     gates[claim_data["claim_id"]] = gate
-        state["generated_claims"] = claims
-        state["claim_gate_results"] = gates
+        return claims, gates
+
+    def _approve_representative_sample(
+        self, session_id: str, state: dict[str, Any],
+    ) -> dict[str, Any]:
+        sample = state.get("representative_sample") or {}
+        if state.get("stage") != "representative_sample" or sample.get("status") != "pending":
+            return self._response(state, "当前没有待确认的代表样板。")
+        rewrite_ids = {
+            item.get("claim_id") for item in state.get("rewrite_candidates", [])
+        }
+        sample_claims = [
+            claim for claim in state.get("generated_claims", [])
+            if claim.get("experience_id") == sample.get("experience_id")
+            and claim.get("claim_id") not in rewrite_ids
+        ]
+        if not sample_claims or any(
+            state.get("claim_gate_results", {}).get(claim.get("claim_id"), {}).get("status") != "ready"
+            for claim in sample_claims
+        ):
+            return self._response(state, "代表样板仍有未通过事实审计的要点，请修改或补充事实后再确认。")
+        sample["status"] = "approved"
+        state["stage"] = "composition"
+        remaining = [
+            canonical for canonical in self._confirmed_canonicals(state)
+            if canonical.get("experience_id") != sample.get("experience_id")
+        ]
+        claims, gates = self._compose_claims(
+            session_id, remaining, state.get("selected_role_packs", []),
+        )
+        state["generated_claims"].extend(claims)
+        state["claim_gate_results"].update(gates)
         state["stage"] = "factual_audit"
-        return self._response(state, "候选要点已生成并完成 ClaimGate 审计；只有 ready 项会进入右侧预览。", ui_events=["show_bullet_cards", "refresh_resume_preview"])
+        return self._response(
+            state,
+            "代表样板已冻结；其余经历已按同一标准组合并完成 ClaimGate 审计。只有 ready 项会进入预览。",
+            ui_events=["sample_approved", "show_bullet_cards", "refresh_resume_preview"],
+        )
 
     def _edit_wording(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         claim_id, wording = str(payload.get("claim_id", "")), str(payload.get("wording", "")).strip()

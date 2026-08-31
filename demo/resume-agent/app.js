@@ -44,6 +44,7 @@ async function api(path, options = {}) {
 
 async function createConversation() {
   conversation = await api("/api/conversations", { method: "POST", body: "{}" });
+  syncSelectedTarget();
   localStorage.setItem(sessionStorageKey, conversation.session_id);
   lastMessage = "新会话已建立。先提交一段真实经历。";
 }
@@ -53,6 +54,7 @@ async function loadOrCreateConversation() {
   if (sessionId) {
     try {
       conversation = await api(`/api/conversations/${encodeURIComponent(sessionId)}`);
+      syncSelectedTarget();
       return;
     } catch (_) {
       localStorage.removeItem(sessionStorageKey);
@@ -68,6 +70,7 @@ async function sendMessage(payload) {
       method: "POST", body: JSON.stringify(payload),
     });
     conversation = { session_id: conversation.session_id, state: result.state, events: conversation.events || [] };
+    syncSelectedTarget();
     lastMessage = result.assistant_message || "";
     render();
     return result;
@@ -120,6 +123,12 @@ function renderIntake() {
     <label class="field">经历材料<textarea id="material" placeholder="例如：在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"></textarea></label>
     <label class="consent"><input id="consent" type="checkbox"><span>我确认材料来自本人真实经历，并同意在当前电脑的本机服务中保存该会话；点击“开始新简历”会删除当前会话文件。</span></label>
     <button id="submitMaterial" class="primary" type="button">建立事实卡 →</button></section>`;
+}
+
+function syncSelectedTarget() {
+  const selectedPacks = conversation?.state?.selected_role_packs || [];
+  const target = contract?.targets?.find((item) => selectedPacks.includes(item.role_pack));
+  if (target) selectedTarget = target.id;
 }
 
 function renderExperienceNavigator(allowActions) {
@@ -204,8 +213,14 @@ function renderQuestionCard() {
 }
 
 function renderTargetSelection() {
-  return `${renderExperienceNavigator(true)}<section class="panel soft"><h3>事实已经冻结，选择表达方向</h3><p>方向只改变重点与排序；系统会分别处理上方所有已确认经历。</p><div class="target-grid">${contract.targets.map((target) => `<button class="choice ${selectedTarget === target.id ? "selected" : ""}" data-target="${target.id}" type="button"><b>${esc(target.label)}</b><span>${esc(target.role_pack)}</span></button>`).join("")}</div>
-    <div class="action-row"><button id="generateClaims" class="primary" type="button">生成代表要点并审计 →</button></div></section>`;
+  const sample = state().representative_sample;
+  const targetPicker = `<section class="panel soft"><h3>选择表达方向</h3><p>方向只改变重点与排序，不改变已经确认的事实。</p><div class="target-grid">${contract.targets.map((target) => `<button class="choice ${selectedTarget === target.id ? "selected" : ""}" data-target="${target.id}" type="button"><b>${esc(target.label)}</b><span>${esc(target.role_pack)}</span></button>`).join("")}</div>
+    <div class="action-row"><button id="generateClaims" class="secondary" type="button">${sample ? "按当前方向重新生成样板" : "生成一段代表样板 →"}</button></div></section>`;
+  if (!sample) return `${renderExperienceNavigator(true)}${targetPicker}`;
+  const experience = (state().confirmed_experiences || []).find((item) => item.experience_id === sample.experience_id);
+  const review = reviewClaims((claim) => claim.experience_id === sample.experience_id);
+  const canApprove = review.baseClaims.length > 0 && review.ready.length === review.baseClaims.length;
+  return `${renderExperienceNavigator(true)}${targetPicker}${renderTierSelector()}<section class="panel representative-sample"><span class="status-badge">代表样板 · 待你冻结</span><h3>${esc(experience?.label || "旗舰经历样板")}</h3><p>请核对四件事：每条要点是否提供不同信息、语气是否适合申请、责任是否没有夸大、排序是否符合目标方向。</p>${review.cards || "<p>当前事实不足以形成可审计样板，请返回补充具体活动。</p>"}<div class="action-row"><button id="approveSample" class="primary" type="button" ${canApprove ? "" : "disabled"}>确认样板并生成完整简历 →</button></div></section>`;
 }
 
 function renderClaim(claim) {
@@ -227,16 +242,21 @@ function renderRewriteCandidate(meta, claim) {
   return `<article class="rewrite-option ${ready ? "ready" : ""} ${meta.selected ? "selected" : ""}"><div class="claim-meta"><b>${esc(toneLabels[meta.tone] || "候选版本")}</b><span>${ready ? (meta.selected ? "已应用" : "审计通过") : "未通过审计"}</span></div><p>${esc(claim?.wording || "候选措辞不可用")}</p>${gate.failed_checks?.length ? `<p class="audit-warning">${gate.failed_checks.map(esc).join("；")}</p>` : ""}<button class="secondary selectRewrite" data-candidate-id="${esc(meta.claim_id)}" type="button" ${ready ? "" : "disabled"}>${meta.selected ? "已应用到该档" : `应用到${esc(toneLabels[meta.tone] || "该档")}`}</button></article>`;
 }
 
-function renderClaims() {
+function reviewClaims(predicate = () => true) {
   const claims = state().generated_claims || [];
   const rewriteMeta = state().rewrite_candidates || [];
   const rewriteIds = new Set(rewriteMeta.map((item) => item.claim_id));
-  const baseClaims = claims.filter((claim) => !rewriteIds.has(claim.claim_id));
+  const baseClaims = claims.filter((claim) => !rewriteIds.has(claim.claim_id) && predicate(claim));
   const claimById = Object.fromEntries(claims.map((claim) => [claim.claim_id, claim]));
   const ready = baseClaims.filter((claim) => state().claim_gate_results?.[claim.claim_id]?.status === "ready");
   const cards = baseClaims.map((claim) => `${renderClaim(claim)}<div class="rewrite-list">${rewriteMeta.filter((item) => item.source_claim_id === claim.claim_id).map((item) => renderRewriteCandidate(item, claimById[item.claim_id])).join("")}</div>`).join("");
-  return `${renderTierSelector()}<section class="panel"><h3>代表要点与事实审计</h3><p>当前 ${ready.length}/${baseClaims.length} 条基础要点可交付。每次只为一条要点生成一个档位候选；应用前必须通过原 v2 Claim Gate。</p>${cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
-    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍可使用同一组确定性要点；配置模型后可按需改写单条措辞。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
+  return { baseClaims, ready, cards };
+}
+
+function renderClaims() {
+  const review = reviewClaims();
+  return `${renderTierSelector()}<section class="panel"><h3>完整简历与事实审计</h3><p>样板已冻结；当前 ${review.ready.length}/${review.baseClaims.length} 条基础要点可交付。每次只为一条要点生成一个档位候选；应用前必须通过原 v2 Claim Gate。</p>${review.cards || "<p>没有生成可审计要点，请返回补充活动事实。</p>"}
+    ${!health?.llm_configured ? '<p class="mode-note">当前未配置模型：三档完整简历仍可使用同一组确定性要点；配置模型后可按需改写单条措辞。</p>' : ""}<div class="action-row"><button id="acceptClaims" class="primary" type="button" ${review.ready.length ? "" : "disabled"}>批准三档版本并进入交付 →</button></div></section>`;
 }
 
 function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStorageKey) || "{}"); } catch (_) { return {}; } }
@@ -275,6 +295,10 @@ function bindWorkspace(stage) {
   } else if (stage === "representative_sample") {
     document.querySelectorAll("[data-target]").forEach((button) => button.onclick = () => { selectedTarget = button.dataset.target; render(); });
     $("#generateClaims").onclick = () => { const target = contract.targets.find((item) => item.id === selectedTarget); sendMessage({ action: "select_role_packs", role_packs: [target.role_pack] }); };
+    document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
+    document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));
+    document.querySelectorAll(".selectRewrite").forEach((button) => button.onclick = () => sendMessage({ action: "select_rewrite_candidate", claim_id: button.dataset.candidateId }));
+    if ($("#approveSample")) $("#approveSample").onclick = () => sendMessage({ action: "approve_representative_sample" });
   } else if (stage === "composition" || stage === "factual_audit") {
     document.querySelectorAll(".saveClaim").forEach((button) => button.onclick = () => editClaim(button));
     document.querySelectorAll(".rewriteClaim").forEach((button) => button.onclick = () => rewriteClaim(button));

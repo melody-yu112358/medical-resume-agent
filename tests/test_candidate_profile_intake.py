@@ -110,6 +110,7 @@ def test_confirmed_profile_persists_and_maps_to_resume_document_and_export():
     client.post(f"/api/conversations/{session_id}/messages", json={"action": "update_activity_proposals", "activity_proposals": updated})
     client.post(f"/api/conversations/{session_id}/messages", json={"action": "confirm_activity_proposals", "proposal_ids": []})
     client.post(f"/api/conversations/{session_id}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    client.post(f"/api/conversations/{session_id}/messages", json={"action": "approve_representative_sample"})
     delivered = client.post(f"/api/conversations/{session_id}/messages", json={"action": "accept_bullets"}).get_json()
 
     document = delivered["state"]["resume_document"]

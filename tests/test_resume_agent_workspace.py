@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import inspect
 import json
+import re
 from pathlib import Path
 
 from medical_career_agent.api import create_app
+from medical_career_agent.services.resume_conversation_agent import ResumeConversationAgent
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -266,5 +269,15 @@ def test_workflow_contract_is_package_owned_and_kept_in_sync_with_skill_bundle()
         / "skill-lite/medical-resume-skill/references/workflow-contract.json"
     ).read_text(encoding="utf-8")
 
+    contract = json.loads(package_contract)
+    dispatched_actions = set(re.findall(
+        r'action == "([^"]+)"', inspect.getsource(ResumeConversationAgent.handle_message),
+    ))
+
     assert "skill-lite" not in api_source
-    assert json.loads(package_contract) == json.loads(skill_contract)
+    assert contract == json.loads(skill_contract)
+    assert set(contract["actions"]) - dispatched_actions == {
+        "create_conversation", "provide_facts",
+    }
+    assert dispatched_actions <= set(contract["actions"])
+    assert contract["rules"]["maximum_questions_per_round"] == 1

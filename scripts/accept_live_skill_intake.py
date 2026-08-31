@@ -8,7 +8,13 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
 from medical_career_agent.adapters.openai_compatible_model_gateway import (
     OpenAICompatibleModelGateway,
@@ -55,7 +61,13 @@ def main() -> int:
         timeout_seconds=float(os.environ.get("LLM_TIMEOUT_SECONDS", "60")),
     ))
     client = create_app(model_gateway=gateway, load_model_from_environment=False).test_client()
-    created = client.post("/api/conversations", json={}).get_json()
+    created_response = client.post("/api/conversations", json={})
+    if created_response.status_code != 201:
+        raise RuntimeError(
+            f"conversation creation failed ({created_response.status_code}): "
+            f"{created_response.get_data(as_text=True)[:500]}"
+        )
+    created = created_response.get_json()
     session_id = created["session_id"]
 
     def message(payload: dict[str, object]) -> dict[str, object]:
@@ -115,8 +127,25 @@ def main() -> int:
         raise RuntimeError(f"export failed ({exported.status_code}): {exported.get_json()}")
     files = exported.get_json()["files"]
     markdown = files["resume.md"]
+    delivery_data = json.loads(files["resume-data.json"])
+    experience_bullets = [
+        bullet["text"]
+        for section in ("research_experience", "project_experience", "clinical_experience")
+        for experience in delivery_data["resume_document"].get(section, [])
+        for bullet in experience.get("bullets", [])
+        if bullet.get("text")
+    ]
     bullets = re.findall(r"^- (.+)$", markdown, flags=re.MULTILINE)
     normalized = [re.sub(r"\s+", "", item) for item in bullets]
+    responsibility_refs = [
+        tuple(item.get("dependency_refs", {}).get("responsibility_ids", []))
+        for item in state["generated_claims"]
+        if item.get("verification_status") == "ready"
+    ]
+    tier_markdown = [
+        delivery_data["tiers"][tier]["markdown"]
+        for tier in ("conservative", "professional", "high_impact")
+    ]
     checks = {
         "four_summary_calls": gateway.tasks == ["resume_intake_skill_summary"] * CALL_LIMIT,
         "all_model_summaries_validated": model_statuses == ["validated"] * CALL_LIMIT,
@@ -134,13 +163,34 @@ def main() -> int:
         "candidate_content_present": "测试同学" in markdown and "示例医科大学" in markdown,
         "no_internal_or_placeholder_text": not re.search(r"ev_\d+|profile_ev_|\[待补\]|请填写", markdown),
         "no_duplicate_bullets": len(normalized) == len(set(normalized)),
+        "flagship_has_five_to_nine_distinct_bullets": (
+            5 <= len(experience_bullets) <= 9
+            and len(experience_bullets) == len(set(experience_bullets))
+        ),
+        "claims_bind_distinct_responsibilities": (
+            bool(responsibility_refs)
+            and all(len(refs) == 1 for refs in responsibility_refs)
+            and len(responsibility_refs) == len(set(responsibility_refs))
+        ),
+        "three_complete_tiers": all(
+            "# 测试同学" in value
+            and "## 教育背景" in value
+            and "## 科研经历" in value
+            and len(re.findall(r"^- ", value, flags=re.MULTILINE)) >= len(experience_bullets)
+            for value in tier_markdown
+        ),
+        "responsibility_boundary_preserved": not any(
+            re.search(r"主导|独立完成|负责全部|论文已发表", value)
+            for value in tier_markdown
+        ),
     }
     report = {
         "status": "passed" if all(checks.values()) else "failed",
         "model_calls": len(gateway.tasks), "model_tasks": gateway.tasks,
         "model_summary_statuses": model_statuses, "checks": checks,
         "counts": {"experiences": len(state["confirmed_experiences"]),
-                   "claims": len(state["generated_claims"]), "bullets": len(bullets)},
+                   "claims": len(state["generated_claims"]), "bullets": len(bullets),
+                   "experience_bullets": len(experience_bullets)},
     }
     print(json.dumps(report, ensure_ascii=False, indent=2))
     client.delete(f"/api/conversations/{session_id}")

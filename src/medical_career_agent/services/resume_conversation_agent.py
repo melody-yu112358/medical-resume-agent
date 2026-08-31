@@ -34,6 +34,11 @@ TIER_TONES = {
     "professional": "Professional",
     "high_impact": "High-impact",
 }
+EXPERIENCE_TYPE_LABELS = {
+    "research": "科研经历", "clinical": "临床实践",
+    "professional": "工作经历", "leadership": "校园与领导力",
+    "volunteer": "志愿服务", "project": "其他项目",
+}
 
 
 class ResumeConversationAgent:
@@ -405,6 +410,7 @@ class ResumeConversationAgent:
             period = identity["period"]
             period_text = "至今" if period["ongoing"] else (period["end"] or "未填写")
             values = [
+                f"经历类型：{EXPERIENCE_TYPE_LABELS[identity['experience_type']]}",
                 f"经历名称：{identity['project_name']}",
                 f"机构或团队：{identity['organization']}" if identity["organization"] else None,
                 f"身份或角色：{identity['role_title']}" if identity["role_title"] else None,
@@ -465,6 +471,9 @@ class ResumeConversationAgent:
         project_name = re.sub(r"\s+", " ", str(raw.get("project_name") or "").strip())
         organization = re.sub(r"\s+", " ", str(raw.get("organization") or "").strip()) or None
         role_title = re.sub(r"\s+", " ", str(raw.get("role_title") or "").strip()) or None
+        experience_type = str(raw.get("experience_type") or "project").strip()
+        if experience_type not in EXPERIENCE_TYPE_LABELS:
+            return None, "请选择有效的经历类型。"
         if not project_name:
             return None, "请填写真实的经历或项目名称；没有正式项目名时可填写研究主题或轮转名称。"
         if len(project_name) > 160 or any(value and len(value) > 120 for value in (organization, role_title)):
@@ -481,6 +490,7 @@ class ResumeConversationAgent:
         if start and end and end < start:
             return None, "经历结束时间不能早于开始时间。"
         return {
+            "experience_type": experience_type,
             "project_name": project_name, "organization": organization,
             "role_title": role_title,
             "period": {"start": start, "end": end, "ongoing": ongoing},
@@ -1373,25 +1383,39 @@ class ResumeConversationAgent:
         profile_projection = project_confirmed_profile(canonicals)
         basics["summary"] = profile_projection["summary"]
         basics["evidence_ids"] = sorted(set(basics.get("evidence_ids", [])) | set(profile_projection["summary_evidence_ids"]))
+        experience_sections = {
+            "research_experience": [], "clinical_experience": [],
+            "professional_experience": [], "projects": [],
+        }
+        section_by_type = {
+            "research": "research_experience", "clinical": "clinical_experience",
+            "professional": "professional_experience",
+        }
+        for canonical in canonicals:
+            identity = canonical.get("identity") or {}
+            experience_type = identity.get("experience_type") or "research"
+            item = {
+                "item_id": canonical["experience_id"],
+                "experience_type": experience_type,
+                "project_name": identity.get("project_name"),
+                "organization": identity.get("organization") or "",
+                "title": identity.get("role_title") or canonical["role"].get("title") or "",
+                "department_or_field": canonical["context"].get("topic"),
+                "period": deepcopy(identity.get("period") or {"start": None, "end": None, "ongoing": False}),
+                "evidence_ids": canonical["evidence_ids"],
+                "bullets": [
+                    {"text": bullet["text"], "evidence_ids": bullet["evidence_ids"]}
+                    for bullet in bullets_by_experience[canonical["experience_id"]]
+                ],
+            }
+            experience_sections[section_by_type.get(experience_type, "projects")].append(item)
         return {
             "schema_version": "resume-document-v1", "resume_id": session_id,
             "target": {"purpose": "general", "role": ", ".join(state.get("selected_role_packs", [])) or None, "organization": None, "jd_reference": None},
             "basics": basics,
             "education": education,
             "skills": profile_projection["skills"],
-            "research_experience": [{
-                "item_id": canonical["experience_id"],
-                "project_name": (canonical.get("identity") or {}).get("project_name"),
-                "organization": (canonical.get("identity") or {}).get("organization") or "",
-                "title": (canonical.get("identity") or {}).get("role_title") or canonical["role"].get("title") or "",
-                "department_or_field": canonical["context"].get("topic"),
-                "period": deepcopy((canonical.get("identity") or {}).get("period") or {"start": None, "end": None, "ongoing": False}),
-                "evidence_ids": canonical["evidence_ids"],
-                "bullets": [
-                    {"text": item["text"], "evidence_ids": item["evidence_ids"]}
-                    for item in bullets_by_experience[canonical["experience_id"]]
-                ],
-            } for canonical in canonicals],
+            **experience_sections,
             "evidence": profile_evidence + [{"evidence_id": item["evidence_id"], "statement": item["source_text"], "source_document_id": None, "source_locator": None, "status": "user_confirmed", "confirmed_at": None} for item in state["evidence_records"]],
             "review_events": [],
         }

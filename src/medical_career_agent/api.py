@@ -425,7 +425,7 @@ def create_app(
 
     @app.post("/api/bullet-composer")
     def compose_bullets():
-        """Generate 1-3 bullet claims from canonical experience for a specific role pack."""
+        """Generate evidence-bound bullet claims from a canonical experience."""
         payload = request.get_json(silent=True) or {}
         try:
             result = bullet_composer.compose_bullets(

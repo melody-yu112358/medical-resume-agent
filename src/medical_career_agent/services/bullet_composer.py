@@ -70,7 +70,7 @@ class BulletClaimV2:
 
 
 class BulletComposerService:
-    """Converts Canonical Experience and Role Pack into 1-3 Bullet Claims.
+    """Converts Canonical Experience and Role Pack into evidence-bound claims.
 
     This service respects the authenticity boundary by:
     - Only using confirmed facts from canonical experience
@@ -89,14 +89,15 @@ class BulletComposerService:
         canonical_experience: Dict[str, Any],
         role_pack_name: str,
     ) -> List[BulletClaim | BulletClaimV2]:
-        """Generate 1-3 bullet claims from canonical experience for a specific role pack.
+        """Generate claims from confirmed facts for a specific role pack.
 
         Args:
             canonical_experience: A validated canonical experience record
             role_pack_name: Name of the role pack (e.g., 'doctoral_v1', 'clinical_research_v1')
 
         Returns:
-            List of 1-3 bullet claims ready for resume use
+            V1 returns up to three claims; V2 returns one claim per confirmed
+            atomic task responsibility.
 
         Raises:
             ValueError: If inputs are invalid or role pack not found
@@ -212,7 +213,7 @@ class BulletComposerService:
                 project_responsibility_level=canonical_experience["role"]["responsibility_level"],
                 omitted_unknowns=tuple(canonical_experience.get("unknowns", [])),
             ))
-        return claims[:3]
+        return claims
 
     def _load_role_pack(self, role_pack_name: str) -> Dict[str, Any]:
         """Load role pack configuration from JSON file."""

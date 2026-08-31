@@ -90,7 +90,10 @@ class ResumeDeliveryService:
             "tiers": {tier: {"markdown": value} for tier, value in tier_markdown.items()},
             "selected_tier": selected_tier,
             "theme": theme,
-            "edit_status": "generated",
+            "edit_status": "user-edited" if any(
+                item.get("user_disposition") == "edited"
+                for item in state.get("generated_claims", [])
+            ) else "generated",
             "audit": {"status": "ready", "claim_gate_results": state.get("claim_gate_results", {})},
             "basics": resolved_basics,
             "resume_document": document,

@@ -43,6 +43,7 @@
     "rewrite_claim",
     "select_rewrite_candidate",
     "edit_wording",
+    "reopen_audit",
     "accept_bullets"
   ],
   "privacy": {

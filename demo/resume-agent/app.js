@@ -266,11 +266,11 @@ function savedBasics() { try { return JSON.parse(localStorage.getItem(basicsStor
 function renderDelivery() {
   const profile = state().candidate_profile || {};
   if (profile.status === "confirmed") {
-    return `${renderProfileSummary(profile)}${renderTierSelector()}<section class="panel"><h3>下载交付文件</h3><p>抬头和教育背景来自你刚才确认的资料；交付包保存三档完整 Markdown，当前档位决定默认 HTML 和编辑器内容。</p><div class="action-row"><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>`;
+    return `${renderProfileSummary(profile)}${renderTierSelector()}<section class="panel"><h3>下载交付文件</h3><p>抬头和教育背景来自你刚才确认的资料；交付包保存三档完整 Markdown，当前档位决定默认 HTML 和编辑器内容。</p><div class="action-row"><button id="reopenAudit" class="secondary" type="button">返回修改并重新审计</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>`;
   }
   const basics = savedBasics();
   return `${renderTierSelector()}<section class="panel"><h3>补齐抬头并交付</h3><p>姓名和联系方式仅保存在当前浏览器，并在下载时随请求用于生成文件，不写回经历事实。</p><div class="basics-grid"><label class="field">姓名<input id="candidateName" value="${esc(basics.name || "")}" placeholder="姓名"></label><label class="field">联系方式<input id="candidateContact" value="${esc(basics.contact || "")}" placeholder="电话 · 邮箱 · 城市"></label></div>
-    <div class="action-row"><button id="saveBasics" class="secondary" type="button">更新预览</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>
+    <div class="action-row"><button id="saveBasics" class="secondary" type="button">更新预览</button><button id="reopenAudit" class="secondary" type="button">返回修改并重新审计</button><button id="downloadBundle" class="primary" type="button">下载完整交付包</button></div></section>
     <section class="panel soft"><h3 class="audit-ready">已进入交付阶段</h3><p>只有通过 Claim Gate 的要点进入右侧预览和下载文件。</p></section>`;
 }
 
@@ -309,7 +309,7 @@ function bindWorkspace(stage) {
     document.querySelectorAll(".selectRewrite").forEach((button) => button.onclick = () => sendMessage({ action: "select_rewrite_candidate", claim_id: button.dataset.candidateId }));
     if ($("#generateAllTiers")) $("#generateAllTiers").onclick = () => sendMessage({ action: "generate_resume_tiers" });
     if ($("#acceptClaims")) $("#acceptClaims").onclick = () => sendMessage({ action: "accept_bullets" });
-  } else { if ($("#saveBasics")) $("#saveBasics").onclick = saveBasicsAndPreview; $("#downloadBundle").onclick = downloadBundle; }
+  } else { if ($("#saveBasics")) $("#saveBasics").onclick = saveBasicsAndPreview; if ($("#reopenAudit")) $("#reopenAudit").onclick = () => sendMessage({ action: "reopen_audit" }); $("#downloadBundle").onclick = downloadBundle; }
 }
 
 function bindExperienceNavigator() {

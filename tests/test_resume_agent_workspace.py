@@ -32,6 +32,21 @@ def test_live_acceptance_script_imports_current_checkout_without_installation():
     assert "ModuleNotFoundError" not in output
 
 
+def test_live_acceptance_covers_bounded_tiers_and_user_edit_reaudit():
+    script = (ROOT / "scripts" / "accept_live_skill_intake.py").read_text(
+        encoding="utf-8"
+    )
+
+    assert "CALL_LIMIT = 5" in script
+    assert '"action": "generate_resume_tiers"' in script
+    assert '"resume_experience_tier_rewrite"' in script
+    assert '"all_tier_candidates_ready"' in script
+    assert '"three_distinct_tier_wordings_per_claim"' in script
+    assert '"action": "reopen_audit"' in script
+    assert '"action": "edit_wording"' in script
+    assert 'delivery_data["edit_status"] == "user-edited"' in script
+
+
 def _message(client, session_id: str, payload: dict):
     response = client.post(f"/api/conversations/{session_id}/messages", json=payload)
     assert response.status_code == 200, response.get_json()

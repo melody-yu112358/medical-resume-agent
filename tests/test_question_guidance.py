@@ -49,6 +49,63 @@ def test_dense_experience_gaps_have_bounded_backend_owned_cards():
         assert card["options"][-1]["id"] == "unknown"
 
 
+def test_clinical_questions_use_clinical_multiselect_cards_not_research_cards():
+    expected = {
+        "这段临床实践发生在哪个科室或场景，主要接触哪类病例？": "clinical_setting",
+        "你在临床实践中实际参与了哪些环节？": "clinical_tasks",
+        "你参与过哪些病例分析、检查结果解读或指南查阅？": "clinical_reasoning",
+        "你实际形成或完成过哪些临床记录、病例总结或汇报材料？": "clinical_outputs",
+        "你实际遵循过哪些医疗安全、感染防控或隐私规范？": "clinical_safety",
+        "你在临床实践中与哪些人员协作或沟通？": "clinical_collaboration",
+        "带教反馈或实际问题让你改进了哪项具体做法？": "clinical_learning",
+    }
+    research_only = {"databases_used", "research_steps", "publication_status"}
+    for question, question_id in expected.items():
+        card = QuestionGuidanceService.build(question, stage="fact_confirmation")
+        assert card["question_id"] == question_id
+        assert card["selection_mode"] == "multiple"
+        assert len(card["options"]) >= 6
+        assert card["options"][-1]["id"] == "unknown"
+        assert card["question_id"] not in research_only
+
+
+def test_clinical_identity_routes_initial_and_supplementary_intake_to_clinical_framework():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    response = client.post(f"/api/conversations/{session_id}/messages", json={
+        "action": "submit_experience", "text": "在某医院参加临床见习。",
+        "consent_confirmed": True,
+        "experience_identity": {
+            "experience_type": "clinical", "project_name": "内科临床见习",
+            "organization": "某医院", "role_title": "见习生", "period": {},
+        },
+    }).get_json()
+
+    state = response["state"]
+    assert state["extracted_draft"]["extracted_facts"]["context"] == {
+        "domain": "clinical_practice", "setting": "clinical_rotation", "topic": None,
+    }
+    question_ids = {
+        item["question_id"] for item in ResumeConversationAgent._pending_question_cards(state)
+    }
+    assert question_ids
+    assert not question_ids.intersection({"databases_used", "research_steps", "publication_status"})
+
+    option = next(
+        item for item in state["question_card"]["options"] if item["id"] == "rounds"
+    )
+    supplemented = client.post(f"/api/conversations/{session_id}/messages", json={
+        "action": "update_facts", "text": option["answer_text"],
+        "selected_option_ids": ["rounds"], "consent_confirmed": True,
+    }).get_json()["state"]
+    assert "join_ward_rounds" in supplemented["extracted_draft"]["extracted_facts"]["actions"]
+    remaining_ids = {
+        item["question_id"]
+        for item in ResumeConversationAgent._pending_question_cards(supplemented)
+    }
+    assert not remaining_ids.intersection({"databases_used", "research_steps", "publication_status"})
+
+
 def test_conversation_returns_and_restores_one_structured_question_card():
     client = create_app(load_model_from_environment=False).test_client()
     created = client.post("/api/conversations", json={}).get_json()

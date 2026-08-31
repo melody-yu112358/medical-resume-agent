@@ -228,6 +228,11 @@ class BulletComposerService:
             capabilities.add("wet_lab")
         if actions.intersection({
             "review_clinical_case", "prepare_case_presentation", "develop_protocol",
+            "join_ward_rounds", "collect_medical_history", "perform_physical_examination",
+            "review_patient_records", "interpret_clinical_findings", "document_clinical_work",
+            "communicate_with_patients", "support_clinical_procedure",
+            "handover_clinical_information", "follow_clinical_safety",
+            "collaborate_clinical_team", "incorporate_clinical_feedback",
         }):
             capabilities.add("clinical_research")
         if actions.intersection({
@@ -279,6 +284,26 @@ class BulletComposerService:
             body = "研究过程的质量复核与一致性检查"
         elif action == "resolve_workflow_issue":
             body = "研究流程中的问题核查与处理"
+        elif action == "review_clinical_case":
+            body = "病例信息梳理与临床思路讨论"
+            if tools:
+                body += f"，参考 {tools}"
+            if artifacts:
+                body += f"，形成{artifacts}"
+        elif action == "retrieve_guidelines":
+            body = "围绕具体病例查阅临床指南与医学证据"
+        elif action == "interpret_clinical_findings":
+            body = "检查与检验结果梳理，并参与临床判断讨论"
+        elif action == "document_clinical_work":
+            body = "临床信息整理与记录书写"
+            if artifacts:
+                body += f"，形成{artifacts}"
+        elif action == "follow_clinical_safety":
+            body = "医疗安全、感染防控与患者隐私规范执行"
+        elif action == "collaborate_clinical_team":
+            body = "临床信息沟通与团队协作"
+        elif action == "incorporate_clinical_feedback":
+            body = "根据带教反馈改进临床信息采集、记录或汇报方式"
         elif action == "prepare_research_outputs":
             body = "研究材料整理"
             if artifacts:

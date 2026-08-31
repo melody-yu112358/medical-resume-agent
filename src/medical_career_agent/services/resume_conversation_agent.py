@@ -465,6 +465,33 @@ class ResumeConversationAgent:
     @classmethod
     def _intake_dimension_count(cls, state: dict[str, Any]) -> int:
         facts = (state.get("extracted_draft") or {}).get("extracted_facts") or {}
+        identity = state.get("active_experience_identity") or {}
+        if identity.get("experience_type") == "clinical":
+            actions = set(facts.get("actions") or [])
+            clinical_dimensions = (
+                bool(identity.get("organization") or identity.get("project_name")),
+                bool(actions.intersection({
+                    "join_ward_rounds", "collect_medical_history", "perform_physical_examination",
+                    "review_patient_records", "document_clinical_work", "communicate_with_patients",
+                    "support_clinical_procedure", "handover_clinical_information",
+                })),
+                bool(actions.intersection({
+                    "review_clinical_case", "interpret_clinical_findings", "retrieve_guidelines",
+                    "prepare_case_presentation",
+                })),
+                bool(facts.get("artifacts")),
+                bool(actions.intersection({"follow_clinical_safety"})),
+                bool(facts.get("collaboration") or actions.intersection({"collaborate_clinical_team"})),
+                bool(actions.intersection({"incorporate_clinical_feedback"})),
+            )
+            proposals = cls._pending_activity_proposals(state)
+            responsibility_confirmed = bool(proposals) and all(
+                item.get("ownership_level") != "unknown"
+                and item.get("execution_mode") != "unknown"
+                and (item.get("scope") or {}).get("coverage") != "unknown"
+                for item in proposals
+            )
+            return sum(clinical_dimensions) + int(responsibility_confirmed)
         dimensions = (
             "actions", "methods", "tools", "techniques", "collaboration",
             "artifacts", "outcomes", "scope",
@@ -532,7 +559,11 @@ class ResumeConversationAgent:
         identity, identity_error = self._normalise_experience_identity(payload.get("experience_identity"))
         if identity_error:
             return self._response(state, identity_error)
-        draft = self.experience_drafter.draft(experience_text=text, context_hint=payload.get("context_hint"), consent_confirmed=True).to_dict()
+        draft = self.experience_drafter.draft(
+            experience_text=text, context_hint=payload.get("context_hint"),
+            experience_type=(identity or {}).get("experience_type"),
+            consent_confirmed=True,
+        ).to_dict()
         state["extracted_draft"] = draft
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
         state["evidence_records"].append({"evidence_id": next_id, "source_text": text, "status": "confirmed"})
@@ -571,7 +602,9 @@ class ResumeConversationAgent:
         combined_text = "\n".join(filter(None, (self._active_experience_text(state), text)))
         draft = self.experience_drafter.draft(
             experience_text=combined_text,
-            context_hint=payload.get("context_hint"), consent_confirmed=True,
+            context_hint=payload.get("context_hint"),
+            experience_type=(state.get("active_experience_identity") or {}).get("experience_type"),
+            consent_confirmed=True,
         ).to_dict()
         state["extracted_draft"] = draft
         next_id = f"ev_{len(state['evidence_records']) + 1:03d}"
@@ -1016,12 +1049,27 @@ class ResumeConversationAgent:
             "verify_research_quality": {"medical_literature", "research_data"},
             "resolve_workflow_issue": {"medical_literature", "research_data", "laboratory_samples"},
             "perform_analysis": {"research_data"},
+            "join_ward_rounds": {"clinical_case", "patient_records"},
+            "collect_medical_history": {"clinical_case", "patient_records"},
+            "perform_physical_examination": {"clinical_case", "patient_records"},
+            "review_patient_records": {"clinical_case", "patient_records"},
+            "interpret_clinical_findings": {"clinical_case", "patient_records"},
+            "document_clinical_work": {"clinical_case", "patient_records"},
+            "communicate_with_patients": {"clinical_case", "patient_records"},
+            "support_clinical_procedure": {"clinical_case", "patient_records"},
+            "handover_clinical_information": {"clinical_case", "patient_records"},
+            "follow_clinical_safety": {"clinical_case", "patient_records"},
+            "collaborate_clinical_team": {"clinical_case", "patient_records"},
+            "incorporate_clinical_feedback": {"clinical_case", "patient_records"},
         }
         artifacts_by_action = {
             "create_flowchart": {"prisma_flowchart"},
             "prepare_research_outputs": set(all_components["artifacts"]),
             "write_manuscript": {"research_paper", "research_report"},
             "prepare_case_presentation": {"case_presentation_material"},
+            "document_clinical_work": {"clinical_note"},
+            "review_clinical_case": {"case_summary", "case_presentation_material"},
+            "communicate_with_patients": {"patient_education_material"},
         }
 
         def allowed(category: str, mapping: dict[str, set[str]]) -> list[str]:

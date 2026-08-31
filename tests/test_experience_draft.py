@@ -179,6 +179,29 @@ class ExperienceDraftServiceTest(unittest.TestCase):
         )
         self.assertEqual(draft.extracted_facts["context"]["domain"], "clinical_research")
 
+    def test_clinical_practice_extracts_distinct_tasks_without_research_gaps(self):
+        draft = self.service.draft(
+            experience_text=(
+                "在心内科见习，参加查房和病史采集，查阅病历并参与病例讨论；"
+                "分析检查结果，围绕病例查阅指南，准备病例汇报PPT。"
+            ),
+            experience_type="clinical", consent_confirmed=True,
+        )
+
+        facts = draft.extracted_facts
+        self.assertEqual(facts["context"]["domain"], "clinical_practice")
+        self.assertEqual(facts["context"]["setting"], "clinical_rotation")
+        self.assertTrue({
+            "join_ward_rounds", "collect_medical_history", "review_patient_records",
+            "review_clinical_case", "interpret_clinical_findings", "retrieve_guidelines",
+            "prepare_case_presentation",
+        }.issubset(facts["actions"]))
+        self.assertIn("case_presentation_material", facts["artifacts"])
+        self.assertFalse({
+            "databases_used", "screening_criteria", "publication_status",
+        }.intersection(draft.unknown_items))
+        self.assertTrue(all("发表" not in item and "数据库" not in item for item in draft.all_clarifying_questions))
+
     def test_output_structure(self):
         """Should return properly structured output."""
         draft = self.service.draft(

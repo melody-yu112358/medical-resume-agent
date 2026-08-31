@@ -102,6 +102,9 @@ def test_confirmed_experience_types_render_in_distinct_resume_sections():
         proposals = intake["state"]["activity_proposals"]
         confirmed = _message(client, session_id, {
             "action": "confirm_activity_proposals", "proposal_ids": [],
+            # This test intentionally reuses one research fixture for every
+            # section type; bypass density because it tests routing only.
+            "accept_sparse_result": True,
             "activity_proposals": [{
                 "evidence_quote": item["evidence_quote"], "components": item["components"],
                 "ownership_level": "contributed", "execution_mode": "supervised",
@@ -170,6 +173,55 @@ def test_delivery_accepts_a_clinical_only_document_without_research_fallback():
     assert "## 科研经历" not in bundle["files"]["resume.md"]
     assert json.loads(bundle["files"]["resume-data.json"])["fact_card"]["confirmed_experience_ids"] == ["clinical_001"]
     assert "内科轮转" in bundle["files"]["rewrite-comparison.md"] or "病例讨论" in bundle["files"]["rewrite-comparison.md"]
+
+
+def test_clinical_practice_reaches_dense_clinical_delivery_without_research_questions():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    material = (
+        "在心内科见习，参加查房、病史采集和病历资料整理，参与病例讨论并分析检查结果；"
+        "围绕病例查阅指南，准备病例汇报PPT，与带教医师和护理人员协作。"
+    )
+    intake = _message(client, session_id, {
+        "action": "submit_experience", "text": material, "consent_confirmed": True,
+        "experience_identity": {
+            "experience_type": "clinical", "project_name": "心内科临床见习",
+            "organization": "某大学附属医院", "role_title": "见习生",
+            "period": {"start": "2024-07", "end": "2024-08", "ongoing": False},
+        },
+    })
+    state = intake["state"]
+    assert len(state["activity_proposals"]) >= 6
+    assert all(
+        "发表" not in question and "数据库" not in question and "文献筛选" not in question
+        for question in state["pending_questions"]
+    )
+
+    confirmed = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "proposal_ids": [],
+        "activity_proposals": [{
+            "evidence_quote": item["evidence_quote"], "components": item["components"],
+            "ownership_level": "contributed", "execution_mode": "supervised",
+            "coverage": "partial", "scope_note": "在带教要求范围内完成相应环节",
+        } for item in state["activity_proposals"]],
+    })
+    assert confirmed["stage"] == "representative_sample"
+
+    sample = _message(client, session_id, {
+        "action": "select_role_packs", "role_packs": ["doctoral_v1"],
+    })
+    assert sample["state"]["representative_sample"]["status"] == "pending"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
+    delivered = _message(client, session_id, {"action": "accept_bullets"})
+    clinical = delivered["state"]["resume_document"]["clinical_experience"]
+    assert len(clinical) == 1
+    bullets = [item["text"] for item in clinical[0]["bullets"]]
+    assert 3 <= len(bullets) <= len(state["activity_proposals"])
+    joined = "".join(bullets)
+    assert "病例" in joined
+    assert any(term in joined for term in ("查房", "病史采集", "病历资料"))
+    assert "发表" not in joined and "Meta" not in joined
+    assert composed["audit_status"]["ready"] >= 3
 
 
 @pytest.mark.parametrize("identity,error", [

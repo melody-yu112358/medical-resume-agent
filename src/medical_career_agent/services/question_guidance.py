@@ -25,7 +25,21 @@ class QuestionGuidanceService:
             return None
 
         normalized = text.lower()
-        if any(term in normalized for term in ("数据库", "文献检索")):
+        if any(term in normalized for term in ("科室或场景", "哪类病例")):
+            card = cls._clinical_setting(text)
+        elif any(term in normalized for term in ("临床实践中实际参与", "哪些临床任务")):
+            card = cls._clinical_tasks(text)
+        elif any(term in normalized for term in ("病例分析", "检查结果解读", "指南查阅")):
+            card = cls._clinical_reasoning(text)
+        elif any(term in normalized for term in ("临床记录", "病例总结")):
+            card = cls._clinical_outputs(text)
+        elif any(term in normalized for term in ("医疗安全", "感染防控", "隐私规范")):
+            card = cls._clinical_safety(text)
+        elif any(term in normalized for term in ("临床实践中与哪些人员", "协作或沟通")):
+            card = cls._clinical_collaboration(text)
+        elif any(term in normalized for term in ("带教反馈", "改进了哪项")):
+            card = cls._clinical_learning(text)
+        elif any(term in normalized for term in ("数据库", "文献检索")):
             card = cls._databases(text)
         elif any(term in normalized for term in ("文献筛选", "数据提取", "质量评价", "哪些环节")):
             card = cls._research_steps(text)
@@ -58,6 +72,115 @@ class QuestionGuidanceService:
             "allow_unknown": True,
         })
         return card
+
+    @staticmethod
+    def _clinical_setting(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_setting",
+            "why_it_matters": "科室、场景和病例类型决定这段经历的专业背景；可多选并补充真实科室。",
+            "options": [
+                _option("inpatient", "住院病区", "这段实践发生在住院病区。"),
+                _option("outpatient", "门诊", "这段实践包含门诊场景。"),
+                _option("emergency", "急诊", "这段实践包含急诊场景。"),
+                _option("operating_room", "手术室", "这段实践包含手术室见习。"),
+                _option("general_medicine", "内科", "我在内科相关科室实践。"),
+                _option("surgery", "外科", "我在外科相关科室实践。"),
+                _option("pediatrics", "儿科", "我在儿科相关科室实践。"),
+                _option("obgyn", "妇产科", "我在妇产科相关科室实践。"),
+            ],
+        }
+
+    @staticmethod
+    def _clinical_tasks(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_tasks",
+            "why_it_matters": "临床实践要拆成可核实的具体环节，系统不会把见习自动写成独立诊疗。",
+            "options": [
+                _option("rounds", "参加查房", "我参加了临床查房。"),
+                _option("history", "病史采集 / 问诊", "我参与病史采集或问诊。"),
+                _option("exam", "体格检查", "我参与体格检查。"),
+                _option("records", "查阅或整理病历", "我查阅或整理了病历资料。"),
+                _option("case_discussion", "病例讨论", "我参与病例讨论。"),
+                _option("documentation", "临床记录书写", "我参与临床记录书写。"),
+                _option("communication", "患者沟通 / 宣教", "我参与患者沟通或健康宣教。"),
+                _option("procedure", "观摩或协助临床操作", "我观摩或协助了临床操作。"),
+                _option("handover", "交接班 / 病例交接", "我参与交接班或病例信息交接。"),
+            ],
+        }
+
+    @staticmethod
+    def _clinical_reasoning(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_reasoning",
+            "why_it_matters": "说明你如何整理临床信息，比笼统写“学习诊疗”更有证据；只选实际参与过的。",
+            "options": [
+                _option("problem_list", "梳理主诉、病史和问题清单", "我梳理了主诉、病史和临床问题清单。"),
+                _option("findings", "分析检查或检验结果", "我参与分析检查或检验结果。"),
+                _option("differential", "参与鉴别诊断讨论", "我参与鉴别诊断讨论。"),
+                _option("plan", "参与诊疗思路讨论", "我参与诊疗思路讨论。"),
+                _option("guideline", "围绕病例查阅指南", "我围绕具体病例查阅了临床指南。"),
+                _option("presentation", "准备并汇报病例", "我准备并参与病例汇报。"),
+            ],
+        }
+
+    @staticmethod
+    def _clinical_outputs(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_outputs",
+            "why_it_matters": "真实形成的记录或汇报材料能证明临床学习过程，但不能替代执业权限。",
+            "options": [
+                _option("note", "病历或病程记录", "我形成了临床记录或病程记录。"),
+                _option("case_summary", "病例总结", "我形成了病例总结。"),
+                _option("presentation", "病例汇报 / PPT", "我形成了病例汇报材料或 PPT。"),
+                _option("education", "患者宣教材料", "我参与形成患者宣教材料。"),
+                _option("rotation_report", "轮转总结 / 出科汇报", "我形成了轮转总结或出科汇报。"),
+                _option("none", "没有形成单独材料", "这段实践没有形成可单独列出的材料。"),
+            ],
+        }
+
+    @staticmethod
+    def _clinical_safety(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_safety",
+            "why_it_matters": "规范意识是临床经历的重要维度，但只能写实际遵循或执行过的环节。",
+            "options": [
+                _option("identity", "核对患者身份", "我按要求核对患者身份。"),
+                _option("hand_hygiene", "手卫生", "我按要求执行手卫生规范。"),
+                _option("infection", "感染防控", "我遵循了感染防控要求。"),
+                _option("privacy", "患者隐私保护", "我遵循了患者隐私保护要求。"),
+                _option("review", "记录提交带教复核", "我将临床记录提交带教老师复核。"),
+                _option("scope", "不超出学生职责范围", "我在学生职责和带教要求范围内参与临床工作。"),
+            ],
+        }
+
+    @staticmethod
+    def _clinical_collaboration(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_collaboration",
+            "why_it_matters": "协作对象能说明临床工作如何发生，也有助于准确限定个人责任。",
+            "options": [
+                _option("attending", "带教 / 上级医师", "我与带教或上级医师协作。"),
+                _option("resident", "住院医师", "我与住院医师协作。"),
+                _option("nurse", "护理人员", "我与护理人员协作。"),
+                _option("peers", "同组同学", "我与同组同学协作。"),
+                _option("patient", "患者或家属", "我与患者或家属进行过沟通。"),
+            ],
+        }
+
+    @staticmethod
+    def _clinical_learning(question: str) -> dict[str, Any]:
+        return {
+            "question_id": "clinical_learning",
+            "why_it_matters": "具体反馈与改进能体现学习能力，不需要编造成临床结果。",
+            "options": [
+                _option("history", "改进问诊顺序或完整性", "根据反馈，我改进了问诊顺序或信息完整性。"),
+                _option("exam", "改进查体步骤或规范", "根据反馈，我改进了查体步骤或操作规范。"),
+                _option("documentation", "改进记录结构和重点", "根据反馈，我改进了临床记录的结构和重点。"),
+                _option("presentation", "改进病例汇报逻辑", "根据反馈，我改进了病例汇报逻辑。"),
+                _option("communication", "改进沟通表达", "根据反馈，我改进了与患者或团队的沟通表达。"),
+                _option("none", "没有可确认的具体反馈", "我目前不记得可确认的具体反馈。"),
+            ],
+        }
 
     @staticmethod
     def _databases(question: str) -> dict[str, Any]:

@@ -89,9 +89,24 @@ class ExperienceDraftService:
         "culture_cells": [r"细胞培养", r"cell culture"],
         "perform_qpcr": [r"qPCR", r"RT[- ]?qPCR", r"实时定量PCR"],
         "perform_western_blot": [r"Western[ -]?Blot", r"蛋白印迹"],
-        "review_clinical_case": [r"病例汇报", r"病例讨论", r"病例分析", r"case presentation"],
+        "review_clinical_case": [
+            r"病例汇报", r"病例讨论", r"病例分析", r"病例总结",
+            r"鉴别诊断讨论", r"诊疗思路讨论", r"临床问题清单", r"case presentation",
+        ],
         "prepare_case_presentation": [r"病例汇报材料", r"准备.*病例汇报.*PPT", r"准备.*PPT", r"制作.*PPT", r"现场汇报", r"presentation"],
-        "retrieve_guidelines": [r"查阅指南", r"临床指南", r"guideline"]
+        "retrieve_guidelines": [r"查阅指南", r"临床指南", r"诊疗指南", r"guideline"],
+        "join_ward_rounds": [r"查房", r"ward rounds?"],
+        "collect_medical_history": [r"病史采集", r"询问病史", r"问诊", r"history taking"],
+        "perform_physical_examination": [r"体格检查", r"查体", r"physical examination"],
+        "review_patient_records": [r"查阅病历", r"病历资料", r"病历整理", r"review.*(?:chart|record)"],
+        "interpret_clinical_findings": [r"分析.*(?:检查|检验|影像|心电图|化验)", r"解读.*(?:检查|检验|影像|心电图|化验)", r"检查结果", r"检验结果"],
+        "document_clinical_work": [r"书写病历", r"临床记录(?:书写)?", r"病程记录", r"入院记录", r"出院记录", r"clinical documentation"],
+        "communicate_with_patients": [r"患者沟通", r"病情沟通", r"健康宣教", r"患者教育", r"patient communication"],
+        "support_clinical_procedure": [r"观摩.*操作", r"协助.*操作", r"参与.*操作", r"操作见习", r"procedure"],
+        "handover_clinical_information": [r"交接班", r"病例交接", r"handover"],
+        "follow_clinical_safety": [r"手卫生", r"感染防控", r"隐私保护", r"核对患者身份", r"医疗安全"],
+        "collaborate_clinical_team": [r"与.*(?:医师|护理人员|护士|同组同学).*协作", r"临床团队协作"],
+        "incorporate_clinical_feedback": [r"根据反馈.*改进", r"带教反馈", r"纠正.*(?:问诊|查体|记录|汇报|沟通)"],
     }
 
     # Experimental techniques are distinct from research methods and software tools.
@@ -155,6 +170,9 @@ class ExperienceDraftService:
         "supervisor": (r"导师", r"supervisor"),
         "peer": (r"同学", r"团队成员"),
         "clinician": (r"临床医生",),
+        "attending_physician": (r"带教(?:老师|医师)?", r"上级医师", r"住院医师"),
+        "nurse": (r"护理人员", r"护士"),
+        "patient_or_family": (r"患者或家属", r"患者沟通", r"病情沟通", r"健康宣教"),
         "statistician": (r"统计人员", r"数据人员"),
     }
 
@@ -170,6 +188,10 @@ class ExperienceDraftService:
         "sop": (r"SOP", r"流程文件", r"standard operating procedure"),
         "group_presentation": (r"组会汇报", r"组会讨论"),
         "case_presentation_material": (r"病例汇报材料", r"准备.*PPT", r"制作.*PPT", r"现场汇报"),
+        "clinical_note": (r"病历记录", r"病程记录", r"入院记录", r"出院记录", r"书写病历"),
+        "case_summary": (r"病例总结", r"病例整理", r"病例汇报"),
+        "patient_education_material": (r"宣教材料", r"患者教育材料"),
+        "rotation_report": (r"轮转总结", r"出科汇报", r"实习总结"),
     }
 
     def draft(
@@ -177,6 +199,7 @@ class ExperienceDraftService:
         *,
         experience_text: str,
         context_hint: str | None = None,
+        experience_type: str | None = None,
         consent_confirmed: bool = False,
     ) -> ExperienceDraft:
         """Create a draft experience record from raw text."""
@@ -186,10 +209,16 @@ class ExperienceDraftService:
             raise ValueError("consent_confirmed must be True")
 
         # Extract facts using deterministic rules first
-        extracted_facts = self._extract_facts_deterministic(experience_text, context_hint)
-        unknown_items = self._identify_unknowns(extracted_facts, experience_text)
+        extracted_facts = self._extract_facts_deterministic(
+            experience_text, context_hint, experience_type,
+        )
+        unknown_items = self._identify_unknowns(
+            extracted_facts, experience_text, experience_type,
+        )
         possible_value_angles = self._generate_value_angles(extracted_facts)
-        clarifying_questions = self._generate_clarifying_questions(extracted_facts, unknown_items)
+        clarifying_questions = self._generate_clarifying_questions(
+            extracted_facts, unknown_items, experience_type,
+        )
         risk_flags = self._identify_risk_flags(extracted_facts, experience_text)
 
         return ExperienceDraft(
@@ -204,11 +233,12 @@ class ExperienceDraftService:
     def _extract_facts_deterministic(
         self,
         text: str,
-        context_hint: str | None = None
+        context_hint: str | None = None,
+        experience_type: str | None = None,
     ) -> dict[str, Any]:
         """Extract facts using deterministic pattern matching."""
         facts = {
-            "context": self._extract_context(text, context_hint),
+            "context": self._extract_context(text, context_hint, experience_type),
             "role": self._extract_role(text),
             "actions": self._extract_actions(text),
             "methods": self._extract_methods(text),
@@ -222,12 +252,18 @@ class ExperienceDraftService:
         }
         return facts
 
-    def _extract_context(self, text: str, context_hint: str | None) -> dict[str, str | None]:
+    def _extract_context(
+        self, text: str, context_hint: str | None, experience_type: str | None = None,
+    ) -> dict[str, str | None]:
         """Extract context domain and setting."""
         domain = "clinical_research"  # Default domain
         setting = "research_project"   # Default setting
 
-        # Check for domain patterns in order of specificity
+        if experience_type == "clinical":
+            domain, setting = "clinical_practice", "clinical_rotation"
+
+        # Check for domain patterns in order of specificity.  An explicit UI
+        # type wins: clinical practice must not silently become research.
         domain_patterns = [
             ("clinical_research", [r"临床研究", r"临床试验", r"病例汇报", r"病例讨论", r"clinical research", r"clinical trial", r"Meta分析", r"meta[- ]?analysis", r"系统综述"]),
             ("wet_lab", [r"实验", r"实验室", r"细胞培养", r"qPCR", r"Western[ -]?Blot", r"lab", r"wet lab", r"分子实验"]),
@@ -235,10 +271,11 @@ class ExperienceDraftService:
             ("medical_information", [r"文献", r"医学信息", r"medical information", r"literature"])
         ]
 
-        for candidate_domain, patterns in domain_patterns:
-            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns):
-                domain = candidate_domain
-                break
+        if experience_type != "clinical":
+            for candidate_domain, patterns in domain_patterns:
+                if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns):
+                    domain = candidate_domain
+                    break
 
         # Check for setting patterns
         setting_patterns = [
@@ -248,10 +285,11 @@ class ExperienceDraftService:
             ("data_project", [r"数据分析项目", r"data project"])
         ]
 
-        for candidate_setting, patterns in setting_patterns:
-            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns):
-                setting = candidate_setting
-                break
+        if experience_type != "clinical":
+            for candidate_setting, patterns in setting_patterns:
+                if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns):
+                    setting = candidate_setting
+                    break
 
         # Use context hint if provided and no patterns matched
         if context_hint and domain == "clinical_research" and setting == "research_project":
@@ -342,6 +380,8 @@ class ExperienceDraftService:
             objects.append("research_data")
         if re.search(r"病例", text, re.IGNORECASE):
             objects.append("clinical_case")
+        if re.search(r"患者|病人|病历|问诊|查房", text, re.IGNORECASE):
+            objects.append("patient_records")
         if re.search(r"细胞|RNA|蛋白", text, re.IGNORECASE):
             objects.append("laboratory_samples")
         return objects
@@ -380,9 +420,32 @@ class ExperienceDraftService:
         # Don't extract scope deterministically to avoid guessing numbers
         return {}
 
-    def _identify_unknowns(self, facts: dict[str, Any], text: str) -> list[str]:
+    def _identify_unknowns(
+        self, facts: dict[str, Any], text: str, experience_type: str | None = None,
+    ) -> list[str]:
         """Identify unknown items that would improve the expression."""
         unknowns = []
+
+        if experience_type == "clinical":
+            if not re.search(r"科|病区|门诊|急诊|轮转|见习|实习", text):
+                unknowns.append("clinical_setting")
+            if not facts["actions"]:
+                unknowns.append("clinical_tasks")
+            if not any(action in facts["actions"] for action in (
+                "review_clinical_case", "interpret_clinical_findings", "retrieve_guidelines",
+            )):
+                unknowns.append("clinical_reasoning")
+            if not facts["artifacts"]:
+                unknowns.append("clinical_outputs")
+            if not re.search(r"指导|带教|上级医师|独立|共同|协助|观摩", text):
+                unknowns.append("specific_responsibilities")
+            if not re.search(r"手卫生|感染防控|隐私|核对|安全|规范", text):
+                unknowns.append("clinical_safety")
+            if not facts["collaboration"] and not re.search(r"医师|护士|患者|家属|团队|同学", text):
+                unknowns.append("clinical_collaboration")
+            if not re.search(r"反馈|改进|困难|问题|调整|纠正", text):
+                unknowns.append("clinical_learning")
+            return unknowns
 
         # If actions include literature retrieval, ask about databases
         database_tools = {
@@ -439,9 +502,24 @@ class ExperienceDraftService:
 
         return value_angles[:3]  # Limit to 3 value angles
 
-    def _generate_clarifying_questions(self, facts: dict[str, Any], unknowns: list[str]) -> list[str]:
+    def _generate_clarifying_questions(
+        self, facts: dict[str, Any], unknowns: list[str], experience_type: str | None = None,
+    ) -> list[str]:
         """Generate clarifying questions to improve the expression."""
         questions = []
+
+        if experience_type == "clinical":
+            clinical_questions = {
+                "clinical_setting": "这段临床实践发生在哪个科室或场景，主要接触哪类病例？",
+                "clinical_tasks": "你在临床实践中实际参与了哪些环节？",
+                "clinical_reasoning": "你参与过哪些病例分析、检查结果解读或指南查阅？",
+                "specific_responsibilities": "这些临床任务中，哪些是观摩、协助、在带教下完成或可独立完成？",
+                "clinical_outputs": "你实际形成或完成过哪些临床记录、病例总结或汇报材料？",
+                "clinical_safety": "你实际遵循过哪些医疗安全、感染防控或隐私规范？",
+                "clinical_collaboration": "你在临床实践中与哪些人员协作或沟通？",
+                "clinical_learning": "带教反馈或实际问题让你改进了哪项具体做法？",
+            }
+            return [clinical_questions[item] for item in unknowns if item in clinical_questions]
 
         # Prioritize questions that would most impact resume expression
         if "databases_used" in unknowns:

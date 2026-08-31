@@ -31,6 +31,11 @@ const resumeTiers = [
   { id: "high_impact", label: "高竞争力版" },
 ];
 const toneLabels = { Conservative: "稳妥版", Professional: "专业版", "High-impact": "高竞争力版" };
+const userStages = [
+  { id: "conversation", label: "聊经历", internalStages: ["intake", "fact_confirmation"], progress: 33 },
+  { id: "expression", label: "定表达", internalStages: ["representative_sample", "composition"], progress: 66 },
+  { id: "delivery", label: "完成简历", internalStages: ["factual_audit", "delivery"], progress: 100 },
+];
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -83,18 +88,19 @@ async function sendMessage(payload) {
 }
 
 function state() { return conversation?.state || {}; }
-function stageIndex(stage) { const index = contract.stages.findIndex((item) => item.id === stage); return index < 0 ? 0 : index; }
 function displayStage(stage) { return contract.stages.find((item) => item.id === stage) || contract.stages[0]; }
+function userStageFor(stage) { return userStages.find((item) => item.internalStages.includes(stage)) || userStages[0]; }
 
 function render() {
   const current = displayStage(state().stage || "intake");
-  const currentIndex = stageIndex(current.id);
-  $("#steps").innerHTML = contract.stages.map((item, index) =>
-    `<li class="${index === currentIndex ? "active" : index < currentIndex ? "done" : ""}">${esc(item.label)}</li>`
+  const visibleStage = userStageFor(current.id);
+  const visibleIndex = userStages.findIndex((item) => item.id === visibleStage.id);
+  $("#steps").innerHTML = userStages.map((item, index) =>
+    `<li class="${index === visibleIndex ? "active" : index < visibleIndex ? "done" : ""}">${index + 1} ${esc(item.label)}</li>`
   ).join("");
-  $("#progressBar").style.width = `${current.progress}%`;
-  $("#stageKicker").textContent = `STEP ${currentIndex + 1} / ${contract.stages.length}`;
-  $("#stageTitle").textContent = current.label;
+  $("#progressBar").style.width = `${visibleStage.progress}%`;
+  $("#stageKicker").textContent = `阶段 ${visibleIndex + 1} / ${userStages.length}`;
+  $("#stageTitle").textContent = visibleStage.label;
   $("#saveStatus").textContent = `本机会话 ${conversation.session_id.slice(0, 8)}`;
   $("#connection").textContent = health?.llm_configured ? "本机 Agent 已连接 · 语言模型可用" : "本机 Agent 已连接 · 确定性模式";
   $("#workspace").innerHTML = renderWorkspace(current.id);
@@ -141,13 +147,13 @@ function renderExperienceNavigator(allowActions) {
 }
 
 function profileAnswerLabel(id) {
-  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间" }[id] || id;
+  return { name: "姓名", email: "邮箱", phone: "电话", location: "所在地", institution: "学校", degree: "学历 / 学位", major: "专业", period: "就读时间", awards: "荣誉奖励", languages: "语言能力", certificates: "证书与培训", research_interests: "研究兴趣" }[id] || id;
 }
 
 function renderProfileSummary(profile, confirmable = false) {
   const answers = profile.answers || {};
   const rows = Object.entries(answers).filter(([, value]) => value && (typeof value !== "object" || Object.values(value).some(Boolean))).map(([id, value]) => {
-    const shown = id === "period" ? `${value.start || "未填开始时间"} 至 ${value.ongoing ? "今" : (value.end || "未填结束时间")}` : value;
+    const shown = id === "period" ? `${value.start || "未填开始时间"} 至 ${value.ongoing ? "今" : (value.end || "未填结束时间")}` : (Array.isArray(value) ? value.join("；") : value);
     return `<div class="profile-summary-row"><span>${esc(profileAnswerLabel(id))}</span><b>${esc(shown)}</b></div>`;
   }).join("");
   return `<section class="panel profile-summary"><div class="profile-summary-head"><div><span class="status-badge">${confirmable ? "请你确认" : "已收集"}</span><h3>基础资料与教育背景</h3></div>${confirmable ? '<button id="editCandidateProfile" class="quiet" type="button">重新检查</button>' : ""}</div>${rows || "<p>还没有已填写资料。</p>"}${confirmable ? '<button id="confirmCandidateProfile" class="primary" type="button">信息准确，开始聊经历 →</button>' : ""}</section>`;
@@ -163,6 +169,8 @@ function renderCandidateProfile(profile) {
   } else if (question.kind === "period") {
     const period = previous || {};
     control = `<div class="period-grid"><label class="field">开始年月<input id="profileStart" type="month" value="${esc(period.start || "")}"></label><label class="field">结束年月<input id="profileEnd" type="month" value="${esc(period.end || "")}" ${period.ongoing ? "disabled" : ""}></label></div><label class="consent"><input id="profileOngoing" type="checkbox" ${period.ongoing ? "checked" : ""}><span>目前仍在读</span></label>`;
+  } else if (question.kind === "multiline_list") {
+    control = `<textarea id="profileValue" placeholder="${esc(question.placeholder || "每行填写一项")}">${esc(Array.isArray(previous) ? previous.join("\n") : "")}</textarea>`;
   }
   return `${renderProfileSummary(profile)}<section class="panel soft profile-question"><span class="status-badge">资料 ${question.position || 1} / ${question.total || 8}</span><h3>${esc(question.label || "请填写基础资料")}</h3><p>你的回答会保存在本机 session；确认前不会进入最终简历。</p><p>${esc(question.help || "")}</p><div class="field"><span>你的回答</span>${control}</div><div class="action-row"><button id="submitCandidateProfile" class="primary" type="button">保存并继续 →</button>${question.required ? "" : '<button id="skipCandidateProfile" class="quiet" type="button">暂时跳过</button>'}</div></section>`;
 }
@@ -398,7 +406,7 @@ function renderPreview() {
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
   const summary = basics.summary ? `<h2>候选人定位</h2><p>${esc(basics.summary)}</p>` : "";
   const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
-  const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源" };
+  const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源", certificate: "证书与培训" };
   const skillGroups = Object.entries(skillLabels).map(([category, label]) => [label, (documentData.skills || []).filter((item) => item.category === category).map((item) => item.name)]).filter(([, items]) => items.length);
   const skills = skillGroups.length ? `<h2>研究方法与技能</h2>${skillGroups.map(([label, items]) => `<p><b>${esc(label)}：</b>${items.map(esc).join("、")}</p>`).join("")}` : "";
   const projects = documentData.projects || [];
@@ -407,7 +415,10 @@ function renderPreview() {
     ["工作经历", documentData.professional_experience || []], ["校园与领导力", projects.filter((item) => item.experience_type === "leadership")],
     ["志愿服务", projects.filter((item) => item.experience_type === "volunteer")], ["项目经历", projects.filter((item) => !["leadership", "volunteer"].includes(item.experience_type))],
   ];
-  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}${experienceSections.map(([label, items]) => renderPreviewExperienceSection(label, items)).join("")}${skills}`;
+  const awards = (documentData.awards || []).length ? `<h2>荣誉奖励</h2><ul>${documentData.awards.map((item) => `<li>${esc(item.name)}</li>`).join("")}</ul>` : "";
+  const languages = (documentData.languages || []).length ? `<h2>语言能力</h2><ul>${documentData.languages.map((item) => `<li>${esc(item.language)}${item.level_or_score ? `：${esc(item.level_or_score)}` : ""}</li>`).join("")}</ul>` : "";
+  const interests = (documentData.research_interests || []).length ? `<h2>研究兴趣</h2><ul>${documentData.research_interests.map((item) => `<li>${esc(item.name)}</li>`).join("")}</ul>` : "";
+  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}${experienceSections.map(([label, items]) => renderPreviewExperienceSection(label, items)).join("")}${awards}${skills}${languages}${interests}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 

@@ -192,6 +192,17 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "positioning" not in script
     assert "localStorage" in script
     assert "基础资料与教育背景" in script
+    assert "荣誉奖励" in script
+    assert "语言能力" in script
+    assert "证书与培训" in script
+    assert "研究兴趣" in script
+    assert 'label: "聊经历"' in script
+    assert 'label: "定表达"' in script
+    assert 'label: "完成简历"' in script
+    assert 'internalStages: ["intake", "fact_confirmation"]' in script
+    assert 'internalStages: ["representative_sample", "composition"]' in script
+    assert 'internalStages: ["factual_audit", "delivery"]' in script
+    assert "contract.stages.map" not in script
     assert "documentData.education" in script
     assert "basics.summary" in script
     assert "documentData.skills" in script

@@ -25,6 +25,7 @@
     "awards": { "type": "array", "items": { "$ref": "#/$defs/achievementItem" } },
     "skills": { "type": "array", "items": { "$ref": "#/$defs/skillItem" } },
     "languages": { "type": "array", "items": { "$ref": "#/$defs/languageItem" } },
+    "research_interests": { "type": "array", "items": { "$ref": "#/$defs/interestItem" } },
     "capability_profile": { "type": "array", "items": { "$ref": "#/$defs/capabilityItem" } },
     "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" }, "minItems": 1 },
     "review_events": { "type": "array", "items": { "$ref": "#/$defs/reviewEvent" } }
@@ -121,6 +122,11 @@
       "type": "object", "additionalProperties": false,
       "required": ["language", "evidence_ids"],
       "properties": { "language": { "type": "string" }, "level_or_score": { "type": ["string", "null"] }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
+    },
+    "interestItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "evidence_ids"],
+      "properties": { "name": { "type": "string" }, "evidence_ids": { "$ref": "#/$defs/evidenceIds" } }
     },
     "capabilityItem": {
       "type": "object", "additionalProperties": false,

@@ -24,6 +24,10 @@ def _answer_all(client, session_id: str) -> dict:
         "degree": "医学硕士",
         "major": "临床医学",
         "period": {"start": "2023-09", "end": None, "ongoing": True},
+        "awards": "2024 年国家奖学金\n校级科研竞赛一等奖",
+        "languages": "CET-4：620\nCET-6：580",
+        "certificates": "GCP 培训证书",
+        "research_interests": "心血管循证医学\n临床预测模型",
     }
     response = None
     for question_id, value in answers.items():
@@ -66,7 +70,7 @@ def test_empty_optional_period_does_not_create_confirmed_evidence():
         "period": {"start": "", "end": "", "ongoing": False},
     }
     for question in CandidateProfileIntakeService.QUESTIONS:
-        value = values[question["id"]]
+        value = values.get(question["id"])
         CandidateProfileIntakeService.answer(
             profile, question_id=question["id"], value=value,
             skipped=value is None,
@@ -75,6 +79,30 @@ def test_empty_optional_period_does_not_create_confirmed_evidence():
 
     assert profile["answers"]["period"] is None
     assert not any(item["field"] == "period" for item in profile["profile_evidence_records"])
+    assert not any(item["field"] in {"awards", "languages", "certificates", "research_interests"} for item in profile["profile_evidence_records"])
+
+
+def test_profile_list_answers_are_deduplicated_and_keep_item_level_evidence():
+    profile = CandidateProfileIntakeService.initial_state()
+    values = {
+        "name": "测试同学", "institution": "示例医科大学",
+        "awards": "国家奖学金\n\n国家奖学金\n校级一等奖",
+    }
+    for question in CandidateProfileIntakeService.QUESTIONS:
+        value = values.get(question["id"])
+        CandidateProfileIntakeService.answer(
+            profile, question_id=question["id"], value=value,
+            skipped=value is None,
+        )
+    CandidateProfileIntakeService.confirm(profile)
+
+    assert profile["answers"]["awards"] == ["国家奖学金", "校级一等奖"]
+    award_evidence = [
+        item for item in profile["profile_evidence_records"]
+        if item["field"] == "awards"
+    ]
+    assert [item["evidence_id"] for item in award_evidence] == ["profile_ev_009_01", "profile_ev_009_02"]
+    assert all(item["source_text"].startswith("有哪些希望展示的荣誉或奖项：") for item in award_evidence)
 
 
 def test_confirmed_profile_persists_and_maps_to_resume_document_and_export():
@@ -125,10 +153,18 @@ def test_confirmed_profile_persists_and_maps_to_resume_document_and_export():
     assert set(document["basics"]["evidence_ids"]).issubset(evidence_ids)
     assert set(document["education"][0]["evidence_ids"]).issubset(evidence_ids)
     assert set(document["research_experience"][0]["evidence_ids"]).issubset(evidence_ids)
+    assert [item["name"] for item in document["awards"]] == ["2024 年国家奖学金", "校级科研竞赛一等奖"]
+    assert [item["language"] for item in document["languages"]] == ["CET-4：620", "CET-6：580"]
+    assert [item["name"] for item in document["skills"] if item["category"] == "certificate"] == ["GCP 培训证书"]
+    assert [item["name"] for item in document["research_interests"]] == ["心血管循证医学", "临床预测模型"]
+    for section in (document["awards"], document["languages"], document["research_interests"]):
+        assert all(item["evidence_ids"] and set(item["evidence_ids"]) <= evidence_ids for item in section)
 
     bundle = client.post(f"/api/conversations/{session_id}/export", json={"basics": {"name": "错误覆盖名"}}).get_json()
     assert "测试同学" in bundle["files"]["resume.md"]
     assert "示例医科大学" in bundle["files"]["resume.md"]
+    for heading in ("荣誉奖励", "语言能力", "证书与培训", "研究兴趣"):
+        assert f"## {heading}" in bundle["files"]["resume.md"] or f"**{heading}：**" in bundle["files"]["resume.md"]
     assert "错误覆盖名" not in bundle["files"]["resume.md"]
     assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["education"][0]["major"] == "临床医学"
 

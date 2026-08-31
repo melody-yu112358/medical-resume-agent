@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import inspect
 import json
+import os
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 from medical_career_agent.api import create_app
@@ -12,6 +15,21 @@ from medical_career_agent.services.resume_conversation_agent import ResumeConver
 
 ROOT = Path(__file__).resolve().parents[1]
 MATERIAL = "在导师指导下参与 Meta 分析，使用 R 完成统计分析，并使用 PubMed 检索文献。"
+
+
+def test_live_acceptance_script_imports_current_checkout_without_installation():
+    environment = os.environ.copy()
+    environment.pop("PYTHONPATH", None)
+    for name in ("LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL"):
+        environment.pop(name, None)
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "accept_live_skill_intake.py")],
+        cwd=ROOT, env=environment, capture_output=True, text=True,
+    )
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "missing environment variable: LLM_BASE_URL" in output
+    assert "ModuleNotFoundError" not in output
 
 
 def _message(client, session_id: str, payload: dict):

@@ -11,7 +11,7 @@ from scripts.career_track_orchestrator import OUTPUT_PATH, build_state, decide_n
 ROOT = Path(__file__).parents[1]
 
 
-def test_current_candidate_evidence_dry_run_routes_all_tracks_to_researcher():
+def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_researcher_and_cdm_to_review():
     state = build_state()
 
     assert {track["career_id"] for track in state["tracks"]} == {
@@ -20,13 +20,32 @@ def test_current_candidate_evidence_dry_run_routes_all_tracks_to_researcher():
         "medical_device_clinical_application_specialist",
         "pharmacovigilance_drug_safety",
     }
-    for track in state["tracks"]:
+    tracks = {track["career_id"]: track for track in state["tracks"]}
+    for career_id in {
+        "clinical_research_associate",
+        "medical_device_clinical_application_specialist",
+        "pharmacovigilance_drug_safety",
+    }:
+        track = tracks[career_id]
         assert track["current_tier"] == "beta"
-        assert track["stage"] == "research"
-        assert track["next_action"] == "collect_more_jds"
-        assert track["assigned_agent"] == "researcher"
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
+        if track["career_id"] == "medical_device_clinical_application_specialist":
+            assert track["stage"] == "review"
+            assert track["next_action"] == "request_independent_review"
+            assert track["assigned_agent"] == "reviewer"
+        else:
+            assert track["stage"] == "research"
+            assert track["next_action"] == "collect_more_jds"
+            assert track["assigned_agent"] == "researcher"
+
+    cdm = tracks["clinical_data_management"]
+    assert cdm["stage"] == "review"
+    assert cdm["qualifying_jd_count"] == 8
+    assert cdm["next_action"] == "request_independent_review"
+    assert cdm["assigned_agent"] == "reviewer"
+    assert cdm["human_required"] is False
+    assert cdm["graduation_status"] == "not_eligible"
 
 
 def test_generated_snapshot_matches_evidence_and_schema():

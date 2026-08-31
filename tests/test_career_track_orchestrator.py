@@ -22,11 +22,16 @@ def test_current_candidate_evidence_dry_run_routes_all_tracks_to_researcher():
     }
     for track in state["tracks"]:
         assert track["current_tier"] == "beta"
-        assert track["stage"] == "research"
-        assert track["next_action"] == "collect_more_jds"
-        assert track["assigned_agent"] == "researcher"
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
+        if track["career_id"] == "medical_device_clinical_application_specialist":
+            assert track["stage"] == "review"
+            assert track["next_action"] == "request_independent_review"
+            assert track["assigned_agent"] == "reviewer"
+        else:
+            assert track["stage"] == "research"
+            assert track["next_action"] == "collect_more_jds"
+            assert track["assigned_agent"] == "researcher"
 
 
 def test_generated_snapshot_matches_evidence_and_schema():

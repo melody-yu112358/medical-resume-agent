@@ -33,8 +33,10 @@ def _delivery_conversation(client, role_pack="doctoral_v1"):
             "coverage": "partial",
             "scope_note": "按既定流程完成部分步骤",
         })
-    _message(client, session_id, {"action": "update_activity_proposals", "activity_proposals": updated})
-    confirmed = _message(client, session_id, {"action": "confirm_activity_proposals", "proposal_ids": []})
+    confirmed = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "activity_proposals": updated,
+        "proposal_ids": [],
+    })
     assert confirmed["stage"] == "representative_sample"
     composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
     assert composed["stage"] == "factual_audit"
@@ -90,7 +92,8 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
     assert response.status_code == 200, response.get_json()
     bundle = response.get_json()
     assert set(bundle["files"]) == {
-        "resume.md", "resume.html", "resume-data.json", "evidence-summary.json", "export-instructions.txt"
+        "resume.md", "resume.html", "resume-editor.html", "resume-data.json",
+        "evidence-summary.json", "rewrite-comparison.md", "export-instructions.txt",
     }
     assert "测试候选人" in bundle["files"]["resume.html"]
     assert "学术升学与科研申请" in bundle["files"]["resume.html"]
@@ -102,6 +105,8 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
     assert "positioning" not in json.loads(bundle["files"]["resume-data.json"])["basics"]
     assert bundle["privacy"]["export_written_to_server"] is False
     assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["research_experience"]
+    assert "仅保存在当前浏览器" in bundle["files"]["resume-editor.html"]
+    assert "用户确认的原始依据" in bundle["files"]["rewrite-comparison.md"]
 
 
 def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files():
@@ -115,6 +120,16 @@ def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files
     assert deleted.status_code == 200
     assert deleted.get_json()["deleted"] is True
     assert client.get(f"/api/conversations/{session_id}").status_code == 404
+
+
+def test_accept_bullets_cannot_fake_delivery_before_audit():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+
+    response = _message(client, session_id, {"action": "accept_bullets"})
+
+    assert response["stage"] == "intake"
+    assert "尚无可交付" in response["assistant_message"]
 
 
 def test_claim_cleanup_failure_preserves_conversation(monkeypatch):
@@ -155,9 +170,9 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "workspace.css" in html_text
     assert "reset-flow.js" in html_text
     for action in (
-        "update_activity_proposals", "confirm_activity_proposals", "select_role_packs",
+        "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
-        "confirm_candidate_profile", "start_new_experience", "select_experience",
+        "confirm_candidate_profile", "start_new_experience", "select_experience", "submit_experience",
     ):
         assert action in script
     assert "/api/conversations/" in script
@@ -169,5 +184,36 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "documentData.education" in script
     assert "confirmed_experiences" in script
     assert "添加另一段经历" in script
+    assert "你的回答会保存在本机 session" in script
     assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script
+
+
+def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():
+    service = (
+        ROOT / "src/medical_career_agent/services/resume_delivery.py"
+    ).read_text(encoding="utf-8")
+    package_editor = (
+        ROOT / "src/medical_career_agent/assets/resume-editor.html"
+    ).read_text(encoding="utf-8")
+    skill_editor = (
+        ROOT / "skill-lite/medical-resume-skill/assets/resume-editor.html"
+    ).read_text(encoding="utf-8")
+
+    assert "skill-lite" not in service
+    assert package_editor == skill_editor
+    assert "__INITIAL_MARKDOWN_JSON__" in package_editor
+
+
+def test_workflow_contract_is_package_owned_and_kept_in_sync_with_skill_bundle():
+    api_source = (ROOT / "src/medical_career_agent/api.py").read_text(encoding="utf-8")
+    package_contract = (
+        ROOT / "src/medical_career_agent/assets/workflow-contract.json"
+    ).read_text(encoding="utf-8")
+    skill_contract = (
+        ROOT
+        / "skill-lite/medical-resume-skill/references/workflow-contract.json"
+    ).read_text(encoding="utf-8")
+
+    assert "skill-lite" not in api_source
+    assert json.loads(package_contract) == json.loads(skill_contract)

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>医学简历本地编辑器</title>
+  <style>
+    :root { --accent:#17664e; --ink:#18232d; --muted:#657282; --line:#dce4e5; --paper:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#eef2f3; font:14px/1.55 "Microsoft YaHei",Arial,sans-serif; }
+    .toolbar { position:sticky; top:0; z-index:3; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 14px; background:#17212b; color:#fff; }
+    button, select, .file-button { border:0; border-radius:5px; padding:8px 11px; font:inherit; cursor:pointer; }
+    button, .file-button { background:#fff; color:#17212b; }
+    .toolbar small { margin-left:auto; color:#cdd6dd; }
+    .workspace { display:grid; grid-template-columns:minmax(320px, .78fr) minmax(560px, 1.22fr); gap:16px; padding:16px; align-items:start; }
+    textarea { width:100%; height:calc(100vh - 90px); resize:vertical; border:1px solid #bac6cc; border-radius:7px; padding:16px; background:#fff; font:14px/1.65 Consolas,"Microsoft YaHei",monospace; }
+    .paper { width:210mm; min-height:297mm; margin:0 auto; padding:15mm 16mm; background:var(--paper); box-shadow:0 2px 18px #25323c24; font-size:10.5pt; }
+    .paper h1 { margin:0; font-size:25pt; line-height:1.15; letter-spacing:.04em; }
+    .paper h2 { margin:6mm 0 2.5mm; padding-bottom:1.2mm; color:var(--accent); border-bottom:1px solid var(--line); font-size:12pt; letter-spacing:.06em; }
+    .paper h3 { margin:3mm 0 0; font-size:10.7pt; }
+    .paper p { margin:1.5mm 0; text-align:justify; }
+    .paper blockquote { margin:2mm 0 4mm; padding:0 0 3mm; border-bottom:2px solid var(--accent); color:var(--muted); }
+    .paper ul { margin:1.5mm 0 0; padding-left:5mm; }
+    .paper li { margin:1.1mm 0; text-align:justify; }
+    .paper a { color:inherit; }
+    body.theme-academic-green { --accent:#17664e; }
+    body.theme-clinical-blue { --accent:#215d87; }
+    body.theme-ats-mono { --accent:#111; --line:#bbb; }
+    body.theme-ats-mono .paper { font-family:Arial,"Microsoft YaHei",sans-serif; }
+    #photo { float:right; width:28mm; height:36mm; margin:0 0 4mm 6mm; object-fit:cover; border:1px solid var(--line); }
+    .hidden { display:none; }
+    input[type=file] { display:none; }
+    @media(max-width:1050px) { .workspace { grid-template-columns:1fr; } textarea { height:48vh; } .paper { width:100%; min-height:auto; } }
+    @page { size:A4; margin:15mm 16mm; }
+    @media print { .toolbar,.editor-pane { display:none!important; } body { background:#fff; } .workspace { display:block; padding:0; } .paper { width:auto; min-height:auto; margin:0; padding:0; box-shadow:none; } }
+  </style>
+</head>
+<body class="theme-__THEME__">
+  <nav class="toolbar">
+    <strong>医学简历本地编辑器</strong>
+    <select id="theme" aria-label="版式主题">
+      <option value="clinical-blue">临床蓝</option>
+      <option value="academic-green">学术绿</option>
+      <option value="ats-mono">ATS 黑白</option>
+    </select>
+    <label class="file-button">导入 Markdown<input id="mdFile" type="file" accept=".md,text/markdown,text/plain"></label>
+    <label class="file-button">选择本地照片<input id="photoFile" type="file" accept="image/*"></label>
+    <button id="downloadMd">下载 Markdown</button>
+    <button id="exportHtml">导出独立 HTML</button>
+    <button id="printPdf">打印 / PDF</button>
+    <button id="clearLocal">恢复初始稿</button>
+    <small id="status">仅保存在当前浏览器</small>
+  </nav>
+  <main class="workspace">
+    <section class="editor-pane"><textarea id="source" spellcheck="false" aria-label="Markdown 简历正文"></textarea></section>
+    <section id="preview" class="paper"><img id="photo" class="hidden" alt="个人照片"><div id="content"></div></section>
+  </main>
+  <script>
+    const initialMarkdown = __INITIAL_MARKDOWN_JSON__;
+    const initialTheme = "__THEME__";
+    const storageKey = "medical-resume-editor-v1:" + location.pathname;
+    const source = document.getElementById("source"), content = document.getElementById("content");
+    const theme = document.getElementById("theme"), photo = document.getElementById("photo"), status = document.getElementById("status");
+    const escapeHtml = value => value.replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    function inline(value) {
+      return escapeHtml(value).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2">$1</a>');
+    }
+    function renderMarkdown(md) {
+      const out=[]; let list=false;
+      const closeList=()=>{ if(list){ out.push("</ul>"); list=false; } };
+      for(const raw of md.replace(/\r/g,"").split("\n")) {
+        const line=raw.trim();
+        if(!line){ closeList(); continue; }
+        if(line.startsWith("- ")) { if(!list){out.push("<ul>");list=true;} out.push("<li>"+inline(line.slice(2))+"</li>"); continue; }
+        closeList();
+        if(line.startsWith("### ")) out.push("<h3>"+inline(line.slice(4))+"</h3>");
+        else if(line.startsWith("## ")) out.push("<h2>"+inline(line.slice(3))+"</h2>");
+        else if(line.startsWith("# ")) out.push("<h1>"+inline(line.slice(2))+"</h1>");
+        else if(line.startsWith("> ")) out.push("<blockquote>"+inline(line.slice(2))+"</blockquote>");
+        else out.push("<p>"+inline(line)+"</p>");
+      }
+      closeList(); return out.join("\n");
+    }
+    function persist() { localStorage.setItem(storageKey, JSON.stringify({markdown:source.value,theme:theme.value,photo:photo.src||""})); status.textContent="已自动保存到当前浏览器"; }
+    function update() { content.innerHTML=renderMarkdown(source.value); document.body.className="theme-"+theme.value; persist(); }
+    let saved={}; try { saved=JSON.parse(localStorage.getItem(storageKey)||"{}"); } catch (_) {}
+    source.value=saved.markdown||initialMarkdown; theme.value=saved.theme||initialTheme;
+    if(saved.photo){ photo.src=saved.photo; photo.classList.remove("hidden"); }
+    source.addEventListener("input",update); theme.addEventListener("change",update);
+    document.getElementById("mdFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{source.value=r.result;update();}; r.readAsText(f,"utf-8"); });
+    document.getElementById("photoFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{photo.src=r.result;photo.classList.remove("hidden");persist();}; r.readAsDataURL(f); });
+    const download=(name,text,type)=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
+    document.getElementById("downloadMd").onclick=()=>download("resume.md",source.value,"text/markdown;charset=utf-8");
+    document.getElementById("exportHtml").onclick=()=>{ const css=document.querySelector("style").textContent; const img=photo.classList.contains("hidden")?"":`<img id="photo" src="${photo.src}" alt="个人照片">`; download("resume.html",`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Resume</title><style>${css}</style><body class="theme-${theme.value}"><main class="paper">${img}${renderMarkdown(source.value)}</main></body></html>`,"text/html;charset=utf-8"); };
+    document.getElementById("printPdf").onclick=()=>window.print();
+    document.getElementById("clearLocal").onclick=()=>{localStorage.removeItem(storageKey);source.value=initialMarkdown;theme.value=initialTheme;photo.src="";photo.classList.add("hidden");update();};
+    update();
+  </script>
+</body>
+</html>

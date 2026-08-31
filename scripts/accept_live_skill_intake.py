@@ -1,7 +1,7 @@
 """Run one bounded live-model acceptance flow for the resume workspace.
 
 The caller supplies LLM_* environment variables. This script never prints the
-API key, retries a model request, or permits more than four model calls.
+API key, retries a model request, or permits more than five model calls.
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ from medical_career_agent.adapters.openai_compatible_model_gateway import (
 from medical_career_agent.api import create_app
 
 
-CALL_LIMIT = 4
+CALL_LIMIT = 5
 EXPECTED_EXPORTS = {
     "evidence-summary.json",
     "export-instructions.txt",
@@ -120,6 +120,30 @@ def main() -> int:
                      "proposal_ids": []})["state"]
     state = message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})["state"]
     state = message({"action": "approve_representative_sample"})["state"]
+    state = message({"action": "generate_resume_tiers"})["state"]
+    rewrite_ids = {
+        item["claim_id"] for item in state["rewrite_candidates"]
+    }
+    base_claims = [
+        item for item in state["generated_claims"]
+        if item["claim_id"] not in rewrite_ids
+    ]
+    candidates_by_source = {
+        claim["claim_id"]: [
+            item for item in state["rewrite_candidates"]
+            if item["source_claim_id"] == claim["claim_id"]
+        ]
+        for claim in base_claims
+    }
+    state_before_edit = state
+    state = message({"action": "accept_bullets"})["state"]
+    state = message({"action": "reopen_audit"})["state"]
+    edited_claim = base_claims[0]
+    edited_wording = edited_claim["wording"].rstrip("。；") + "；在导师指导下完成。"
+    state = message({
+        "action": "edit_wording", "claim_id": edited_claim["claim_id"],
+        "wording": edited_wording,
+    })["state"]
     state = message({"action": "accept_bullets"})["state"]
 
     exported = client.post(f"/api/conversations/{session_id}/export", json={})
@@ -137,18 +161,25 @@ def main() -> int:
     ]
     bullets = re.findall(r"^- (.+)$", markdown, flags=re.MULTILINE)
     normalized = [re.sub(r"\s+", "", item) for item in bullets]
+    current_rewrite_ids = {
+        item["claim_id"] for item in state["rewrite_candidates"]
+    }
     responsibility_refs = [
         tuple(item.get("dependency_refs", {}).get("responsibility_ids", []))
         for item in state["generated_claims"]
         if item.get("verification_status") == "ready"
+        and item.get("claim_id") not in current_rewrite_ids
     ]
     tier_markdown = [
         delivery_data["tiers"][tier]["markdown"]
         for tier in ("conservative", "professional", "high_impact")
     ]
     checks = {
-        "four_summary_calls": gateway.tasks == ["resume_intake_skill_summary"] * CALL_LIMIT,
-        "all_model_summaries_validated": model_statuses == ["validated"] * CALL_LIMIT,
+        "bounded_expected_model_calls": gateway.tasks == (
+            ["resume_intake_skill_summary"] * 4
+            + ["resume_experience_tier_rewrite"]
+        ),
+        "all_model_summaries_validated": model_statuses == ["validated"] * 4,
         "profile_confirmed": state["candidate_profile"]["status"] == "confirmed",
         "profile_extras_present": all(item in markdown for item in (
             "校级科研竞赛一等奖", "CET-6：580", "GCP 培训证书", "心血管循证医学",
@@ -178,6 +209,26 @@ def main() -> int:
             and "## 科研经历" in value
             and len(re.findall(r"^- ", value, flags=re.MULTILINE)) >= len(experience_bullets)
             for value in tier_markdown
+        ),
+        "all_tier_candidates_ready": bool(candidates_by_source) and all(
+            {item["tone"] for item in candidates} == {
+                "Conservative", "Professional", "High-impact",
+            }
+            and all(item["selected"] and item["gate"]["status"] == "ready"
+                    for item in candidates)
+            for candidates in candidates_by_source.values()
+        ),
+        "three_distinct_tier_wordings_per_claim": all(
+            len({
+                next(item for item in state_before_edit["generated_claims"]
+                     if item["claim_id"] == candidate["claim_id"])["wording"]
+                for candidate in candidates
+            }) == 3
+            for candidates in candidates_by_source.values()
+        ),
+        "user_edit_reaudited": (
+            state["stage"] == "delivery"
+            and delivery_data["edit_status"] == "user-edited"
         ),
         "responsibility_boundary_preserved": not any(
             re.search(r"主导|独立完成|负责全部|论文已发表", value)

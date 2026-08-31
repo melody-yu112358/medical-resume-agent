@@ -37,7 +37,8 @@ class ResumeConversationApiTest(unittest.TestCase):
 
     def establish_claims(self):
         self.establish_confirmed_experience()
-        return self.message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+        self.message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+        return self.message({"action": "approve_representative_sample"})
 
     def test_free_text_supplement_updates_confirmed_canonical_experience(self):
         self.establish_confirmed_experience()
@@ -123,8 +124,9 @@ class ResumeConversationApiTest(unittest.TestCase):
         after = self.client.get(f"/api/conversations/{self.session_id}").get_json()["state"]
         self.assertEqual(after["evidence_records"], before["evidence_records"])
         self.assertEqual(after["selected_role_packs"], ["doctoral_v1"])
-        self.assertEqual(after["stage"], "factual_audit")
-        self.assertIn("候选要点已生成", response["assistant_message"])
+        self.assertEqual(after["stage"], "representative_sample")
+        self.assertEqual(after["representative_sample"]["status"], "pending")
+        self.assertIn("代表样板", response["assistant_message"])
 
     def test_narrow_clinical_operations_phrases_select_the_fifth_pack(self):
         self.establish_confirmed_experience()
@@ -132,7 +134,7 @@ class ResumeConversationApiTest(unittest.TestCase):
         state = response["state"]
 
         self.assertEqual(state["selected_role_packs"], ["clinical_operations_v1"])
-        self.assertEqual(state["stage"], "factual_audit")
+        self.assertEqual(state["stage"], "representative_sample")
         self.assertTrue(state["generated_claims"])
 
     def test_general_operations_phrases_do_not_select_clinical_operations(self):
@@ -147,8 +149,30 @@ class ResumeConversationApiTest(unittest.TestCase):
         response = self.message({"text": "保研，给我措辞"})
         state = response["state"]
         self.assertEqual(state["selected_role_packs"], ["doctoral_v1"])
-        self.assertEqual(state["stage"], "factual_audit")
+        self.assertEqual(state["stage"], "representative_sample")
         self.assertTrue(state["generated_claims"])
+
+    def test_representative_sample_must_be_approved_before_delivery(self):
+        self.establish_confirmed_experience()
+        sample = self.message({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+        sample_claim_ids = [item["claim_id"] for item in sample["state"]["generated_claims"]]
+
+        blocked = self.message({"action": "accept_bullets"})
+        self.assertEqual(blocked["stage"], "representative_sample")
+        self.assertEqual(blocked["state"]["representative_sample"]["status"], "pending")
+        self.assertEqual(
+            [item["claim_id"] for item in blocked["state"]["generated_claims"]],
+            sample_claim_ids,
+        )
+        self.assertIn("先确认代表样板", blocked["assistant_message"])
+
+        approved = self.message({"action": "approve_representative_sample"})
+        self.assertEqual(approved["stage"], "factual_audit")
+        self.assertEqual(approved["state"]["representative_sample"]["status"], "approved")
+        self.assertEqual(
+            [item["claim_id"] for item in approved["state"]["generated_claims"]],
+            sample_claim_ids,
+        )
 
     def test_new_facts_return_to_confirmation_and_supersede_pending_proposals(self):
         self.establish_confirmed_experience()

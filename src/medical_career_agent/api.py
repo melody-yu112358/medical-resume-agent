@@ -5,6 +5,7 @@ import os
 import subprocess
 from dataclasses import asdict
 from datetime import datetime, timezone
+from importlib.resources import files
 from pathlib import Path
 from uuid import uuid4
 
@@ -53,6 +54,7 @@ from .services.resume_conversation_agent import ResumeConversationAgent
 from .services.chat_first_resume_agent import ChatFirstResumeAgent
 from .services.conversation_model_gateway import ModelGatewayConversationGateway
 from .services.resume_delivery import ResumeDeliveryError, ResumeDeliveryService
+from .services.resume_vocabulary import flat_fact_labels
 
 PROCESS_STARTED_AT = datetime.now(timezone.utc).isoformat()
 CONVERSATION_V2_VERSION = "runtime-observability-v1"
@@ -168,7 +170,9 @@ def create_app(
         model_gateway=gateway,
     )
     resume_delivery = ResumeDeliveryService()
-    workflow_contract = root / "skill-lite" / "medical-resume-skill" / "references" / "workflow-contract.json"
+    workflow_contract = files("medical_career_agent").joinpath(
+        "assets/workflow-contract.json"
+    )
 
     def comparison_from_payload(payload: dict[str, object]):
         maximum_hypotheses = int(payload.get("maximum_hypotheses", 3))
@@ -214,8 +218,10 @@ def create_app(
 
     @app.get("/api/resume-agent/config")
     def resume_agent_config():
-        """Expose the Skill-owned workflow vocabulary to the browser workspace."""
-        return jsonify(json.loads(workflow_contract.read_text(encoding="utf-8")))
+        """Expose the package-owned workflow vocabulary to the browser workspace."""
+        config = json.loads(workflow_contract.read_text(encoding="utf-8"))
+        config["fact_labels"] = flat_fact_labels()
+        return jsonify(config)
 
     @app.get("/api/jobs")
     def list_jobs():
@@ -422,7 +428,7 @@ def create_app(
 
     @app.post("/api/bullet-composer")
     def compose_bullets():
-        """Generate 1-3 bullet claims from canonical experience for a specific role pack."""
+        """Generate evidence-bound bullet claims from a canonical experience."""
         payload = request.get_json(silent=True) or {}
         try:
             result = bullet_composer.compose_bullets(
@@ -672,10 +678,14 @@ def create_app(
     def export_conversation_resume(session_id: str):
         payload = request.get_json(silent=True) or {}
         try:
+            conversation = conversations.read(session_id)
             bundle = resume_delivery.build_bundle(
-                conversation=conversations.read(session_id),
+                conversation=conversation,
                 basics=payload.get("basics") if isinstance(payload.get("basics"), dict) else {},
                 theme=str(payload.get("theme", "clinical-blue")),
+                tier_documents=conversations.resume_tier_documents(
+                    session_id, conversation["state"],
+                ),
             )
         except ValueError as exc:
             return {"error": str(exc)}, 400

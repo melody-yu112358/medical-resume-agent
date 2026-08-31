@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from uuid import uuid4
 
 from .resume_translation import TARGET_PROFILES
+from .resume_vocabulary import FACT_LABELS
 
 
 @dataclass(frozen=True)
@@ -70,7 +71,7 @@ class BulletClaimV2:
 
 
 class BulletComposerService:
-    """Converts Canonical Experience and Role Pack into 1-3 Bullet Claims.
+    """Converts Canonical Experience and Role Pack into evidence-bound claims.
 
     This service respects the authenticity boundary by:
     - Only using confirmed facts from canonical experience
@@ -89,14 +90,15 @@ class BulletComposerService:
         canonical_experience: Dict[str, Any],
         role_pack_name: str,
     ) -> List[BulletClaim | BulletClaimV2]:
-        """Generate 1-3 bullet claims from canonical experience for a specific role pack.
+        """Generate claims from confirmed facts for a specific role pack.
 
         Args:
             canonical_experience: A validated canonical experience record
             role_pack_name: Name of the role pack (e.g., 'doctoral_v1', 'clinical_research_v1')
 
         Returns:
-            List of 1-3 bullet claims ready for resume use
+            V1 returns up to three claims; V2 returns one claim per confirmed
+            atomic task responsibility.
 
         Raises:
             ValueError: If inputs are invalid or role pack not found
@@ -164,46 +166,34 @@ class BulletComposerService:
     def _compose_v2(self, canonical_experience: Dict[str, Any], role_pack_name: str) -> List[BulletClaimV2]:
         if canonical_experience.get("status") != "user_confirmed":
             raise ValueError("canonical_experience must have status 'user_confirmed'")
-        self._load_role_pack(role_pack_name)
+        role_pack = self._load_role_pack(role_pack_name)
         activities = {item.get("activity_id"): item for item in canonical_experience.get("activities", [])}
         responsibilities = canonical_experience.get("task_responsibilities", [])
         if not responsibilities:
             # A v2 record without confirmed task responsibilities must not infer
             # them from tools or methods; use no task-level candidate.
             return []
-        action_labels = {"retrieve_literature": "文献检索", "screen_studies": "文献筛选", "extract_data": "数据提取", "perform_analysis": "数据分析", "culture_cells": "细胞培养", "perform_qpcr": "qPCR 检测"}
-        method_labels = {"systematic_review": "系统综述", "meta_analysis": "Meta 分析", "sensitivity_analysis": "敏感性分析"}
-        tool_labels = {"r": "R", "python": "Python", "pubmed": "PubMed", "embase": "Embase", "revman": "RevMan"}
         claims: List[BulletClaimV2] = []
-        for responsibility in responsibilities:
+        ordered = sorted(
+            enumerate(responsibilities),
+            key=lambda item: self._v2_activity_priority(
+                activities.get(item[1].get("activity_id")), role_pack, item[0],
+            ),
+        )
+        for _, responsibility in ordered:
             activity = activities.get(responsibility.get("activity_id"))
             if not activity:
                 continue
             components = activity.get("components", {})
             facts: list[str] = []
             rendered: list[str] = []
-            for category, labels in (("actions", action_labels), ("methods", method_labels), ("tools", tool_labels)):
+            for category in ("actions", "methods", "tools", "techniques", "artifacts"):
                 values = components.get(category, [])
                 facts.extend(f"{category}:{value}" for value in values)
-                rendered.extend(labels.get(value, value) for value in values)
+                rendered.extend(FACT_LABELS[category].get(value, value) for value in values)
             if not rendered:
                 continue
-            ownership, execution = responsibility.get("ownership_level"), responsibility.get("execution_mode")
-            coverage = (responsibility.get("scope") or {}).get("coverage")
-            if execution == "supervised":
-                prefix = "在指导下参与"
-            elif execution == "shared":
-                prefix = "与团队共同完成"
-            elif ownership == "owned_component" and execution == "independent":
-                prefix = "独立完成"
-            elif ownership == "led_delivery":
-                prefix = "推动完成"
-            else:
-                prefix = "参与完成"
-            wording = prefix + "“" + "、".join(rendered) + "”"
-            if coverage == "partial":
-                wording += "中的部分既定步骤"
-            wording += "。"
+            wording = self._render_v2_wording(components, responsibility)
             claims.append(BulletClaimV2(
                 claim_id=f"claim_{uuid4().hex[:8]}", experience_id=canonical_experience["experience_id"],
                 role_pack=role_pack_name, wording=wording, used_facts=tuple(facts),
@@ -212,7 +202,123 @@ class BulletComposerService:
                 project_responsibility_level=canonical_experience["role"]["responsibility_level"],
                 omitted_unknowns=tuple(canonical_experience.get("unknowns", [])),
             ))
-        return claims[:3]
+        return claims
+
+    @staticmethod
+    def _v2_activity_priority(
+        activity: Dict[str, Any] | None, role_pack: Dict[str, Any], stable_index: int,
+    ) -> tuple[int, int]:
+        """Order existing facts by Role Pack emphasis without changing them."""
+        components = (activity or {}).get("components", {})
+        actions = set(components.get("actions", []))
+        capabilities: set[str] = set()
+        if actions.intersection({
+            "define_research_question", "develop_protocol", "design_search_strategy",
+            "screen_studies", "assess_quality",
+        }) or components.get("methods"):
+            capabilities.add("research_method")
+        if actions.intersection({"extract_data", "perform_analysis"}) or set(
+            components.get("tools", [])
+        ).intersection({"r", "python", "spss", "stata", "sas", "revman", "excel"}):
+            capabilities.add("data_analysis")
+        if actions.intersection({
+            "culture_cells", "perform_qpcr", "perform_western_blot",
+        }) or components.get("techniques"):
+            capabilities.add("wet_lab")
+        if actions.intersection({
+            "review_clinical_case", "prepare_case_presentation", "develop_protocol",
+        }):
+            capabilities.add("clinical_research")
+        if actions.intersection({
+            "design_search_strategy", "retrieve_literature", "retrieve_guidelines",
+            "prepare_research_outputs",
+        }):
+            capabilities.add("medical_information")
+        ranks = {
+            capability: index
+            for index, capability in enumerate(role_pack.get("priorities", []))
+        }
+        return min((ranks[item] for item in capabilities if item in ranks), default=len(ranks)), stable_index
+
+    @staticmethod
+    def _render_v2_wording(
+        components: Dict[str, Any], responsibility: Dict[str, Any],
+    ) -> str:
+        """Render one atomic activity as natural prose without changing facts."""
+        def labels(category: str) -> str:
+            return "、".join(
+                FACT_LABELS[category].get(value, value)
+                for value in components.get(category, [])
+            )
+
+        action = next(iter(components.get("actions", [])), "")
+        methods, tools = labels("methods"), labels("tools")
+        method_phrase = methods.replace("、", "与")
+        techniques, artifacts = labels("techniques"), labels("artifacts")
+        action_label = FACT_LABELS["actions"].get(action, action or "相关工作")
+        if action == "define_research_question":
+            body = "研究问题界定"
+        elif action == "develop_protocol":
+            body = f"{method_phrase}研究方案的制定与修改" if methods else "研究方案的制定与修改"
+        elif action == "design_search_strategy":
+            body = f"{method_phrase}检索策略设计" if methods else "检索策略设计"
+            if tools:
+                body += f"，覆盖 {tools}"
+        elif action == "retrieve_literature":
+            body = "医学文献检索"
+            if tools:
+                body += f"，使用 {tools}"
+        elif action == "screen_studies":
+            body = "文献筛选"
+        elif action == "extract_data":
+            body = "研究数据提取"
+        elif action == "assess_quality":
+            body = f"{method_phrase}的质量评价与偏倚评估" if methods else "质量评价与偏倚评估"
+        elif action == "prepare_research_outputs":
+            body = "研究材料整理"
+            if artifacts:
+                body += f"，形成{artifacts}"
+        elif action == "perform_analysis":
+            body = "统计分析"
+            if methods:
+                body += f"，采用 {methods}"
+            if tools:
+                body += f"并使用 {tools}"
+            if techniques:
+                body += f"，涉及 {techniques}"
+            if artifacts:
+                body += f"，形成{artifacts}"
+        else:
+            body = action_label
+            if methods:
+                body += f"，采用 {methods}"
+            if tools:
+                body += f"，使用 {tools}"
+            if techniques:
+                body += f"，涉及 {techniques}"
+            if artifacts:
+                body += f"，形成{artifacts}"
+
+        ownership = responsibility.get("ownership_level")
+        execution = responsibility.get("execution_mode")
+        partial = (responsibility.get("scope") or {}).get("coverage") == "partial"
+        if partial:
+            lead = {
+                "supervised": "在指导下完成已分配的",
+                "shared": "与团队共同完成已分配的",
+                "independent": "独立完成已分配的",
+            }.get(execution, "完成已分配的")
+        elif execution == "supervised":
+            lead = "在指导下参与"
+        elif execution == "shared":
+            lead = "与团队共同完成"
+        elif ownership == "owned_component" and execution == "independent":
+            lead = "独立完成"
+        elif ownership == "led_delivery":
+            lead = "推动完成"
+        else:
+            lead = "参与完成"
+        return f"{lead}{body}。"
 
     def _load_role_pack(self, role_pack_name: str) -> Dict[str, Any]:
         """Load role pack configuration from JSON file."""
@@ -267,33 +373,19 @@ class BulletComposerService:
         artifacts = facts.get("artifacts", [])
 
         action_labels = {
-            "retrieve_literature": "文献检索", "screen_studies": "文献筛选",
-            "extract_data": "数据提取", "perform_analysis": "数据分析",
-            "culture_cells": "细胞培养", "perform_qpcr": "qPCR 检测",
+            **FACT_LABELS["actions"],
+            "retrieve_literature": "文献检索", "perform_analysis": "数据分析",
+            "perform_qpcr": "qPCR 检测",
             "perform_western_blot": "Western Blot 检测",
-            "review_clinical_case": "病例分析",
             "prepare_case_presentation": "病例汇报材料制作",
             "retrieve_guidelines": "指南与文献检索",
         }
         method_labels = {
-            "meta_analysis": "Meta 分析",
+            **FACT_LABELS["methods"],
             "mendelian_randomization": "孟德尔随机化（MR）",
-            "systematic_review": "系统综述",
-            "randomized_trial": "随机对照试验",
-            "cohort_study": "队列研究",
-            "case_control": "病例对照研究",
-            "sensitivity_analysis": "敏感性分析",
         }
-        technique_labels = {
-            "cell_culture": "细胞培养", "qpcr": "qPCR",
-            "western_blot": "Western Blot", "flow_cytometry": "流式细胞术",
-            "elisa": "ELISA", "animal_experiment": "动物实验",
-        }
-        tool_labels = {
-            "r": "R", "python": "Python", "spss": "SPSS", "sql": "SQL",
-            "pubmed": "PubMed", "embase": "Embase", "cochrane": "Cochrane",
-            "graphpad_prism": "GraphPad Prism",
-        }
+        technique_labels = FACT_LABELS["techniques"]
+        tool_labels = FACT_LABELS["tools"]
 
         known_facts = (
             set(actions).intersection(action_labels)

@@ -1,13 +1,35 @@
 from __future__ import annotations
 
+import inspect
 import json
+import os
+import re
+import subprocess
+import sys
 from pathlib import Path
 
 from medical_career_agent.api import create_app
+from medical_career_agent.services.experience_draft import ExperienceDraftService
+from medical_career_agent.services.resume_conversation_agent import ResumeConversationAgent
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MATERIAL = "在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"
+MATERIAL = "在导师指导下参与 Meta 分析，使用 R 完成统计分析，并使用 PubMed 检索文献。"
+
+
+def test_live_acceptance_script_imports_current_checkout_without_installation():
+    environment = os.environ.copy()
+    environment.pop("PYTHONPATH", None)
+    for name in ("LLM_BASE_URL", "LLM_API_KEY", "LLM_MODEL"):
+        environment.pop(name, None)
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "accept_live_skill_intake.py")],
+        cwd=ROOT, env=environment, capture_output=True, text=True,
+    )
+    output = result.stdout + result.stderr
+    assert result.returncode != 0
+    assert "missing environment variable: LLM_BASE_URL" in output
+    assert "ModuleNotFoundError" not in output
 
 
 def _message(client, session_id: str, payload: dict):
@@ -33,10 +55,14 @@ def _delivery_conversation(client, role_pack="doctoral_v1"):
             "coverage": "partial",
             "scope_note": "按既定流程完成部分步骤",
         })
-    _message(client, session_id, {"action": "update_activity_proposals", "activity_proposals": updated})
-    confirmed = _message(client, session_id, {"action": "confirm_activity_proposals", "proposal_ids": []})
+    confirmed = _message(client, session_id, {
+        "action": "confirm_activity_proposals", "activity_proposals": updated,
+        "proposal_ids": [],
+    })
     assert confirmed["stage"] == "representative_sample"
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
+    sample = _message(client, session_id, {"action": "select_role_packs", "role_packs": [role_pack]})
+    assert sample["stage"] == "representative_sample"
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     assert composed["stage"] == "factual_audit"
     assert composed["audit_status"]["ready"] > 0
     delivered = _message(client, session_id, {"action": "accept_bullets"})
@@ -90,7 +116,8 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
     assert response.status_code == 200, response.get_json()
     bundle = response.get_json()
     assert set(bundle["files"]) == {
-        "resume.md", "resume.html", "resume-data.json", "evidence-summary.json", "export-instructions.txt"
+        "resume.md", "resume.html", "resume-editor.html", "resume-data.json",
+        "evidence-summary.json", "rewrite-comparison.md", "export-instructions.txt",
     }
     assert "测试候选人" in bundle["files"]["resume.html"]
     assert "学术升学与科研申请" in bundle["files"]["resume.html"]
@@ -100,8 +127,18 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
     assert "未经审计的强定位" not in bundle["files"]["resume.md"]
     assert "未经审计的强定位" not in bundle["files"]["resume.html"]
     assert "positioning" not in json.loads(bundle["files"]["resume-data.json"])["basics"]
+    assert "## 候选人定位" in bundle["files"]["resume.md"]
+    assert "## 研究方法与技能" in bundle["files"]["resume.md"]
+    assert "**研究方法：** Meta 分析" in bundle["files"]["resume.md"]
+    assert "**文献与证据资源：** PubMed" in bundle["files"]["resume.md"]
     assert bundle["privacy"]["export_written_to_server"] is False
-    assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["research_experience"]
+    resume_document = json.loads(bundle["files"]["resume-data.json"])["resume_document"]
+    assert resume_document["research_experience"]
+    evidence_ids = {item["evidence_id"] for item in resume_document["evidence"]}
+    assert resume_document["skills"]
+    assert all(set(item["evidence_ids"]) <= evidence_ids for item in resume_document["skills"])
+    assert "仅保存在当前浏览器" in bundle["files"]["resume-editor.html"]
+    assert "用户确认的原始依据" in bundle["files"]["rewrite-comparison.md"]
 
 
 def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files():
@@ -115,6 +152,16 @@ def test_export_is_blocked_before_delivery_and_session_delete_cleans_local_files
     assert deleted.status_code == 200
     assert deleted.get_json()["deleted"] is True
     assert client.get(f"/api/conversations/{session_id}").status_code == 404
+
+
+def test_accept_bullets_cannot_fake_delivery_before_audit():
+    client = create_app(load_model_from_environment=False).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+
+    response = _message(client, session_id, {"action": "accept_bullets"})
+
+    assert response["stage"] == "intake"
+    assert "尚无可交付" in response["assistant_message"]
 
 
 def test_claim_cleanup_failure_preserves_conversation(monkeypatch):
@@ -150,14 +197,20 @@ def test_export_rejects_invalid_session_id_and_reports_unknown_valid_id():
 def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     html_text = (ROOT / "demo/resume-agent/index.html").read_text(encoding="utf-8")
     script = (ROOT / "demo/resume-agent/app.js").read_text(encoding="utf-8")
+    workspace_css = (ROOT / "demo/resume-agent/workspace.css").read_text(encoding="utf-8")
 
-    assert "LIVE A4 PREVIEW" in html_text
+    assert "简历预览" in html_text
+    assert "简历进度" in html_text
+    assert "打开旧版 Resume Beta" not in html_text
+    assert '<div id="workspace"></div>' in html_text
+    assert 'role="status" aria-live="polite"' in html_text
     assert "workspace.css" in html_text
     assert "reset-flow.js" in html_text
     for action in (
-        "update_activity_proposals", "confirm_activity_proposals", "select_role_packs",
+        "confirm_activity_proposals", "select_role_packs",
         "edit_wording", "rewrite_claim", "accept_bullets", "answer_candidate_profile",
-        "confirm_candidate_profile", "start_new_experience", "select_experience",
+        "select_rewrite_candidate", "select_resume_tier", "approve_representative_sample",
+        "confirm_candidate_profile", "start_new_experience", "select_experience", "submit_experience",
     ):
         assert action in script
     assert "/api/conversations/" in script
@@ -166,8 +219,102 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "positioning" not in script
     assert "localStorage" in script
     assert "基础资料与教育背景" in script
+    assert "荣誉奖励" in script
+    assert "语言能力" in script
+    assert "证书与培训" in script
+    assert "研究兴趣" in script
+    assert 'label: "聊经历"' in script
+    assert 'label: "定表达"' in script
+    assert 'label: "完成简历"' in script
+    assert 'internalStages: ["intake", "fact_confirmation"]' in script
+    assert 'internalStages: ["representative_sample", "composition"]' in script
+    assert 'internalStages: ["factual_audit", "delivery"]' in script
+    assert "contract.stages.map" not in script
+    assert 'visibleStage.id === "conversation"' in script
+    assert "已了解的你" in script
+    assert "已自动保存到本机" in script
+    assert "系统目前了解的信息" in script
+    assert "为什么问这个？" in script
+    assert "查看系统识别的候选事实" in script
+    assert 'class="secondary" type="button">核对完成' in script
     assert "documentData.education" in script
+    assert "basics.summary" in script
+    assert "documentData.skills" in script
+    assert "研究方法与技能" in script
+    assert "experience_identity" in script
+    assert "experienceName" in script
+    assert "experienceType" in script
+    assert "校园与领导力" in script
+    assert "志愿服务" in script
+    assert "experienceOrganization" in script
+    assert "experienceRole" in script
+    assert "选择完整简历版本" in script
+    assert "应用到该档" in script
     assert "confirmed_experiences" in script
     assert "添加另一段经历" in script
+    assert "你的回答会保存在本机 session" in script
     assert 'if ($("#candidateName") && $("#candidateContact")) saveBasicsAndPreview();' in script
     assert "window.print" in script
+    assert "button:focus-visible" in workspace_css
+    assert "[hidden] { display: none !important; }" in workspace_css
+    assert "prefers-reduced-motion" in workspace_css
+    assert "forced-colors" in workspace_css
+    assert ".conversation-mode .preview-pane { display: none; }" in workspace_css
+
+    config = create_app(load_model_from_environment=False).test_client().get(
+        "/api/resume-agent/config"
+    ).get_json()
+    frontend_label_ids = set(config["fact_labels"])
+    displayed_fact_ids = (
+        set(ExperienceDraftService.ACTION_PATTERNS)
+        | set(ExperienceDraftService.METHOD_PATTERNS)
+        | set(ExperienceDraftService.TECHNIQUE_PATTERNS)
+        | {item_id for _, item_id in ExperienceDraftService.TOOL_PATTERNS}
+        | set(ExperienceDraftService.COLLABORATION_PATTERNS)
+        | set(ExperienceDraftService.ARTIFACT_PATTERNS)
+    )
+    assert displayed_fact_ids <= frontend_label_ids
+    assert config["fact_labels"]["stata"] == "Stata"
+    assert config["fact_labels"]["analysis_figures"] == "分析图表"
+    assert "const labels = {" not in script
+    assert "labels = contract.fact_labels || {}" in script
+
+
+def test_delivery_editor_is_package_owned_and_kept_in_sync_with_skill_bundle():
+    service = (
+        ROOT / "src/medical_career_agent/services/resume_delivery.py"
+    ).read_text(encoding="utf-8")
+    package_editor = (
+        ROOT / "src/medical_career_agent/assets/resume-editor.html"
+    ).read_text(encoding="utf-8")
+    skill_editor = (
+        ROOT / "skill-lite/medical-resume-skill/assets/resume-editor.html"
+    ).read_text(encoding="utf-8")
+
+    assert "skill-lite" not in service
+    assert package_editor == skill_editor
+    assert "__INITIAL_MARKDOWN_JSON__" in package_editor
+
+
+def test_workflow_contract_is_package_owned_and_kept_in_sync_with_skill_bundle():
+    api_source = (ROOT / "src/medical_career_agent/api.py").read_text(encoding="utf-8")
+    package_contract = (
+        ROOT / "src/medical_career_agent/assets/workflow-contract.json"
+    ).read_text(encoding="utf-8")
+    skill_contract = (
+        ROOT
+        / "skill-lite/medical-resume-skill/references/workflow-contract.json"
+    ).read_text(encoding="utf-8")
+
+    contract = json.loads(package_contract)
+    dispatched_actions = set(re.findall(
+        r'action == "([^"]+)"', inspect.getsource(ResumeConversationAgent.handle_message),
+    ))
+
+    assert "skill-lite" not in api_source
+    assert contract == json.loads(skill_contract)
+    assert set(contract["actions"]) - dispatched_actions == {
+        "create_conversation", "provide_facts",
+    }
+    assert dispatched_actions <= set(contract["actions"])
+    assert contract["rules"]["maximum_questions_per_round"] == 1

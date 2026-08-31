@@ -54,7 +54,7 @@ Skill 默认先确认事实，再按目标方向规划每段经历，并提供�
 - [Skill Lite 使用说明](skill-lite/README.md)
 - [Skill 入口](skill-lite/medical-resume-skill/SKILL.md)
 
-Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。网页 Agent 读取 Skill 随附的工作流契约，并复用仓库现有的对话编排、v2 活动责任模型和 Claim Gate。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
+Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、流程与知识资产，本身不包含 API Key 或独立模型接口。网页 Agent 从 Python 包内读取同版本工作流契约；仓库测试保证这份运行时副本与 Skill 契约同步，但运行时不依赖 `skill-lite/**` 文件路径。网页继续复用同一套对话编排、v2 活动责任模型和 Claim Gate。安装和调用方式见 [Skill Lite 使用说明](skill-lite/README.md)。
 
 | 你提供什么 | 系统如何处理 | 你拿到什么 |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 
 ## 网页体验版
 
-> 网页 Agent 当前提供一段经历的完整纵向链路：原文输入、活动责任确认、目标方向、要点审计、A4 预览和交付包下载。多段经历编排仍优先通过 [Skill Lite](skill-lite/README.md) 完成。
+> 网页 Agent 当前提供证据绑定的完整纵向链路：基础资料与教育背景确认、逐段经历采集、独立证据与责任边界、代表样板确认、多段经历组合、要点审计、A4 预览和交付包下载。用户看到「聊经历、定表达、完成简历」三个阶段；后端仍使用六个受审计 gate，且不会引入第二套状态机。
 
 ### 快速开始
 

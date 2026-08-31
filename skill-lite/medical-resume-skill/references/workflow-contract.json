@@ -22,11 +22,26 @@
   ],
   "actions": [
     "create_conversation",
+    "answer_candidate_profile",
+    "confirm_candidate_profile",
+    "edit_candidate_profile",
+    "start_new_experience",
+    "select_experience",
+    "submit_experience",
     "provide_facts",
+    "update_facts",
+    "confirm_facts",
     "update_activity_proposals",
     "confirm_activity_proposals",
+    "reject_activity_proposal",
+    "split_activity_proposal",
+    "merge_activity_proposals",
     "select_role_packs",
+    "approve_representative_sample",
+    "select_resume_tier",
+    "generate_resume_tiers",
     "rewrite_claim",
+    "select_rewrite_candidate",
     "edit_wording",
     "accept_bullets"
   ],
@@ -36,7 +51,7 @@
     "raw_material_sent_only_to_configured_backend": true
   },
   "rules": {
-    "maximum_questions_per_round": 3,
+    "maximum_questions_per_round": 1,
     "default_tier": "professional",
     "tier_selection_confirms_new_facts": false,
     "user_edit_requires_reaudit": true

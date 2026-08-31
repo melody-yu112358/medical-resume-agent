@@ -2,15 +2,17 @@
 
 ## Product boundary
 
-This release connects the repository's Medical Resume Skill rules to one user-facing browser workflow. It is the first complete vertical slice for one confirmed experience, not a claim that every multi-experience resume scenario is finished.
+This release connects the repository's Medical Resume Skill rules to one evidence-bound browser workflow for confirmed candidate profile data and multiple independently confirmed experiences. It supports the complete implemented slice; it does not claim account-based persistence, arbitrary profile schemas, or every resume edge case.
 
-The six mandatory gates are:
+The six mandatory backend gates are:
 
 ```text
 intake → fact confirmation → representative sample → full composition → factual audit → delivery
 ```
 
-The machine-readable contract lives in `skill-lite/medical-resume-skill/references/workflow-contract.json`. The Skill prose remains authoritative for evidence and responsibility boundaries. The browser reuses the existing `ResumeConversationAgent`, canonical-experience-v2 activity responsibilities and v2 Claim Gate; it does not introduce a second orchestration pipeline.
+Users see three goal-oriented phases: `聊经历` maps to intake and fact confirmation, `定表达` maps to representative-sample review and composition, and `完成简历` maps to factual audit and delivery. The browser never creates a parallel workflow state.
+
+The runtime contract is package-owned at `src/medical_career_agent/assets/workflow-contract.json`; a regression test keeps it semantically identical to `skill-lite/medical-resume-skill/references/workflow-contract.json`. The Skill prose remains authoritative for evidence and responsibility boundaries. The browser reuses the existing `ResumeConversationAgent`, canonical-experience-v2 activity responsibilities and v2 Claim Gate.
 
 ## Architecture
 
@@ -22,13 +24,13 @@ flowchart LR
     W --> E["Experience Draft Service"]
     W --> B["v2 Bullet Composer"]
     W --> C["v2 Claim Gate"]
-    U --> P["Live A4 preview"]
-    U --> L["Browser stores session id and basics"]
+    U --> P["Intake insight pane / later A4 preview"]
+    U --> L["Browser stores session id and preview preferences"]
     W --> F["Local FileSessionStore"]
     W --> X["In-memory export bundle"]
 ```
 
-- The browser stores only the current local session id, preview preferences and candidate basics.
+- The browser stores the current local session id and preview preferences. Confirmed candidate profile data belongs to the backend session and is evidence-bound like other resume content; legacy sessions retain a request-only basics fallback.
 - The backend validates every stage transition and stores the active conversation as local session JSON; starting a new resume deletes that session and its claim ledger.
 - The Skill package owns the shared stage/action vocabulary and writing boundaries.
 - Existing legacy demos and APIs remain available; `/` opens the unified workspace.
@@ -37,7 +39,7 @@ flowchart LR
 
 | Endpoint | Purpose |
 | --- | --- |
-| `GET /api/resume-agent/config` | Return the versioned Skill workflow contract. |
+| `GET /api/resume-agent/config` | Return the versioned package-owned mirror of the Skill workflow contract. |
 | `POST /api/conversations` | Create a local bounded conversation session. |
 | `POST /api/conversations/<id>/messages` | Apply existing v2 fact, responsibility, composition, rewrite and audit actions. |
 | `DELETE /api/conversations/<id>` | Delete the local session and claim ledger when starting over. |
@@ -47,11 +49,13 @@ Export is refused until the conversation reaches delivery with at least one Clai
 
 ## User experience
 
-The workspace uses three coordinated areas:
+The desktop workspace uses three coordinated areas:
 
-1. a six-step navigator with privacy and progress status;
-2. the current decision surface for input, confirmation, sample approval, tier choice or editing;
-3. a sticky A4 preview with clinical, academic and ATS-friendly themes.
+1. a three-phase user navigator with privacy and local-save status;
+2. one primary decision surface for profile questions, single-question fact enrichment, responsibility confirmation, sample approval, tier choice or editing;
+3. an `已了解的你` insight pane during intake, replaced by a sticky A4 preview with clinical, academic and ATS-friendly themes after intake.
+
+The intake question card supports backend-owned single- or multi-select options, free-text detail, and an explicit `不确定 / 不记得` answer. Activity-boundary review and raw candidate facts remain available in disclosure panels without competing with the current primary question.
 
 The default expression tier is professional. Conservative and high-impact versions use the same confirmed fact set. Selecting a stronger tier never confirms a new fact, and a Markdown edit always triggers another audit before export.
 
@@ -77,11 +81,13 @@ This slice stays on the existing Flask and vanilla JavaScript stack so it adds n
 
 ### Usability
 
-- A first-time user can reach delivery through all six visible stages.
+- A first-time user can reach delivery through three visible phases while the backend enforces all six gates.
+- The user can confirm candidate basics and education, add multiple typed experiences, switch between them without evidence contamination, and see what the system currently understands.
+- Intake presents one primary question at a time, supports multiple preset answers and an unknown option, and never shows an empty A4 preview.
 - The user can compare three expression tiers, edit Markdown, see a live A4 preview and download a complete bundle.
 - Workflow state survives a browser refresh on the same device.
 - The layout remains usable on desktop and mobile widths.
 
 ### Optional optimization
 
-- Multi-experience composition, account-based cross-device persistence and a richer host-model writing adapter are later iterations. They must reuse this contract instead of creating another resume brain.
+- Multiple education records, account-based cross-device persistence and a richer host-model writing adapter are later iterations. They must reuse this contract instead of creating another resume brain.

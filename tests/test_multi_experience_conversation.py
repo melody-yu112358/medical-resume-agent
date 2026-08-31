@@ -65,7 +65,10 @@ def test_two_confirmed_experiences_can_be_added_switched_and_composed_together()
     selected_second = _message(client, session_id, {"action": "select_experience", "experience_id": second_id})
     assert selected_second["state"]["active_experience_id"] == second_id
 
-    composed = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    sample = _message(client, session_id, {"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
+    assert sample["stage"] == "representative_sample"
+    assert len({item["experience_id"] for item in sample["state"]["generated_claims"]}) == 1
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
     assert composed["stage"] == "factual_audit"
     assert {item["experience_id"] for item in composed["state"]["generated_claims"]} == {first_id, second_id}
     document = composed["state"]["resume_document"]
@@ -94,6 +97,7 @@ def test_new_experience_is_blocked_until_current_experience_is_confirmed():
 class RecordingRewriteGateway:
     def __init__(self) -> None:
         self.rewrite_canonical_ids: list[str] = []
+        self.tier_batch_canonical_ids: list[str] = []
 
     def generate(self, *, task: str, context: dict) -> str:
         if task == "resume_conversation_turn_plan":
@@ -127,7 +131,51 @@ class RecordingRewriteGateway:
                 "dependency_refs": source["dependency_refs"],
                 "evidence_ids": source["evidence_ids"],
             }, ensure_ascii=False)
+        if task == "resume_experience_tier_rewrite":
+            canonical_id = context["canonical_experience"]["experience_id"]
+            self.tier_batch_canonical_ids.append(canonical_id)
+            candidates = []
+            for source in context["source_claims"]:
+                for tone in ("Conservative", "Professional", "High-impact"):
+                    candidates.append({
+                        "source_claim_id": source["claim_id"], "tone": tone,
+                        "wording": source["wording"],
+                        "used_facts": source["used_facts"],
+                        "dependency_refs": source["dependency_refs"],
+                        "evidence_ids": source["evidence_ids"],
+                    })
+            return json.dumps({"rewrite_candidates": candidates}, ensure_ascii=False)
         raise AssertionError(f"unexpected model task: {task}")
+
+
+def test_complete_tiers_use_exactly_one_model_call_per_experience():
+    gateway = RecordingRewriteGateway()
+    client = create_app(
+        model_gateway=gateway, load_model_from_environment=False,
+    ).test_client()
+    session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
+    _confirm_material(client, session_id, MATERIALS[0])
+    _message(client, session_id, {"action": "start_new_experience"})
+    second = _confirm_material(client, session_id, MATERIALS[1])
+    experience_ids = {
+        item["experience_id"] for item in second["state"]["confirmed_experiences"]
+    }
+    _message(
+        client, session_id,
+        {"action": "select_role_packs", "role_packs": ["doctoral_v1"]},
+    )
+    composed = _message(client, session_id, {"action": "approve_representative_sample"})
+    ready_base_count = sum(
+        item["verification_status"] == "ready"
+        for item in composed["state"]["generated_claims"]
+    )
+
+    generated = _message(client, session_id, {"action": "generate_resume_tiers"})
+
+    assert len(gateway.tier_batch_canonical_ids) == 2
+    assert set(gateway.tier_batch_canonical_ids) == experience_ids
+    assert len(generated["state"]["rewrite_candidates"]) == ready_base_count * 3
+    assert all(item["selected"] for item in generated["state"]["rewrite_candidates"])
 
 
 @pytest.mark.parametrize("action", ["edit_wording", "rewrite_claim"])
@@ -156,6 +204,9 @@ def test_claim_changes_use_source_experience_not_active_experience(
     composed = _message(
         client, session_id,
         {"action": "select_role_packs", "role_packs": ["doctoral_v1"]},
+    )
+    composed = _message(
+        client, session_id, {"action": "approve_representative_sample"},
     )
     source_claim = next(
         claim for claim in composed["state"]["generated_claims"]

@@ -162,11 +162,28 @@ class ResumeConversationAgent:
             response = self._select_rewrite_candidate(state, payload)
         elif action == "select_resume_tier":
             response = self._select_resume_tier(state, payload)
+        elif action == "reopen_audit":
+            if state.get("stage") != "delivery":
+                response = self._response(state, "当前简历尚未进入交付阶段。")
+            else:
+                state["stage"] = "factual_audit"
+                response = self._response(
+                    state, "已返回事实审计；保存任何措辞后都必须重新通过 ClaimGate 才能交付。",
+                    ui_events=["show_bullet_cards", "refresh_resume_preview"],
+                )
         elif action == "accept_bullets":
-            ready = [item for item in state.get("generated_claims", []) if item.get("verification_status") == "ready"]
+            rewrite_ids = {
+                item.get("claim_id") for item in state.get("rewrite_candidates", [])
+            }
+            base_claims = [
+                item for item in state.get("generated_claims", [])
+                if item.get("claim_id") not in rewrite_ids
+            ]
             sample = state.get("representative_sample") or {}
-            if not ready:
+            if not base_claims:
                 response = self._response(state, "尚无可交付的已审计要点；请先确认事实并生成通过审计的内容。")
+            elif any(item.get("verification_status") != "ready" for item in base_claims):
+                response = self._response(state, "仍有基础要点未通过事实审计；请修改或补充事实后再交付。")
             elif state.get("stage") != "factual_audit" or sample.get("status") != "approved":
                 response = self._response(state, "请先确认代表样板，再生成和审计完整简历。")
             else:
@@ -1298,6 +1315,11 @@ class ResumeConversationAgent:
 
     def _edit_wording(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
         claim_id, wording = str(payload.get("claim_id", "")), str(payload.get("wording", "")).strip()
+        rewrite_ids = {
+            item.get("claim_id") for item in state.get("rewrite_candidates", [])
+        }
+        if claim_id in rewrite_ids:
+            return self._response(state, "请编辑基础要点，避免对候选改写再次改写。")
         original = next((item for item in state["generated_claims"] if item["claim_id"] == claim_id), None)
         canonical = self._canonical_for_claim(state, original)
         if not canonical or not original or not wording:
@@ -1307,11 +1329,31 @@ class ResumeConversationAgent:
         edited["wording"], edited["user_disposition"] = wording, "edited"
         gate = self.claim_gate.validate_claim(bullet_claim=edited, canonical_experience=canonical).to_dict()
         edited["verification_status"] = gate["status"]
-        self.claim_ledger.invalidate_claims_by_ids(session_id, [claim_id], "wording_replaced")
+        replaced_rewrites = [
+            item for item in state.get("rewrite_candidates", [])
+            if item.get("source_claim_id") == claim_id
+        ]
+        replaced_ids = {
+            item.get("claim_id") for item in replaced_rewrites if item.get("claim_id")
+        }
+        self.claim_ledger.invalidate_claims_by_ids(
+            session_id, [claim_id, *replaced_ids], "wording_replaced",
+        )
         self.claim_ledger.record_claim(session_id=session_id, bullet_claim=edited, gate_status=gate["status"], user_disposition="edited")
-        state["generated_claims"] = [item for item in state["generated_claims"] if item["claim_id"] != claim_id] + [edited]
+        state["generated_claims"] = [
+            item for item in state["generated_claims"]
+            if item["claim_id"] != claim_id and item["claim_id"] not in replaced_ids
+        ] + [edited]
+        state["rewrite_candidates"] = [
+            item for item in state.get("rewrite_candidates", [])
+            if item.get("claim_id") not in replaced_ids
+        ]
+        for replaced_id in {claim_id, *replaced_ids}:
+            state["claim_gate_results"].pop(replaced_id, None)
+            state["claim_user_dispositions"].pop(replaced_id, None)
         state["claim_gate_results"][edited["claim_id"]] = gate
         state["claim_user_dispositions"][edited["claim_id"]] = "edited"
+        state["stage"] = "factual_audit"
         return self._response(state, "已按原确认事实重新审计措辞；未新增事实。", ui_events=["refresh_bullet_card", "refresh_resume_preview"])
 
     def _rewrite_claim(self, session_id: str, state: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:

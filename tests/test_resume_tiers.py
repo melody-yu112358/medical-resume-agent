@@ -264,6 +264,27 @@ def test_batched_unsafe_candidate_falls_back_without_blocking_safe_tiers():
     assert "主导项目" not in switched["resume_document"]["research_experience"][0]["bullets"][0]["text"]
 
 
+def test_editing_base_claim_removes_its_stale_tier_candidates():
+    gateway = BatchedTierGateway()
+    client, session_id, composed = _composed_conversation(gateway)
+    source = composed["state"]["generated_claims"][0]
+    generated = _message(client, session_id, {"action": "generate_resume_tiers"})
+    candidate_ids = {
+        item["claim_id"] for item in generated["state"]["rewrite_candidates"]
+    }
+
+    edited = _message(client, session_id, {
+        "action": "edit_wording", "claim_id": source["claim_id"],
+        "wording": source["wording"],
+    })
+
+    assert edited["state"]["rewrite_candidates"] == []
+    assert candidate_ids.isdisjoint(
+        item["claim_id"] for item in edited["state"]["generated_claims"]
+    )
+    assert candidate_ids.isdisjoint(edited["state"]["claim_gate_results"])
+
+
 def test_no_model_still_exports_three_complete_professional_default_tiers():
     client, session_id, composed = _composed_conversation()
     assert composed["state"]["selected_resume_tier"] == "professional"

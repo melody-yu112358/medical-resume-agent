@@ -20,6 +20,7 @@ from .conversation_model_gateway import ConversationModelGateway
 from .question_guidance import QuestionGuidanceService
 from .candidate_profile_intake import CandidateProfileInputError, CandidateProfileIntakeService
 from .intake_summary_validation import IntakeSummaryValidationService
+from .resume_profile_projection import project_confirmed_profile
 
 
 STAGES = (
@@ -1187,11 +1188,15 @@ class ResumeConversationAgent:
         basics, education, profile_evidence = CandidateProfileIntakeService.document_sections(
             state.get("candidate_profile") or {}
         )
+        profile_projection = project_confirmed_profile(canonicals)
+        basics["summary"] = profile_projection["summary"]
+        basics["evidence_ids"] = sorted(set(basics.get("evidence_ids", [])) | set(profile_projection["summary_evidence_ids"]))
         return {
             "schema_version": "resume-document-v1", "resume_id": session_id,
             "target": {"purpose": "general", "role": ", ".join(state.get("selected_role_packs", [])) or None, "organization": None, "jd_reference": None},
             "basics": basics,
             "education": education,
+            "skills": profile_projection["skills"],
             "research_experience": [{
                 "item_id": canonical["experience_id"], "organization": "待补充", "title": canonical["role"].get("title") or "已确认经历",
                 "department_or_field": canonical["context"].get("domain"), "period": {"start": None, "end": None, "ongoing": False},

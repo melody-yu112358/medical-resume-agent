@@ -94,6 +94,9 @@ class ResumeDeliveryService:
             f"# {basics['name'] or '姓名（请填写）'}",
             f"> {target}" + (f" · {basics['contact']}" if basics["contact"] else ""),
         ]
+        summary = str((document.get("basics") or {}).get("summary") or "").strip()
+        if summary:
+            lines.extend(["", "## 候选人定位", summary])
         education = document.get("education") or []
         if education:
             lines.extend(["", "## 教育背景"])
@@ -119,6 +122,18 @@ class ResumeDeliveryService:
             ) or "已确认经历"
             lines.append(f"### {heading}")
             lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        skill_groups = (
+            ("研究方法", "research"),
+            ("数据与工具", "data"),
+            ("文献与证据资源", "medical_information"),
+        )
+        grouped = [
+            (label, [item["name"] for item in document.get("skills", []) if item.get("category") == category and item.get("name")])
+            for label, category in skill_groups
+        ]
+        if any(items for _, items in grouped):
+            lines.extend(["", "## 研究方法与技能"])
+            lines.extend(f"- **{label}：** {'、'.join(items)}" for label, items in grouped if items)
         return "\n".join(lines).strip() + "\n"
 
     @staticmethod

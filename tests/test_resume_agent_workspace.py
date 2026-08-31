@@ -7,7 +7,7 @@ from medical_career_agent.api import create_app
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MATERIAL = "在导师指导下参与系统综述，使用 PubMed 检索文献并完成文献筛选。"
+MATERIAL = "在导师指导下参与 Meta 分析，使用 R 完成统计分析，并使用 PubMed 检索文献。"
 
 
 def _message(client, session_id: str, payload: dict):
@@ -103,8 +103,16 @@ def test_existing_conversation_agent_reaches_export_without_a_second_pipeline():
     assert "未经审计的强定位" not in bundle["files"]["resume.md"]
     assert "未经审计的强定位" not in bundle["files"]["resume.html"]
     assert "positioning" not in json.loads(bundle["files"]["resume-data.json"])["basics"]
+    assert "## 候选人定位" in bundle["files"]["resume.md"]
+    assert "## 研究方法与技能" in bundle["files"]["resume.md"]
+    assert "**研究方法：** Meta 分析" in bundle["files"]["resume.md"]
+    assert "**文献与证据资源：** PubMed" in bundle["files"]["resume.md"]
     assert bundle["privacy"]["export_written_to_server"] is False
-    assert json.loads(bundle["files"]["resume-data.json"])["resume_document"]["research_experience"]
+    resume_document = json.loads(bundle["files"]["resume-data.json"])["resume_document"]
+    assert resume_document["research_experience"]
+    evidence_ids = {item["evidence_id"] for item in resume_document["evidence"]}
+    assert resume_document["skills"]
+    assert all(set(item["evidence_ids"]) <= evidence_ids for item in resume_document["skills"])
     assert "仅保存在当前浏览器" in bundle["files"]["resume-editor.html"]
     assert "用户确认的原始依据" in bundle["files"]["rewrite-comparison.md"]
 
@@ -182,6 +190,9 @@ def test_workspace_assets_expose_v2_confirmation_audit_export_and_cleanup():
     assert "localStorage" in script
     assert "基础资料与教育背景" in script
     assert "documentData.education" in script
+    assert "basics.summary" in script
+    assert "documentData.skills" in script
+    assert "研究方法与技能" in script
     assert "confirmed_experiences" in script
     assert "添加另一段经历" in script
     assert "你的回答会保存在本机 session" in script

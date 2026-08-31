@@ -329,8 +329,12 @@ function renderPreview() {
   const name = basics.name || fallbackBasics.name || "姓名（请填写）";
   const contact = [basics.phone, basics.email, basics.location].filter(Boolean).join(" · ") || fallbackBasics.contact || "";
   const target = targetLabels[documentData.target?.role] || documentData.target?.role || "医学相关方向";
+  const summary = basics.summary ? `<h2>候选人定位</h2><p>${esc(basics.summary)}</p>` : "";
   const education = (documentData.education || []).map((item) => { const period = item.period || {}; const dates = [period.start, period.ongoing ? "至今" : period.end].filter(Boolean).join(" - "); return `<h3>${esc([item.institution, item.degree, item.major].filter(Boolean).join(" · "))}</h3>${dates ? `<p>${esc(dates)}</p>` : ""}`; }).join("");
-  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}`;
+  const skillLabels = { research: "研究方法", data: "数据与工具", medical_information: "文献与证据资源" };
+  const skillGroups = Object.entries(skillLabels).map(([category, label]) => [label, (documentData.skills || []).filter((item) => item.category === category).map((item) => item.name)]).filter(([, items]) => items.length);
+  const skills = skillGroups.length ? `<h2>研究方法与技能</h2>${skillGroups.map(([label, items]) => `<p><b>${esc(label)}：</b>${items.map(esc).join("、")}</p>`).join("")}` : "";
+  paper.innerHTML = `<h1>${esc(name)}</h1><blockquote>${esc(target)}${contact ? ` · ${esc(contact)}` : ""}</blockquote>${summary}${education ? `<h2>教育背景</h2>${education}` : ""}<h2>科研与实践经历</h2>${experiences.map((experience) => { const organization = experience.organization === "待补充" ? "" : (experience.organization || ""); const heading = [organization, experience.title].filter(Boolean).join(" · ") || "已确认经历"; return `<h3>${esc(heading)}</h3><ul>${(experience.bullets || []).map((item) => `<li>${esc(item.text)}</li>`).join("")}</ul>`; }).join("")}${skills}`;
   $("#print").disabled = state().stage !== "delivery";
 }
 

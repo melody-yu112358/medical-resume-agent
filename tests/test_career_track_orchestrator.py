@@ -30,10 +30,14 @@ def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_research
         assert track["current_tier"] == "beta"
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
-        if track["career_id"] in {"clinical_research_associate", "medical_device_clinical_application_specialist"}:
+        if track["career_id"] == "medical_device_clinical_application_specialist":
             assert track["stage"] == "review"
             assert track["next_action"] == "request_independent_review"
             assert track["assigned_agent"] == "reviewer"
+        elif track["career_id"] == "clinical_research_associate":
+            assert track["stage"] == "conformance"
+            assert track["next_action"] == "run_conformance"
+            assert track["assigned_agent"] == "conformance"
         else:
             assert track["stage"] == "research"
             assert track["next_action"] == "collect_more_jds"

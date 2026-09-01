@@ -51,7 +51,7 @@ class OpenAICompatibleModelGateway:
                 },
             ],
             "temperature": 0.2,
-            "max_tokens": 1200,
+            "max_tokens": 4096 if task == "resume_experience_tier_rewrite" else 1200,
             "stream": False,
         }
         if self.hostname == "api.deepseek.com":

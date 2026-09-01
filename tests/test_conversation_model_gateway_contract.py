@@ -15,23 +15,7 @@ class RecordingGateway:
 
     def generate(self, *, task, context):
         self.calls.append((task, context))
-        return json.dumps({"activity_proposals": []} if task == "resume_activity_proposals" else {"wording": "x", "used_facts": [], "dependency_refs": {}, "evidence_ids": []})
-
-
-def test_activity_proposal_prompt_contract_covers_real_eval_failures():
-    recorder = RecordingGateway()
-    gateway = ModelGatewayConversationGateway(recorder)
-
-    gateway.propose_activities(text="示例", extracted_facts={"actions": [], "methods": [], "tools": [], "techniques": [], "objects": [], "artifacts": []})
-
-    instruction = recorder.calls[0][1]["instruction"]
-    assert "actions:retrieve_literature" in instruction
-    assert "requests exaggeration" in instruction
-    assert "uncertain outcome" in instruction
-    assert "guideline review" in instruction
-    assert "do not mean partial" in instruction
-    assert "mentor defining a plan" in instruction
-    assert "unknown" in recorder.calls[0][1]["execution_modes"]
+        return json.dumps({"wording": "x", "used_facts": [], "dependency_refs": {}, "evidence_ids": []})
 
 
 def test_rewrite_prompt_contract_defines_distinct_safe_tiers():
@@ -48,26 +32,44 @@ def test_rewrite_prompt_contract_defines_distinct_safe_tiers():
     assert "主导" in instruction
 
 
-def test_turn_plan_filters_actions_to_the_allow_list():
-    class PlanGateway:
-        def generate(self, *, task, context):
-            assert task == "resume_conversation_turn_plan"
-            return json.dumps({"assistant_message": "请确认范围。", "proposed_actions": [
-                {"type": "update_activity_responsibility", "proposal_id": "p1"},
-                {"type": "write_canonical_experience", "experience": {}},
-            ], "needs_user_reply": True})
-
-    plan = ModelGatewayConversationGateway(PlanGateway()).plan_turn(text="我独立完成", session_context={"stage": "fact_confirmation"})
-    assert plan.assistant_message == "请确认范围。"
-    assert plan.proposed_actions == [{"type": "update_activity_responsibility", "proposal_id": "p1"}]
-    assert plan.needs_user_reply is True
-
-
-def test_turn_plan_exposes_clinical_operations_as_a_supported_pack():
+def test_batched_tier_prompt_explicitly_forbids_unsupported_leadership():
     recorder = RecordingGateway()
+    gateway = ModelGatewayConversationGateway(recorder)
 
-    ModelGatewayConversationGateway(recorder).plan_turn(
-        text="临床项目协调", session_context={"stage": "representative_sample"}
+    gateway.rewrite_experience_tiers(
+        source_claims=[], canonical_experience={}, instruction="生成三档",
     )
 
-    assert "clinical_operations_v1" in recorder.calls[0][1]["allowed_role_packs"]
+    instruction = recorder.calls[0][1]["instruction"]
+    assert recorder.calls[0][0] == "resume_experience_tier_rewrite"
+    for wording in ("主导", "项目负责人", "负责全部", "完整流程", "独立完成"):
+        assert wording in instruction
+    assert "Responsibility words are immutable per source claim" in instruction
+    assert "never add, remove, strengthen, or move" in instruction
+
+
+def test_intake_summary_prompt_receives_skill_constraints_and_backend_whitelists():
+    recorder = RecordingGateway()
+
+    ModelGatewayConversationGateway(recorder).summarize_intake_turn(
+        text="我使用了 PubMed。", selected_option_ids=["pubmed"], free_text="",
+        session_context={
+            "active_evidence": [{"evidence_id": "ev_001", "source_text": "我使用了 PubMed。"}],
+            "extracted_facts": {"tools": ["pubmed"]}, "allowed_fact_refs": ["tools:pubmed"],
+            "confirmed_facts": None, "previous_questions": [],
+        },
+        allowed_question_cards=[
+            {"question_id": "research_steps", "options": [{"id": "screening"}]},
+            {"question_id": "outputs", "options": [{"id": "analysis_tables"}]},
+        ],
+    )
+
+    task, context = recorder.calls[0]
+    assert task == "resume_intake_skill_summary"
+    assert context["user_answer"]["selected_option_ids"] == ["pubmed"]
+    assert context["allowed_fact_refs"] == ["tools:pubmed"]
+    assert [item["question_id"] for item in context["allowed_question_cards"]] == [
+        "research_steps", "outputs",
+    ]
+    assert "single highest-value unresolved gap" in context["instruction"]
+    assert "Medical Resume Skill Stage 1" in context["instruction"]

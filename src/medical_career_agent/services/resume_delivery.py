@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import json
+from importlib.resources import files
 from typing import Any
 
 
@@ -27,6 +28,7 @@ class ResumeDeliveryService:
         conversation: dict[str, Any],
         basics: dict[str, Any] | None = None,
         theme: str = "clinical-blue",
+        tier_documents: dict[str, dict[str, Any] | None] | None = None,
     ) -> dict[str, Any]:
         state = conversation.get("state") or {}
         document = state.get("resume_document")
@@ -34,30 +36,65 @@ class ResumeDeliveryService:
             raise ResumeDeliveryError("conversation must reach delivery before export")
         if theme not in self.THEMES:
             raise ResumeDeliveryError("theme is invalid")
-        experiences = document.get("research_experience") or []
+        experiences = [
+            item for _, section in self._experience_groups(document)
+            for item in section
+        ]
         if not any(item.get("bullets") for item in experiences):
             raise ResumeDeliveryError("at least one ClaimGate-ready bullet is required")
 
         document_basics = document.get("basics") or {}
-        profile_confirmed = (state.get("candidate_profile") or {}).get("status") == "confirmed"
         confirmed_contact = " · ".join(
             str(document_basics.get(field) or "").strip()
             for field in ("phone", "email", "location")
             if str(document_basics.get(field) or "").strip()
         )
+        profile_confirmed = (state.get("candidate_profile") or {}).get("status") == "confirmed"
         resolved_basics = {
             "name": str(
                 document_basics.get("name")
                 or ("" if profile_confirmed else (basics or {}).get("name", ""))
             ).strip(),
-            "contact": confirmed_contact
-            or ("" if profile_confirmed else str((basics or {}).get("contact", "")).strip()),
+            "contact": confirmed_contact or (
+                "" if profile_confirmed else str((basics or {}).get("contact", "")).strip()
+            ),
         }
-        markdown = self._markdown(document, resolved_basics)
+        selected_tier = str(state.get("selected_resume_tier") or "professional")
+        if selected_tier not in {"conservative", "professional", "high_impact"}:
+            selected_tier = "professional"
+        documents = {
+            tier: ((tier_documents or {}).get(tier) or document)
+            for tier in ("conservative", "professional", "high_impact")
+        }
+        tier_markdown = {
+            tier: self._markdown(tier_document, resolved_basics)
+            for tier, tier_document in documents.items()
+        }
+        markdown = tier_markdown[selected_tier]
+        target_value = (document.get("target") or {}).get("role") or "医学相关方向"
+        target = self.TARGET_LABELS.get(target_value, target_value)
         delivery_data = {
-            "schema_version": "medical-resume-delivery-v1",
+            "schema_version": "medical-resume-data-v1",
             "session_id": conversation.get("session_id"),
+            "candidate": {
+                "name": resolved_basics["name"], "target_direction": target,
+                "contact": resolved_basics["contact"], "photo": None,
+            },
+            "fact_card": {
+                "confirmed_experience_ids": [
+                    item.get("item_id") for item in experiences
+                    if item.get("item_id")
+                ],
+                "evidence_bound": True,
+            },
+            "tiers": {tier: {"markdown": value} for tier, value in tier_markdown.items()},
+            "selected_tier": selected_tier,
             "theme": theme,
+            "edit_status": "user-edited" if any(
+                item.get("user_disposition") == "edited"
+                for item in state.get("generated_claims", [])
+            ) else "generated",
+            "audit": {"status": "ready", "claim_gate_results": state.get("claim_gate_results", {})},
             "basics": resolved_basics,
             "resume_document": document,
             "audit_status": state.get("claim_gate_results", {}),
@@ -67,12 +104,15 @@ class ResumeDeliveryService:
             "evidence": document.get("evidence", []),
             "claim_gate_results": state.get("claim_gate_results", {}),
         }
+        editor = self._editor(markdown, theme)
         return {
             "files": {
                 "resume.md": markdown,
                 "resume.html": self._html(markdown, theme),
+                "resume-editor.html": editor,
                 "resume-data.json": json.dumps(delivery_data, ensure_ascii=False, indent=2),
                 "evidence-summary.json": json.dumps(evidence, ensure_ascii=False, indent=2),
+                "rewrite-comparison.md": self._rewrite_comparison(document),
                 "export-instructions.txt": "下载 resume.html 后可直接打开；在浏览器中选择打印并另存为 PDF。",
             },
             "privacy": {
@@ -89,6 +129,9 @@ class ResumeDeliveryService:
             f"# {basics['name'] or '姓名（请填写）'}",
             f"> {target}" + (f" · {basics['contact']}" if basics["contact"] else ""),
         ]
+        summary = str((document.get("basics") or {}).get("summary") or "").strip()
+        if summary:
+            lines.extend(["", "## 候选人定位", summary])
         education = document.get("education") or []
         if education:
             lines.extend(["", "## 教育背景"])
@@ -104,16 +147,102 @@ class ResumeDeliveryService:
                 end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
                 dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
                 lines.append(f"### {heading or '教育经历'}" + (f" · {dates}" if dates else ""))
-        lines.extend(["", "## 科研与实践经历"])
-        for experience in document.get("research_experience", []):
-            heading = " · ".join(
-                value for value in (
-                    "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip(),
-                    str(experience.get("title") or "").strip(),
-                ) if value
-            ) or "已确认经历"
-            lines.append(f"### {heading}")
-            lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+                if item.get("ranking_or_gpa"):
+                    lines.append(f"- 成绩与排名：{item['ranking_or_gpa']}")
+                if item.get("highlights"):
+                    lines.append(f"- 核心课程与教育亮点：{'、'.join(item['highlights'])}")
+        for section_label, experiences in ResumeDeliveryService._experience_groups(document):
+            if not experiences:
+                continue
+            lines.extend(["", f"## {section_label}"])
+            for experience in experiences:
+                project_name = str(experience.get("project_name") or "").strip()
+                organization = "" if experience.get("organization") == "待补充" else str(experience.get("organization") or "").strip()
+                role_title = str(experience.get("title") or "").strip()
+                period = experience.get("period") or {}
+                end = "至今" if period.get("ongoing") else str(period.get("end") or "").strip()
+                dates = " - ".join(value for value in (str(period.get("start") or "").strip(), end) if value)
+                if project_name:
+                    lines.append(f"### {project_name}")
+                    metadata = " · ".join(value for value in (organization, role_title, dates) if value)
+                    if metadata:
+                        lines.append(metadata)
+                else:
+                    heading = " · ".join(value for value in (organization, role_title) if value) or "已确认经历"
+                    lines.append(f"### {heading}" + (f" · {dates}" if dates else ""))
+                lines.extend(f"- {item['text']}" for item in experience.get("bullets", []) if item.get("text"))
+        publications = document.get("publications") or []
+        if publications:
+            lines.extend(["", "## 论文与学术成果"])
+            lines.extend(f"- {item['title']}" for item in publications if item.get("title"))
+        awards = document.get("awards") or []
+        if awards:
+            lines.extend(["", "## 荣誉奖励"])
+            lines.extend(f"- {item['name']}" for item in awards if item.get("name"))
+        skill_groups = (
+            ("研究方法", "research"),
+            ("数据与工具", "data"),
+            ("文献与证据资源", "medical_information"),
+            ("证书与培训", "certificate"),
+        )
+        grouped = [
+            (label, [item["name"] for item in document.get("skills", []) if item.get("category") == category and item.get("name")])
+            for label, category in skill_groups
+        ]
+        if any(items for _, items in grouped):
+            lines.extend(["", "## 研究方法与技能"])
+            lines.extend(f"- **{label}：** {'、'.join(items)}" for label, items in grouped if items)
+        languages = document.get("languages") or []
+        if languages:
+            lines.extend(["", "## 语言能力"])
+            lines.extend(
+                f"- {item['language']}" + (f"：{item['level_or_score']}" if item.get("level_or_score") else "")
+                for item in languages if item.get("language")
+            )
+        interests = document.get("research_interests") or []
+        if interests:
+            lines.extend(["", "## 研究兴趣"])
+            lines.extend(f"- {item['name']}" for item in interests if item.get("name"))
+        return "\n".join(lines).strip() + "\n"
+
+    @staticmethod
+    def _editor(markdown: str, theme: str) -> str:
+        template = files("medical_career_agent").joinpath(
+            "assets/resume-editor.html"
+        ).read_text(encoding="utf-8")
+        return template.replace(
+            "__INITIAL_MARKDOWN_JSON__", json.dumps(markdown, ensure_ascii=False)
+        ).replace("__THEME__", theme)
+
+    @staticmethod
+    def _experience_groups(document: dict[str, Any]) -> list[tuple[str, list[dict[str, Any]]]]:
+        projects = document.get("projects") or []
+        return [
+            ("科研经历", document.get("research_experience") or []),
+            ("临床实践", document.get("clinical_experience") or []),
+            ("工作经历", document.get("professional_experience") or []),
+            ("校园与领导力", [item for item in projects if item.get("experience_type") == "leadership"]),
+            ("志愿服务", [item for item in projects if item.get("experience_type") == "volunteer"]),
+            ("项目经历", [item for item in projects if item.get("experience_type") not in {"leadership", "volunteer"}]),
+        ]
+
+    @staticmethod
+    def _rewrite_comparison(document: dict[str, Any]) -> str:
+        evidence = [
+            item.get("statement", "") for item in document.get("evidence", [])
+            if str(item.get("evidence_id", "")).startswith("ev_") and item.get("statement")
+        ]
+        bullets = [
+            bullet.get("text", "")
+            for _, experiences in ResumeDeliveryService._experience_groups(document)
+            for experience in experiences
+            for bullet in experience.get("bullets", []) if bullet.get("text")
+        ]
+        lines = ["# 改写对照", "", "## 用户确认的原始依据"]
+        lines.extend(f"- {item}" for item in evidence)
+        lines.extend(["", "## 已采用的审计后要点"])
+        lines.extend(f"- {item}" for item in bullets)
+        lines.extend(["", "## 说明", "- 仅使用已确认事实；未推断数量、成果或更高责任等级。"])
         return "\n".join(lines).strip() + "\n"
 
     @staticmethod

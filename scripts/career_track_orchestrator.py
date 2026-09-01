@@ -29,20 +29,29 @@ def _complete_mapping(evidence: dict[str, Any]) -> bool:
     return all(isinstance(mappings.get(key), list) and mappings[key] for key in ("direct", "transferable", "partial", "gap"))
 
 
+def _is_qualifying_snapshot(snapshot: dict[str, Any]) -> bool:
+    """Honor an audited countability decision before applying the legacy fallback."""
+    if "qualifying" in snapshot:
+        return snapshot["qualifying"] is True
+    return snapshot.get("status") != "search_extract_not_countable"
+
+
 def import_candidate_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     snapshots = evidence.get("jd_snapshots") or []
+    qualifying_snapshots = [item for item in snapshots if _is_qualifying_snapshot(item)]
     conformance = evidence.get("conformance_ledger") or {}
+    domain_review = evidence.get("domain_review") or {}
     return {
         "career_id": evidence["career_id"],
         "current_tier": "beta",
         "stage": "research",
         "jd_count": len(snapshots),
-        "qualifying_jd_count": sum(item.get("status") != "search_extract_not_countable" for item in snapshots),
-        "company_count": len({item.get("employer") for item in snapshots if item.get("employer")}),
+        "qualifying_jd_count": len(qualifying_snapshots),
+        "company_count": len({item.get("employer") for item in qualifying_snapshots if item.get("employer")}),
         "persona_count": len(evidence.get("fixed_personas") or []),
         "mapping_status": "complete" if _complete_mapping(evidence) else "incomplete",
         "negative_mapping_status": "complete" if evidence.get("negative_mappings") else "incomplete",
-        "review_status": "not_requested",
+        "review_status": "passed" if domain_review.get("status") == "passed" else "not_requested",
         "conformance_status": "passed" if conformance.get("status") == "passed" else "not_started",
         "graduation_status": "not_eligible",
         "blockers": [],
@@ -62,8 +71,8 @@ def decide_next_action(track: dict[str, Any]) -> dict[str, Any]:
     if result.get("execution_status") == "awaiting_remote_sync" or result.get("remote_sync_status") == "awaiting_remote_sync":
         result.update(stage="research", blockers=["remote_sync_delay"], next_action="resume_remote_sync", assigned_agent="researcher", human_required=False)
         return result
-    if result["jd_count"] < 8 or result["company_count"] < 5:
-        if result["jd_count"] < 8:
+    if result["qualifying_jd_count"] < 8 or result["company_count"] < 5:
+        if result["qualifying_jd_count"] < 8:
             blockers.append("insufficient_jd_coverage")
         if result["company_count"] < 5:
             blockers.append("insufficient_company_coverage")
@@ -91,14 +100,21 @@ def decide_next_action(track: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def build_state(evidence_root: Path = EVIDENCE_ROOT) -> dict[str, Any]:
+def build_state(
+    evidence_root: Path = EVIDENCE_ROOT, *, generated_at: str | None = None,
+) -> dict[str, Any]:
+    """Build the semantic state using an injectable snapshot provenance date."""
     tracks = []
     for career_id, relative_path in EVIDENCE_PATHS.items():
         evidence = json.loads((evidence_root / relative_path).read_text(encoding="utf-8"))
         if evidence.get("career_id") != career_id:
             raise ValueError(f"career_id mismatch in {relative_path}")
         tracks.append(decide_next_action(import_candidate_evidence(evidence)))
-    return {"schema_version": "career-track-state-v1", "generated_at": date.today().isoformat(), "tracks": tracks}
+    return {
+        "schema_version": "career-track-state-v1",
+        "generated_at": generated_at or date.today().isoformat(),
+        "tracks": tracks,
+    }
 
 
 def main() -> None:
@@ -106,7 +122,11 @@ def main() -> None:
     parser.add_argument("--write", action="store_true", help="write the canonical generated snapshot")
     parser.add_argument("--check", action="store_true", help="verify the committed snapshot matches evidence")
     args = parser.parse_args()
-    state = build_state()
+    snapshot_date = None
+    if args.check and OUTPUT_PATH.exists():
+        existing = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        snapshot_date = existing.get("generated_at")
+    state = build_state(generated_at=snapshot_date)
     rendered = json.dumps(state, ensure_ascii=False, indent=2) + "\n"
     if args.check:
         if not OUTPUT_PATH.exists() or OUTPUT_PATH.read_text(encoding="utf-8") != rendered:

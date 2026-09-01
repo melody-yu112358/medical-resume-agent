@@ -16,20 +16,21 @@ class ConstrainedRewriteTest(unittest.TestCase):
     def setUp(self):
         class Gateway:
             def generate(_, *, task, context):
-                if task == "resume_activity_proposals":
-                    return json.dumps({"activity_proposals": [PROPOSAL]}, ensure_ascii=False)
                 if task == "resume_constrained_rewrite":
                     source = context["source_claim"]
                     wording = "独立完成系统综述的文献筛选。"
                     if "更强" in context["user_instruction"]:
                         wording = "主导系统综述并独立完成全部文献筛选。"
                     return json.dumps({"wording": wording, "used_facts": source["used_facts"], "dependency_refs": source["dependency_refs"], "evidence_ids": source["evidence_ids"]}, ensure_ascii=False)
-                return json.dumps({"intent": None, "assistant_message": None})
+                raise AssertionError(f"unexpected model task: {task}")
         self.client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
         self.sid = self.client.post("/api/conversations", json={}).get_json()["session_id"]
         self.post({"text": SOURCE, "consent_confirmed": True})
-        proposal_id = self.state()["activity_proposals"][0]["proposal_id"]
-        self.post({"action": "confirm_activity_proposals", "proposal_ids": [proposal_id]})
+        self.post({
+            "action": "confirm_activity_proposals",
+            "activity_proposals": [PROPOSAL],
+            "proposal_ids": [],
+        })
         self.post({"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         self.source_claim = self.state()["generated_claims"][0]
 
@@ -91,16 +92,14 @@ class ConstrainedRewriteTest(unittest.TestCase):
         proposal = {"evidence_quote": source, "components": {"actions": ["perform_analysis"], "methods": ["sensitivity_analysis"], "tools": ["r"], "techniques": [], "objects": ["research_data"], "artifacts": []}, "ownership_level": "contributed", "execution_mode": "supervised", "coverage": "partial", "scope_note": None}
         class Gateway:
             def generate(_, *, task, context):
-                if task == "resume_activity_proposals": return json.dumps({"activity_proposals": [proposal]}, ensure_ascii=False)
                 if task == "resume_constrained_rewrite":
                     claim = context["source_claim"]
                     return json.dumps({"wording": "独立完成 R 敏感性分析完整流程。", "used_facts": claim["used_facts"], "dependency_refs": claim["dependency_refs"], "evidence_ids": claim["evidence_ids"]}, ensure_ascii=False)
-                return json.dumps({"intent": None, "assistant_message": None})
+                raise AssertionError(f"unexpected model task: {task}")
         client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
         sid = client.post("/api/conversations", json={}).get_json()["session_id"]
         client.post(f"/api/conversations/{sid}/messages", json={"text": source, "consent_confirmed": True})
-        proposal_id = client.get(f"/api/conversations/{sid}").get_json()["state"]["activity_proposals"][0]["proposal_id"]
-        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "proposal_ids": [proposal_id]})
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "activity_proposals": [proposal], "proposal_ids": []})
         client.post(f"/api/conversations/{sid}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         source_claim = client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][0]
         response = client.post(f"/api/conversations/{sid}/messages", json={"action": "rewrite_claim", "source_claim_id": source_claim["claim_id"], "tone": "High-impact", "instruction": "更强"})
@@ -117,16 +116,13 @@ class ConstrainedRewriteTest(unittest.TestCase):
         ]
         class Gateway:
             def generate(_, *, task, context):
-                if task == "resume_activity_proposals":
-                    return json.dumps({"activity_proposals": proposals}, ensure_ascii=False)
                 if task == "resume_constrained_rewrite":
                     return json.dumps({"wording": "在指导下参与 R 敏感性分析的一部分。", "used_facts": ["actions:perform_analysis"], "dependency_refs": {"activity_ids": [context["canonical_experience"]["activities"][1]["activity_id"]], "responsibility_ids": [context["canonical_experience"]["task_responsibilities"][1]["responsibility_id"]], "completeness": "complete"}, "evidence_ids": context["source_claim"]["evidence_ids"]}, ensure_ascii=False)
-                return json.dumps({"intent": None, "assistant_message": None})
+                raise AssertionError(f"unexpected model task: {task}")
         client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
         sid = client.post("/api/conversations", json={}).get_json()["session_id"]
         client.post(f"/api/conversations/{sid}/messages", json={"text": first + second, "consent_confirmed": True})
-        proposals_state = client.get(f"/api/conversations/{sid}").get_json()["state"]["activity_proposals"]
-        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "proposal_ids": [item["proposal_id"] for item in proposals_state]})
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "activity_proposals": proposals, "proposal_ids": []})
         client.post(f"/api/conversations/{sid}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         source = client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][0]
         response = client.post(f"/api/conversations/{sid}/messages", json={"action": "rewrite_claim", "source_claim_id": source["claim_id"], "tone": "Professional", "instruction": "专业一点"})
@@ -144,17 +140,14 @@ class ConstrainedRewriteTest(unittest.TestCase):
         }
         class Gateway:
             def generate(_, *, task, context):
-                if task == "resume_activity_proposals":
-                    return json.dumps({"activity_proposals": [PROPOSAL]}, ensure_ascii=False)
                 if task == "resume_constrained_rewrite":
                     source = context["source_claim"]
                     return json.dumps({"wording": tier_wording[context["tone"]], "used_facts": source["used_facts"], "dependency_refs": source["dependency_refs"], "evidence_ids": source["evidence_ids"]}, ensure_ascii=False)
-                return json.dumps({"intent": None, "assistant_message": None})
+                raise AssertionError(f"unexpected model task: {task}")
         client = create_app(model_gateway=Gateway(), load_model_from_environment=False).test_client()
         sid = client.post("/api/conversations", json={}).get_json()["session_id"]
         client.post(f"/api/conversations/{sid}/messages", json={"text": SOURCE, "consent_confirmed": True})
-        proposal_id = client.get(f"/api/conversations/{sid}").get_json()["state"]["activity_proposals"][0]["proposal_id"]
-        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "proposal_ids": [proposal_id]})
+        client.post(f"/api/conversations/{sid}/messages", json={"action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL], "proposal_ids": []})
         client.post(f"/api/conversations/{sid}/messages", json={"action": "select_role_packs", "role_packs": ["doctoral_v1"]})
         source = client.get(f"/api/conversations/{sid}").get_json()["state"]["generated_claims"][0]
         candidates = []

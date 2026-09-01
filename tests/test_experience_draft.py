@@ -117,6 +117,33 @@ class ExperienceDraftServiceTest(unittest.TestCase):
         self.assertIn("clinical_case", facts["objects"])
         self.assertIn("case_presentation_material", facts["artifacts"])
 
+    def test_structured_research_and_output_answers_round_trip_to_facts(self):
+        draft = self.service.draft(
+            experience_text=(
+                "参与 Meta 分析并执行文献检索；我参与明确研究问题、制定或修改研究方案、"
+                "设计检索式和质量评价；我使用了 Web of Science、中国知网 CNKI、万方和维普；"
+                "我形成了检索记录、筛选记录、数据提取表、分析代码、研究报告和 SOP；项目已经投稿。"
+            ),
+            consent_confirmed=True,
+        )
+
+        facts = draft.extracted_facts
+        self.assertTrue({
+            "define_research_question", "develop_protocol",
+            "design_search_strategy", "assess_quality",
+        }.issubset(facts["actions"]))
+        self.assertTrue({
+            "web_of_science", "cnki", "wanfang", "vip",
+        }.issubset(facts["tools"]))
+        self.assertTrue({
+            "search_record", "screening_record", "data_extraction_sheet",
+            "analysis_code", "research_report", "sop",
+        }.issubset(facts["artifacts"]))
+        self.assertIn("submitted", facts["outcomes"])
+        self.assertNotIn("databases_used", draft.unknown_items)
+        self.assertNotIn("publication_status", draft.unknown_items)
+        self.assertNotIn("deliverables", draft.unknown_items)
+
     def test_preparing_case_presentation_ppt_is_an_action(self):
         draft = self.service.draft(
             experience_text="查阅临床指南并准备病例汇报 PPT，现场汇报由上级医师完成",
@@ -168,6 +195,22 @@ class ExperienceDraftServiceTest(unittest.TestCase):
 
         # Check that questions are limited to 3
         self.assertLessEqual(len(draft.clarifying_questions), 3)
+
+    def test_objective_quality_review_and_problem_solving_become_traceable_facts(self):
+        draft = self.service.draft(
+            experience_text=(
+                "这项工作的研究目标是总结现有证据。"
+                "我通过回查原文核对原始数据，并核查修正了数据问题。"
+            ),
+            consent_confirmed=True,
+        )
+
+        facts = draft.extracted_facts
+        self.assertEqual(facts["context"]["topic"], "总结现有证据")
+        self.assertIn("verify_research_quality", facts["actions"])
+        self.assertIn("resolve_workflow_issue", facts["actions"])
+        self.assertNotIn("quality_control", draft.unknown_items)
+        self.assertNotIn("problem_solving", draft.unknown_items)
 
         # Check to_dict method
         draft_dict = draft.to_dict()

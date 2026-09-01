@@ -3,28 +3,420 @@
   "career_id": "clinical_data_management",
   "captured_at": "2026-08-30",
   "scope": "Research-only China CDM Candidate evidence; not a Role Pack, runtime target, or personal-evidence source.",
+  "provenance_policy": {
+    "qualifying_rule": "A snapshot counts only with employer, title, China location, captured public responsibilities, retrieval date, current retrieval status, and a digest of the stored source snapshot. Search extracts never count.",
+    "source_digest_basis": "sha256(UTF-8(url + LF (U+000A) + source_snapshot)); url and source_snapshot are retained verbatim, with no whitespace normalization. Stored values use the sha256:<lowercase-hex> form."
+  },
   "jd_snapshots": [
-    {"id":"cdm-01","employer":"3D Medicines","title":"Clinical Data Management Senior/Manager","location":"Beijing, China","url":"https://www.3d-medicines.com/job/89.html","retrieved_at":"2026-08-30","status":"current_public_full","signals":["trial data progress and quality control","protocol review; DMP/DVP/CRF guidance","external-data transfer, SAE reconciliation and DM report","database build and UAT"]},
-    {"id":"cdm-02","employer":"艺妙神州","title":"Clinical Data Manager","location":"Beijing, China","url":"https://www.zhaopin.com/jobdetail/CC286456880J40920072808.htm","retrieved_at":"2026-08-30","status":"current_public_full_third_party","signals":["participate in data review, cleaning, coding and traceability","assist DMP/DVP","coordinate data questions with investigator/CRC/CRA","GCP/CDISC and confidentiality"]},
-    {"id":"cdm-03","employer":"普瑞盛","title":"CDM Manager","location":"Beijing, China","url":"https://zhaopin.gslhr.org.cn/wap/c_job-a_share-id_12540.html","retrieved_at":"2026-08-30","status":"partial_public","signals":["DMP/CCG/DVP/DRP and CRF","EDC validation/UAT","external electronic data and checks before database lock"]},
-    {"id":"cdm-04","employer":"IQVIA China","title":"Data Team Lead","location":"Shanghai/Beijing, China","url":"https://jobs.iqvia.com/en/jobs/R1546262-1","retrieved_at":"2026-08-30","status":"search_extract_not_countable","signals":["end-to-end data delivery","quality, timeline, budget and team scope"]}
+    {
+      "id": "cdm-01",
+      "employer": "3D Medicines",
+      "employer_type": "China biopharma",
+      "title": "Clinical Data Management",
+      "location": "Beijing, China",
+      "url": "https://www.3d-medicines.com/job/89.html",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "reachable_public_official",
+      "qualifying": true,
+      "source_snapshot": "Official Beijing careers role: data-team operations; trial data-management progress and quality control; protocol and data-management document review; CRF support; external-data transfer and SAE reconciliation plans; database build support and UAT; and senior department planning and training.",
+      "source_digest": "sha256:ed9a3a860943f7739228f5c3c5c4b4b1149142483ff440c2a2244775af54c387",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full"
+    },
+    {
+      "id": "cdm-02",
+      "employer": "Beijing Immunochina Pharmaceuticals",
+      "employer_type": "China biopharma",
+      "title": "Clinical Data Management Specialist",
+      "location": "Beijing, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC286456880J40920072808.htm",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "reachable_public_third_party",
+      "qualifying": true,
+      "source_snapshot": "Public Beijing listing: clinical data checking, cleaning, coding and traceability; assistance with data-management and validation plans; coordination of data issues with investigators, CRCs and CRAs; controlled documentation; GCP/CDISC awareness; and confidentiality.",
+      "source_digest": "sha256:780ec71e20f558cf4bc8c8449293f5d9cb7cfb925dbe106b5a3fd31c76c3b5c6",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full_third_party"
+    },
+    {
+      "id": "cdm-03",
+      "employer": "Primera (Beijing) Pharmaceutical Technology Development",
+      "employer_type": "China CRO",
+      "title": "Clinical Data Management Manager",
+      "location": "Beijing, China",
+      "url": "https://zhaopin.gslhr.org.cn/wap/c_job-a_share-id_12540.html",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "reachable_public_third_party",
+      "qualifying": true,
+      "source_snapshot": "Public Beijing CRO listing: controlled DMP, CCG, DVP and DRP documents; CRF design; EDC validation and UAT; entry, checking and maintenance of CRF and external electronic data; plan-based manual or medical data review; query resolution; and pre-lock data work.",
+      "source_digest": "sha256:44b30c60b4e88429bddbc4dc9e55a5abf736049d51f27f276cba18231eb4864d",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full_third_party"
+    },
+    {
+      "id": "cdm-04",
+      "employer": "IQVIA China",
+      "employer_type": "multinational CRO China",
+      "title": "Data Team Lead",
+      "location": "Shanghai/Beijing, China",
+      "url": "https://jobs.iqvia.com/en/jobs/R1546262-1",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "search_extract_only",
+      "qualifying": false,
+      "non_qualifying_reason": "Retained material is a search extract, not a stored job-responsibility snapshot.",
+      "source_snapshot": "Search extract only; retained as a discovery lead, not graduation evidence.",
+      "source_digest": "sha256:5a7358e3d93e75b6a8f9f8314833b84584ceecd81a12463248b767f690c25176",
+      "status": "search_extract_not_countable"
+    },
+    {
+      "id": "cdm-05",
+      "employer": "AstraZeneca China",
+      "employer_type": "multinational pharma China",
+      "title": "Senior/Principal Clinical Data Manager",
+      "location": "Shanghai/Beijing, China",
+      "url": "https://astrazeneca.wd3.myworkdayjobs.com/en-US/Careers/job/Senior-Principal-Clinical-Data-Manager_R-243594",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "recent_public_official_listing",
+      "qualifying": true,
+      "source_snapshot": "Official China listing: project-level CDM administrative support across study start-up, conduct and closeout, including documentation review or creation, UAT, query management, data cleaning and review, third-party-data reconciliation, and clinical-study-team status reporting.",
+      "source_digest": "sha256:f7660019cbf8680342614294b660be905c31fed7f5963028efe3f00413629f65",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full"
+    },
+    {
+      "id": "cdm-06",
+      "employer": "Novotech (Beijing) Pharmaceutical Technology",
+      "employer_type": "China CRO",
+      "title": "Clinical Data Administrator (DM)",
+      "location": "Shanghai, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC181097920J40868098309.htm",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "recent_public_third_party",
+      "qualifying": true,
+      "source_snapshot": "Public Shanghai CRO listing: EDC data checking; creating, following up and closing data queries with site CRCs; assistance with UAT, blind review and database lock; audit-ready filing of query logs and test records; data-anomaly and risk escalation; and GCP/SOP confidentiality.",
+      "source_digest": "sha256:f362c9fc5b9f42246d3798dc2a80348625190812669bf07fccf9aa3b682170bc",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full_third_party"
+    },
+    {
+      "id": "cdm-07",
+      "employer": "Shanghai Clinical Research Center",
+      "employer_type": "China clinical research center",
+      "title": "Clinical Data Manager",
+      "location": "Shanghai, China",
+      "url": "https://www.scrcnet.org/Job_07.asp",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "reachable_public_official",
+      "qualifying": true,
+      "source_snapshot": "Official Shanghai careers role: protocol review; CRF and study-database content; data-management and validation plans and reports; database-build collaboration, validation, backup and maintenance; CRF tracking, cleaning, logical checks, coding and query management; and SOP/GCP quality control before database lock.",
+      "source_digest": "sha256:bae5713be898371d425dcd63229eea47432c20d34785189d1b5ab169ddd539da",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full"
+    },
+    {
+      "id": "cdm-08",
+      "employer": "Beijing Norhomme Pharmaceutical Technology",
+      "employer_type": "China CRO",
+      "title": "Clinical Data Management Manager (CRO)",
+      "location": "Shanghai, China",
+      "url": "https://www.zhaopin.com/jobdetail/CCL1464788710J41004634004.htm",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "recent_public_third_party",
+      "qualifying": true,
+      "source_snapshot": "Public Shanghai CRO listing: senior team management and allocation, control of DM-project quality and progress, difficult-issue resolution, bid and quotation participation, client communication, SOP optimization and staff development. This is level-specific, not stable support evidence.",
+      "source_digest": "sha256:518fefe51a34d0f2a632adcb968b2c1b6915c60df57fba01a2eb73f7bd0c4608",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full_third_party"
+    },
+    {
+      "id": "cdm-09",
+      "employer": "Jiangsu Hengrui Pharmaceuticals",
+      "employer_type": "China pharma",
+      "title": "Clinical Data Management Project Manager",
+      "location": "Shanghai, China",
+      "url": "https://www.yzp.cn/job/124230.html",
+      "retrieved_at": "2026-08-30",
+      "current_retrieval_status": "recent_public_third_party",
+      "qualifying": true,
+      "source_snapshot": "Public Shanghai listing: project planning, execution and delivery; data-management-plan implementation and schedule control; CRF design; data-management-file review and approval; database-permission and quality-control work; cross-functional coordination; and progress or issue reporting. These duties are senior and JD-dependent.",
+      "source_digest": "sha256:e08d859b435e537cba7b9c6f4fc91182a793fab3c75de7021a37b64374c9eea0",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
+      "status": "current_public_full_third_party"
+    }
   ],
-  "stable_responsibilities": ["clinical-trial data review, cleaning, discrepancy/query and traceability support", "controlled data-management plans and documentation", "EDC/CRF validation or UAT support within assigned role", "GCP/SOP-aligned data quality and confidentiality", "cross-functional issue coordination within assigned scope"],
-  "jd_dependent_or_senior_scope": ["database-lock ownership", "end-to-end delivery, budget or client ownership", "team management", "CDISC/SDTM, MedDRA/WHO Drug or programming expertise", "independent EDC build authority"],
+  "coverage": {
+    "qualifying_jd_count": 8,
+    "qualifying_company_count": 8,
+    "excluded_snapshot_ids": [
+      "cdm-04"
+    ],
+    "company_types": [
+      "China biopharma",
+      "China CRO",
+      "multinational pharma China",
+      "China clinical research center",
+      "China pharma"
+    ],
+    "responsibility_levels": [
+      "specialist/support",
+      "manager",
+      "senior/principal/project manager"
+    ]
+  },
+  "stable_responsibilities": [
+    "clinical-trial data checking, cleaning, query or discrepancy follow-up, and traceability within assigned scope",
+    "controlled data-management documentation and GCP/SOP-aligned confidentiality or quality work",
+    "CRF, EDC, database-validation or UAT support where the confirmed role assigns it",
+    "cross-functional coordination of data issues with study teams, sites or vendors within assigned scope",
+    "study-data review and reconciliation support, with ownership level determined by direct evidence"
+  ],
+  "jd_dependent_or_senior_scope": [
+    "database-lock ownership",
+    "end-to-end delivery, budget, bid, client or vendor ownership",
+    "team management or staff allocation",
+    "CDISC/SDTM, MedDRA/WHO Drug or programming expertise",
+    "independent EDC build authority",
+    "project-level approval or final quality accountability"
+  ],
   "fixed_personas": [
-    {"id":"cdm-p1","kind":"positive","facts":["参与CRF核对和缺失数据跟进","按研究要求整理数据问题","完成GCP培训"],"absences":["数据库锁定","数据管理负责人"]},
-    {"id":"cdm-p2","kind":"positive","facts":["协助研究资料归档","使用Excel完成受控数据表检查","与CRC沟通数据缺口"],"absences":["EDC配置","项目预算"]},
-    {"id":"cdm-p3","kind":"partial","facts":["R语言数据清洗","医学统计课程项目"],"absences":["临床试验数据流程","GCP"]},
-    {"id":"cdm-p4","kind":"partial","facts":["实验室样本记录和QC"],"absences":["CRF","临床数据库"]},
-    {"id":"cdm-p5","kind":"negative","facts":["细胞实验和文献综述"],"absences":["数据管理流程"]},
-    {"id":"cdm-p6","kind":"negative","facts":["内部学术演讲"],"absences":["临床数据工作"]},
-    {"id":"cdm-p7","kind":"partial","facts":["医院病历随访登记"],"absences":["试验数据库","数据清理"]},
-    {"id":"cdm-p8","kind":"partial","facts":["协助研究团队排期"],"absences":["数据质量所有权","团队管理"]}
+    {
+      "id": "cdm-p1",
+      "kind": "positive",
+      "facts": [
+        "参与CRF核对和缺失数据跟进",
+        "按研究要求整理数据问题",
+        "完成GCP培训"
+      ],
+      "absences": [
+        "数据库锁定",
+        "数据管理负责人"
+      ]
+    },
+    {
+      "id": "cdm-p2",
+      "kind": "positive",
+      "facts": [
+        "协助研究资料归档",
+        "使用Excel完成受控数据表检查",
+        "与CRC沟通数据缺口"
+      ],
+      "absences": [
+        "EDC配置",
+        "项目预算"
+      ]
+    },
+    {
+      "id": "cdm-p3",
+      "kind": "partial",
+      "facts": [
+        "R语言数据清洗",
+        "医学统计课程项目"
+      ],
+      "absences": [
+        "临床试验数据流程",
+        "GCP"
+      ]
+    },
+    {
+      "id": "cdm-p4",
+      "kind": "partial",
+      "facts": [
+        "实验室样本记录和QC"
+      ],
+      "absences": [
+        "CRF",
+        "临床数据库"
+      ]
+    },
+    {
+      "id": "cdm-p5",
+      "kind": "negative",
+      "facts": [
+        "细胞实验和文献综述"
+      ],
+      "absences": [
+        "数据管理流程"
+      ]
+    },
+    {
+      "id": "cdm-p6",
+      "kind": "negative",
+      "facts": [
+        "内部学术演讲"
+      ],
+      "absences": [
+        "临床数据工作"
+      ]
+    },
+    {
+      "id": "cdm-p7",
+      "kind": "partial",
+      "facts": [
+        "医院病历随访登记"
+      ],
+      "absences": [
+        "试验数据库",
+        "数据清理"
+      ]
+    },
+    {
+      "id": "cdm-p8",
+      "kind": "partial",
+      "facts": [
+        "协助研究团队排期"
+      ],
+      "absences": [
+        "数据质量所有权",
+        "团队管理"
+      ]
+    }
   ],
-  "mappings": {"direct":["CRF核对、缺失数据跟进、受控资料归档和GCP培训可映射为临床数据质量支持"],"transferable":["R/统计和实验室QC可映射为数据严谨性，不替代临床数据管理流程"],"partial":["与CRC沟通问题可映射为数据问题协调支持，不是数据交付所有权"],"gap":["数据库锁定、EDC配置、DMP/DVP负责人、预算/客户/团队管理需直接证据"]},
-  "negative_mappings": ["数据清洗不等于CDM负责人或database-lock owner", "Excel/R技能不等于GCP、EDC或临床试验数据管理经验", "与CRC/CRA沟通不等于项目管理或外部客户所有权", "资料归档不等于CRF设计或EDC构建授权", "无直接证据不得写CDISC/SDTM、MedDRA编码、统计分析或预算所有权", "协助数据检查不等于质量体系或团队管理"],
-  "eval_cases": [{"id":"cdm-positive","persona_id":"cdm-p1","expected":"direct/partial CDM-support mapping; no owner wording"},{"id":"cdm-partial","persona_id":"cdm-p3","expected":"transferable quantitative evidence plus explicit clinical-data gap"},{"id":"cdm-negative","persona_id":"cdm-p5","expected":"no CDM claim; state missing clinical-data evidence"}],
-  "domain_review": {"factuality":"not scored: no generated-output audit","ownership":"not scored: no generated-output audit","usefulness":"not scored: no domain-evaluation outputs","critical_unsupported_claims":"not assessed","result":"insufficient: two full China source records, one partial record, and no audited outputs"},
-  "conformance_ledger": {"status":"not_started","runs":[],"required_per_run":["model_id","configuration","prompt","input","output","source_digest","jd_digest","persona_id","scores","unsupported_claim_audit"]},
-  "graduation_status":"Beta research; FAIL — remain Candidate/Beta until full JD coverage, output audit, and conformance evidence meet ROLE_PACK_GRADUATION.md"
+  "persona_jd_exercise_matrix": {
+    "cdm-p1": [
+      "cdm-02",
+      "cdm-03",
+      "cdm-06"
+    ],
+    "cdm-p2": [
+      "cdm-02",
+      "cdm-06",
+      "cdm-07"
+    ],
+    "cdm-p3": [
+      "cdm-01",
+      "cdm-05",
+      "cdm-07"
+    ],
+    "cdm-p4": [
+      "cdm-02",
+      "cdm-03",
+      "cdm-07"
+    ],
+    "cdm-p5": [
+      "cdm-01",
+      "cdm-05",
+      "cdm-08"
+    ],
+    "cdm-p6": [
+      "cdm-02",
+      "cdm-06",
+      "cdm-09"
+    ],
+    "cdm-p7": [
+      "cdm-03",
+      "cdm-05",
+      "cdm-07"
+    ],
+    "cdm-p8": [
+      "cdm-01",
+      "cdm-06",
+      "cdm-08"
+    ]
+  },
+  "mappings": {
+    "direct": [
+      "CRF核对、缺失数据跟进、受控资料归档和GCP培训可映射为临床数据质量支持"
+    ],
+    "transferable": [
+      "R/统计和实验室QC可映射为数据严谨性，不替代临床数据管理流程"
+    ],
+    "partial": [
+      "与CRC沟通问题可映射为数据问题协调支持，不是数据交付所有权"
+    ],
+    "gap": [
+      "数据库锁定、EDC配置、DMP/DVP负责人、预算/客户/团队管理需直接证据"
+    ]
+  },
+  "negative_mapping_rules": [
+    {
+      "id": "cdm-neg-01",
+      "if_evidence": "data cleaning or checking only",
+      "must_not_claim": "CDM leadership, database-lock ownership, or final delivery ownership"
+    },
+    {
+      "id": "cdm-neg-02",
+      "if_evidence": "Excel, R, or general analysis only",
+      "must_not_claim": "GCP, EDC, or clinical-trial data-management experience"
+    },
+    {
+      "id": "cdm-neg-03",
+      "if_evidence": "communication with CRC/CRA only",
+      "must_not_claim": "project management or external-client ownership"
+    },
+    {
+      "id": "cdm-neg-04",
+      "if_evidence": "document filing or support only",
+      "must_not_claim": "CRF design or EDC-build authority"
+    },
+    {
+      "id": "cdm-neg-05",
+      "if_evidence": "no direct tool or workflow evidence",
+      "must_not_claim": "CDISC/SDTM, MedDRA, statistical analysis, budget ownership, or team management"
+    }
+  ],
+  "negative_mappings": [
+    "data cleaning or checking is not CDM leadership, database-lock ownership, or final delivery ownership",
+    "Excel, R, or general analysis is not GCP, EDC, or clinical-trial data-management experience",
+    "communication with CRC/CRA is not project management or external-client ownership",
+    "document filing or support is not CRF design or EDC-build authority",
+    "absent direct tool/workflow evidence cannot support CDISC, coding, budget, or team-management claims"
+  ],
+  "eval_cases": [
+    {
+      "id": "cdm-positive",
+      "persona_id": "cdm-p1",
+      "expected": "direct/partial CDM-support mapping; no owner wording"
+    },
+    {
+      "id": "cdm-partial",
+      "persona_id": "cdm-p3",
+      "expected": "transferable quantitative evidence plus explicit clinical-data gap"
+    },
+    {
+      "id": "cdm-negative",
+      "persona_id": "cdm-p5",
+      "expected": "no CDM claim; state missing clinical-data evidence"
+    }
+  ],
+  "domain_review": {
+    "status": "passed",
+    "reviewed_at": "2026-09-01",
+    "reviewer_role": "independent_reviewer",
+    "review_scope": "Candidate evidence and fixture readiness only; no model-generated output was reviewed or asserted.",
+    "factuality": "pass: traceable JD snapshots and direct/transferable/partial/gap mappings were independently checked; output-level factuality remains for conformance.",
+    "ownership": "pass: negative rules preserve support scope and prohibit lock, EDC-build, delivery, client, budget, and team-management ownership without direct evidence.",
+    "usefulness": "ready for conformance: positive, partial, and negative personas give role-specific but bounded evaluation targets; no model-output usefulness score is asserted.",
+    "critical_unsupported_claims": "not assessed in model output; none introduced by the reviewed static mappings.",
+    "result": "PASS — Candidate evidence is sufficiently stable and bounded to enter recorded conformance. This is not Canonical v1 approval, a release-gate pass, or a human promotion decision."
+  },
+  "conformance_ledger": {
+    "status": "not_started",
+    "runs": [],
+    "required_per_run": [
+      "model_id",
+      "configuration",
+      "prompt",
+      "input",
+      "output",
+      "source_digest",
+      "jd_digest",
+      "persona_id",
+      "scores",
+      "unsupported_claim_audit"
+    ]
+  },
+  "conformance_preparation": {
+    "status": "blocked_pending_identifiable_model",
+    "fixed_case_ids": ["cdm-positive", "cdm-partial", "cdm-negative"],
+    "rubric": {
+      "factuality": "Score 1-5 against confirmed persona facts; any invented tool, quantity, outcome, or responsibility is unsupported.",
+      "ownership": "Score 1-5; support, cleaning, checking, CRF/EDC/UAT assistance, and coordination must not become lock, build, delivery, client, budget, or team ownership.",
+      "usefulness": "Score 1-5 for role-specific, bounded resume usefulness; preserve explicit gaps for partial and negative personas.",
+      "unsupported_claim_audit": "Record critical and noncritical claims separately; any critical factuality or ownership failure fails the run."
+    },
+    "blocker": "The current Codex deployment does not expose a verifiable exact model ID/version and configuration. No formal conformance run is recorded until those fields are available."
+  },
+  "graduation_status": "Candidate — independent evidence/fixture review passed for recorded conformance; not canonical, not routable, and not eligible for canonicalization.",
+  "next_action": "run_conformance",
+  "human_required": false
 }

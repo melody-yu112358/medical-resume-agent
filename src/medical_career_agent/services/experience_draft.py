@@ -15,6 +15,7 @@ class ExperienceDraft:
     unknown_items: list[str]
     possible_value_angles: list[str]
     clarifying_questions: list[str]
+    all_clarifying_questions: list[str]
     risk_flags: list[str]
 
     def to_dict(self) -> dict[str, Any]:
@@ -23,6 +24,7 @@ class ExperienceDraft:
             "unknown_items": self.unknown_items,
             "possible_value_angles": self.possible_value_angles,
             "clarifying_questions": self.clarifying_questions,
+            "all_clarifying_questions": self.all_clarifying_questions,
             "risk_flags": self.risk_flags,
         }
 
@@ -32,6 +34,17 @@ class ExperienceDraftService:
 
     # Medical research action patterns
     ACTION_PATTERNS = {
+        "define_research_question": [
+            r"明确研究问题", r"提出研究问题", r"定义研究问题",
+        ],
+        "develop_protocol": [
+            r"制定(?:或修改)?研究方案", r"修改研究方案", r"研究方案制定",
+            r"develop(?:ed)? protocol", r"study protocol",
+        ],
+        "design_search_strategy": [
+            r"设计检索式", r"制定检索策略", r"检索策略",
+            r"search strateg(?:y|ies)",
+        ],
         "retrieve_literature": [
             r"文献检索", r"检索文献", r"查找文献", r"搜索文献",
             r"literature search", r"search literature", r"find papers"
@@ -47,6 +60,22 @@ class ExperienceDraftService:
         "create_flowchart": [
             r"流程图", r"PRISMA流程图", r"绘制流程图",
             r"flowchart", r"PRISMA flowchart"
+        ],
+        "assess_quality": [
+            r"质量评价", r"偏倚评估", r"偏倚风险评估",
+            r"quality assessment", r"risk of bias",
+        ],
+        "verify_research_quality": [
+            r"交叉复核", r"回查原文", r"核对原始数据", r"一致性检查",
+            r"核对(?:纳入|排除|提取)", r"提交.*(?:导师|团队).*复核",
+        ],
+        "resolve_workflow_issue": [
+            r"处理.*(?:分歧|异常|问题)", r"核查.*修正", r"调整检索",
+            r"排查.*(?:分析|代码)", r"优化实验条件",
+        ],
+        "prepare_research_outputs": [
+            r"(?:形成|整理|制作).*(?:检索记录|筛选记录|数据提取表|分析代码|分析图表|研究报告|论文材料|SOP|流程文件)",
+            r"prepare.*(?:report|record|table|code|figure|manuscript|SOP)",
         ],
         "perform_analysis": [
             r"统计分析", r"数据分析", r"敏感性分析", r"进行分析", r"R\s*分析", r"跑数据",
@@ -100,6 +129,49 @@ class ExperienceDraftService:
         ],
     }
 
+    TOOL_PATTERNS = (
+        (r"SPSS", "spss"),
+        (r"R语言|R[- ]?script|(?<![A-Za-z])R(?![A-Za-z])", "r"),
+        (r"Python", "python"),
+        (r"SQL", "sql"),
+        (r"Stata", "stata"),
+        (r"SAS", "sas"),
+        (r"Excel", "excel"),
+        (r"RevMan", "revman"),
+        (r"EndNote", "endnote"),
+        (r"NoteExpress", "noteexpress"),
+        (r"PubMed", "pubmed"),
+        (r"Embase", "embase"),
+        (r"Cochrane", "cochrane"),
+        (r"Web of Science", "web_of_science"),
+        (r"中国知网|CNKI", "cnki"),
+        (r"万方", "wanfang"),
+        (r"维普", "vip"),
+        (r"GraphPad(?: Prism)?", "graphpad_prism"),
+    )
+
+    COLLABORATION_PATTERNS = {
+        "research_team": (r"课题组", r"team", r"group"),
+        "supervisor": (r"导师", r"supervisor"),
+        "peer": (r"同学", r"团队成员"),
+        "clinician": (r"临床医生",),
+        "statistician": (r"统计人员", r"数据人员"),
+    }
+
+    ARTIFACT_PATTERNS = {
+        "prisma_flowchart": (r"流程图", r"flowchart"),
+        "search_record": (r"检索式", r"检索记录", r"search strateg", r"search record"),
+        "screening_record": (r"筛选记录", r"screening record"),
+        "data_extraction_sheet": (r"数据表", r"数据提取表", r"data sheet", r"extraction sheet"),
+        "analysis_code": (r"分析代码", r"统计代码", r"analysis code", r"analysis script"),
+        "research_paper": (r"论文", r"paper", r"manuscript"),
+        "analysis_figures": (r"结果图表", r"森林图", r"图表"),
+        "research_report": (r"研究报告", r"汇报材料", r"research report"),
+        "sop": (r"SOP", r"流程文件", r"standard operating procedure"),
+        "group_presentation": (r"组会汇报", r"组会讨论"),
+        "case_presentation_material": (r"病例汇报材料", r"准备.*PPT", r"制作.*PPT", r"现场汇报"),
+    }
+
     def draft(
         self,
         *,
@@ -124,7 +196,8 @@ class ExperienceDraftService:
             extracted_facts=extracted_facts,
             unknown_items=unknown_items,
             possible_value_angles=possible_value_angles,
-            clarifying_questions=clarifying_questions[:3],  # Limit to 3 questions
+            clarifying_questions=clarifying_questions[:3],
+            all_clarifying_questions=clarifying_questions,
             risk_flags=risk_flags,
         )
 
@@ -190,10 +263,15 @@ class ExperienceDraftService:
             elif "数据" in hint_lower or "data" in hint_lower:
                 domain = "data_analysis"
 
+        topic_match = re.search(
+            r"(?:研究目的|研究目标)(?:是|为|：|:)?\s*([^。；;\n]{2,120})",
+            text,
+            re.IGNORECASE,
+        )
         return {
             "domain": domain,
             "setting": setting,
-            "topic": None  # Topic requires more sophisticated extraction
+            "topic": topic_match.group(1).strip() if topic_match else None,
         }
 
     def _extract_role(self, text: str) -> dict[str, str | None]:
@@ -248,24 +326,7 @@ class ExperienceDraftService:
     def _extract_tools(self, text: str) -> list[str]:
         """Extract tools (software, equipment, etc.)."""
         tools = []
-        # Common medical research tools
-        tool_patterns = [
-            (r"SPSS", "spss"),
-            (r"R语言|R[- ]?script|(?<![A-Za-z])R(?![A-Za-z])", "r"),
-            (r"Python", "python"),
-            (r"SQL", "sql"),
-            (r"Stata", "stata"),
-            (r"SAS", "sas"),
-            (r"Excel", "excel"),
-            (r"RevMan", "revman"),
-            (r"EndNote", "endnote"),
-            (r"NoteExpress", "noteexpress"),
-            (r"PubMed", "pubmed"),
-            (r"Embase", "embase"),
-            (r"Cochrane", "cochrane"),
-            (r"GraphPad(?: Prism)?", "graphpad_prism"),
-        ]
-        for pattern, tool_name in tool_patterns:
+        for pattern, tool_name in self.TOOL_PATTERNS:
             if re.search(pattern, text, re.IGNORECASE):
                 tools.append(tool_name)
         return tools
@@ -287,35 +348,32 @@ class ExperienceDraftService:
 
     def _extract_collaboration(self, text: str) -> list[str]:
         """Extract collaboration information."""
-        collaboration = []
-        if re.search(r"课题组|team|group", text, re.IGNORECASE):
-            collaboration.append("research_team")
-        if re.search(r"导师|supervisor", text, re.IGNORECASE):
-            collaboration.append("supervisor")
-        return collaboration
+        return [
+            item_id for item_id, patterns in self.COLLABORATION_PATTERNS.items()
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+        ]
 
     def _extract_artifacts(self, text: str) -> list[str]:
         """Extract artifacts (deliverables, outputs)."""
-        artifacts = []
-        if re.search(r"流程图|flowchart", text, re.IGNORECASE):
-            artifacts.append("prisma_flowchart")
-        if re.search(r"数据表|data sheet", text, re.IGNORECASE):
-            artifacts.append("data_extraction_sheet")
-        if re.search(r"论文|paper|manuscript", text, re.IGNORECASE):
-            artifacts.append("research_paper")
-        if re.search(r"结果图表|森林图|图表", text, re.IGNORECASE):
-            artifacts.append("analysis_figures")
-        if re.search(r"组会汇报|组会讨论", text, re.IGNORECASE):
-            artifacts.append("group_presentation")
-        if re.search(r"病例汇报材料|准备.*PPT|制作.*PPT|现场汇报", text, re.IGNORECASE):
-            artifacts.append("case_presentation_material")
-        return artifacts
+        return [
+            item_id for item_id, patterns in self.ARTIFACT_PATTERNS.items()
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+        ]
 
     def _extract_outcomes(self, text: str) -> list[str]:
         """Extract outcomes (results, achievements)."""
-        # For now, don't extract outcomes deterministically
-        # This should be confirmed by user to avoid fabrication
-        return []
+        statuses = (
+            ("no_publication_plan", (r"暂无发表计划", r"没有发表计划", r"未计划发表")),
+            ("materials_preparing", (r"正在整理(?:论文)?材料", r"论文材料整理")),
+            ("submitted", (r"已经投稿", r"已投稿")),
+            ("under_review", (r"审稿中", r"under review")),
+            ("accepted", (r"已录用", r"accepted")),
+            ("published", (r"已发表", r"published")),
+        )
+        return [
+            status for status, patterns in statuses
+            if any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
+        ]
 
     def _extract_scope(self, text: str) -> dict[str, str]:
         """Extract scope information (numbers, ranges, etc.)."""
@@ -327,7 +385,10 @@ class ExperienceDraftService:
         unknowns = []
 
         # If actions include literature retrieval, ask about databases
-        if "retrieve_literature" in facts["actions"]:
+        database_tools = {
+            "pubmed", "embase", "cochrane", "web_of_science", "cnki", "wanfang", "vip",
+        }
+        if "retrieve_literature" in facts["actions"] and not database_tools.intersection(facts["tools"]):
             unknowns.append("databases_used")
 
         # If methods include meta_analysis, ask about the workflow rather than
@@ -338,13 +399,26 @@ class ExperienceDraftService:
         # If no outcomes are specified, ask about results
         if not facts["outcomes"] and not re.search(r"没有发表|未发表|尚未发表", text, re.IGNORECASE):
             unknowns.append("publication_status")
-            unknowns.append("project_outcomes")
+
+        if not facts["artifacts"]:
+            unknowns.append("deliverables")
 
         # If responsibility is unclear, ask for clarification
         if facts["role"]["responsibility_level"] == "participated":
             unknowns.append("specific_responsibilities")
 
-        return unknowns[:5]  # Limit to 5 unknowns
+        if not re.search(r"研究目的|研究目标|旨在|探讨|评估|比较|验证|分析.*关系", text, re.IGNORECASE):
+            unknowns.append("objective")
+        if not re.search(r"复核|核对|回查|质控|质量控制|一致性|偏倚|重复分析|双人", text, re.IGNORECASE):
+            unknowns.append("quality_control")
+        if not facts["collaboration"] and not re.search(r"共同|协作|分工|沟通|讨论", text, re.IGNORECASE):
+            unknowns.append("collaboration")
+        if not re.search(r"解决|排查|调整|修正|处理.*(?:问题|分歧|异常)|优化", text, re.IGNORECASE):
+            unknowns.append("problem_solving")
+        if not re.search(r"\d+|完整流程|部分步骤|持续|周期|范围", text, re.IGNORECASE):
+            unknowns.append("scope")
+
+        return unknowns
 
     def _generate_value_angles(self, facts: dict[str, Any]) -> list[str]:
         """Generate possible value angles for different roles."""
@@ -379,10 +453,24 @@ class ExperienceDraftService:
         if "specific_responsibilities" in unknowns:
             questions.append("你在项目中具体负责哪些任务？")
 
+        if "deliverables" in unknowns:
+            questions.append("你实际形成了哪些可复核的材料或结果？")
+
         if "publication_status" in unknowns:
             questions.append("这个项目是否有发表计划或已发表？")
 
-        return questions[:3]  # Limit to 3 questions as required
+        if "objective" in unknowns:
+            questions.append("这项工作的研究目标或希望回答的问题是什么？")
+        if "quality_control" in unknowns:
+            questions.append("你在执行过程中做过哪些质量控制、复核或一致性检查？")
+        if "collaboration" in unknowns:
+            questions.append("这项工作与谁协作，你和其他人的分工是什么？")
+        if "problem_solving" in unknowns:
+            questions.append("过程中遇到过什么问题或分歧，你具体如何处理？")
+        if "scope" in unknowns:
+            questions.append("这项任务的实际范围、周期或可确认数量是什么？")
+
+        return questions
 
     def _identify_risk_flags(self, facts: dict[str, Any], text: str) -> list[str]:
         """Identify potential risks in the input text."""

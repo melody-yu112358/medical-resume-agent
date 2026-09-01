@@ -5,7 +5,7 @@
   "scope": "Research-only China CDM Candidate evidence; not a Role Pack, runtime target, or personal-evidence source.",
   "provenance_policy": {
     "qualifying_rule": "A snapshot counts only with employer, title, China location, captured public responsibilities, retrieval date, current retrieval status, and a digest of the stored source snapshot. Search extracts never count.",
-    "source_digest_basis": "sha256(UTF-8(URL + newline + source_snapshot))"
+    "source_digest_basis": "sha256(UTF-8(url + LF (U+000A) + source_snapshot)); url and source_snapshot are retained verbatim, with no whitespace normalization. Stored values use the sha256:<lowercase-hex> form."
   },
   "jd_snapshots": [
     {
@@ -20,6 +20,7 @@
       "qualifying": true,
       "source_snapshot": "Official Beijing careers role: data-team operations; trial data-management progress and quality control; protocol and data-management document review; CRF support; external-data transfer and SAE reconciliation plans; database build support and UAT; and senior department planning and training.",
       "source_digest": "sha256:ed9a3a860943f7739228f5c3c5c4b4b1149142483ff440c2a2244775af54c387",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full"
     },
     {
@@ -34,6 +35,7 @@
       "qualifying": true,
       "source_snapshot": "Public Beijing listing: clinical data checking, cleaning, coding and traceability; assistance with data-management and validation plans; coordination of data issues with investigators, CRCs and CRAs; controlled documentation; GCP/CDISC awareness; and confidentiality.",
       "source_digest": "sha256:780ec71e20f558cf4bc8c8449293f5d9cb7cfb925dbe106b5a3fd31c76c3b5c6",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full_third_party"
     },
     {
@@ -48,6 +50,7 @@
       "qualifying": true,
       "source_snapshot": "Public Beijing CRO listing: controlled DMP, CCG, DVP and DRP documents; CRF design; EDC validation and UAT; entry, checking and maintenance of CRF and external electronic data; plan-based manual or medical data review; query resolution; and pre-lock data work.",
       "source_digest": "sha256:44b30c60b4e88429bddbc4dc9e55a5abf736049d51f27f276cba18231eb4864d",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full_third_party"
     },
     {
@@ -77,6 +80,7 @@
       "qualifying": true,
       "source_snapshot": "Official China listing: project-level CDM administrative support across study start-up, conduct and closeout, including documentation review or creation, UAT, query management, data cleaning and review, third-party-data reconciliation, and clinical-study-team status reporting.",
       "source_digest": "sha256:f7660019cbf8680342614294b660be905c31fed7f5963028efe3f00413629f65",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full"
     },
     {
@@ -91,6 +95,7 @@
       "qualifying": true,
       "source_snapshot": "Public Shanghai CRO listing: EDC data checking; creating, following up and closing data queries with site CRCs; assistance with UAT, blind review and database lock; audit-ready filing of query logs and test records; data-anomaly and risk escalation; and GCP/SOP confidentiality.",
       "source_digest": "sha256:f362c9fc5b9f42246d3798dc2a80348625190812669bf07fccf9aa3b682170bc",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full_third_party"
     },
     {
@@ -105,6 +110,7 @@
       "qualifying": true,
       "source_snapshot": "Official Shanghai careers role: protocol review; CRF and study-database content; data-management and validation plans and reports; database-build collaboration, validation, backup and maintenance; CRF tracking, cleaning, logical checks, coding and query management; and SOP/GCP quality control before database lock.",
       "source_digest": "sha256:bae5713be898371d425dcd63229eea47432c20d34785189d1b5ab169ddd539da",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full"
     },
     {
@@ -119,6 +125,7 @@
       "qualifying": true,
       "source_snapshot": "Public Shanghai CRO listing: senior team management and allocation, control of DM-project quality and progress, difficult-issue resolution, bid and quotation participation, client communication, SOP optimization and staff development. This is level-specific, not stable support evidence.",
       "source_digest": "sha256:518fefe51a34d0f2a632adcb968b2c1b6915c60df57fba01a2eb73f7bd0c4608",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full_third_party"
     },
     {
@@ -133,6 +140,7 @@
       "qualifying": true,
       "source_snapshot": "Public Shanghai listing: project planning, execution and delivery; data-management-plan implementation and schedule control; CRF design; data-management-file review and approval; database-permission and quality-control work; cross-functional coordination; and progress or issue reporting. These duties are senior and JD-dependent.",
       "source_digest": "sha256:e08d859b435e537cba7b9c6f4fc91182a793fab3c75de7021a37b64374c9eea0",
+      "source_digest_scope": "url_plus_lf_plus_source_snapshot_utf8_v1",
       "status": "current_public_full_third_party"
     }
   ],

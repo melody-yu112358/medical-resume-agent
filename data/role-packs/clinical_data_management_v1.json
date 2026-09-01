@@ -1,0 +1,62 @@
+{
+  "role_pack": "clinical_data_management_v1",
+  "label": "临床数据管理 / CDM 支持",
+  "skill_reference": {
+    "target_scope": "初级至中级临床数据管理、数据质量、查询跟进及受控数据文档支持岗位；只转换已确认的临床研究数据支持事实。",
+    "emphasis": [
+      "CRF 核对、缺失数据与查询跟进",
+      "受控数据文档、可追溯性与既定 GCP/SOP 流程支持",
+      "已确认范围内的数据问题协调与研究数据质量支持",
+      "数据审阅或对账支持，不主张最终交付所有权"
+    ],
+    "boundary_note": "数据清理、核对、CRF/EDC 支持或与 CRC/CRA 的问题沟通不等于数据库锁定、EDC 建库、最终数据交付、项目/客户/供应商所有权或团队管理；一般数据分析也不自动证明临床试验数据管理、GCP 或 EDC 经历。"
+  },
+  "priorities": ["clinical_research", "data_analysis", "medical_information"],
+  "value_mappings": {
+    "clinical_research": ["临床研究数据质量与受控流程支持", "相关经历首条 + 临床研究数据能力"],
+    "data_analysis": ["数据核对、缺失数据和查询问题跟进", "相关经历首条 + 数据质量能力"],
+    "medical_information": ["受控数据文档与研究资料可追溯性支持", "相关经历首条 + 文档能力"]
+  },
+  "preferred_actions": ["check", "clean", "follow_up", "reconcile", "document", "coordinate", "support"],
+  "allowed_verbs": ["参与", "协助", "支持", "核对", "整理", "跟进", "维护", "记录", "沟通"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成", "统筹", "拥有"],
+  "forbidden_claims": [
+    "数据库锁定所有权",
+    "最终数据交付所有权",
+    "独立 EDC 建库或配置权",
+    "CRF 设计所有权",
+    "CDM 项目负责人",
+    "客户、供应商或预算所有权",
+    "团队管理或人员分配",
+    "CDISC、SDTM、MedDRA 或编程专长",
+    "确保数据合规或最终质量"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_task", "data_or_document_artifact", "scope_of_responsibility"],
+    "led_delivery": ["execution_evidence", "delivery_accountability", "completion_evidence"],
+    "project_owner": ["scope_ownership_evidence", "decision_authority", "delivery_accountability"]
+  },
+  "sentence_patterns": [
+    "参与{object}的{action}，跟进{constraint}并支持{purpose}",
+    "协助{scope}的{action}与{deliverable}维护，支持{outcome}",
+    "整理{object}并与{team}沟通已识别问题，支持{purpose}"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {"case_id": "cdm-positive", "case_type": "positive", "persona_id": "cdm-p1", "jd_ids": ["cdm-01", "cdm-06"], "facts": ["参与CRF核对", "跟进缺失数据", "按研究要求整理数据问题", "完成GCP培训"], "non_claims": ["数据库锁定", "数据管理负责人"]},
+      "expected_output": ["参与 CRF 核对、缺失数据跟进和数据问题整理，并完成 GCP 培训。"]
+    },
+    {
+      "input": {"case_id": "cdm-transferable", "case_type": "transferable", "persona_id": "cdm-p2", "jd_ids": ["cdm-02", "cdm-07"], "facts": ["协助研究资料归档", "使用Excel完成受控数据表检查", "与CRC沟通数据缺口"], "non_claims": ["EDC配置", "项目预算", "客户所有权"]},
+      "expected_output": ["协助研究资料归档及受控数据表检查，并与 CRC 沟通已识别的数据缺口。"]
+    },
+    {
+      "input": {"case_id": "cdm-partial", "case_type": "partial", "persona_id": "cdm-p3", "jd_ids": ["cdm-03", "cdm-05"], "facts": ["R语言数据清洗", "医学统计课程项目"], "non_claims": ["临床试验数据流程", "GCP", "EDC经验"]},
+      "expected_output": ["具备 R 语言数据清洗和医学统计课程项目经历；尚缺临床试验数据流程及 GCP 证据。"]
+    },
+    {
+      "input": {"case_id": "cdm-negative", "case_type": "negative", "persona_id": "cdm-p5", "jd_ids": ["cdm-05", "cdm-08"], "facts": ["细胞实验", "文献综述"], "non_claims": ["临床数据管理", "数据清理所有权", "数据库锁定"]},
+      "expected_output": ["现有细胞实验和文献综述事实不足以支持临床数据管理或数据清理所有权。"]
+    }
+  ]
+}

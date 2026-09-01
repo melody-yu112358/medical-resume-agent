@@ -1,13 +1,33 @@
 <!-- GENERATED FILE — DO NOT EDIT MANUALLY.
 Source: data/role-packs/*.json
-Canonical packs: clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
+Canonical packs: clinical_data_management_v1, clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
 Schema: medical-role-pack-schema-v1 (https://example.invalid/schemas/role-pack.schema.json)
 Schema SHA-256: 3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7
-Source digest SHA-256: 5ab4f08b678bdaf84c3743a9cc4aa291f61dd1870bffc59278ab0fed221d5435 -->
+Source digest SHA-256: e5c840c445e9cae5175192daf7389b1b3216d4b3b67ebbd86bc653a81ec1b7e6 -->
 
 # Target paths
 
 This reference is generated from the canonical Role Pack configuration. A target changes the ordering and emphasis of confirmed facts; it never adds facts or upgrades responsibility.
+
+## 临床数据管理 / CDM 支持 (`clinical_data_management_v1`)
+
+初级至中级临床数据管理、数据质量、查询跟进及受控数据文档支持岗位；只转换已确认的临床研究数据支持事实。
+
+### Prioritize
+
+- CRF 核对、缺失数据与查询跟进
+- 受控数据文档、可追溯性与既定 GCP/SOP 流程支持
+- 已确认范围内的数据问题协调与研究数据质量支持
+- 数据审阅或对账支持，不主张最终交付所有权
+
+### Role-pack boundary
+
+数据清理、核对、CRF/EDC 支持或与 CRC/CRA 的问题沟通不等于数据库锁定、EDC 建库、最终数据交付、项目/客户/供应商所有权或团队管理；一般数据分析也不自动证明临床试验数据管理、GCP 或 EDC 经历。
+
+### Execution guardrails
+
+- Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
+- Forbidden claims: 数据库锁定所有权、最终数据交付所有权、独立 EDC 建库或配置权、CRF 设计所有权、CDM 项目负责人、客户、供应商或预算所有权、团队管理或人员分配、CDISC、SDTM、MedDRA 或编程专长、确保数据合规或最终质量.
 
 ## 临床运营协调 (`clinical_operations_v1`)
 

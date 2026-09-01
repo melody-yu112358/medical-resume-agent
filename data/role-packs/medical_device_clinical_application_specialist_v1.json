@@ -1,0 +1,89 @@
+{
+  "role_pack": "medical_device_clinical_application_specialist_v1",
+  "label": "医疗器械临床 / 应用支持",
+  "skill_reference": {
+    "target_scope": "初级至中级医疗器械临床/应用支持、产品培训、受限产品范围内的现场技术与工作流支持岗位；只转换已确认的应用支持事实。",
+    "emphasis": [
+      "产品专属的使用培训、演示与技术问题跟进",
+      "已确认范围内的临床应用与工作流支持",
+      "用户反馈、案例资料和技术问题的受控记录与传递",
+      "内部、渠道或学术活动支持，不主张临床或商业所有权"
+    ],
+    "boundary_note": "设备培训、演示、现场技术支持或用户反馈不等于临床决策、手术/操作、患者照护、产品路线图、研发、客户/医院所有权、销售KPI、收入、区域策略或项目所有权。"
+  },
+  "priorities": ["clinical_research", "medical_information"],
+  "value_mappings": {
+    "clinical_research": ["受限产品范围内的临床应用与工作流支持", "相关经历首条 + 应用支持能力"],
+    "medical_information": ["产品使用培训、反馈记录、技术问题与受控资料支持", "相关经历首条 + 医学沟通能力"]
+  },
+  "preferred_actions": ["train", "demonstrate", "guide", "support", "document", "follow_up", "record", "coordinate"],
+  "allowed_verbs": ["参与", "协助", "支持", "演示", "培训", "指导", "记录", "整理", "跟进", "沟通"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成", "统筹", "拥有"],
+  "forbidden_claims": [
+    "临床决策或患者照护所有权",
+    "手术、操作或治疗责任",
+    "产品路线图或研发所有权",
+    "客户、医院、医生或渠道所有权",
+    "销售KPI、收入、配额、区域或商业策略所有权",
+    "项目所有权或项目负责人",
+    "器械注册申报或科学作者责任",
+    "人员管理或团队分配",
+    "确保临床结果、产品疗效或合规"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_device_or_training_task", "training_or_support_artifact", "scope_of_responsibility"],
+    "led_delivery": ["assigned_delivery_scope", "delivery_accountability", "completion_evidence"],
+    "project_owner": ["scope_ownership_evidence", "decision_authority", "delivery_accountability"]
+  },
+  "sentence_patterns": [
+    "协助{object}的{action}与{deliverable}准备，支持{purpose}",
+    "参与{scope}的{action}，记录{constraint}并跟进既定技术问题",
+    "整理{object}并与{team}沟通已确认的使用或培训需求"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "case_id": "device-positive",
+        "case_type": "positive",
+        "persona_id": "device-p1",
+        "jd_ids": ["device-02", "device-06"],
+        "facts": ["协助设备使用培训", "记录临床用户反馈", "参加产品知识培训"],
+        "non_claims": ["销售指标", "临床决策", "手术责任"]
+      },
+      "expected_output": ["协助设备使用培训、记录临床用户反馈，并参加产品知识培训。"]
+    },
+    {
+      "input": {
+        "case_id": "device-transferable",
+        "case_type": "transferable",
+        "persona_id": "device-p2",
+        "jd_ids": ["device-07", "device-09"],
+        "facts": ["在医院协助设备演示", "整理培训材料", "跟进技术问题"],
+        "non_claims": ["手术操作责任", "产品路线图", "客户所有权"]
+      },
+      "expected_output": ["在医院协助设备演示、整理培训材料并跟进已识别的技术问题。"]
+    },
+    {
+      "input": {
+        "case_id": "device-partial",
+        "case_type": "partial",
+        "persona_id": "device-p3",
+        "jd_ids": ["device-08", "device-11"],
+        "facts": ["临床轮转", "与医护人员沟通"],
+        "non_claims": ["器械培训", "现场技术支持", "临床决策"]
+      },
+      "expected_output": ["具备临床轮转及与医护人员沟通经历；尚缺器械产品培训和现场技术支持证据。"]
+    },
+    {
+      "input": {
+        "case_id": "device-negative",
+        "case_type": "negative",
+        "persona_id": "device-p5",
+        "jd_ids": ["device-09", "device-12"],
+        "facts": ["细胞培养", "实验室研究"],
+        "non_claims": ["临床应用", "设备培训", "客户支持"]
+      },
+      "expected_output": ["现有细胞培养和实验室研究事实不足以支持医疗器械临床应用经历。"]
+    }
+  ]
+}

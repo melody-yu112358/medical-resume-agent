@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 
+import pytest
+
 from medical_career_agent.api import create_app
 
 
@@ -43,11 +45,15 @@ class TierGateway:
 
 
 class BatchedTierGateway:
-    def __init__(self, *, omit_high_impact=False, unsafe_high_impact=False, identical=False):
+    def __init__(
+        self, *, omit_high_impact=False, unsafe_high_impact=False, identical=False,
+        wording_by_tone=None,
+    ):
         self.calls = []
         self.omit_high_impact = omit_high_impact
         self.unsafe_high_impact = unsafe_high_impact
         self.identical = identical
+        self.wording_by_tone = wording_by_tone or {}
 
     def generate(self, *, task, context):
         assert task == "resume_experience_tier_rewrite"
@@ -57,7 +63,7 @@ class BatchedTierGateway:
             for tone in ("Conservative", "Professional", "High-impact"):
                 if self.omit_high_impact and tone == "High-impact":
                     continue
-                wording = SAFE_WORDING[tone]
+                wording = self.wording_by_tone.get(tone, SAFE_WORDING[tone])
                 if self.identical:
                     wording = SAFE_WORDING["Professional"]
                 if self.unsafe_high_impact and tone == "High-impact":
@@ -77,12 +83,12 @@ def _message(client, session_id, payload):
     return response.get_json()
 
 
-def _composed_conversation(gateway=None):
+def _composed_conversation(gateway=None, *, source=SOURCE, proposal=PROPOSAL):
     client = create_app(model_gateway=gateway, load_model_from_environment=False).test_client()
     session_id = client.post("/api/conversations", json={}).get_json()["session_id"]
-    _message(client, session_id, {"text": SOURCE, "consent_confirmed": True})
+    _message(client, session_id, {"text": source, "consent_confirmed": True})
     _message(client, session_id, {
-        "action": "confirm_activity_proposals", "activity_proposals": [PROPOSAL],
+        "action": "confirm_activity_proposals", "activity_proposals": [proposal],
         "proposal_ids": [],
     })
     sample = _message(client, session_id, {
@@ -275,6 +281,44 @@ def test_batched_unsafe_candidate_falls_back_without_blocking_safe_tiers():
     )
     assert switched["resume_document"]["research_experience"][0]["bullets"][0]["text"] == base_wording
     assert "主导项目" not in switched["resume_document"]["research_experience"][0]["bullets"][0]["text"]
+
+
+LIMITED_SOURCE = "在导师指导下参与系统综述的部分文献筛选。"
+LIMITED_PROPOSAL = {
+    **PROPOSAL,
+    "evidence_quote": LIMITED_SOURCE,
+    "ownership_level": "contributed",
+    "execution_mode": "supervised",
+    "coverage": "partial",
+    "scope_note": "仅完成已分配的筛选步骤",
+}
+LIMITED_SAFE_WORDING = {
+    "Conservative": "在指导下参与部分系统综述文献筛选。",
+    "Professional": "在指导下完成已分配的系统综述文献筛选步骤。",
+    "High-impact": "围绕系统综述流程，在指导下参与已分配的文献筛选工作。",
+}
+
+
+@pytest.mark.parametrize("tone", ["Professional", "High-impact"])
+def test_professional_and_high_impact_tiers_reject_all_evidence_or_responsibility_upgrades(tone):
+    unsafe = "主导项目并承担最终责任，独立完成完整流程，筛选50篇文献并发表论文。"
+    wording_by_tone = {**LIMITED_SAFE_WORDING, tone: unsafe}
+    gateway = BatchedTierGateway(wording_by_tone=wording_by_tone)
+    client, session_id, composed = _composed_conversation(
+        gateway, source=LIMITED_SOURCE, proposal=LIMITED_PROPOSAL,
+    )
+    base_wording = composed["resume_document"]["research_experience"][0]["bullets"][0]["text"]
+
+    generated = _message(client, session_id, {"action": "generate_resume_tiers"})
+    candidates = {item["tone"]: item for item in generated["state"]["rewrite_candidates"]}
+
+    assert candidates[tone]["selected"] is False
+    assert candidates[tone]["gate"]["status"] != "ready"
+    tier = "professional" if tone == "Professional" else "high_impact"
+    switched = _message(client, session_id, {"action": "select_resume_tier", "tier": tier})
+    rendered = switched["resume_document"]["research_experience"][0]["bullets"][0]["text"]
+    assert rendered == base_wording
+    assert unsafe not in rendered
 
 
 def test_editing_base_claim_removes_its_stale_tier_candidates():

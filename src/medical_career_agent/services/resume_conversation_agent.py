@@ -1309,6 +1309,11 @@ class ResumeConversationAgent:
             for pack in packs:
                 for claim in self.bullet_composer.compose_bullets(canonical_experience=canonical, role_pack_name=pack):
                     claim_data = claim.to_dict()
+                    # v2 Role Packs may only alter ordering and emphasis.  The
+                    # same canonical activity therefore has one auditable
+                    # provenance claim even if several packs are selected.
+                    if claim_data["claim_id"] in gates:
+                        continue
                     gate = self.claim_gate.validate_claim(bullet_claim=claim_data, canonical_experience=canonical).to_dict()
                     claim_data["verification_status"] = gate["status"]
                     self.claim_ledger.record_claim(session_id=session_id, bullet_claim=claim_data, gate_status=gate["status"], user_disposition=None)

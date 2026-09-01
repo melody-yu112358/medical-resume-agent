@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -195,7 +196,14 @@ class BulletComposerService:
                 continue
             wording = self._render_v2_wording(components, responsibility)
             claims.append(BulletClaimV2(
-                claim_id=f"claim_{uuid4().hex[:8]}", experience_id=canonical_experience["experience_id"],
+                # A v2 claim identifies one confirmed activity/responsibility
+                # pair. Role Packs may rank that pair differently, but must not
+                # create a different provenance identity for it.
+                claim_id=self._v2_claim_id(
+                    canonical_experience["experience_id"], activity["activity_id"],
+                    responsibility["responsibility_id"],
+                ),
+                experience_id=canonical_experience["experience_id"],
                 role_pack=role_pack_name, wording=wording, used_facts=tuple(facts),
                 activity_id=activity["activity_id"], responsibility_id=responsibility["responsibility_id"],
                 evidence_ids=tuple(sorted(set(activity.get("evidence_ids", [])) | set(responsibility.get("evidence_ids", [])))),
@@ -203,6 +211,13 @@ class BulletComposerService:
                 omitted_unknowns=tuple(canonical_experience.get("unknowns", [])),
             ))
         return claims
+
+    @staticmethod
+    def _v2_claim_id(
+        experience_id: str, activity_id: str, responsibility_id: str,
+    ) -> str:
+        identity = "\x1f".join((experience_id, activity_id, responsibility_id))
+        return f"claim_{hashlib.sha256(identity.encode('utf-8')).hexdigest()[:12]}"
 
     @staticmethod
     def _v2_activity_priority(

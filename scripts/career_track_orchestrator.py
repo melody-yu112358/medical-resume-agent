@@ -97,14 +97,21 @@ def decide_next_action(track: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def build_state(evidence_root: Path = EVIDENCE_ROOT) -> dict[str, Any]:
+def build_state(
+    evidence_root: Path = EVIDENCE_ROOT, *, generated_at: str | None = None,
+) -> dict[str, Any]:
+    """Build the semantic state using an injectable snapshot provenance date."""
     tracks = []
     for career_id, relative_path in EVIDENCE_PATHS.items():
         evidence = json.loads((evidence_root / relative_path).read_text(encoding="utf-8"))
         if evidence.get("career_id") != career_id:
             raise ValueError(f"career_id mismatch in {relative_path}")
         tracks.append(decide_next_action(import_candidate_evidence(evidence)))
-    return {"schema_version": "career-track-state-v1", "generated_at": date.today().isoformat(), "tracks": tracks}
+    return {
+        "schema_version": "career-track-state-v1",
+        "generated_at": generated_at or date.today().isoformat(),
+        "tracks": tracks,
+    }
 
 
 def main() -> None:
@@ -112,7 +119,11 @@ def main() -> None:
     parser.add_argument("--write", action="store_true", help="write the canonical generated snapshot")
     parser.add_argument("--check", action="store_true", help="verify the committed snapshot matches evidence")
     args = parser.parse_args()
-    state = build_state()
+    snapshot_date = None
+    if args.check and OUTPUT_PATH.exists():
+        existing = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+        snapshot_date = existing.get("generated_at")
+    state = build_state(generated_at=snapshot_date)
     rendered = json.dumps(state, ensure_ascii=False, indent=2) + "\n"
     if args.check:
         if not OUTPUT_PATH.exists() or OUTPUT_PATH.read_text(encoding="utf-8") != rendered:

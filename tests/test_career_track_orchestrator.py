@@ -49,12 +49,20 @@ def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_research
 
 
 def test_generated_snapshot_matches_evidence_and_schema():
-    expected = build_state()
     actual = json.loads(OUTPUT_PATH.read_text(encoding="utf-8"))
+    expected = build_state(generated_at=actual["generated_at"])
     schema = json.loads((ROOT / "schemas" / "career-track-state.schema.json").read_text(encoding="utf-8"))
 
     assert actual == expected
     validate(instance=actual, schema=schema)
+
+
+def test_snapshot_date_is_injectable_and_does_not_change_semantic_state():
+    first = build_state(generated_at="2026-08-31")
+    second = build_state(generated_at="2026-09-01")
+
+    assert first["generated_at"] != second["generated_at"]
+    assert first["tracks"] == second["tracks"]
 
 
 def test_only_eligible_state_requires_human_canonicalization_approval():

@@ -186,6 +186,19 @@ def test_v2_role_pack_priorities_change_order_without_changing_claim_set():
     assert {item.activity_id for item in medical_affairs} == {
         item.activity_id for item in health_data
     } == {"act_retrieve", "act_analysis"}
+    trace_fields = (
+        "claim_id", "experience_id", "used_facts", "activity_id",
+        "responsibility_id", "evidence_ids", "project_responsibility_level",
+    )
+    medical_trace = {
+        item.claim_id: tuple(getattr(item, field) for field in trace_fields[1:])
+        for item in medical_affairs
+    }
+    health_trace = {
+        item.claim_id: tuple(getattr(item, field) for field in trace_fields[1:])
+        for item in health_data
+    }
+    assert medical_trace == health_trace
 
 
 def test_v2_composer_keeps_every_distinct_confirmed_responsibility_auditable():

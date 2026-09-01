@@ -1,0 +1,57 @@
+{
+  "schema_version": "release-regression-manifest-v1",
+  "name": "medical-resume-agent-mvp-release-baseline",
+  "purpose": "A small, deterministic release gate for changes to prompts, models, schemas, Role Packs, delivery templates, or core workflow rules.",
+  "cases": [
+    {
+      "case_id": "RR-01",
+      "name": "正常、可确认的科研经历",
+      "fixture": "data/fixtures/meta-analysis-end-to-end-example.json",
+      "expected": "Confirmed facts can flow through the full chain; role-specific wording remains traceable and does not add unknown facts.",
+      "verification_targets": [
+        "tests/test_end_to_end_chain.py",
+        "tests/test_meta_analysis_example.py"
+      ]
+    },
+    {
+      "case_id": "RR-02",
+      "name": "信息不足的经历",
+      "fixture": "data/fixtures/information-insufficient-end-to-end-example.json",
+      "expected": "Missing details stay visible as unknowns; generated wording is marked needs_confirmation and does not claim unsupported methods, ownership, or outcomes.",
+      "verification_targets": [
+        "tests/test_confirmation_gate_negative.py",
+        "tests/test_claim_gate_negative.py"
+      ]
+    },
+    {
+      "case_id": "RR-03",
+      "name": "责任边界模糊的经历",
+      "fixture": "data/fixtures/responsibility-ambiguous-end-to-end-example.json",
+      "expected": "Ambiguous ownership stays conservative and requires clarification; the output must not become independent or project-level ownership.",
+      "verification_targets": [
+        "tests/test_claim_gate_negative.py",
+        "tests/test_activity_responsibility_v2.py"
+      ]
+    },
+    {
+      "case_id": "RR-04",
+      "name": "可能夸大的输入",
+      "fixture": "data/fixtures/user-exaggeration-end-to-end-example.json",
+      "expected": "Unsupported leadership, publication, impact-factor, or outcome claims remain unverified and are not promoted into ready-to-submit wording.",
+      "verification_targets": [
+        "tests/test_claim_gate_negative.py",
+        "tests/test_resume_rewriter.py"
+      ]
+    },
+    {
+      "case_id": "RR-05",
+      "name": "模型不可用时的降级",
+      "fixture": null,
+      "expected": "When no model is configured, the rewrite path preserves the supplied evidence verbatim and tells the user that model-based rewriting is unavailable; it must not manufacture a substitute answer.",
+      "verification_targets": [
+        "tests/test_resume_rewriter.py",
+        "tests/test_api.py"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "role_pack": "clinical_research_associate_v1",
+  "label": "临床研究协调 / CRA 支持",
+  "skill_reference": {
+    "target_scope": "初级至中级 CRA、临床研究协调和研究中心执行支持岗位；仅转换已确认的研究执行支持事实。",
+    "emphasis": ["研究资料与 CRF 维护", "缺失数据和查询跟进", "GCP 下的既定研究流程支持", "研究团队内部协调"],
+    "boundary_note": "资料准备、CRF维护、数据跟进或内部协调不等于独立中心监查、中心生命周期、受试者招募、预算、项目所有权、PI/赞助方或外部沟通所有权。"
+  },
+  "priorities": ["clinical_research", "data_analysis", "medical_information"],
+  "value_mappings": {"clinical_research": ["研究执行支持与资料完整性", "相关经历首条 + 研究流程能力"], "data_analysis": ["CRF和缺失数据跟进", "相关经历首条 + 数据质量能力"], "medical_information": ["研究资料整理", "相关经历首条 + 文档能力"]},
+  "preferred_actions": ["document", "maintain", "follow_up", "coordinate", "support", "prepare"],
+  "allowed_verbs": ["参与", "协助", "支持", "整理", "维护", "跟进", "准备", "记录"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成", "统筹", "拥有"],
+  "forbidden_claims": ["独立中心监查", "研究中心生命周期所有权", "受试者招募所有权", "预算所有权", "项目或项目群所有权", "PI、赞助方或外部沟通所有权", "团队管理", "确保合规"],
+  "required_evidence": {"owned_component": ["specific_task", "research_artifact", "scope_of_responsibility"], "led_delivery": ["monitoring_assignment", "site_visit_evidence", "accountability_evidence"], "project_owner": ["scope_ownership_evidence", "decision_authority", "delivery_accountability"]},
+  "sentence_patterns": ["协助{object}的{action}与{deliverable}维护，支持{purpose}", "参与{scope}的{action}，跟进{constraint}并支持{purpose}", "整理{object}并与{team}沟通既定{timeline}"],
+  "evaluation_cases": [
+    {"input":{"case_id":"cra-positive","case_type":"positive","persona_id":"cra-p1","jd_ids":["cra-04","cra-05"],"facts":["协助病历筛查和CRF维护","跟进缺失数据","完成GCP培训"],"non_claims":["独立中心监查","预算所有权"]},"expected_output":["协助病历筛查、CRF维护及缺失数据跟进，并完成GCP培训。"]},
+    {"input":{"case_id":"cra-partial","case_type":"partial","persona_id":"cra-p3","jd_ids":["cra-06","cra-08"],"facts":["临床轮转","病例讨论"],"non_claims":["GCP经验","CRF维护","研究中心工作"]},"expected_output":["具备临床轮转和病例讨论经历；尚缺GCP、CRF维护及研究中心工作证据。"]},
+    {"input":{"case_id":"cra-negative","case_type":"negative","persona_id":"cra-p5","jd_ids":["cra-07","cra-10"],"facts":["细胞培养","qPCR实验"],"non_claims":["CRA经历","临床研究流程"]},"expected_output":["现有实验室研究事实不足以支持CRA或临床研究执行经历。"]}
+  ]
+}

@@ -14,8 +14,9 @@
     "evaluation_cases"
   ],
   "projections": {
-    "clinical_research_associate_v1": "c9487ef5bb925882659b6ee9ea07589b002700b4f3d1dd90803c45532a86831e",
+    "clinical_data_management_v1": "39828a982e687c74be50929fc555c2f3c90ff89f9cf8a8d19de39e37c4edf72e",
     "clinical_operations_v1": "8762aa67b5816759f51f21aec6a1f86a37194b3376b5684a95f748ed68e5ba5c",
+    "clinical_research_associate_v1": "c9487ef5bb925882659b6ee9ea07589b002700b4f3d1dd90803c45532a86831e",
     "clinical_research_v1": "c592b53c92a1d106fa779d553f00e06c192f235055b44caa90dc13eebff2139b",
     "doctoral_v1": "5df02f35359bc09c628aaa134379ea84b5f4da2e0dd7a8ca6cf910522fae5786",
     "health_ai_data_v1": "0985af03477dbe6aa677b44da804862107de825ea4f74585a7df00d963bcb566",

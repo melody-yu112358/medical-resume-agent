@@ -397,6 +397,17 @@
       "unsupported_claim_audit"
     ]
   },
+  "conformance_preparation": {
+    "status": "blocked_pending_identifiable_model",
+    "fixed_case_ids": ["cdm-positive", "cdm-partial", "cdm-negative"],
+    "rubric": {
+      "factuality": "Score 1-5 against confirmed persona facts; any invented tool, quantity, outcome, or responsibility is unsupported.",
+      "ownership": "Score 1-5; support, cleaning, checking, CRF/EDC/UAT assistance, and coordination must not become lock, build, delivery, client, budget, or team ownership.",
+      "usefulness": "Score 1-5 for role-specific, bounded resume usefulness; preserve explicit gaps for partial and negative personas.",
+      "unsupported_claim_audit": "Record critical and noncritical claims separately; any critical factuality or ownership failure fails the run."
+    },
+    "blocker": "The current Codex deployment does not expose a verifiable exact model ID/version and configuration. No formal conformance run is recorded until those fields are available."
+  },
   "graduation_status": "Candidate — independent evidence/fixture review passed for recorded conformance; not canonical, not routable, and not eligible for canonicalization.",
   "next_action": "run_conformance",
   "human_required": false

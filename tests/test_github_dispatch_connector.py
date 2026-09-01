@@ -113,12 +113,11 @@ def test_current_track_dry_run_reflects_evidence_driven_next_actions():
     assert len(records) == 4
     assert all(record["dispatch_status"] == "planned" for record in records)
     payloads = {record["career_id"]: record["task_payload"] for record in records}
-    for career_id in {
-        "clinical_research_associate",
-        "pharmacovigilance_drug_safety",
-    }:
+    for career_id in {"pharmacovigilance_drug_safety"}:
         assert payloads[career_id]["assigned_agent"] == "researcher"
         assert payloads[career_id]["next_action"] == "collect_more_jds"
+    assert payloads["clinical_research_associate"]["assigned_agent"] == "reviewer"
+    assert payloads["clinical_research_associate"]["next_action"] == "request_independent_review"
     for career_id in {
         "clinical_data_management",
         "medical_device_clinical_application_specialist",

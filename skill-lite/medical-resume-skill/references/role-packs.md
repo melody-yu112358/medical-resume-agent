@@ -1,9 +1,9 @@
 <!-- GENERATED FILE — DO NOT EDIT MANUALLY.
 Source: data/role-packs/*.json
-Canonical packs: clinical_operations_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
+Canonical packs: clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1
 Schema: medical-role-pack-schema-v1 (https://example.invalid/schemas/role-pack.schema.json)
 Schema SHA-256: 3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7
-Source digest SHA-256: 81c0eb42d2afbb22b2aa1353c58a304efc5ab92642d246b3c6a84075bdedc3a1 -->
+Source digest SHA-256: 5ab4f08b678bdaf84c3743a9cc4aa291f61dd1870bffc59278ab0fed221d5435 -->
 
 # Target paths
 
@@ -28,6 +28,26 @@ This reference is generated from the canonical Role Pack configuration. A target
 
 - Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
 - Forbidden claims: 项目或项目群所有权、临床运营负责人、独立负责临床试验运营、流程或运营所有者、KPI 所有者、团队管理、管理研究中心、供应商、预算或合同管理、患者或提供者所有权、对外、客户或高管沟通、确保合规、独立制定或改造流程.
+
+## 临床研究协调 / CRA 支持 (`clinical_research_associate_v1`)
+
+初级至中级 CRA、临床研究协调和研究中心执行支持岗位；仅转换已确认的研究执行支持事实。
+
+### Prioritize
+
+- 研究资料与 CRF 维护
+- 缺失数据和查询跟进
+- GCP 下的既定研究流程支持
+- 研究团队内部协调
+
+### Role-pack boundary
+
+资料准备、CRF维护、数据跟进或内部协调不等于独立中心监查、中心生命周期、受试者招募、预算、项目所有权、PI/赞助方或外部沟通所有权。
+
+### Execution guardrails
+
+- Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
+- Forbidden claims: 独立中心监查、研究中心生命周期所有权、受试者招募所有权、预算所有权、项目或项目群所有权、PI、赞助方或外部沟通所有权、团队管理、确保合规.
 
 ## 临床科研 (`clinical_research_v1`)
 

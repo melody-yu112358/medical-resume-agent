@@ -3,6 +3,7 @@
   "generated_from": {
     "canonical_pack_versions": [
       "clinical_operations_v1",
+      "clinical_research_associate_v1",
       "clinical_research_v1",
       "doctoral_v1",
       "health_ai_data_v1",
@@ -11,7 +12,7 @@
     "schema_id": "https://example.invalid/schemas/role-pack.schema.json",
     "schema_version": "medical-role-pack-schema-v1",
     "schema_sha256": "3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7",
-    "source_digest_sha256": "81c0eb42d2afbb22b2aa1353c58a304efc5ab92642d246b3c6a84075bdedc3a1"
+    "source_digest_sha256": "5ab4f08b678bdaf84c3743a9cc4aa291f61dd1870bffc59278ab0fed221d5435"
   },
   "role_packs": [
     {
@@ -61,6 +62,57 @@
           "execution_evidence",
           "coordination_evidence",
           "completion_evidence"
+        ],
+        "project_owner": [
+          "scope_ownership_evidence",
+          "decision_authority",
+          "delivery_accountability"
+        ]
+      }
+    },
+    {
+      "role_pack": "clinical_research_associate_v1",
+      "label": "临床研究协调 / CRA 支持",
+      "skill_reference": {
+        "target_scope": "初级至中级 CRA、临床研究协调和研究中心执行支持岗位；仅转换已确认的研究执行支持事实。",
+        "emphasis": [
+          "研究资料与 CRF 维护",
+          "缺失数据和查询跟进",
+          "GCP 下的既定研究流程支持",
+          "研究团队内部协调"
+        ],
+        "boundary_note": "资料准备、CRF维护、数据跟进或内部协调不等于独立中心监查、中心生命周期、受试者招募、预算、项目所有权、PI/赞助方或外部沟通所有权。"
+      },
+      "execution_projection_sha256": "c9487ef5bb925882659b6ee9ea07589b002700b4f3d1dd90803c45532a86831e",
+      "restricted_verbs": [
+        "负责",
+        "主导",
+        "管理",
+        "领导",
+        "独立完成",
+        "统筹",
+        "拥有"
+      ],
+      "forbidden_claims": [
+        "独立中心监查",
+        "研究中心生命周期所有权",
+        "受试者招募所有权",
+        "预算所有权",
+        "项目或项目群所有权",
+        "PI、赞助方或外部沟通所有权",
+        "团队管理",
+        "确保合规"
+      ],
+      "required_evidence": {
+        "owned_component": [
+          "specific_task",
+          "research_artifact",
+          "scope_of_responsibility"
+        ],
+        "led_delivery": [
+          "monitoring_assignment",
+          "site_visit_evidence",
+          "accountability_evidence"
         ],
         "project_owner": [
           "scope_ownership_evidence",

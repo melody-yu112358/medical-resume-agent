@@ -1,8 +1,8 @@
 # Role Pack graduation
 
-This document defines how a researched target family becomes an executable canonical Role Pack. It protects the existing canonical set: `clinical_research_v1`, `doctoral_v1`, `health_ai_data_v1`, and `medical_affairs_v1`.
+This document defines how a researched target family becomes an executable canonical Role Pack. It protects the existing canonical set under `data/role-packs/*.json`.
 
-Those four packs remain stable. Research for another target family must not change their execution semantics, routing, UI, Claim Gate, or `workflow-contract.json`.
+Existing canonical packs remain stable. Research for another target family must not change their execution semantics, routing, UI, Claim Gate, or `workflow-contract.json`.
 
 ## Source of truth and artifact flow
 
@@ -44,7 +44,7 @@ Model-conformance validation establishes whether one or more host-model executio
 - A documented stable core; employer- or level-specific requirements are explicitly separated as JD-dependent.
 - At least 8 fixed confirmed personas, including at least 3 clear negative/partial personas. Each is exercised against at least 3 JDs in the candidate cluster.
 - Machine-readable positive, partial, gap, and negative-mapping fixtures. Negative rules must block ownership, client/external communication, commercial/payer, or management claims absent direct evidence.
-- No semantic change to the existing four canonical packs or runtime paths.
+- No semantic change to existing canonical packs or runtime paths.
 
 ### Candidate → Canonical v1 (domain validated)
 
@@ -54,7 +54,7 @@ Model-conformance validation establishes whether one or more host-model executio
 - Domain audits show 0 critical unsupported claims. Factuality and ownership preservation remain mandatory: participation is not rewritten as ownership, leadership, management, independent delivery, external/client/executive communication, or other unsupported scope.
 - A narrowly scoped PR adds or changes the canonical JSON Pack, schema-valid positive, partial, and negative evaluation cases, and only the generated projections required by that canonical input.
 - Contract, reference-generation, targeted new-Pack, and practical full regression tests pass. Review confirms target scope, allowed/restricted wording, forbidden claims, required evidence, and explicit non-claims remain compatible with the existing Claim Gate and routing contract.
-- The PR documents sources, personas, domain-evaluation method and scores, tests, limitations, the current model-conformance status, and confirms no change to the four pre-existing Role Packs' execution semantics.
+- The PR documents sources, personas, domain-evaluation method and scores, tests, limitations, the current model-conformance status, and confirms no change to pre-existing Role Packs' execution semantics.
 - A traceable human reviewer approves the promotion. Automation must not merge it.
 
 ### Canonical v1 → Cross-model validated

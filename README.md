@@ -48,7 +48,7 @@ Skill 默认先确认事实，再按目标方向规划每段经历，并提供�
 
 - 从零梳理一段零散的医学科研、实验或实践经历；
 - 局部润色已有简历中的一到三条经历；
-- 按升学科研、临床研究、医学事务 / MSL、医疗数据与数字健康等方向调整表达重点；
+- 按学术申请、临床科研、医学事务 / MSL、医疗数据与健康科技、临床运营协调、CRA 支持与 CDM 支持等方向调整表达重点；
 - 用户确认后，生成本机可编辑、可打印的 A4 HTML 简历。
 
 - [Skill Lite 使用说明](skill-lite/README.md)
@@ -100,14 +100,11 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 4. 选择目标方向，按已确认事实生成足量且不重复的候选简历要点。
 5. 查看依据事实、风险提示和审计记录，再复制或导出使用。
 
-首发版本提供四个重点方向：
+### Career coverage / 岗位覆盖
 
-- **学术升学与科研申请**（保研、考研复试、直博、博士申请）：研究问题、方法深度与科研潜力。
-- **临床研究与医院科研**：研究设计、临床问题、研究执行与协作。
-- **医学事务 / MSL**：证据解读、疾病领域知识与医学信息转译。
-- **医疗数据与数字健康**：数据处理、分析框架与结果沟通。
+当前 canonical source 中有 **7 个 Canonical v1 Role Packs**：学术申请、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、CRA 支持和 CDM 支持。医疗器械临床 / 应用支持正在独立 Canonical promotion pipeline 中；Pharmacovigilance / Drug Safety（PV）保留为 Candidate evidence 方向。两者在 merge 前均不是 canonical 或 runtime target。Market Access、Product、Consulting、Commercial Analytics、Operations 与 Sales 等差异较大的方向通过 JD-driven Generalist 路径处理，不强行套用通用 Role Pack。
 
-药物注册、市场准入、药物警戒、商业化和纯临床诊疗等方向暂未单列为 Role Pack，后续根据测试反馈扩展。
+岗位边界、真实 JD 证据、成熟度和下一阶段路线图见[中国医学背景职业 Role Pack 版图](docs/CAREER_ROLE_PACK_LANDSCAPE.md)。canonical 数量与语义始终以 `data/role-packs/*.json` 为准。
 
 ## 使用规则与已知限制
 
@@ -180,7 +177,7 @@ demo/resume-agent/         对话 Agent 的事实确认、审计、预览与导�
 demo/experience-compiler/  保留的医学经历编译器 Demo
 src/medical_career_agent/  经历提取、确认、要点生成、Claim Gate 与账本服务
 schemas/                   canonical experience、role pack、bullet claim 数据契约
-data/role-packs/           四个目标方向的表达策略
+data/role-packs/           canonical Role Pack 表达策略（当前集合以 JSON 为准）
 skill-lite/                面向 Codex/Claude 用户的轻量工作流包
 docs/                      架构、边界、模型配置与验收材料
 tests/                     合成案例、接口与边界测试

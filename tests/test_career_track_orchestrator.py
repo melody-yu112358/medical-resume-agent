@@ -11,7 +11,7 @@ from scripts.career_track_orchestrator import OUTPUT_PATH, build_state, decide_n
 ROOT = Path(__file__).parents[1]
 
 
-def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_researcher_and_cdm_to_conformance():
+def test_current_candidate_evidence_dry_run_routes_tracks_to_their_current_next_actions():
     state = build_state()
 
     assert {track["career_id"] for track in state["tracks"]} == {
@@ -30,11 +30,10 @@ def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_research
         assert track["current_tier"] == "beta"
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
-        if track["career_id"] == "medical_device_clinical_application_specialist":
-            assert track["stage"] == "review"
-            assert track["next_action"] == "request_independent_review"
-            assert track["assigned_agent"] == "reviewer"
-        elif track["career_id"] == "clinical_research_associate":
+        if track["career_id"] in {
+            "clinical_research_associate",
+            "medical_device_clinical_application_specialist",
+        }:
             assert track["stage"] == "conformance"
             assert track["next_action"] == "run_conformance"
             assert track["assigned_agent"] == "conformance"

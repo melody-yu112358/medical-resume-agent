@@ -1,0 +1,12 @@
+{
+  "schema_version": "domain-evaluation-v1",
+  "career": "clinical_research_associate",
+  "method": "Static, evidence-bound review of frozen personas and JD snapshots; no model was called.",
+  "rubric": {"5":"岗位相关且可直接使用","4":"有明显岗位价值，仅需轻微编辑","3":"安全但泛化","2":"岗位翻译价值较弱","1":"不可用或严重越界"},
+  "cases": [
+    {"career":"clinical_research_associate","case_id":"cra-domain-positive","persona_id":"cra-p1","jd_id":"cra-04","evidence_ids":["cra-p1.fact-1","cra-p1.fact-2","cra-p1.fact-3","cra-04"],"expected_mapping_class":"direct","allowed_claims":["协助病历筛查和CRF维护","跟进缺失数据","完成GCP培训"],"prohibited_claims":["独立中心监查","受试者招募所有权","预算所有权"],"golden_output":"协助病历筛查、CRF维护及缺失数据跟进，并完成GCP培训。","factuality":"PASS","ownership":"PASS","unsupported_claims":[],"critical_unsupported_claims":0,"usefulness":5,"reviewer":"independent_domain_reviewer","reviewer_rationale":"直接保留协助层级，覆盖CRA支持型核心而不声称监查或中心所有权。"},
+    {"career":"clinical_research_associate","case_id":"cra-domain-transferable","persona_id":"cra-p2","jd_id":"cra-05","evidence_ids":["cra-p2.fact-1","cra-p2.fact-2","cra-p2.fact-3","cra-05"],"expected_mapping_class":"transferable","allowed_claims":["研究资料归档","访视前资料准备","研究团队时间节点沟通"],"prohibited_claims":["PI管理","项目负责人","访视执行所有权"],"golden_output":"参与研究资料归档和访视前资料准备，并与研究团队沟通既定时间节点。","factuality":"PASS","ownership":"PASS","unsupported_claims":[],"critical_unsupported_claims":0,"usefulness":4,"reviewer":"independent_domain_reviewer","reviewer_rationale":"与试验执行支持相关，但明确不升级为项目或PI管理。"},
+    {"career":"clinical_research_associate","case_id":"cra-domain-partial","persona_id":"cra-p3","jd_id":"cra-06","evidence_ids":["cra-p3.fact-1","cra-06"],"expected_mapping_class":"partial","allowed_claims":["临床轮转","病例讨论"],"prohibited_claims":["GCP经验","CRF维护","研究中心工作"],"golden_output":"具备临床轮转和病例讨论经历；尚缺GCP、CRF维护及研究中心工作证据。","factuality":"PASS","ownership":"PASS","unsupported_claims":[],"critical_unsupported_claims":0,"usefulness":4,"reviewer":"independent_domain_reviewer","reviewer_rationale":"保留可迁移的临床语境，同时明确关键CRA缺口。"},
+    {"career":"clinical_research_associate","case_id":"cra-domain-negative","persona_id":"cra-p5","jd_id":"cra-07","evidence_ids":["cra-p5.fact-1","cra-07"],"expected_mapping_class":"gap","allowed_claims":["细胞培养","qPCR实验"],"prohibited_claims":["CRA经历","临床研究流程","独立监查"],"golden_output":"现有细胞培养和qPCR实验事实不足以支持CRA或临床研究执行经历。","factuality":"PASS","ownership":"PASS","unsupported_claims":[],"critical_unsupported_claims":0,"usefulness":4,"reviewer":"independent_domain_reviewer","reviewer_rationale":"拒绝错误职业映射本身具有求职决策价值。"}
+  ]
+}

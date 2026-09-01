@@ -4,15 +4,15 @@
 
 ## Evidence coverage
 
-- **Qualifying JDs:** 9 / 8. These are the full, traceable records from
-  Mindray, Dabo Medical, Kangli Bio Medical, China National Medical Device
-  (Wuxi), Gaush Meditech, Chengdu Jiabao Medical Devices, Shenzhen Dingshi
-  Biomedical Technology, Hunan Kedu Medical Technology, and Muwa Medical
-  Devices (Shandong).
-- **Qualifying companies:** 9 / 5.
-- **Non-countable context:** two search extracts and one partial official
-  posting remain in the ledger but do not establish an additional stable-duty
-  claim. Each newly added qualifying record retains its retrieved source
+- **Qualifying JDs:** 8 / 8. These are the full, traceable records from Dabo
+  Medical, Kangli Bio Medical, China National Medical Device (Wuxi), Gaush
+  Meditech, Chengdu Jiabao Medical Devices, Shenzhen Dingshi Biomedical
+  Technology, Hunan Kedu Medical Technology, and Muwa Medical Devices
+  (Shandong).
+- **Qualifying companies:** 8 / 5.
+- **Non-countable context:** two search extracts, one partial official posting,
+  and one historical secondary mirror remain in the ledger but do not establish
+  an additional stable-duty claim. Each qualifying record retains its retrieved source
   responsibility snapshot, source type, retrieval status, URL, capture date,
   and SHA-256 source digest.
 

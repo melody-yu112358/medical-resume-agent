@@ -1,8 +1,8 @@
 # China Clinical Data Management Candidate scorecard
 
-**Current tier:** Candidate, ready for independent domain review. **Release Gate:**
-`FAIL — remain Candidate/Beta` until an independent reviewer and subsequent
-conformance evidence satisfy `ROLE_PACK_GRADUATION.md`.
+**Current tier:** Candidate, ready for recorded conformance. **Release Gate:**
+`FAIL — remain Candidate/Beta` until conformance evidence satisfies
+`ROLE_PACK_GRADUATION.md`.
 
 ## Coverage
 
@@ -37,8 +37,9 @@ absent tools/workflows to CDISC, coding, budget, or team-management claims.
 
 ## Required next stages
 
-An independent Reviewer—not the Researcher/Builder—must now conduct the domain
-review and audit factuality, ownership, usefulness, critical unsupported claims,
-and overfit risk. Conformance remains `not_started`; no model runs are asserted
-or fabricated. This is not a canonical Role Pack, has no runtime integration,
-and requires no human approval yet.
+Independent domain review passed for Candidate evidence and fixtures. The fixed
+positive, partial, and negative cases, provenance fields, and scoring rubric are
+prepared, but conformance remains `not_started`: the current deployment does
+not expose a verifiable exact model ID/version and configuration. No model run
+is asserted or fabricated. This is not a canonical Role Pack, has no runtime
+integration, and requires no human approval yet.

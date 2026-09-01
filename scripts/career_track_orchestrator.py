@@ -30,7 +30,9 @@ def _complete_mapping(evidence: dict[str, Any]) -> bool:
 
 
 def _is_qualifying_snapshot(snapshot: dict[str, Any]) -> bool:
-    """Exclude explicitly non-countable search snippets from graduation coverage."""
+    """Honor an audited countability decision before applying the legacy fallback."""
+    if "qualifying" in snapshot:
+        return snapshot["qualifying"] is True
     return snapshot.get("status") != "search_extract_not_countable"
 
 
@@ -38,6 +40,7 @@ def import_candidate_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
     snapshots = evidence.get("jd_snapshots") or []
     qualifying_snapshots = [item for item in snapshots if _is_qualifying_snapshot(item)]
     conformance = evidence.get("conformance_ledger") or {}
+    domain_review = evidence.get("domain_review") or {}
     return {
         "career_id": evidence["career_id"],
         "current_tier": "beta",
@@ -48,7 +51,7 @@ def import_candidate_evidence(evidence: dict[str, Any]) -> dict[str, Any]:
         "persona_count": len(evidence.get("fixed_personas") or []),
         "mapping_status": "complete" if _complete_mapping(evidence) else "incomplete",
         "negative_mapping_status": "complete" if evidence.get("negative_mappings") else "incomplete",
-        "review_status": "not_requested",
+        "review_status": "passed" if domain_review.get("status") == "passed" else "not_requested",
         "conformance_status": "passed" if conformance.get("status") == "passed" else "not_started",
         "graduation_status": "not_eligible",
         "blockers": [],

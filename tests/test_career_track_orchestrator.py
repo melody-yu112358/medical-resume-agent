@@ -11,7 +11,7 @@ from scripts.career_track_orchestrator import OUTPUT_PATH, build_state, decide_n
 ROOT = Path(__file__).parents[1]
 
 
-def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_researcher_and_cdm_to_review():
+def test_current_candidate_evidence_dry_run_routes_tracks_to_their_current_next_actions():
     state = build_state()
 
     assert {track["career_id"] for track in state["tracks"]} == {
@@ -24,28 +24,30 @@ def test_current_candidate_evidence_dry_run_routes_incomplete_tracks_to_research
     for career_id in {
         "clinical_research_associate",
         "medical_device_clinical_application_specialist",
-        "pharmacovigilance_drug_safety",
     }:
         track = tracks[career_id]
         assert track["current_tier"] == "beta"
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
-        if track["career_id"] in {"clinical_research_associate", "medical_device_clinical_application_specialist"}:
-            assert track["stage"] == "review"
-            assert track["next_action"] == "request_independent_review"
-            assert track["assigned_agent"] == "reviewer"
-        else:
-            assert track["stage"] == "research"
-            assert track["next_action"] == "collect_more_jds"
-            assert track["assigned_agent"] == "researcher"
+        assert track["stage"] == "conformance"
+        assert track["next_action"] == "run_conformance"
+        assert track["assigned_agent"] == "conformance"
 
     cdm = tracks["clinical_data_management"]
-    assert cdm["stage"] == "review"
+    assert cdm["stage"] == "conformance"
     assert cdm["qualifying_jd_count"] == 8
-    assert cdm["next_action"] == "request_independent_review"
-    assert cdm["assigned_agent"] == "reviewer"
+    assert cdm["next_action"] == "run_conformance"
+    assert cdm["assigned_agent"] == "conformance"
     assert cdm["human_required"] is False
     assert cdm["graduation_status"] == "not_eligible"
+
+    pv = tracks["pharmacovigilance_drug_safety"]
+    assert pv["current_tier"] == "beta"
+    assert pv["stage"] == "conformance"
+    assert pv["next_action"] == "run_conformance"
+    assert pv["assigned_agent"] == "conformance"
+    assert pv["human_required"] is False
+    assert pv["graduation_status"] == "not_eligible"
 
 
 def test_generated_snapshot_matches_evidence_and_schema():
@@ -140,3 +142,22 @@ def test_non_countable_employers_do_not_satisfy_company_graduation_coverage():
     assert decided["company_count"] == 1
     assert decided["next_action"] == "collect_more_jds"
     assert "insufficient_company_coverage" in decided["blockers"]
+
+
+def test_explicitly_non_qualifying_snapshot_does_not_contribute_to_coverage():
+    evidence = {
+        "career_id": "synthetic_explicit_non_qualifying", "fixed_personas": list(range(8)),
+        "mappings": {key: [key] for key in ("direct", "transferable", "partial", "gap")},
+        "negative_mappings": ["boundary"], "conformance_ledger": {},
+        "jd_snapshots": [
+            {"employer": f"countable-{index}", "status": "current_public_full"}
+            for index in range(7)
+        ] + [{"employer": "incomplete-record", "status": "current_public_full", "qualifying": False}],
+    }
+
+    decided = decide_next_action(import_candidate_evidence(evidence))
+
+    assert decided["jd_count"] == 8
+    assert decided["qualifying_jd_count"] == 7
+    assert decided["company_count"] == 7
+    assert decided["next_action"] == "collect_more_jds"

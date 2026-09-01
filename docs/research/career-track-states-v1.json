@@ -1,14 +1,14 @@
 {
   "schema_version": "career-track-state-v1",
-  "generated_at": "2026-08-31",
+  "generated_at": "2026-09-01",
   "tracks": [
     {
       "career_id": "clinical_research_associate",
       "current_tier": "beta",
       "stage": "research",
-      "jd_count": 5,
-      "qualifying_jd_count": 5,
-      "company_count": 5,
+      "jd_count": 6,
+      "qualifying_jd_count": 6,
+      "company_count": 6,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -23,7 +23,7 @@
       "human_required": false,
       "execution_status": "completed_local",
       "remote_sync_status": "synced",
-      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta. Five qualifying JD snapshots are retained; three provenance-pending leads must be normalized or replaced before Candidate graduation review."
+      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta. Six qualifying JD snapshots are retained; two provenance-pending leads remain and two additional qualifying snapshots are still required before Candidate graduation review."
     },
     {
       "career_id": "clinical_data_management",

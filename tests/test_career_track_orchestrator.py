@@ -24,23 +24,14 @@ def test_current_candidate_evidence_dry_run_routes_tracks_to_their_current_next_
     for career_id in {
         "clinical_research_associate",
         "medical_device_clinical_application_specialist",
-        "pharmacovigilance_drug_safety",
     }:
         track = tracks[career_id]
         assert track["current_tier"] == "beta"
         assert track["human_required"] is False
         assert track["graduation_status"] == "not_eligible"
-        if track["career_id"] in {
-            "clinical_research_associate",
-            "medical_device_clinical_application_specialist",
-        }:
-            assert track["stage"] == "conformance"
-            assert track["next_action"] == "run_conformance"
-            assert track["assigned_agent"] == "conformance"
-        else:
-            assert track["stage"] == "research"
-            assert track["next_action"] == "collect_more_jds"
-            assert track["assigned_agent"] == "researcher"
+        assert track["stage"] == "conformance"
+        assert track["next_action"] == "run_conformance"
+        assert track["assigned_agent"] == "conformance"
 
     cdm = tracks["clinical_data_management"]
     assert cdm["stage"] == "conformance"
@@ -49,6 +40,14 @@ def test_current_candidate_evidence_dry_run_routes_tracks_to_their_current_next_
     assert cdm["assigned_agent"] == "conformance"
     assert cdm["human_required"] is False
     assert cdm["graduation_status"] == "not_eligible"
+
+    pv = tracks["pharmacovigilance_drug_safety"]
+    assert pv["current_tier"] == "beta"
+    assert pv["stage"] == "conformance"
+    assert pv["next_action"] == "run_conformance"
+    assert pv["assigned_agent"] == "conformance"
+    assert pv["human_required"] is False
+    assert pv["graduation_status"] == "not_eligible"
 
 
 def test_generated_snapshot_matches_evidence_and_schema():

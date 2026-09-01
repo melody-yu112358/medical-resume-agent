@@ -113,14 +113,15 @@ def test_current_track_dry_run_reflects_evidence_driven_next_actions():
     assert len(records) == 4
     assert all(record["dispatch_status"] == "planned" for record in records)
     payloads = {record["career_id"]: record["task_payload"] for record in records}
-    for career_id in {"pharmacovigilance_drug_safety"}:
-        assert payloads[career_id]["assigned_agent"] == "researcher"
-        assert payloads[career_id]["next_action"] == "collect_more_jds"
-    assert payloads["clinical_research_associate"]["assigned_agent"] == "conformance"
-    assert payloads["clinical_research_associate"]["next_action"] == "run_conformance"
-    assert payloads["clinical_data_management"]["assigned_agent"] == "conformance"
-    assert payloads["clinical_data_management"]["next_action"] == "run_conformance"
-    assert payloads["medical_device_clinical_application_specialist"]["assigned_agent"] == "conformance"
-    assert payloads["medical_device_clinical_application_specialist"]["next_action"] == "run_conformance"
+    expected_tasks = {
+        "clinical_research_associate": ("conformance", "run_conformance"),
+        "clinical_data_management": ("conformance", "run_conformance"),
+        "medical_device_clinical_application_specialist": ("conformance", "run_conformance"),
+        "pharmacovigilance_drug_safety": ("conformance", "run_conformance"),
+    }
+    assert {
+        career_id: (payload["assigned_agent"], payload["next_action"])
+        for career_id, payload in payloads.items()
+    } == expected_tasks
     for record in records:
         validate(instance=record, schema=schema)

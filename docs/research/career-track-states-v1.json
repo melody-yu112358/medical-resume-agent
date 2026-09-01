@@ -74,26 +74,25 @@
     {
       "career_id": "pharmacovigilance_drug_safety",
       "current_tier": "beta",
-      "stage": "research",
-      "jd_count": 5,
-      "qualifying_jd_count": 3,
-      "company_count": 3,
+      "stage": "conformance",
+      "jd_count": 10,
+      "qualifying_jd_count": 10,
+      "company_count": 8,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
-      "review_status": "not_requested",
+      "review_status": "passed",
       "conformance_status": "not_started",
       "graduation_status": "not_eligible",
       "blockers": [
-        "insufficient_jd_coverage",
-        "insufficient_company_coverage"
+        "conformance_incomplete"
       ],
-      "next_action": "collect_more_jds",
-      "assigned_agent": "researcher",
+      "next_action": "run_conformance",
+      "assigned_agent": "conformance",
       "human_required": false,
       "execution_status": "completed_local",
       "remote_sync_status": "synced",
-      "source_graduation_status": "Beta research; FAIL — remain Candidate/Beta until verified JD coverage, audited output evidence, and conformance records meet ROLE_PACK_GRADUATION.md"
+      "source_graduation_status": "Beta evidence coverage is ready for independent Candidate graduation review; no tier promotion, output audit, conformance result, or canonicalization claim is implied"
     }
   ]
 }

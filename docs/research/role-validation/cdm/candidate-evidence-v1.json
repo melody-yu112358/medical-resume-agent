@@ -371,12 +371,15 @@
     }
   ],
   "domain_review": {
-    "status": "pending_independent_reviewer",
-    "factuality": "not scored: no independent generated-output audit",
-    "ownership": "not scored: no independent generated-output audit",
-    "usefulness": "not scored: no independent domain-evaluation outputs",
-    "critical_unsupported_claims": "not assessed",
-    "result": "JD coverage and Candidate fixtures are ready for independent domain review; this researcher record is not a review approval."
+    "status": "passed",
+    "reviewed_at": "2026-09-01",
+    "reviewer_role": "independent_reviewer",
+    "review_scope": "Candidate evidence and fixture readiness only; no model-generated output was reviewed or asserted.",
+    "factuality": "pass: traceable JD snapshots and direct/transferable/partial/gap mappings were independently checked; output-level factuality remains for conformance.",
+    "ownership": "pass: negative rules preserve support scope and prohibit lock, EDC-build, delivery, client, budget, and team-management ownership without direct evidence.",
+    "usefulness": "ready for conformance: positive, partial, and negative personas give role-specific but bounded evaluation targets; no model-output usefulness score is asserted.",
+    "critical_unsupported_claims": "not assessed in model output; none introduced by the reviewed static mappings.",
+    "result": "PASS — Candidate evidence is sufficiently stable and bounded to enter recorded conformance. This is not Canonical v1 approval, a release-gate pass, or a human promotion decision."
   },
   "conformance_ledger": {
     "status": "not_started",
@@ -394,7 +397,7 @@
       "unsupported_claim_audit"
     ]
   },
-  "graduation_status": "Candidate — evidence coverage and fixtures ready for independent graduation review; not canonical, not routable, and not eligible for conformance until independent domain review passes.",
-  "next_action": "independent_domain_review",
+  "graduation_status": "Candidate — independent evidence/fixture review passed for recorded conformance; not canonical, not routable, and not eligible for canonicalization.",
+  "next_action": "run_conformance",
   "human_required": false
 }

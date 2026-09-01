@@ -1,6 +1,6 @@
 {
   "schema_version": "career-track-state-v1",
-  "generated_at": "2026-08-31",
+  "generated_at": "2026-09-01",
   "tracks": [
     {
       "career_id": "clinical_research_associate",
@@ -28,25 +28,25 @@
     {
       "career_id": "clinical_data_management",
       "current_tier": "beta",
-      "stage": "review",
+      "stage": "conformance",
       "jd_count": 9,
       "qualifying_jd_count": 8,
       "company_count": 8,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
-      "review_status": "not_requested",
+      "review_status": "passed",
       "conformance_status": "not_started",
       "graduation_status": "not_eligible",
       "blockers": [
-        "independent_review_required"
+        "conformance_incomplete"
       ],
-      "next_action": "request_independent_review",
-      "assigned_agent": "reviewer",
+      "next_action": "run_conformance",
+      "assigned_agent": "conformance",
       "human_required": false,
       "execution_status": "completed_local",
       "remote_sync_status": "synced",
-      "source_graduation_status": "Candidate — evidence coverage and fixtures ready for independent graduation review; not canonical, not routable, and not eligible for conformance until independent domain review passes."
+      "source_graduation_status": "Candidate — independent evidence/fixture review passed for recorded conformance; not canonical, not routable, and not eligible for canonicalization."
     },
     {
       "career_id": "medical_device_clinical_application_specialist",

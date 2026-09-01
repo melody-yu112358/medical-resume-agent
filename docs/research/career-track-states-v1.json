@@ -1,6 +1,6 @@
 {
   "schema_version": "career-track-state-v1",
-  "generated_at": "2026-08-31",
+  "generated_at": "2026-09-01",
   "tracks": [
     {
       "career_id": "clinical_research_associate",
@@ -51,10 +51,10 @@
     {
       "career_id": "medical_device_clinical_application_specialist",
       "current_tier": "beta",
-      "stage": "review",
+      "stage": "research",
       "jd_count": 12,
-      "qualifying_jd_count": 10,
-      "company_count": 10,
+      "qualifying_jd_count": 7,
+      "company_count": 7,
       "persona_count": 8,
       "mapping_status": "complete",
       "negative_mapping_status": "complete",
@@ -62,10 +62,10 @@
       "conformance_status": "not_started",
       "graduation_status": "not_eligible",
       "blockers": [
-        "independent_review_required"
+        "insufficient_jd_coverage"
       ],
-      "next_action": "request_independent_review",
-      "assigned_agent": "reviewer",
+      "next_action": "collect_more_jds",
+      "assigned_agent": "researcher",
       "human_required": false,
       "execution_status": "completed_local",
       "remote_sync_status": "synced",

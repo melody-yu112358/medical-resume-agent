@@ -120,7 +120,7 @@ def test_current_track_dry_run_reflects_evidence_driven_next_actions():
     assert payloads["clinical_research_associate"]["next_action"] == "run_conformance"
     assert payloads["clinical_data_management"]["assigned_agent"] == "conformance"
     assert payloads["clinical_data_management"]["next_action"] == "run_conformance"
-    assert payloads["medical_device_clinical_application_specialist"]["assigned_agent"] == "reviewer"
-    assert payloads["medical_device_clinical_application_specialist"]["next_action"] == "request_independent_review"
+    assert payloads["medical_device_clinical_application_specialist"]["assigned_agent"] == "conformance"
+    assert payloads["medical_device_clinical_application_specialist"]["next_action"] == "run_conformance"
     for record in records:
         validate(instance=record, schema=schema)

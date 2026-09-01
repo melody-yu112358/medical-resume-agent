@@ -30,7 +30,9 @@ def _complete_mapping(evidence: dict[str, Any]) -> bool:
 
 
 def _is_qualifying_snapshot(snapshot: dict[str, Any]) -> bool:
-    """Exclude explicitly non-countable search snippets from graduation coverage."""
+    """Honor an audited countability decision before applying the legacy fallback."""
+    if "qualifying" in snapshot:
+        return snapshot["qualifying"] is True
     return snapshot.get("status") != "search_extract_not_countable"
 
 

@@ -29,6 +29,18 @@
   ],
   "mappings": {"direct":["受控安全资料、AE记录/随访协助和流程培训可映射为受监督PV支持"],"transferable":["医学文献与严谨记录可支持安全文档意识，不替代GVP/ICSR经验"],"partial":["临床轮转或病历记录提供临床语境，不构成药物警戒工作"],"gap":["安全报告提交、信号/获益风险、PSMF/QPPV、法规沟通、风险管理和团队管理需直接证据"]},
   "negative_mappings": ["AE记录或临床病历不等于ICSR处理/提交所有权", "文献综述不等于信号检测、PSUR/DSUR或风险管理计划作者", "资料归档不等于PV质量体系、PSMF或QPPV责任", "研究团队协调不等于安全策略或监管沟通", "无直接证据不得写获益风险评估、IND/NDA安全策略或法规提交", "培训参与不等于PV团队管理"],
+  "negative_mapping_rules": [
+    {"id":"pv-neg-01","if_evidence":"AE documentation, charting, or follow-up support only","must_not_claim":"ICSR processing or submission ownership"},
+    {"id":"pv-neg-02","if_evidence":"literature review or safety-document support only","must_not_claim":"signal detection, benefit-risk ownership, or PSUR/DSUR/RMP authorship"},
+    {"id":"pv-neg-03","if_evidence":"filing, training, or quality-support work only","must_not_claim":"PV-system ownership, PSMF/QPPV responsibility, or team management"},
+    {"id":"pv-neg-04","if_evidence":"research-team coordination only","must_not_claim":"safety strategy, regulatory representation, IND/NDA responsibility, or final regulatory authority"}
+  ],
+  "persona_jd_exercise_matrix": {
+    "pv-p1":["pv-01","pv-03","pv-09"], "pv-p2":["pv-01","pv-04","pv-09"],
+    "pv-p3":["pv-02","pv-04","pv-06"], "pv-p4":["pv-01","pv-04","pv-07"],
+    "pv-p5":["pv-01","pv-08","pv-10"], "pv-p6":["pv-02","pv-06","pv-09"],
+    "pv-p7":["pv-03","pv-04","pv-09"], "pv-p8":["pv-01","pv-07","pv-08"]
+  },
   "eval_cases": [{"id":"pv-positive","persona_id":"pv-p1","expected":"bounded PV-support mapping; no submission/strategy claim"},{"id":"pv-partial","persona_id":"pv-p3","expected":"clinical context partial; explicit GVP/ICSR gap"},{"id":"pv-negative","persona_id":"pv-p5","expected":"no PV claim"}],
   "domain_review": {"factuality":"not scored: independent generated-output audit not yet requested","ownership":"not scored: independent generated-output audit not yet requested","usefulness":"not scored: independent domain-evaluation outputs not yet available","critical_unsupported_claims":"not assessed","result":"coverage threshold is structurally met by ten traceable China public/recent snapshots from eight employers; independent Reviewer must determine whether this supports Beta-to-Candidate graduation without accepting any senior ownership claim as transferable candidate evidence"},
   "conformance_ledger": {"status":"not_started","runs":[],"required_per_run":["model_id","configuration","prompt","input","output","source_digest","jd_digest","persona_id","scores","unsupported_claim_audit"]},

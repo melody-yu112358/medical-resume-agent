@@ -31,3 +31,18 @@ def test_pv_candidate_keeps_ownership_and_safety_negative_mappings():
 
     for required_boundary in ("ICSR", "信号", "QPPV", "法规", "团队管理"):
         assert required_boundary in negative_mappings
+
+    rules = evidence["negative_mapping_rules"]
+    assert len(rules) >= 4
+    assert all(rule["if_evidence"] and rule["must_not_claim"] for rule in rules)
+
+
+def test_pv_personas_have_multi_jd_exercise_coverage():
+    evidence = json.loads(EVIDENCE_PATH.read_text(encoding="utf-8"))
+    matrix = evidence["persona_jd_exercise_matrix"]
+    persona_ids = {persona["id"] for persona in evidence["fixed_personas"]}
+    snapshot_ids = {snapshot["id"] for snapshot in evidence["jd_snapshots"]}
+
+    assert set(matrix) == persona_ids
+    assert all(len(jd_ids) >= 3 for jd_ids in matrix.values())
+    assert all(set(jd_ids) <= snapshot_ids for jd_ids in matrix.values())

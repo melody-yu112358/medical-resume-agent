@@ -102,7 +102,7 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 
 ### Career coverage / 岗位覆盖
 
-当前 canonical source 中有 **7 个 Canonical v1 Role Packs**：学术申请、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、CRA 支持和 CDM 支持。医疗器械临床 / 应用支持正在独立 Canonical promotion pipeline 中；Pharmacovigilance / Drug Safety（PV）保留为 Candidate evidence 方向。两者在 merge 前均不是 canonical 或 runtime target。Market Access、Product、Consulting、Commercial Analytics、Operations 与 Sales 等差异较大的方向通过 JD-driven Generalist 路径处理，不强行套用通用 Role Pack。
+当前 canonical source 的岗位清单为：学术申请、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、CRA 支持、CDM 支持和医疗器械临床 / 应用支持。Pharmacovigilance / Drug Safety（PV）保留为 Candidate evidence 方向，尚未成为 canonical 或 runtime target。Market Access、Product、Consulting、Commercial Analytics、Operations 与 Sales 等差异较大的方向通过 JD-driven Generalist 路径处理，不强行套用通用 Role Pack。
 
 岗位边界、真实 JD 证据、成熟度和下一阶段路线图见[中国医学背景职业 Role Pack 版图](docs/CAREER_ROLE_PACK_LANDSCAPE.md)。canonical 数量与语义始终以 `data/role-packs/*.json` 为准。
 

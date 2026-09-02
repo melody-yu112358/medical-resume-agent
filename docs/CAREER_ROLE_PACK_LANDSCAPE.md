@@ -10,8 +10,7 @@
 
 | 成熟度池 | 当前方向 | 说明 |
 | --- | --- | --- |
-| Canonical v1（domain validated） | 考博 / 保研、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、临床研究协调 / CRA 支持、临床数据管理 / CDM 支持 | 当前有 canonical JSON，并已生成 Skill projection。是否已接入具体运行时仍是独立决策。 |
-| Canonical promotion pipeline | 医疗器械临床 / 应用支持 | 已完成 promotion preflight；当前正在基于干净的最新 `main` 实施独立 Canonical v1 promotion，但尚无已合并 canonical JSON。 |
+| Canonical v1（domain validated） | 考博 / 保研、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、临床研究协调 / CRA 支持、临床数据管理 / CDM 支持、医疗器械临床 / 应用支持 | 当前有 canonical JSON，并已生成 Skill projection。是否已接入具体运行时仍是独立决策。 |
 | Candidate（有专门中国 JD 证据） | Pharmacovigilance / Drug Safety（PV） | 有独立 corpus、personas、映射和负向边界；截至本文档状态，尚无 canonical JSON，不应称为可执行或可路由 Role Pack。 |
 | 研究/规划中的候选方向 | Medical Writing / Scientific Communications、Regulatory Affairs、RWE、HEOR | 覆盖矩阵记录其产品策略；除非存在对应 Candidate corpus，不能把“研究过”称为 Candidate 或 Canonical。 |
 | JD-driven Generalist | Market Access、Healthcare Product、Healthcare Consulting、Commercial / Business Analytics、Healthcare / Project Operations、Medical Sales / Commercial | 这些方向的雇主、行业与 ownership 差异很大，当前应以具体 JD 和明确缺口为中心服务，而非强行建立通用 Deep Pack。 |
@@ -27,14 +26,14 @@
 | 临床运营协调 | Clinical Operations / trial coordination | `clinical_operations_v1` | 是 | 是 | pending / not yet recorded |
 | 临床研究协调 / CRA 支持 | Clinical Research Associate / CRA support | `clinical_research_associate_v1` | 是 | 是 | pending / not yet recorded |
 | 临床数据管理 / CDM 支持 | Clinical Data Management / CDM support | `clinical_data_management_v1` | 是 | 是 | pending / not yet recorded |
+| 医疗器械临床 / 应用支持 | Medical Device Clinical / Application Specialist | `medical_device_clinical_application_specialist_v1` | 是 | 是 | pending / not yet recorded |
 
 `pending / not yet recorded` 表示当前没有可复核的 cross-model conformance 记录；它不是 Canonical v1 domain validation 的否定，也不应被写成该职业不正式。
 
-### 2.2 Canonical promotion pipeline
+### 2.2 Candidate / future promotion pipeline
 
 | 方向 | 当前仓库状态 | 不应误写为 |
 | --- | --- | --- |
-| 医疗器械临床 / 应用支持 | promotion preflight 已完成；8 条 qualifying JD、8 家 employer、固定 personas、机器可读负向映射和 domain-evaluation asset 已冻结。独立 promotion branch 正在实施；尚无已合并 canonical JSON。 | 已 Canonical v1、已可路由、所有应用支持者都有手术/临床决策责任。 |
 | Pharmacovigilance / Drug Safety（PV） | Candidate evidence：10 条 qualifying JD、8 家 employer；有固定 personas、机器可读负向映射和 domain-evaluation asset。尚无 canonical JSON 或 promotion PR。 | 已 Canonical v1、可把安全支持直接写成 ICSR/信号/获益风险所有权。 |
 
 ## 3. Canonical / Candidate 岗位职业卡
@@ -120,7 +119,7 @@
 - **关键边界：** data cleaning/review ≠ database-lock ownership；CRF/EDC support ≠ EDC-build authority；analysis ≠ CDM project/client/team ownership；support/coordination ≠ project management。
 - **验证：** 8 条 JD / 8 employer、可复算 digest、固定 personas 与四类 domain cases；中位 usefulness 4/5，factuality `PASS`，ownership `PASS`，critical unsupported claims `0`。cross-model validation pending。
 
-### 3.8 医疗器械临床 / 应用支持（Canonical promotion pipeline）
+### 3.8 医疗器械临床 / 应用支持
 
 - **英文 / proposed ID：** Clinical Application Specialist、IVD Application Specialist、Clinical Support Specialist；`medical_device_clinical_application_specialist_v1`（proposed，尚非 canonical source）。
 - **范围：** 初中级的产品/应用培训、受限产品范围内的现场技术与工作流支持、用户反馈传递、内部/渠道赋能及学术活动支持。
@@ -142,7 +141,7 @@
 - **JD-dependent / senior：** 产品组合或区域所有权、销售 KPI/收入/市场覆盖、临床决策或患者照护、手术责任、产品路线图/研发、注册申报、专家网络和人员管理。
 - **医学背景迁移：** 医学、检验、影像、护理或临床沟通可支持产品理解；不能替代设备实操、客户培训或现场技术支持。临床轮转与学术活动组织仅为部分映射。
 - **关键边界：** application/training support ≠ clinical decision/procedure ownership；feedback ≠ product roadmap；application support ≠ sales KPI；coordination/support ≠ project ownership。
-- **当前成熟度：** Canonical promotion pipeline；已有 8 个固定 personas、positive/partial/negative cases 与冻结的 preflight。本文档基线尚无已合并 canonical JSON；promotion 仍须通过独立 PR、测试与 traceable human approval，不能提前当作已路由或已合并。
+- **当前成熟度：** Canonical v1（domain validated）。`medical_device_clinical_application_specialist_v1` 已是 canonical source，并已有 generated Skill projection。它不因此自动成为 runtime target；Cross-model validation 仍为 pending，且不能以缺少该 hardening 证据否定 Canonical v1。
 
 ### 3.9 Pharmacovigilance / Drug Safety（PV，Candidate）
 
@@ -214,9 +213,9 @@
 
 ### 近期
 
-1. 在不放宽 evidence/ownership 标准的前提下，完成医疗器械临床 / 应用支持的独立 Canonical v1 promotion PR。
-2. 在 Device 完成后，完成 PV 的同类审计与独立 promotion PR。
-3. 两者若尚未满足正式 promotion gate，应保持 Candidate，而不是以规划名称提前升级。
+1. 在不放宽 evidence/ownership 标准的前提下，完成 PV 的 Candidate → Canonical v1 graduation audit 与独立 promotion PR。
+2. 若 PV 尚未满足正式 promotion gate，应保持 Candidate，而不是以规划名称提前升级。
+3. Device 的 Cross-model validation 保留为后续 hardening，不阻止其 Canonical v1 状态。
 
 ### 下一批 Deep / Candidate research
 

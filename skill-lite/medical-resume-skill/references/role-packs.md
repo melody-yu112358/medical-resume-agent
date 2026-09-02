@@ -1,9 +1,9 @@
 <!-- GENERATED FILE — DO NOT EDIT MANUALLY.
 Source: data/role-packs/*.json
-Canonical packs: clinical_data_management_v1, clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1, medical_device_clinical_application_specialist_v1
+Canonical packs: clinical_data_management_v1, clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1, medical_device_clinical_application_specialist_v1, pharmacovigilance_drug_safety_v1
 Schema: medical-role-pack-schema-v1 (https://example.invalid/schemas/role-pack.schema.json)
 Schema SHA-256: 3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7
-Source digest SHA-256: 32dabd81254a7a2f99d646483867e51e62321dd7cd85986cddb4034e858d23f0 -->
+Source digest SHA-256: f65a99bbba43645e0dc4d8b13875d520ba7b9f989da08b35f682ed70d48ebc11 -->
 
 # Target paths
 
@@ -168,3 +168,23 @@ This reference is generated from the canonical Role Pack configuration. A target
 
 - Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
 - Forbidden claims: 临床决策或患者照护所有权、手术、操作或治疗责任、产品路线图或研发所有权、客户、医院、医生或渠道所有权、销售KPI、收入、配额、区域或商业策略所有权、项目所有权或项目负责人、器械注册申报或科学作者责任、人员管理或团队分配、确保临床结果、产品疗效或合规.
+
+## 药物警戒 / 药物安全支持 (`pharmacovigilance_drug_safety_v1`)
+
+初级至中级药物警戒、药物安全运营、受监管安全资料与质量支持岗位；只转换已确认的安全信息支持事实。
+
+### Prioritize
+
+- 受监管范围内的 AE 安全信息记录、资料核对与随访支持
+- 受控安全文档、文献资料、对账与质量检查支持
+- GVP/SOP 对齐的记录、归档与审计准备支持
+- 已确认责任范围内的安全信息协调，不主张最终安全或法规所有权
+
+### Role-pack boundary
+
+AE 记录、资料整理、文献筛选、质量检查、归档、培训或协调支持不等于 ICSR 处理或提交所有权、信号检测、获益风险评估、PV 体系、PSMF/QPPV、法规代表、聚合报告主笔、项目所有权或团队管理。
+
+### Execution guardrails
+
+- Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
+- Forbidden claims: ICSR 处理、签发或提交所有权、信号检测、信号评估或获益风险所有权、DSUR、PSUR、PBRER、RMP 或安全报告主笔责任、PV 体系、PSMF、QPPV 或最终质量责任、监管机构代表、法规提交或安全策略所有权、临床安全医学判断或医疗决策责任、项目、客户、供应商、预算或团队管理所有权、确保药物安全、合规或最终监管结果.

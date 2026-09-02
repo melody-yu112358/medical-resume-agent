@@ -68,8 +68,11 @@ be advertised as this range.
 
 1. Pharmacovigilance / Drug Safety — prepare a separately scoped promotion
    only after its current Candidate evidence passes the required promotion gate.
-2. Medical Writing / Scientific Communications, then Regulatory Affairs.
-3. RWE and HEOR evaluation as separate career families.
+2. Medical Writing / Scientific Communications, then Regulatory Affairs. JD
+   evidence must decide whether Drug RA and Medical Device RA need separate
+   Candidate corpora rather than assuming one universal RA Pack.
+3. Biostatistics / SAS evaluation.
+4. RWE and HEOR evaluation as separate career families.
 
 RWE and HEOR require separate evaluation. No recommendation here authorizes
 canonicalization, runtime routing, or automatic implementation.

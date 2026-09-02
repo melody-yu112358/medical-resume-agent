@@ -36,7 +36,55 @@
 | --- | --- | --- |
 | Pharmacovigilance / Drug Safety（PV） | Candidate evidence：10 条 qualifying JD、8 家 employer；有固定 personas、机器可读负向映射和 domain-evaluation asset。尚无 canonical JSON 或 promotion PR。 | 已 Canonical v1、可把安全支持直接写成 ICSR/信号/获益风险所有权。 |
 
-## 3. Canonical / Candidate 岗位职业卡
+## 3. 职业地图如何分类
+
+岗位不能只按“药企”“器械”或“上市前/后”单独分类。传统药企、器械和 AI 医疗描述的是**产业生态**；上市前、上市后描述的是**产品生命周期**；CRA、CDM、PV、MSL 等描述的是**职能**。一个岗位应同时在三个维度定位，才不会把相近术语误当成同一种职业。
+
+### 3.1 产业生态：岗位在哪类组织中发生
+
+| 产业生态 | 典型组织或场景 |
+| --- | --- |
+| 医院 / 高校 / 科研 | 医院科研、研究中心、实验室、学术申请 |
+| Pharma / Biotech | 药物研发、医学事务、PV、注册、商业化 |
+| CRO / SMO | 临床开发外包、研究中心支持、数据和试验运行 |
+| Medical Device / IVD | 器械产品、临床应用、培训、售后和注册 |
+| Digital Health / AI | 医疗数据、数字健康、算法或产品技术 |
+| Consulting / Commercial services | 咨询、市场准入、商业分析和专业服务 |
+| Medical Communications | 医学写作、科学传播、内容质量控制 |
+| RWE / HEOR / Public-health evidence ecosystem | 真实世界研究、卫生经济、结局与公共卫生证据 |
+
+### 3.2 产品生命周期：岗位服务于哪个阶段
+
+| 生命周期 | 常见工作重点 |
+| --- | --- |
+| Discovery / Preclinical | 研究问题、实验、早期证据与机制 |
+| Clinical Development | 临床研究设计、中心执行、数据和试验运行 |
+| Registration / Pre-launch | 注册资料、标准、申报准备和上市前支持 |
+| Launch / Medical | 医学事务、科学交流、疾病领域信息 |
+| Post-marketing Safety | PV、安全信息、质量与风险管理 |
+| Evidence / Access | RWE、HEOR、市场准入和价值证据 |
+| Commercial | 销售、客户、商业分析和区域执行 |
+| Lifecycle Management | 上市后产品、证据、培训、质量和跨职能维护 |
+
+### 3.3 职能族：岗位实际在做什么
+
+Research、Clinical Development/Operations、Data/Statistics、Safety、Regulatory、Medical Affairs、Medical Writing/Scientific Communications、Device Clinical/Application、RWE/HEOR/Access、Product/Technology、Commercial。
+
+例如，PV 可以位于 Pharma/Biotech 的 Post-marketing Safety 阶段和 Safety 职能族；Device Application 可以位于 Medical Device/IVD 生态、Lifecycle Management 阶段和 Device Clinical/Application 职能族。三维定位帮助保留真实边界，而不是因共享“医学”背景而强行合并 Role Pack。
+
+### 3.4 什么时候值得做 Deep Role Pack
+
+一个职业进入 Canonical Role Pack pipeline，至少同时考虑：
+
+1. 与中国医学背景转职具有明确相关性；
+2. 多公司 JD 能证明 stable core，而不是单一雇主的特殊职责；
+3. 可以反复使用且可审计的 transferable evidence mappings；
+4. 可以定义明确的 negative / ownership boundaries；
+5. 岗位含义不高度依赖单个 employer、客户、产品、地区或 JD。
+
+不满足这些条件时，优先保留为 Validated Beta Cluster 或 JD-driven Generalist。覆盖率不是将所有职位强行做成 Deep Pack 的理由。
+
+## 4. Canonical / Candidate 岗位职业卡
 
 以下职业卡总结保存的 JD 与 canonical/Candidate 语义。职责中的“稳定”表示跨多份 JD 的共同信号；“JD-dependent / senior”表示不能自动套用到每一位求职者的范围。
 
@@ -166,7 +214,7 @@
 - **关键边界：** AE documentation ≠ ICSR submission ownership；literature/safety support ≠ signal detection 或 benefit-risk ownership；filing/support ≠ QPPV / PSMF；研究协调 ≠ safety strategy 或最终监管责任。
 - **当前成熟度：** Candidate；有 8 个 fixed personas、machine-readable negative rules 和 domain-evaluation asset，但尚无 canonical JSON 或 promotion PR。
 
-## 4. Role Pack 如何毕业
+## 5. Role Pack 如何毕业
 
 ```text
 中国真实 JD 研究
@@ -189,7 +237,7 @@
 
 每一步的目的分别是：不把搜索摘录当证据；不把一家公司的职责当通用语义；不把“参与”变成“所有权”；并让最终的 JSON 规则、生成结果和回归测试都有可审计来源。只有人类 GitHub 身份可以批准 promotion/merge；共享 ChatGPT/Codex 账号不是审批身份。
 
-## 5. 当前测试体系
+## 6. 当前测试体系
 
 | 测试层 | 核查内容 |
 | --- | --- |
@@ -201,33 +249,34 @@
 | Frozen release regression | 正常经历、信息不足、责任模糊、可能夸大与模型不可用降级等固定案例。 |
 | Full pytest | 以当前 `pytest -q` 实际收集和通过结果为准，不把历史测试数量写成长期事实。 |
 
-## 6. Domain validation 与 Cross-model validation
+## 7. Domain validation 与 Cross-model validation
 
 **Canonical v1（domain validated）** 验证职业语义是否稳定：真实 JD/company 覆盖、stable core、personas、证据/负向映射、usefulness、factuality、ownership、0 critical unsupported claims，以及回归测试和 human approval。
 
 **Cross-model validated** 是 Canonical v1 之后的 hardening：需要真实 exact model/version/config、isolated runs、prompt/input/output 和 digest、跨模型 unsupported-claim rate 及 model-version regression。缺少模型配置不能被写成 domain validation 失败，也不能伪造为已通过。
 
-## 7. 中国市场覆盖策略与下一阶段路线图
+## 8. 中国市场覆盖策略与下一阶段路线图
 
 本仓库的覆盖目标不是为每个职位制造一个 Role Pack。当前的 `75–85%` 覆盖表述是产品规划 heuristic，不是市场份额、职位空缺量或录用概率。
 
 ### 近期
 
-1. 在不放宽 evidence/ownership 标准的前提下，完成 PV 的 Candidate → Canonical v1 graduation audit 与独立 promotion PR。
-2. 若 PV 尚未满足正式 promotion gate，应保持 Candidate，而不是以规划名称提前升级。
-3. Device 的 Cross-model validation 保留为后续 hardening，不阻止其 Canonical v1 状态。
+1. 已 Canonical 的方向保持现状；Device 的 Cross-model validation 保留为后续 hardening，不阻止其 Canonical v1 状态。
+2. 在不放宽 evidence/ownership 标准的前提下，完成 PV 的 Candidate → Canonical v1 graduation audit 与独立 promotion PR。
+3. 若 PV 尚未满足正式 promotion gate，应保持 Candidate，而不是以规划名称提前升级。
 
 ### 下一批 Deep / Candidate research
 
 1. Medical Writing / Scientific Communications。
-2. Regulatory Affairs；后续真实 JD 研究决定 Medical Device RA 与 Drug RA 是否需要拆分为两个 Candidate corpus，不能预设共用一个 Pack。
-3. RWE / HEOR evaluation；两者应分别评估，不默认共用职业语义。
+2. Regulatory Affairs；后续真实 JD 研究决定 Drug RA 与 Medical Device RA 是否需要拆分为两个 Candidate corpus/Pack，不能预设共用一个 Pack。
+3. Biostatistics / SAS。
+4. RWE / HEOR evaluation；两者应分别评估，不默认共用职业语义。
 
 ### 长期保持 JD-driven 的方向
 
 Market Access、Healthcare Product、Healthcare Consulting、Commercial / Business Analytics、Healthcare / Project Operations 与 Medical Sales / Commercial 目前不应做 universal Role Pack：它们通常受公司类型、客户/支付方、产品/区域、商业目标和实际 ownership 强烈影响。产品应要求用户提供具体 JD，并明确缺少 pricing、payer、roadmap、client delivery、quota、territory、budget、vendor 或 people-management 的直接证据。
 
-## 8. Source of truth 与文档治理
+## 9. Source of truth 与文档治理
 
 | 信息 | authoritative source |
 | --- | --- |

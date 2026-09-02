@@ -20,6 +20,10 @@ It is an index, not a replacement for the linked source.
 4. Generated Role Pack references are regenerated from their canonical inputs.
 5. Historical and evaluation evidence may explain a decision but cannot change
    a runtime contract or governance rule.
+6. `docs/CAREER_ROLE_PACK_LANDSCAPE.md` is the current Chinese overview and
+   roadmap entry. It defers to canonical JSON, graduation policy, and
+   role-validation evidence on any status conflict; `docs/research/china-career-coverage-matrix-v1.md`
+   remains the planning source for coverage tiers and heuristic estimates.
 
 No Phase artifact, Clinical Operations evidence path, or test fixture is moved
 or renamed by this index.

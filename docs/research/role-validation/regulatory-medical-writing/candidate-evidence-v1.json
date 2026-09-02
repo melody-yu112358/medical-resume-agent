@@ -1,0 +1,221 @@
+{
+  "schema_version": "china-role-candidate-evidence-v1",
+  "career_id": "regulatory_medical_writing",
+  "captured_at": "2026-09-02",
+  "scope": "China Regulatory Medical Writing Candidate evidence only; not a canonical Role Pack, runtime target, or personal-evidence source.",
+  "source_digest_scope": "sha256 of the saved UTF-8 source_snapshot string",
+  "jd_snapshots": [
+    {
+      "id": "rmw-01",
+      "qualifying": false,
+      "employer": "Sanofi China",
+      "title": "R&D - ClinDoc - Medical Writer - CD",
+      "location": "Chengdu, China",
+      "url": "https://jobs.sanofi.com/en/job/chengdu/r-and-d-clindoc-medical-writer-cd/2649/25689838976",
+      "retrieved_at": "2026-09-02",
+      "published_at": "2025-05-29",
+      "status": "historical_public_full",
+      "source_type": "employer_careers_page",
+      "snapshot_completeness": "reviewed full responsibility and qualification extract; retained as historical context, not counted for current/recent coverage",
+      "source_snapshot": "Sanofi China, Chengdu Medical Writer: prepares, summarizes, edits and reviews protocols, clinical study reports and summary documents for China and global submissions; coordinates document completion and quality control with authoring/submission teams. Requires a scientific degree, strong Chinese/English scientific writing, and typically 2-4 years of pharmaceutical or publication-related experience.",
+      "source_digest": "336791b3e48e348b67f4d2714d7f52ad1710ef1a1bbef174f950661844bc2328",
+      "signals": ["protocol/CSR/summary-document writing", "submission-support documentation", "quality control and review coordination", "scientific and bilingual writing"]
+    },
+    {
+      "id": "rmw-02",
+      "qualifying": false,
+      "employer": "Dicma Biopharm (Shanghai)",
+      "title": "Specialist / Senior Specialist Medical Writing",
+      "location": "Shanghai, China",
+      "url": "https://www.pdhr.com/Job/JobDetail?id=5850",
+      "retrieved_at": "2026-09-02",
+      "status": "historical_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed full responsibility and qualification extract; retained as historical context, not counted for current/recent coverage",
+      "source_snapshot": "Dicma Biopharm Shanghai Medical Writing Specialist: works with medical-writing managers, physicians, biostatisticians and programmers on SOP/GCP-aligned clinical writing, including investigator brochures, study synopses, protocols, CSRs, translations and regulatory-submission documentation. Specialist scope requests 2+ years; senior scope adds complex project-management experience.",
+      "source_digest": "40d5ee6b1a30aa157dc2c5061a0c91f1e4997c61decb55541bce9e229aa625e2",
+      "signals": ["controlled clinical writing", "IB/protocol/CSR documents", "cross-functional review", "senior scope is experience-gated"]
+    },
+    {
+      "id": "rmw-03",
+      "qualifying": true,
+      "employer": "Deep Intelligent Pharma (DIP)",
+      "title": "AI-Enhanced Clinical Text Specialist",
+      "location": "Beijing, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC697082780J40836561610.htm",
+      "retrieved_at": "2026-09-02",
+      "status": "current_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed full responsibility and qualification extract",
+      "source_snapshot": "DIP Beijing AI-Enhanced Clinical Text Specialist: reviews and quality-checks AI-assisted IND/NDA and CTD materials plus protocol, investigator brochure, informed-consent and CSR drafts; coordinates with registration, medical, clinical-operations and regulatory teams. Medical/pharmacy/life-science background, ICH-GCP/FDA/NMPA awareness and clear bilingual writing are preferred.",
+      "source_digest": "6faaf994cff88e97a14e13d5a4b5bf97b6166db8a7aad89cd45085b2f4be6c30",
+      "signals": ["controlled clinical-document review", "protocol/IB/ICF/CSR document types", "regulatory-compliance quality checks", "cross-functional documentation support"]
+    },
+    {
+      "id": "rmw-04",
+      "qualifying": true,
+      "employer": "SinocellTech",
+      "title": "Medical Writing Specialist",
+      "location": "Beijing, China",
+      "url": "https://www.shushuqiuzhi.com/position/248540",
+      "retrieved_at": "2026-09-02",
+      "published_at": "2026-02-13",
+      "status": "recent_public_full",
+      "source_type": "public_career_board_with_employer_identity",
+      "snapshot_completeness": "reviewed responsibility and qualification extract from public career-board record",
+      "source_snapshot": "SinocellTech Beijing Medical Writing Specialist: prepares pre-approval clinical documents including trial protocols, CSRs, investigator brochures, clinical overviews and clinical summaries for IND/EOP2/NDA/BLA stages; performs ICH/FDA/EMA/NMPA-aligned document QC and works with medical, statistics, regulatory and pharmacovigilance colleagues. Requires a medicine/pharmacy/biomedical master's degree, strong English writing and GCP awareness.",
+      "source_digest": "3526fd291f05aad7558b01eee8a44ae88b8e314fc9d6c6247989ba08758ac142",
+      "signals": ["protocol/CSR/IB and clinical summaries", "regulated document QC", "cross-functional review", "medical/pharmacy background and English"]
+    },
+    {
+      "id": "rmw-05",
+      "qualifying": true,
+      "employer": "Tigermed",
+      "title": "Medical Writer (3+ years)",
+      "location": "Shanghai, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC245090110J40857041302.htm",
+      "retrieved_at": "2026-09-02",
+      "status": "current_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed full responsibility and qualification extract",
+      "source_snapshot": "Tigermed Shanghai Medical Writer: drafts and reviews protocol, ICF, investigator brochure, clinical overview, clinical summary and CSR documents; applies ICH/GCP and global regulatory requirements, aligns document structure and comments with clinical development, operations, PV, biostatistics and regulatory teams, and maintains templates, SOPs and version-control practices. Independent IND-document authorship and vendor-management responsibilities require 3+ years of relevant experience.",
+      "source_digest": "b35f7625df39e2364c4c4bae3011d4d0df02bc1551e738e7c434232505b07210",
+      "signals": ["clinical and submission documents", "GCP/ICH quality and version control", "cross-functional review coordination", "independent authorship is experience-gated"]
+    },
+    {
+      "id": "rmw-06",
+      "qualifying": true,
+      "employer": "Chengdu Ped Biotechnology",
+      "title": "Medical Writing Specialist",
+      "location": "Chengdu, China",
+      "url": "https://m.zhaopin.com/jobs/CCL1409560620J40896089008.htm",
+      "retrieved_at": "2026-09-02",
+      "status": "recent_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed responsibility and qualification extract",
+      "source_snapshot": "Chengdu Ped Biotechnology Medical Writing Specialist: supports clinical-development writing such as IND clinical-material preparation, protocol design/drafting, investigator brochures and CSRs; performs Chinese/English literature review or summaries and works under ICH-GCP and China/US IND process expectations. The role asks for medical-writing or clinical-trial experience and treats independent document completion as experience-dependent.",
+      "source_digest": "3ae61c57d87727ff9539478f378d090a9ac16bcb83aa87f70940016f76d563b0",
+      "signals": ["IND and clinical-document support", "protocol/IB/CSR writing", "literature synthesis", "independent responsibility requires prior experience"]
+    },
+    {
+      "id": "rmw-07",
+      "qualifying": true,
+      "employer": "Nanjing Lishun Kangda Pharmaceutical Technology",
+      "title": "Medical Writer",
+      "location": "Beijing, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC846686360J40878068614.htm",
+      "retrieved_at": "2026-09-02",
+      "status": "current_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed full responsibility and qualification extract",
+      "source_snapshot": "Nanjing Lishun Kangda Medical Writer, Beijing: writes or supports amendments, protocols, investigator brochures, CSRs and informed-consent documents; prepares clinical-medical portions of regulatory packages, works with medical and statistics teams on accurate data presentation, and maintains literature support. The posting requires medicine/pharmacy training, 3-5 years of medical-writing experience and prior IND/NDA/BLA authorship for stronger responsibility.",
+      "source_digest": "4ea682e49424231ac27d0c81698aff89281200415d995177ac0f83e4779b6a81",
+      "signals": ["protocol/IB/CSR/ICF documents", "clinical package support", "data and literature synthesis", "senior authorship is experience-gated"]
+    },
+    {
+      "id": "rmw-08",
+      "qualifying": true,
+      "employer": "Chengdu Chuangsi Lixin Information Technology",
+      "title": "Senior Medical Writer",
+      "location": "Chengdu, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC465285410J40851548905.htm",
+      "retrieved_at": "2026-09-02",
+      "status": "current_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed full responsibility and qualification extract",
+      "source_snapshot": "Chengdu Chuangsi Lixin Senior Medical Writer: independently or collaboratively writes protocols, CSRs, investigator brochures, ICFs, clinical summaries and overviews; organizes clinical portions of IND/NDA packages and performs medical content QC for trial documents. It requests two or more years of medical-writing experience and presents independent drafting as senior/experience-dependent scope.",
+      "source_digest": "02fc952dbb995e34a441ceba744ac42dc9bc7af99466767cfb8bf6c55c51f69d",
+      "signals": ["protocol/CSR/IB/ICF documents", "IND/NDA clinical package support", "medical content QC", "senior independent scope"]
+    },
+    {
+      "id": "rmw-09",
+      "qualifying": true,
+      "employer": "Hengrui Pharmaceuticals",
+      "title": "Medical Writing Supervisor / Manager",
+      "location": "Chengdu, China",
+      "url": "https://www.zhaopin.com/jobdetail/CC120989510J40643535113.htm",
+      "retrieved_at": "2026-09-02",
+      "status": "current_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed responsibility extract; senior role retained for JD-dependent boundary evidence",
+      "source_snapshot": "Hengrui Chengdu Medical Writing Supervisor/Manager: prepares regulatory clinical documents including protocols, CSRs, investigator brochures and development safety-update reports; establishes document templates, SOPs and QC tools and manages the medical-writing function. Management, template/SOP ownership and final regulatory-document accountability are senior-only scope.",
+      "source_digest": "3bf06cd45ecaebf671fd7582a5b2c4b086bbe0c11a17ff4a7865e4f58acb1c90",
+      "signals": ["regulated clinical documents", "templates/SOP/QC", "senior management scope", "post-marketing safety-document context"]
+    },
+    {
+      "id": "rmw-10",
+      "qualifying": true,
+      "employer": "Salubris Pharmaceuticals",
+      "title": "Medical Specialist - Medical Writing",
+      "location": "Beijing, China",
+      "url": "https://www.jobuy.com/jobs/152626.html",
+      "retrieved_at": "2026-09-02",
+      "status": "recent_public_full",
+      "source_type": "public_recruitment_platform",
+      "snapshot_completeness": "reviewed responsibility and qualification extract",
+      "source_snapshot": "Salubris Beijing Medical Specialist - Medical Writing: retrieves literature, joins data-review activities, and develops clinical documents such as CSRs, risk-management plans and CTD clinical submission materials; works with investigators, clinical and marketing colleagues on evidence-based summaries. The role requires a life-science master's degree, 1-2 years of clinical-trial/CRO/pharma experience, regulatory knowledge and accurate English presentation of clinical data.",
+      "source_digest": "609527f8ae2de433a10c83692e41910345ccd4af30586d50b6fd231a94c7e6a4",
+      "signals": ["literature and clinical-data synthesis", "CSR/CTD document writing", "cross-functional evidence summaries", "entry-to-intermediate experience requirement"]
+    }
+  ],
+  "stable_responsibilities": [
+    "protocol, CSR, clinical-summary or related controlled clinical-document drafting/review within confirmed scope",
+    "literature and clinical-data synthesis for supported document sections",
+    "template, style, SOP, GCP/ICH and document-quality support",
+    "cross-functional review-comment, version and delivery coordination",
+    "clinical or regulatory submission-support documentation without claiming final submission ownership"
+  ],
+  "jd_dependent_or_senior_scope": [
+    "document or program writing strategy ownership",
+    "regulatory submission ownership or regulatory-authority communication",
+    "complex protocol/CSR lead authorship and independent timeline negotiation",
+    "client, vendor, budget or program ownership",
+    "template/SOP ownership, mentoring, team management or final quality accountability"
+  ],
+  "fixed_personas": [
+    {"id":"rmw-p1","kind":"direct","facts":["协助临床研究方案草案整理","按模板核对研究文件","完成GCP培训"],"absences":["申报文件作者责任","监管沟通"]},
+    {"id":"rmw-p2","kind":"direct","facts":["协助临床资料版本核对","整理审阅意见","支持文档归档"],"absences":["CSR主笔","最终质量责任"]},
+    {"id":"rmw-p3","kind":"transferable","facts":["中英文医学文献综述","整理循证资料","撰写课程研究摘要"],"absences":["临床文件经验","GCP/注册文件"]},
+    {"id":"rmw-p4","kind":"partial","facts":["临床研究资料归档","CRF维护","研究团队内部沟通"],"absences":["方案或CSR作者责任","监管写作"]},
+    {"id":"rmw-p5","kind":"partial","facts":["在监督下参与方案讨论","整理研究者手册资料","核对文件版本"],"absences":["独立方案主笔","申报所有权"]},
+    {"id":"rmw-p6","kind":"negative","facts":["以第一作者发表学术论文","完成系统综述"],"absences":["临床试验文件","注册写作经历"]},
+    {"id":"rmw-p7","kind":"negative","facts":["制作内部医学汇报PPT","撰写科普材料"],"absences":["protocol/CSR经验","客户或法规沟通"]},
+    {"id":"rmw-p8","kind":"negative","facts":["细胞培养","机制实验"],"absences":["医学写作","临床或注册文件经验"]}
+  ],
+  "mappings": {
+    "direct":["有已确认的临床文件草案、版本核对、审阅意见或受控资料支持事实时，可保守映射为受监督的临床文档支持。"],
+    "transferable":["中英文文献综合、医学摘要和严谨编辑可映射为写作基础，不替代 protocol、CSR、GCP 或申报文件经验。"],
+    "partial":["临床研究归档、CRF维护或监督下方案暴露只构成部分匹配，必须保留未具作者/提交责任的缺口。"],
+    "gap":["CSR/protocol/IB 独立作者、CTD/IND/NDA 提交、法规沟通、文档策略、客户和项目管理需直接证据。"]
+  },
+  "negative_mappings": [
+    "文献综合不等于监管文件作者或申报所有权",
+    "草稿、编辑、格式或审阅支持不等于独立提交责任",
+    "文件审阅不等于法规策略或监管机构沟通所有权",
+    "内部协调不等于客户、供应商、预算或项目所有权",
+    "学术论文或综述经验不等于 CSR、protocol 或注册医学写作经历",
+    "publication 或科学传播经历不等于申报文件权限或最终质量责任"
+  ],
+  "negative_mapping_rules": [
+    {"id":"rmw-neg-01","if_evidence":"literature synthesis, academic manuscript, or scientific summary only","must_not_claim":"regulatory medical-writer authorship, protocol/CSR ownership, or submission authority"},
+    {"id":"rmw-neg-02","if_evidence":"drafting, editing, translation, formatting, or review support only","must_not_claim":"final document sign-off, IND/NDA/CTD submission ownership, or regulatory strategy"},
+    {"id":"rmw-neg-03","if_evidence":"internal document coordination or version control only","must_not_claim":"client ownership, vendor management, budget ownership, or program-level delivery ownership"},
+    {"id":"rmw-neg-04","if_evidence":"protocol exposure under supervision or clinical-research documentation only","must_not_claim":"independent protocol/CSR lead authorship, regulatory-authority communication, or complex document strategy"}
+  ],
+  "persona_jd_exercise_matrix": {
+    "rmw-p1":["rmw-03","rmw-04","rmw-05"],"rmw-p2":["rmw-05","rmw-06","rmw-07"],"rmw-p3":["rmw-03","rmw-04","rmw-10"],"rmw-p4":["rmw-05","rmw-07","rmw-08"],"rmw-p5":["rmw-03","rmw-06","rmw-10"],"rmw-p6":["rmw-04","rmw-08","rmw-09"],"rmw-p7":["rmw-03","rmw-05","rmw-10"],"rmw-p8":["rmw-04","rmw-06","rmw-07"]
+  },
+  "eval_cases": [
+    {"id":"rmw-positive","persona_id":"rmw-p1","expected_mapping_class":"direct","expected":"bounded clinical-document drafting and QC support; no submission or strategy claim"},
+    {"id":"rmw-transferable","persona_id":"rmw-p3","expected_mapping_class":"transferable","expected":"literature-synthesis and bilingual-writing strengths only; explicit GCP/clinical-document gap"},
+    {"id":"rmw-partial","persona_id":"rmw-p5","expected_mapping_class":"partial","expected":"protocol exposure and version-control support; no independent author or submission claim"},
+    {"id":"rmw-negative","persona_id":"rmw-p8","expected_mapping_class":"gap","expected":"no regulatory-medical-writing claim"}
+  ],
+  "graduation_precheck": {
+    "qualifying_jd_count": 8,
+    "qualifying_company_count": 8,
+    "seniority_mix": ["entry/assistant", "specialist", "senior/manager boundary"],
+    "status": "PASS — Candidate evidence coverage reached; ready for independent domain review",
+    "not_a_promotion": "This record does not create a canonical Role Pack, runtime target, routing behavior, or personal-evidence claim."
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "role_pack": "regulatory_medical_writing_v1",
+  "label": "法规医学写作 / Regulatory Medical Writing 支持",
+  "skill_reference": {
+    "target_scope": "初级至中级 Regulatory Medical Writing、Clinical Document Medical Writing 和受控临床/注册文件支持岗位；只转换已确认的临床文件、文献综合、质量或受监督审阅支持事实。",
+    "emphasis": [
+      "Protocol、CSR、IB、clinical summary 等受控临床/注册文件的已确认撰写或审阅支持",
+      "文献与临床数据综合，以及准确、可追溯的医学信息整理",
+      "模板、SOP、GCP/ICH、版本和 document-quality 要求下的受控文件支持",
+      "已确认范围内的跨职能 review comment、版本与交付协调，不主张最终申报或项目所有权"
+    ],
+    "boundary_note": "学术论文、文献综述、翻译、编辑、草稿或审阅支持不等于 Regulatory Medical Writing 作者、Protocol/CSR 主笔、最终申报、法规策略、客户/项目所有权或监管沟通；只有直接证据才能主张这些职责。"
+  },
+  "priorities": ["clinical_research", "medical_information", "data_analysis"],
+  "value_mappings": {
+    "clinical_research": ["受控临床文件与研究资料支持", "相关经历首条 + 临床文件支持能力"],
+    "medical_information": ["文献、临床数据与医学信息综合", "相关经历首条 + 严谨医学写作能力"],
+    "data_analysis": ["已确认范围内的数据呈现、核对与版本质量支持", "相关经历首条 + 资料质量能力"]
+  },
+  "preferred_actions": ["draft", "review", "document", "synthesize", "check", "maintain", "coordinate", "support"],
+  "allowed_verbs": ["参与", "协助", "支持", "整理", "撰写", "审阅", "核对", "维护", "沟通"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成", "统筹", "拥有"],
+  "forbidden_claims": [
+    "Protocol、CSR、IB 或临床总结文件的独立主笔或最终作者责任",
+    "IND、NDA、CTD 或其他法规提交所有权",
+    "法规策略、注册路径或监管机构沟通所有权",
+    "文件策略、项目级写作策略或独立时间线谈判所有权",
+    "客户、供应商、预算或项目所有权",
+    "模板、SOP、最终质量签发或审计结论所有权",
+    "团队 mentoring、人员管理或工作分配责任",
+    "将学术论文、文献综述、翻译或编辑经历表述为法规医学写作权威",
+    "确保提交、合规、注册或最终文件质量结果"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_document_or_review_task", "controlled_document_or_evidence_artifact", "scope_of_responsibility"],
+    "led_delivery": ["assigned_document_delivery_scope", "delivery_accountability", "completion_evidence"],
+    "project_owner": ["scope_ownership_evidence", "decision_authority", "delivery_accountability"]
+  },
+  "sentence_patterns": [
+    "协助{object}的{action}与{deliverable}整理，支持{purpose}",
+    "参与{scope}的{action}，按{constraint}核对并维护{deliverable}",
+    "整理{object}并与{team}沟通已确认的审阅意见或版本需求"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "case_id": "rmw-positive",
+        "case_type": "positive",
+        "persona_id": "rmw-p1",
+        "jd_ids": ["rmw-04", "rmw-05"],
+        "facts": ["协助临床研究方案草案整理", "按模板核对研究文件", "完成GCP培训"],
+        "non_claims": ["Protocol或CSR主笔", "最终提交责任", "法规策略所有权"]
+      },
+      "expected_output": ["协助临床研究方案草案整理，按模板核对研究文件，并完成 GCP 培训。"]
+    },
+    {
+      "input": {
+        "case_id": "rmw-transferable",
+        "case_type": "transferable",
+        "persona_id": "rmw-p3",
+        "jd_ids": ["rmw-03", "rmw-10"],
+        "facts": ["中英文医学文献综述", "整理循证资料", "撰写课程研究摘要"],
+        "non_claims": ["CSR或Protocol作者", "GCP/注册文件经验", "申报文件所有权"]
+      },
+      "expected_output": ["具备中英文医学文献综述、循证资料整理和研究摘要写作基础；尚缺 GCP 与受控临床/注册文件经验。"]
+    },
+    {
+      "input": {
+        "case_id": "rmw-partial",
+        "case_type": "partial",
+        "persona_id": "rmw-p5",
+        "jd_ids": ["rmw-05", "rmw-06"],
+        "facts": ["在监督下参与方案讨论", "整理研究者手册资料", "核对文件版本"],
+        "non_claims": ["独立方案主笔", "CSR负责人", "提交或客户所有权"]
+      },
+      "expected_output": ["在监督下参与方案讨论，整理研究者手册资料并核对文件版本；尚缺独立方案主笔、CSR 和申报责任证据。"]
+    },
+    {
+      "input": {
+        "case_id": "rmw-negative",
+        "case_type": "negative",
+        "persona_id": "rmw-p8",
+        "jd_ids": ["rmw-06", "rmw-07"],
+        "facts": ["细胞培养", "机制实验"],
+        "non_claims": ["Regulatory Medical Writing经历", "临床或注册文件经验", "CSR/Protocol作者责任"]
+      },
+      "expected_output": ["现有细胞培养和机制实验事实不足以支持 Regulatory Medical Writing、临床文件或注册文件经历。"]
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 <!-- GENERATED FILE — DO NOT EDIT MANUALLY.
 Source: data/role-packs/*.json
-Canonical packs: clinical_data_management_v1, clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1, medical_device_clinical_application_specialist_v1, pharmacovigilance_drug_safety_v1
+Canonical packs: clinical_data_management_v1, clinical_operations_v1, clinical_research_associate_v1, clinical_research_v1, doctoral_v1, health_ai_data_v1, medical_affairs_v1, medical_device_clinical_application_specialist_v1, pharmacovigilance_drug_safety_v1, regulatory_medical_writing_v1
 Schema: medical-role-pack-schema-v1 (https://example.invalid/schemas/role-pack.schema.json)
 Schema SHA-256: 3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7
-Source digest SHA-256: f65a99bbba43645e0dc4d8b13875d520ba7b9f989da08b35f682ed70d48ebc11 -->
+Source digest SHA-256: f62840948cb2924bed818ab3c85cf06093b5a6304aa399e230456a90be148172 -->
 
 # Target paths
 
@@ -188,3 +188,23 @@ AE 记录、资料整理、文献筛选、质量检查、归档、培训或协�
 
 - Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
 - Forbidden claims: ICSR 处理、签发或提交所有权、信号检测、信号评估或获益风险所有权、DSUR、PSUR、PBRER、RMP 或安全报告主笔责任、PV 体系、PSMF、QPPV 或最终质量责任、监管机构代表、法规提交或安全策略所有权、临床安全医学判断或医疗决策责任、项目、客户、供应商、预算或团队管理所有权、确保药物安全、合规或最终监管结果.
+
+## 法规医学写作 / Regulatory Medical Writing 支持 (`regulatory_medical_writing_v1`)
+
+初级至中级 Regulatory Medical Writing、Clinical Document Medical Writing 和受控临床/注册文件支持岗位；只转换已确认的临床文件、文献综合、质量或受监督审阅支持事实。
+
+### Prioritize
+
+- Protocol、CSR、IB、clinical summary 等受控临床/注册文件的已确认撰写或审阅支持
+- 文献与临床数据综合，以及准确、可追溯的医学信息整理
+- 模板、SOP、GCP/ICH、版本和 document-quality 要求下的受控文件支持
+- 已确认范围内的跨职能 review comment、版本与交付协调，不主张最终申报或项目所有权
+
+### Role-pack boundary
+
+学术论文、文献综述、翻译、编辑、草稿或审阅支持不等于 Regulatory Medical Writing 作者、Protocol/CSR 主笔、最终申报、法规策略、客户/项目所有权或监管沟通；只有直接证据才能主张这些职责。
+
+### Execution guardrails
+
+- Restricted wording: 负责、主导、管理、领导、独立完成、统筹、拥有.
+- Forbidden claims: Protocol、CSR、IB 或临床总结文件的独立主笔或最终作者责任、IND、NDA、CTD 或其他法规提交所有权、法规策略、注册路径或监管机构沟通所有权、文件策略、项目级写作策略或独立时间线谈判所有权、客户、供应商、预算或项目所有权、模板、SOP、最终质量签发或审计结论所有权、团队 mentoring、人员管理或工作分配责任、将学术论文、文献综述、翻译或编辑经历表述为法规医学写作权威、确保提交、合规、注册或最终文件质量结果.

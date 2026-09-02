@@ -22,6 +22,7 @@
     "health_ai_data_v1": "0985af03477dbe6aa677b44da804862107de825ea4f74585a7df00d963bcb566",
     "medical_device_clinical_application_specialist_v1": "5d952421c8e9d87e66cc6f20a85b82e8dd9bf37da37d97a5b6c4efcdbd20c622",
     "medical_affairs_v1": "199b6e8bbffcc13a248d226309ba1d19ba127073f9c73e97cea50dc34dcd0eee",
-    "pharmacovigilance_drug_safety_v1": "eb479fc24f33ca657d3e72be83fc358866839f929deee32c26244bc6a4c4d585"
+    "pharmacovigilance_drug_safety_v1": "eb479fc24f33ca657d3e72be83fc358866839f929deee32c26244bc6a4c4d585",
+    "regulatory_medical_writing_v1": "d8f675eb2a5c7ed8c8e59bfd5974bc515f71477094bd9914b2ae2513d34b7847"
   }
 }

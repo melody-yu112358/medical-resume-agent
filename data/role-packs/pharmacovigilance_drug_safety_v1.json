@@ -1,0 +1,89 @@
+{
+  "role_pack": "pharmacovigilance_drug_safety_v1",
+  "label": "药物警戒 / 药物安全支持",
+  "skill_reference": {
+    "target_scope": "初级至中级药物警戒、药物安全运营、受监管安全资料与质量支持岗位；只转换已确认的安全信息支持事实。",
+    "emphasis": [
+      "受监管范围内的 AE 安全信息记录、资料核对与随访支持",
+      "受控安全文档、文献资料、对账与质量检查支持",
+      "GVP/SOP 对齐的记录、归档与审计准备支持",
+      "已确认责任范围内的安全信息协调，不主张最终安全或法规所有权"
+    ],
+    "boundary_note": "AE 记录、资料整理、文献筛选、质量检查、归档、培训或协调支持不等于 ICSR 处理或提交所有权、信号检测、获益风险评估、PV 体系、PSMF/QPPV、法规代表、聚合报告主笔、项目所有权或团队管理。"
+  },
+  "priorities": ["clinical_research", "medical_information", "data_analysis"],
+  "value_mappings": {
+    "clinical_research": ["受监管安全信息与流程支持", "相关经历首条 + 安全流程支持能力"],
+    "medical_information": ["受控安全文档、文献与质量资料支持", "相关经历首条 + 医学信息能力"],
+    "data_analysis": ["安全资料核对、对账和既定问题跟进", "相关经历首条 + 数据质量能力"]
+  },
+  "preferred_actions": ["record", "document", "check", "follow_up", "reconcile", "archive", "coordinate", "support"],
+  "allowed_verbs": ["参与", "协助", "支持", "记录", "整理", "核对", "跟进", "归档", "维护", "沟通"],
+  "restricted_verbs": ["负责", "主导", "管理", "领导", "独立完成", "统筹", "拥有"],
+  "forbidden_claims": [
+    "ICSR 处理、签发或提交所有权",
+    "信号检测、信号评估或获益风险所有权",
+    "DSUR、PSUR、PBRER、RMP 或安全报告主笔责任",
+    "PV 体系、PSMF、QPPV 或最终质量责任",
+    "监管机构代表、法规提交或安全策略所有权",
+    "临床安全医学判断或医疗决策责任",
+    "项目、客户、供应商、预算或团队管理所有权",
+    "确保药物安全、合规或最终监管结果"
+  ],
+  "required_evidence": {
+    "owned_component": ["specific_safety_or_document_task", "controlled_artifact_or_record", "scope_of_responsibility"],
+    "led_delivery": ["assigned_delivery_scope", "delivery_accountability", "completion_evidence"],
+    "project_owner": ["scope_ownership_evidence", "decision_authority", "delivery_accountability"]
+  },
+  "sentence_patterns": [
+    "协助{object}的{action}与{deliverable}整理，支持{purpose}",
+    "参与{scope}的{action}，记录{constraint}并跟进既定问题",
+    "整理{object}并与{team}沟通已确认的资料或质量需求"
+  ],
+  "evaluation_cases": [
+    {
+      "input": {
+        "case_id": "pv-positive",
+        "case_type": "positive",
+        "persona_id": "pv-p1",
+        "jd_ids": ["pv-01", "pv-09"],
+        "facts": ["协助不良事件记录", "整理随访资料", "按流程维护受控文件", "完成药物安全培训"],
+        "non_claims": ["安全报告提交责任", "信号检测", "QPPV责任"]
+      },
+      "expected_output": ["协助不良事件记录和随访资料整理，按流程维护受控文件，并完成药物安全培训。"]
+    },
+    {
+      "input": {
+        "case_id": "pv-transferable",
+        "case_type": "transferable",
+        "persona_id": "pv-p2",
+        "jd_ids": ["pv-02", "pv-04"],
+        "facts": ["协助文献筛选", "核对病例材料", "整理质量检查问题"],
+        "non_claims": ["PV体系所有权", "监管沟通", "信号检测"]
+      },
+      "expected_output": ["协助文献筛选、病例材料核对及质量检查问题整理。"]
+    },
+    {
+      "input": {
+        "case_id": "pv-partial",
+        "case_type": "partial",
+        "persona_id": "pv-p3",
+        "jd_ids": ["pv-03", "pv-06"],
+        "facts": ["医院临床轮转", "患者病历记录"],
+        "non_claims": ["药物警戒流程", "ICSR", "安全报告"]
+      },
+      "expected_output": ["具备医院临床轮转和患者病历记录经历；尚缺药物警戒流程和 ICSR 证据。"]
+    },
+    {
+      "input": {
+        "case_id": "pv-negative",
+        "case_type": "negative",
+        "persona_id": "pv-p5",
+        "jd_ids": ["pv-07", "pv-10"],
+        "facts": ["细胞实验", "机制研究"],
+        "non_claims": ["药物警戒经历", "安全性流程", "ICSR 或信号检测"]
+      },
+      "expected_output": ["现有细胞实验和机制研究事实不足以支持药物警戒或安全性流程经历。"]
+    }
+  ]
+}

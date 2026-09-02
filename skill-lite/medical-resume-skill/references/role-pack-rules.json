@@ -9,12 +9,13 @@
       "doctoral_v1",
       "health_ai_data_v1",
       "medical_affairs_v1",
-      "medical_device_clinical_application_specialist_v1"
+      "medical_device_clinical_application_specialist_v1",
+      "pharmacovigilance_drug_safety_v1"
     ],
     "schema_id": "https://example.invalid/schemas/role-pack.schema.json",
     "schema_version": "medical-role-pack-schema-v1",
     "schema_sha256": "3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7",
-    "source_digest_sha256": "32dabd81254a7a2f99d646483867e51e62321dd7cd85986cddb4034e858d23f0"
+    "source_digest_sha256": "f65a99bbba43645e0dc4d8b13875d520ba7b9f989da08b35f682ed70d48ebc11"
   },
   "role_packs": [
     {
@@ -375,6 +376,57 @@
         "owned_component": [
           "specific_device_or_training_task",
           "training_or_support_artifact",
+          "scope_of_responsibility"
+        ],
+        "led_delivery": [
+          "assigned_delivery_scope",
+          "delivery_accountability",
+          "completion_evidence"
+        ],
+        "project_owner": [
+          "scope_ownership_evidence",
+          "decision_authority",
+          "delivery_accountability"
+        ]
+      }
+    },
+    {
+      "role_pack": "pharmacovigilance_drug_safety_v1",
+      "label": "药物警戒 / 药物安全支持",
+      "skill_reference": {
+        "target_scope": "初级至中级药物警戒、药物安全运营、受监管安全资料与质量支持岗位；只转换已确认的安全信息支持事实。",
+        "emphasis": [
+          "受监管范围内的 AE 安全信息记录、资料核对与随访支持",
+          "受控安全文档、文献资料、对账与质量检查支持",
+          "GVP/SOP 对齐的记录、归档与审计准备支持",
+          "已确认责任范围内的安全信息协调，不主张最终安全或法规所有权"
+        ],
+        "boundary_note": "AE 记录、资料整理、文献筛选、质量检查、归档、培训或协调支持不等于 ICSR 处理或提交所有权、信号检测、获益风险评估、PV 体系、PSMF/QPPV、法规代表、聚合报告主笔、项目所有权或团队管理。"
+      },
+      "execution_projection_sha256": "eb479fc24f33ca657d3e72be83fc358866839f929deee32c26244bc6a4c4d585",
+      "restricted_verbs": [
+        "负责",
+        "主导",
+        "管理",
+        "领导",
+        "独立完成",
+        "统筹",
+        "拥有"
+      ],
+      "forbidden_claims": [
+        "ICSR 处理、签发或提交所有权",
+        "信号检测、信号评估或获益风险所有权",
+        "DSUR、PSUR、PBRER、RMP 或安全报告主笔责任",
+        "PV 体系、PSMF、QPPV 或最终质量责任",
+        "监管机构代表、法规提交或安全策略所有权",
+        "临床安全医学判断或医疗决策责任",
+        "项目、客户、供应商、预算或团队管理所有权",
+        "确保药物安全、合规或最终监管结果"
+      ],
+      "required_evidence": {
+        "owned_component": [
+          "specific_safety_or_document_task",
+          "controlled_artifact_or_record",
           "scope_of_responsibility"
         ],
         "led_delivery": [

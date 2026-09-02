@@ -1,5 +1,7 @@
 # Career card research guide
 
+> **历史 pilot 范围说明：** 本文记录 Career Cards 的早期五岗位研究方法，不是当前产品的职业覆盖清单，也不决定 Role Pack 成熟度。当前中文岗位状态请看 `docs/CAREER_ROLE_PACK_LANDSCAPE.md`；canonical machine truth 以 `data/role-packs/*.json` 为准。
+
 ## Purpose
 
 Career cards provide the factual input for career hypotheses. They describe

@@ -8,12 +8,13 @@
       "clinical_research_v1",
       "doctoral_v1",
       "health_ai_data_v1",
-      "medical_affairs_v1"
+      "medical_affairs_v1",
+      "medical_device_clinical_application_specialist_v1"
     ],
     "schema_id": "https://example.invalid/schemas/role-pack.schema.json",
     "schema_version": "medical-role-pack-schema-v1",
     "schema_sha256": "3f07f6ce53967928d271780ec6fdc8fb638ca94d98299d734051e5a261a632e7",
-    "source_digest_sha256": "e5c840c445e9cae5175192daf7389b1b3216d4b3b67ebbd86bc653a81ec1b7e6"
+    "source_digest_sha256": "32dabd81254a7a2f99d646483867e51e62321dd7cd85986cddb4034e858d23f0"
   },
   "role_packs": [
     {
@@ -333,6 +334,58 @@
         "led_delivery": [
           "translation_evidence",
           "support_evidence"
+        ]
+      }
+    },
+    {
+      "role_pack": "medical_device_clinical_application_specialist_v1",
+      "label": "医疗器械临床 / 应用支持",
+      "skill_reference": {
+        "target_scope": "初级至中级医疗器械临床/应用支持、产品培训、受限产品范围内的现场技术与工作流支持岗位；只转换已确认的应用支持事实。",
+        "emphasis": [
+          "产品专属的使用培训、演示与技术问题跟进",
+          "已确认范围内的临床应用与工作流支持",
+          "用户反馈、案例资料和技术问题的受控记录与传递",
+          "内部、渠道或学术活动支持，不主张临床或商业所有权"
+        ],
+        "boundary_note": "设备培训、演示、现场技术支持或用户反馈不等于临床决策、手术/操作、患者照护、产品路线图、研发、客户/医院所有权、销售KPI、收入、区域策略或项目所有权。"
+      },
+      "execution_projection_sha256": "5d952421c8e9d87e66cc6f20a85b82e8dd9bf37da37d97a5b6c4efcdbd20c622",
+      "restricted_verbs": [
+        "负责",
+        "主导",
+        "管理",
+        "领导",
+        "独立完成",
+        "统筹",
+        "拥有"
+      ],
+      "forbidden_claims": [
+        "临床决策或患者照护所有权",
+        "手术、操作或治疗责任",
+        "产品路线图或研发所有权",
+        "客户、医院、医生或渠道所有权",
+        "销售KPI、收入、配额、区域或商业策略所有权",
+        "项目所有权或项目负责人",
+        "器械注册申报或科学作者责任",
+        "人员管理或团队分配",
+        "确保临床结果、产品疗效或合规"
+      ],
+      "required_evidence": {
+        "owned_component": [
+          "specific_device_or_training_task",
+          "training_or_support_artifact",
+          "scope_of_responsibility"
+        ],
+        "led_delivery": [
+          "assigned_delivery_scope",
+          "delivery_accountability",
+          "completion_evidence"
+        ],
+        "project_owner": [
+          "scope_ownership_evidence",
+          "decision_authority",
+          "delivery_accountability"
         ]
       }
     }

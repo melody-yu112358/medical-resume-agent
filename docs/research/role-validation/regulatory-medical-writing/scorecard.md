@@ -1,7 +1,8 @@
 # 中国 Regulatory Medical Writing Candidate scorecard
 
-**Current tier:** Candidate — ready for independent domain review.  
-**Release Gate:** not yet assessed; no Canonical v1 promotion is implied.
+**Current tier:** Candidate — domain graduation audit complete.
+**Release Gate:** `PASS — eligible for canonicalization review`; no Canonical v1
+promotion, merge, runtime target, or human approval is implied by this record.
 
 ## 可计数中国 JD 覆盖
 
@@ -34,8 +35,18 @@ JD-dependent 或 direct-evidence-required。
   以及 positive/transferable/partial/gap eval cases。
 - 尚未进行模型 conformance 或 Canonical v1 promotion；这些不是 Beta → Candidate 的替代物。
 
+## Domain review and evaluation
+
+- 独立只读 Reviewer 已 `APPROVE`：stable core 未混入 senior writer、submission、
+  client/program 或法规策略所有权；每个 persona 的演练覆盖至少三家雇主。
+- 4 个固定 direct/transferable/partial/gap cases 的中位 usefulness 为 **4/5**；
+  factuality 和 ownership 均为 `PASS`，critical unsupported claims 为 **0**。
+- `docs/research/role-validation/regulatory-medical-writing/domain-review-v1.md`、
+  `domain-evaluation-v1.json` 和 graduation audit 是本次可复核记录。
+
 ## 下一步
 
-独立 Reviewer 应审查 stable core、JD-dependent separation、persona/mapping 保守性、
-single-employer overfit 和 Candidate factuality/ownership 边界。Scientific / Medical
-Communications 仍是独立 Beta/scoping，不与本 corpus 合并。
+`eligible_for_canonicalization`，`human_required=true`：等待人类批准是否开始一个
+**单独的** Canonical v1 promotion PR。Scientific / Medical Communications 仍是独立
+Beta/scoping，不与本 corpus 合并；Cross-model validation 也仍为 pending，且不阻塞
+本次 domain graduation 结论。

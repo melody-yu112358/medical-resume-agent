@@ -55,6 +55,12 @@ def test_regulatory_medical_writing_personas_and_cases_cover_multiple_jds():
     assert len(persona_ids) >= 8
     assert set(matrix) == persona_ids
     assert all(len(jd_ids) >= 3 and set(jd_ids) <= qualifying_ids for jd_ids in matrix.values())
+    employers_by_jd = {
+        snapshot["id"]: snapshot["employer"]
+        for snapshot in evidence["jd_snapshots"]
+        if snapshot["qualifying"]
+    }
+    assert all(len({employers_by_jd[jd_id] for jd_id in jd_ids}) >= 3 for jd_ids in matrix.values())
     assert {case["expected_mapping_class"] for case in evidence["eval_cases"]} == {
         "direct", "transferable", "partial", "gap"
     }

@@ -104,6 +104,44 @@ CREATE TABLE IF NOT EXISTS role_function_families (
     PRIMARY KEY (role_pack_version_id, function_family_id)
 );
 
+-- Directions without a Canonical Role Pack live separately. This prevents a
+-- Beta, Candidate, or JD-driven direction from being mistaken for a canonical
+-- execution source merely because it has a familiar occupational name.
+CREATE TABLE IF NOT EXISTS career_directions (
+    career_direction_id TEXT PRIMARY KEY,
+    external_key TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    knowledge_maturity TEXT NOT NULL CHECK (knowledge_maturity IN ('research', 'beta', 'candidate')),
+    service_mode TEXT NOT NULL CHECK (service_mode IN ('explore_only', 'jd_driven')),
+    runtime_status TEXT NOT NULL CHECK (runtime_status IN ('not_routable', 'deprecated')),
+    requires_specific_jd INTEGER NOT NULL CHECK (requires_specific_jd IN (0, 1)),
+    summary TEXT NOT NULL,
+    boundary_note TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    source_sha256 TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deprecated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS career_direction_ecosystems (
+    career_direction_id TEXT NOT NULL REFERENCES career_directions(career_direction_id),
+    ecosystem_id TEXT NOT NULL REFERENCES ecosystems(ecosystem_id),
+    PRIMARY KEY (career_direction_id, ecosystem_id)
+);
+
+CREATE TABLE IF NOT EXISTS career_direction_lifecycle_stages (
+    career_direction_id TEXT NOT NULL REFERENCES career_directions(career_direction_id),
+    lifecycle_stage_id TEXT NOT NULL REFERENCES lifecycle_stages(lifecycle_stage_id),
+    PRIMARY KEY (career_direction_id, lifecycle_stage_id)
+);
+
+CREATE TABLE IF NOT EXISTS career_direction_function_families (
+    career_direction_id TEXT NOT NULL REFERENCES career_directions(career_direction_id),
+    function_family_id TEXT NOT NULL REFERENCES function_families(function_family_id),
+    PRIMARY KEY (career_direction_id, function_family_id)
+);
+
 CREATE TABLE IF NOT EXISTS skills (
     skill_id TEXT PRIMARY KEY,
     code TEXT NOT NULL UNIQUE,
@@ -245,3 +283,26 @@ CREATE INDEX IF NOT EXISTS idx_role_skills_version
     ON role_skills (role_pack_version_id, priority_rank);
 CREATE INDEX IF NOT EXISTS idx_negative_mappings_version
     ON negative_mappings (role_pack_version_id, mapping_kind);
+
+CREATE VIEW IF NOT EXISTS career_map_entries AS
+SELECT
+    v.role_pack_version_id AS entry_id,
+    v.external_key,
+    v.label,
+    'canonical_v1' AS knowledge_maturity,
+    'canonical_role_pack' AS service_mode,
+    'canonical_source' AS runtime_status,
+    0 AS requires_specific_jd
+FROM role_pack_versions v
+WHERE v.is_current = 1
+UNION ALL
+SELECT
+    d.career_direction_id AS entry_id,
+    d.external_key,
+    d.label,
+    d.knowledge_maturity,
+    d.service_mode,
+    d.runtime_status,
+    d.requires_specific_jd
+FROM career_directions d
+WHERE d.deprecated_at IS NULL;

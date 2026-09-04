@@ -1,0 +1,247 @@
+-- Medical career map v1.
+--
+-- This schema intentionally uses portable SQL types so it can be executed by
+-- SQLite for local development and translated directly to PostgreSQL. JSON is
+-- stored as TEXT in v1 because JSON Role Packs remain the editable source of
+-- truth; the relational rows are a queryable, rebuildable projection.
+
+CREATE TABLE IF NOT EXISTS import_batches (
+    import_id TEXT PRIMARY KEY,
+    source_root TEXT NOT NULL,
+    source_digest_sha256 TEXT NOT NULL,
+    imported_at TEXT NOT NULL,
+    importer_version TEXT NOT NULL,
+    UNIQUE (source_root, source_digest_sha256)
+);
+
+CREATE TABLE IF NOT EXISTS roles (
+    role_id TEXT PRIMARY KEY,
+    canonical_key TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    role_kind TEXT NOT NULL CHECK (role_kind IN ('role_pack_family', 'career_card')),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deprecated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS source_artifacts (
+    artifact_id TEXT PRIMARY KEY,
+    relative_path TEXT NOT NULL,
+    content_sha256 TEXT NOT NULL,
+    raw_content TEXT NOT NULL,
+    imported_at TEXT NOT NULL,
+    UNIQUE (relative_path, content_sha256)
+);
+
+CREATE TABLE IF NOT EXISTS role_pack_versions (
+    role_pack_version_id TEXT PRIMARY KEY,
+    role_id TEXT NOT NULL REFERENCES roles(role_id),
+    external_key TEXT NOT NULL,
+    version_label TEXT NOT NULL,
+    label TEXT NOT NULL,
+    target_scope TEXT NOT NULL,
+    boundary_note TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    content_sha256 TEXT NOT NULL,
+    artifact_id TEXT NOT NULL REFERENCES source_artifacts(artifact_id),
+    is_current INTEGER NOT NULL CHECK (is_current IN (0, 1)),
+    imported_at TEXT NOT NULL,
+    deprecated_at TEXT,
+    superseded_by_version_id TEXT REFERENCES role_pack_versions(role_pack_version_id),
+    UNIQUE (external_key, content_sha256)
+);
+
+CREATE TABLE IF NOT EXISTS role_status_history (
+    role_status_history_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    maturity_status TEXT NOT NULL CHECK (maturity_status IN ('beta', 'candidate', 'canonical_v1')),
+    execution_status TEXT NOT NULL CHECK (execution_status IN ('not_routable', 'canonical_source', 'runtime_enabled', 'deprecated')),
+    status_reason TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    recorded_at TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, maturity_status, execution_status, status_reason)
+);
+
+CREATE TABLE IF NOT EXISTS ecosystems (
+    ecosystem_id TEXT PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS lifecycle_stages (
+    lifecycle_stage_id TEXT PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS function_families (
+    function_family_id TEXT PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS role_ecosystems (
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    ecosystem_id TEXT NOT NULL REFERENCES ecosystems(ecosystem_id),
+    provenance_note TEXT,
+    PRIMARY KEY (role_pack_version_id, ecosystem_id)
+);
+
+CREATE TABLE IF NOT EXISTS role_lifecycle_stages (
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    lifecycle_stage_id TEXT NOT NULL REFERENCES lifecycle_stages(lifecycle_stage_id),
+    provenance_note TEXT,
+    PRIMARY KEY (role_pack_version_id, lifecycle_stage_id)
+);
+
+CREATE TABLE IF NOT EXISTS role_function_families (
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    function_family_id TEXT NOT NULL REFERENCES function_families(function_family_id),
+    provenance_note TEXT,
+    PRIMARY KEY (role_pack_version_id, function_family_id)
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+    skill_id TEXT PRIMARY KEY,
+    code TEXT NOT NULL UNIQUE,
+    label TEXT NOT NULL,
+    skill_kind TEXT NOT NULL CHECK (skill_kind IN ('capability_category', 'skill')),
+    created_at TEXT NOT NULL,
+    deprecated_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS role_skills (
+    role_skill_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    skill_id TEXT NOT NULL REFERENCES skills(skill_id),
+    priority_rank INTEGER NOT NULL CHECK (priority_rank > 0),
+    mapping_label TEXT NOT NULL,
+    placement_hint TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, skill_id)
+);
+
+CREATE TABLE IF NOT EXISTS role_requirements (
+    role_requirement_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    requirement_kind TEXT NOT NULL,
+    requirement_text TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, requirement_kind, requirement_text)
+);
+
+CREATE TABLE IF NOT EXISTS role_deliverables (
+    role_deliverable_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    deliverable_text TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, deliverable_text)
+);
+
+CREATE TABLE IF NOT EXISTS negative_mappings (
+    negative_mapping_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    mapping_kind TEXT NOT NULL CHECK (mapping_kind IN ('boundary_note', 'restricted_verb', 'forbidden_claim')),
+    mapping_text TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, mapping_kind, mapping_text)
+);
+
+CREATE TABLE IF NOT EXISTS role_expression_policies (
+    role_expression_policy_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    policy_kind TEXT NOT NULL CHECK (policy_kind IN ('preferred_action', 'allowed_verb', 'sentence_pattern')),
+    policy_text TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, policy_kind, policy_text)
+);
+
+CREATE TABLE IF NOT EXISTS role_pack_evaluation_cases (
+    evaluation_case_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    case_ordinal INTEGER NOT NULL CHECK (case_ordinal > 0),
+    input_json TEXT NOT NULL,
+    expected_output_json TEXT NOT NULL,
+    provenance_path TEXT NOT NULL,
+    UNIQUE (role_pack_version_id, case_ordinal)
+);
+
+CREATE TABLE IF NOT EXISTS jd_evidence (
+    jd_evidence_id TEXT PRIMARY KEY,
+    source_title TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    publisher TEXT,
+    published_at TEXT,
+    accessed_at TEXT,
+    market TEXT,
+    snapshot_sha256 TEXT,
+    source_status TEXT NOT NULL CHECK (source_status IN ('draft', 'reviewed', 'deprecated')),
+    created_at TEXT NOT NULL,
+    deprecated_at TEXT,
+    UNIQUE (source_url, snapshot_sha256)
+);
+
+CREATE TABLE IF NOT EXISTS role_jd_evidence (
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    jd_evidence_id TEXT NOT NULL REFERENCES jd_evidence(jd_evidence_id),
+    evidence_scope TEXT NOT NULL CHECK (evidence_scope IN ('stable_core', 'jd_dependent', 'boundary')),
+    provenance_note TEXT NOT NULL,
+    PRIMARY KEY (role_pack_version_id, jd_evidence_id, evidence_scope)
+);
+
+CREATE TABLE IF NOT EXISTS validation_runs (
+    validation_run_id TEXT PRIMARY KEY,
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    evaluation_case_id TEXT REFERENCES role_pack_evaluation_cases(evaluation_case_id),
+    validation_kind TEXT NOT NULL CHECK (validation_kind IN ('schema', 'domain', 'cross_model', 'regression')),
+    status TEXT NOT NULL CHECK (status IN ('pass', 'fail', 'pending')),
+    model_identifier TEXT,
+    configuration_digest TEXT,
+    input_digest TEXT,
+    output_digest TEXT,
+    reviewer_decision TEXT,
+    recorded_at TEXT NOT NULL,
+    notes TEXT
+);
+
+-- Reserved for later product phases. No personal or transition-case data is
+-- imported by v1; these tables intentionally do not create matching behavior.
+CREATE TABLE IF NOT EXISTS career_profiles (
+    career_profile_id TEXT PRIMARY KEY,
+    external_key TEXT NOT NULL UNIQUE,
+    profile_status TEXT NOT NULL,
+    source_kind TEXT NOT NULL CHECK (source_kind IN ('synthetic', 'user_confirmed')),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    deleted_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS transition_cases (
+    transition_case_id TEXT PRIMARY KEY,
+    external_key TEXT NOT NULL UNIQUE,
+    authorization_status TEXT NOT NULL,
+    review_status TEXT,
+    source_kind TEXT NOT NULL CHECK (source_kind IN ('synthetic', 'authorized_public', 'private')),
+    created_at TEXT NOT NULL,
+    deleted_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS profile_role_matches (
+    profile_role_match_id TEXT PRIMARY KEY,
+    career_profile_id TEXT NOT NULL REFERENCES career_profiles(career_profile_id),
+    role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
+    match_status TEXT NOT NULL CHECK (match_status IN ('draft', 'reviewed', 'superseded')),
+    explanation_json TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    superseded_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_role_pack_versions_current
+    ON role_pack_versions (external_key, is_current);
+CREATE INDEX IF NOT EXISTS idx_role_skills_version
+    ON role_skills (role_pack_version_id, priority_rank);
+CREATE INDEX IF NOT EXISTS idx_negative_mappings_version
+    ON negative_mappings (role_pack_version_id, mapping_kind);

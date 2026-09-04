@@ -10,9 +10,8 @@
 
 | 成熟度池 | 当前方向 | 说明 |
 | --- | --- | --- |
-| Canonical v1（domain validated） | 考博 / 保研、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、临床研究协调 / CRA 支持、临床数据管理 / CDM 支持、医疗器械临床 / 应用支持 | 当前有 canonical JSON，并已生成 Skill projection。是否已接入具体运行时仍是独立决策。 |
-| Candidate（有专门中国 JD 证据） | Pharmacovigilance / Drug Safety（PV） | 有独立 corpus、personas、映射和负向边界；截至本文档状态，尚无 canonical JSON，不应称为可执行或可路由 Role Pack。 |
-| 研究/规划中的候选方向 | Medical Writing / Scientific Communications、Regulatory Affairs、RWE、HEOR | 覆盖矩阵记录其产品策略；除非存在对应 Candidate corpus，不能把“研究过”称为 Candidate 或 Canonical。 |
+| Canonical v1（domain validated） | 考博 / 保研、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、临床研究协调 / CRA 支持、临床数据管理 / CDM 支持、医疗器械临床 / 应用支持、药物警戒 / 药物安全支持、法规医学写作支持 | 当前有 canonical JSON，并已生成 Skill projection。是否已接入具体运行时仍是独立决策。 |
+| 研究/规划中的候选方向 | Medical Writing / Scientific Communications、一般 Regulatory Affairs、RWE、HEOR | 覆盖矩阵记录其产品策略；法规医学写作支持已是独立 Canonical v1，但不能据此把范围不同的一般注册事务或科学传播方向一并称为 Canonical。 |
 | JD-driven Generalist | Market Access、Healthcare Product、Healthcare Consulting、Commercial / Business Analytics、Healthcare / Project Operations、Medical Sales / Commercial | 这些方向的雇主、行业与 ownership 差异很大，当前应以具体 JD 和明确缺口为中心服务，而非强行建立通用 Deep Pack。 |
 
 ### 2.1 Canonical v1（domain validated）
@@ -27,14 +26,14 @@
 | 临床研究协调 / CRA 支持 | Clinical Research Associate / CRA support | `clinical_research_associate_v1` | 是 | 是 | pending / not yet recorded |
 | 临床数据管理 / CDM 支持 | Clinical Data Management / CDM support | `clinical_data_management_v1` | 是 | 是 | pending / not yet recorded |
 | 医疗器械临床 / 应用支持 | Medical Device Clinical / Application Specialist | `medical_device_clinical_application_specialist_v1` | 是 | 是 | pending / not yet recorded |
+| 药物警戒 / 药物安全支持 | Pharmacovigilance / Drug Safety support | `pharmacovigilance_drug_safety_v1` | 是 | 是 | pending / not yet performed |
+| 法规医学写作支持 | Regulatory Medical Writing support | `regulatory_medical_writing_v1` | 是 | 是 | pending / not yet performed |
 
 `pending / not yet recorded` 表示当前没有可复核的 cross-model conformance 记录；它不是 Canonical v1 domain validation 的否定，也不应被写成该职业不正式。
 
-### 2.2 Candidate / future promotion pipeline
+### 2.2 Future promotion pipeline
 
-| 方向 | 当前仓库状态 | 不应误写为 |
-| --- | --- | --- |
-| Pharmacovigilance / Drug Safety（PV） | Candidate evidence：10 条 qualifying JD、8 家 employer；有固定 personas、机器可读负向映射和 domain-evaluation asset。尚无 canonical JSON 或 promotion PR。 | 已 Canonical v1、可把安全支持直接写成 ICSR/信号/获益风险所有权。 |
+截至当前 canonical JSON 集合，PV 与法规医学写作均已完成独立 Canonical v1 promotion。后续 Candidate 方向必须以独立 corpus、personas、负向边界和 graduation record 为依据；规划中的方向不得因名称相近而继承现有 Pack 的成熟度或职责范围。
 
 ## 3. 职业地图如何分类
 
@@ -191,9 +190,9 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 - **关键边界：** application/training support ≠ clinical decision/procedure ownership；feedback ≠ product roadmap；application support ≠ sales KPI；coordination/support ≠ project ownership。
 - **当前成熟度：** Canonical v1（domain validated）。`medical_device_clinical_application_specialist_v1` 已是 canonical source，并已有 generated Skill projection。它不因此自动成为 runtime target；Cross-model validation 仍为 pending，且不能以缺少该 hardening 证据否定 Canonical v1。
 
-### 3.9 Pharmacovigilance / Drug Safety（PV，Candidate）
+### 3.9 Pharmacovigilance / Drug Safety（PV）
 
-- **英文 / proposed ID：** Pharmacovigilance Associate、Drug Safety Specialist、Safety Operations、PV Physician；`pharmacovigilance_drug_safety_v1`（proposed，尚非 canonical source）。
+- **英文 / Role Pack ID：** Pharmacovigilance Associate、Drug Safety Specialist、Safety Operations、PV Physician；`pharmacovigilance_drug_safety_v1`。
 - **范围：** 受监管安全信息接收/处理/跟进支持、安全文档/文献/reconciliation 支持、GVP/SOP 质量与检查准备支持，以及分配范围内的安全信息协调。
 - **真实 qualifying JD（10 条 / 8 家 employer）：**
 
@@ -212,7 +211,16 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 - **JD-dependent / senior：** safety strategy、signal detection/benefit-risk、QPPV/PSMF、监管机关沟通、IND/NDA/RMP、团队管理和超出直接证据的医学判断。
 - **医学背景迁移：** AE 记录/随访协助、受控安全资料和流程培训可支持受监督 PV 支持；医学文献与严谨记录可迁移但不替代 GVP/ICSR；临床轮转和病历记录仅提供部分临床语境。
 - **关键边界：** AE documentation ≠ ICSR submission ownership；literature/safety support ≠ signal detection 或 benefit-risk ownership；filing/support ≠ QPPV / PSMF；研究协调 ≠ safety strategy 或最终监管责任。
-- **当前成熟度：** Candidate；有 8 个 fixed personas、machine-readable negative rules 和 domain-evaluation asset，但尚无 canonical JSON 或 promotion PR。
+- **当前成熟度：** Canonical v1（domain validated）。已存在 canonical JSON、generated Skill projection 与独立 promotion record；Cross-model validation 仍为 `pending / not yet performed`，不因此否定 Canonical 职业语义。它不自动成为 runtime target。
+
+### 3.10 法规医学写作支持
+
+- **英文 / Role Pack ID：** Regulatory Medical Writing；`regulatory_medical_writing_v1`。
+- **范围：** Protocol、CSR、IB、clinical summary 等受控临床/注册文件的已确认撰写或审阅支持，文献与临床数据综合，模板/SOP/GCP/ICH/质量支持，以及受限的跨职能 review comment、版本与交付协调。
+- **真实 qualifying JD：** 8 条 / 8 家中国市场 employer；详情、快照 digest、personas 与 domain evaluation 记录在 `docs/research/role-validation/regulatory-medical-writing/`。
+- **稳定职责：** 已确认范围内的受控文件支持、证据综合、质量与版本协调。
+- **关键边界：** academic writing 不等于 regulatory medical writing；drafting/review support 不等于 submission ownership；文献综合不等于 CSR/Protocol author ownership；内部协调不等于客户、项目或法规策略所有权。
+- **当前成熟度：** Canonical v1（domain validated）。已有 canonical JSON、generated Skill projection 与独立 promotion record；Cross-model validation 为 `pending / not yet performed`，且不自动成为 runtime target。
 
 ## 5. Role Pack 如何毕业
 
@@ -261,14 +269,14 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 
 ### 近期
 
-1. 已 Canonical 的方向保持现状；Device 的 Cross-model validation 保留为后续 hardening，不阻止其 Canonical v1 状态。
-2. 在不放宽 evidence/ownership 标准的前提下，完成 PV 的 Candidate → Canonical v1 graduation audit 与独立 promotion PR。
-3. 若 PV 尚未满足正式 promotion gate，应保持 Candidate，而不是以规划名称提前升级。
+1. 已 Canonical 的方向保持现状；Cross-model validation 保留为后续 hardening，不阻止 Canonical v1 状态。
+2. 为已 Canonical 的方向补充可复核的 Cross-model conformance 记录，但不得以模型验证结果改写 domain-validated 的职业语义。
+3. 新方向只有在满足独立 graduation gate 后才可进入 Canonical v1，不得以相近名称提前升级。
 
 ### 下一批 Deep / Candidate research
 
-1. Medical Writing / Scientific Communications。
-2. Regulatory Affairs；后续真实 JD 研究决定 Drug RA 与 Medical Device RA 是否需要拆分为两个 Candidate corpus/Pack，不能预设共用一个 Pack。
+1. Medical Writing / Scientific Communications；不得与法规医学写作支持的既有 Pack 混同。
+2. 一般 Regulatory Affairs；后续真实 JD 研究决定 Drug RA 与 Medical Device RA 是否需要拆分为两个 Candidate corpus/Pack，不能预设共用一个 Pack。
 3. Biostatistics / SAS。
 4. RWE / HEOR evaluation；两者应分别评估，不默认共用职业语义。
 

@@ -118,6 +118,22 @@ database or cross-device persistence.
 4. Add an LLM gateway only for structured extraction and wording generation.
 5. Add application feedback events to update the profile and recommendations.
 
+## Career-map SQL projection
+
+The canonical Role Pack JSON files remain the editable occupational source of
+truth. `database/career_map_schema.sql` and
+`scripts/import_role_packs_to_career_map.py` provide a separate, rebuildable
+relational projection for versions, capability priorities, evidence gates,
+negative mappings, expression policies and evaluation-case definitions.
+
+This projection is not a new runtime repository and does not change routing,
+Claim Gate, Confirmation Gate or matching behavior. It distinguishes
+`canonical_v1` domain status from runtime enablement and Cross-model validation,
+retains the original JSON artifact and SHA-256 provenance, and leaves JD
+evidence, transition cases and persistent Career Profiles unpopulated until
+their source and consent rules are separately implemented. See
+`docs/CAREER_MAP_DATABASE.md` for the migration contract and query examples.
+
 ## Acceptance for v0.1
 
 - A synthetic resume and job produce a deterministic report.

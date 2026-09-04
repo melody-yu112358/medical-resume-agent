@@ -102,9 +102,9 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 
 ### Career coverage / 岗位覆盖
 
-当前 canonical source 的岗位清单为：学术申请、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、CRA 支持、CDM 支持和医疗器械临床 / 应用支持。Pharmacovigilance / Drug Safety（PV）保留为 Candidate evidence 方向，尚未成为 canonical 或 runtime target。Market Access、Product、Consulting、Commercial Analytics、Operations 与 Sales 等差异较大的方向通过 JD-driven Generalist 路径处理，不强行套用通用 Role Pack。
+当前 canonical source 共有 10 个方向：学术申请、临床科研、MSL / 医学事务、医疗数据 / 健康科技、临床运营协调、CRA 支持、CDM 支持、医疗器械临床 / 应用支持、药物警戒 / 药物安全支持，以及法规医学写作支持。Canonical source 表示该 Role Pack 已完成职业语义和边界的 domain validation；它不自动成为 runtime target，也不代表已完成 Cross-model validation。Market Access、Healthcare Product、Healthcare Consulting、Commercial / Business Analytics、Healthcare / Project Operations 与 Medical Sales / Commercial 等差异较大的方向仍通过 JD-driven Generalist 路径处理，不强行套用通用 Role Pack。
 
-岗位边界、真实 JD 证据、成熟度和下一阶段路线图见[中国医学背景职业 Role Pack 版图](docs/CAREER_ROLE_PACK_LANDSCAPE.md)。canonical 数量与语义始终以 `data/role-packs/*.json` 为准。
+岗位边界、真实 JD 证据、成熟度和下一阶段路线图见[中国医学背景职业 Role Pack 版图](docs/CAREER_ROLE_PACK_LANDSCAPE.md)；关系型数据库的导入边界、版本与 provenance 见[医学职业地图关系型数据库 v1](docs/CAREER_MAP_DATABASE.md)。canonical 数量与语义始终以 `data/role-packs/*.json` 为准。
 
 ## 使用规则与已知限制
 

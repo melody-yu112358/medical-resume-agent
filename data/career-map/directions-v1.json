@@ -1,0 +1,62 @@
+{
+  "schema_version": "career-map-directions-v1",
+  "source_documents": [
+    "docs/CAREER_ROLE_PACK_LANDSCAPE.md"
+  ],
+  "taxonomy": {
+    "ecosystems": [
+      {"code": "academic_research", "label": "医院 / 高校 / 科研"},
+      {"code": "pharma_biotech", "label": "Pharma / Biotech"},
+      {"code": "cro_smo", "label": "CRO / SMO"},
+      {"code": "medical_device_ivd", "label": "Medical Device / IVD"},
+      {"code": "digital_health_ai", "label": "Digital Health / AI"},
+      {"code": "consulting_commercial_services", "label": "Consulting / Commercial services"},
+      {"code": "medical_communications", "label": "Medical Communications"},
+      {"code": "rwe_heor_public_health", "label": "RWE / HEOR / Public-health evidence ecosystem"}
+    ],
+    "lifecycle_stages": [
+      {"code": "discovery_preclinical", "label": "Discovery / Preclinical"},
+      {"code": "clinical_development", "label": "Clinical Development"},
+      {"code": "registration_prelaunch", "label": "Registration / Pre-launch"},
+      {"code": "launch_medical", "label": "Launch / Medical"},
+      {"code": "post_marketing_safety", "label": "Post-marketing Safety"},
+      {"code": "evidence_access", "label": "Evidence / Access"},
+      {"code": "commercial", "label": "Commercial"},
+      {"code": "lifecycle_management", "label": "Lifecycle Management"}
+    ],
+    "function_families": [
+      {"code": "research", "label": "Research"},
+      {"code": "clinical_development_operations", "label": "Clinical Development / Operations"},
+      {"code": "data_statistics", "label": "Data / Statistics"},
+      {"code": "safety", "label": "Safety"},
+      {"code": "regulatory", "label": "Regulatory"},
+      {"code": "medical_affairs", "label": "Medical Affairs"},
+      {"code": "medical_writing_scientific_communications", "label": "Medical Writing / Scientific Communications"},
+      {"code": "device_clinical_application", "label": "Device Clinical / Application"},
+      {"code": "rwe_heor_access", "label": "RWE / HEOR / Access"},
+      {"code": "product_technology", "label": "Product / Technology"},
+      {"code": "commercial", "label": "Commercial"}
+    ]
+  },
+  "canonical_role_pack_taxonomy": [
+    {"role_pack": "doctoral_v1", "ecosystems": ["academic_research"], "lifecycle_stages": [], "function_families": ["research"]},
+    {"role_pack": "clinical_research_v1", "ecosystems": ["academic_research"], "lifecycle_stages": ["clinical_development"], "function_families": ["research", "clinical_development_operations"]},
+    {"role_pack": "medical_affairs_v1", "ecosystems": ["pharma_biotech"], "lifecycle_stages": ["launch_medical"], "function_families": ["medical_affairs"]},
+    {"role_pack": "health_ai_data_v1", "ecosystems": ["digital_health_ai"], "lifecycle_stages": [], "function_families": ["data_statistics", "product_technology"]},
+    {"role_pack": "clinical_operations_v1", "ecosystems": ["pharma_biotech", "cro_smo"], "lifecycle_stages": ["clinical_development"], "function_families": ["clinical_development_operations"]},
+    {"role_pack": "clinical_research_associate_v1", "ecosystems": ["cro_smo"], "lifecycle_stages": ["clinical_development"], "function_families": ["clinical_development_operations"]},
+    {"role_pack": "clinical_data_management_v1", "ecosystems": ["cro_smo"], "lifecycle_stages": ["clinical_development"], "function_families": ["data_statistics"]},
+    {"role_pack": "medical_device_clinical_application_specialist_v1", "ecosystems": ["medical_device_ivd"], "lifecycle_stages": ["lifecycle_management"], "function_families": ["device_clinical_application"]},
+    {"role_pack": "pharmacovigilance_drug_safety_v1", "ecosystems": ["pharma_biotech"], "lifecycle_stages": ["post_marketing_safety"], "function_families": ["safety"]},
+    {"role_pack": "regulatory_medical_writing_v1", "ecosystems": ["pharma_biotech", "medical_communications"], "lifecycle_stages": ["registration_prelaunch"], "function_families": ["regulatory", "medical_writing_scientific_communications"]}
+  ],
+  "jd_driven_directions": [
+    {"external_key": "market_access_jd_driven", "label": "市场准入（JD-driven）", "summary": "以具体公司、支付方、产品和岗位 JD 为中心分析的市场准入方向。", "boundary_note": "不得把科学证据理解或结构化沟通写成 payer engagement、pricing、reimbursement 或 access-strategy ownership。", "ecosystems": ["pharma_biotech", "consulting_commercial_services"], "lifecycle_stages": ["evidence_access"], "function_families": ["rwe_heor_access"]},
+    {"external_key": "healthcare_product_jd_driven", "label": "医疗产品（JD-driven）", "summary": "以具体医疗产品、组织类型和实际职责为中心分析的产品方向。", "boundary_note": "不得把临床工作流理解或数据分析写成产品发现、roadmap、商业或交付所有权。", "ecosystems": ["digital_health_ai"], "lifecycle_stages": [], "function_families": ["product_technology"]},
+    {"external_key": "healthcare_consulting_jd_driven", "label": "医疗咨询（JD-driven）", "summary": "以客户、项目范围和岗位 JD 为中心分析的医疗咨询方向。", "boundary_note": "不得把研究、分析或展示写成 client delivery、workstream leadership 或商业建议所有权。", "ecosystems": ["consulting_commercial_services"], "lifecycle_stages": [], "function_families": ["commercial"]},
+    {"external_key": "commercial_business_analytics_jd_driven", "label": "商业 / 业务分析（JD-driven）", "summary": "以公司业务模型、数据权限和具体岗位 JD 为中心分析的商业分析方向。", "boundary_note": "不得把分析、报告或数据质量支持写成收入、预测、客户或商业决策所有权。", "ecosystems": ["consulting_commercial_services"], "lifecycle_stages": ["commercial"], "function_families": ["data_statistics", "commercial"]},
+    {"external_key": "healthcare_project_operations_jd_driven", "label": "医疗 / 项目运营（JD-driven）", "summary": "以具体产品、地区、供应商和岗位 JD 为中心分析的运营方向。", "boundary_note": "不得把文档、跟踪或协调支持写成项目、流程、预算、供应商或人员所有权。", "ecosystems": ["pharma_biotech", "cro_smo"], "lifecycle_stages": [], "function_families": ["clinical_development_operations"]},
+    {"external_key": "medical_sales_commercial_jd_driven", "label": "医学销售 / 商业（JD-driven）", "summary": "以客户、区域、产品和岗位 JD 为中心分析的医学销售与商业方向。", "boundary_note": "不得把临床沟通或证据素养写成 quota、account、customer 或 territory ownership。", "ecosystems": ["pharma_biotech", "medical_device_ivd"], "lifecycle_stages": ["commercial"], "function_families": ["commercial"]}
+  ],
+  "beta_directions": []
+}

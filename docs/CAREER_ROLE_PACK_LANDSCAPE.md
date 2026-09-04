@@ -6,6 +6,8 @@
 
 **状态读取规则：** canonical 状态以 `data/role-packs/*.json` 为准；Candidate 的证据状态以 `docs/research/role-validation/**` 为准；毕业条件以 `docs/ROLE_PACK_GRADUATION.md` 为准。下表和说明均以这些资产为准，而非聊天记录或规划中的数量。
 
+**数据库分类规则：** `data/career-map/directions-v1.json` 将本页的“产业生态 × 生命周期 × 职能族”登记为可查询的地图种子。该分类服务于浏览和解释，不反向修改任何 Role Pack 的职责边界、Canonical 状态或 runtime routing。
+
 ## 2. 当前岗位版图总览
 
 | 成熟度池 | 当前方向 | 说明 |

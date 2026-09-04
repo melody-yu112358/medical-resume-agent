@@ -25,8 +25,12 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
     with sqlite3.connect(database_path) as connection:
         assert connection.execute("SELECT COUNT(*) FROM roles").fetchone()[0] == 10
         assert connection.execute("SELECT COUNT(*) FROM role_pack_versions WHERE is_current = 1").fetchone()[0] == 10
-        assert connection.execute("SELECT COUNT(*) FROM source_artifacts").fetchone()[0] == 10
+        assert connection.execute("SELECT COUNT(*) FROM source_artifacts").fetchone()[0] == 11
         assert connection.execute("SELECT COUNT(*) FROM role_status_history WHERE maturity_status = 'canonical_v1'").fetchone()[0] == 10
+        assert connection.execute("SELECT COUNT(*) FROM career_directions WHERE service_mode = 'jd_driven'").fetchone()[0] == 6
+        assert connection.execute("SELECT COUNT(*) FROM career_map_entries").fetchone()[0] == 16
+        assert connection.execute("SELECT COUNT(*) FROM role_ecosystems").fetchone()[0] >= 10
+        assert connection.execute("SELECT COUNT(*) FROM role_function_families").fetchone()[0] >= 10
         assert connection.execute("SELECT COUNT(*) FROM role_deliverables").fetchone()[0] == 0
         assert connection.execute("SELECT COUNT(*) FROM jd_evidence").fetchone()[0] == 0
 
@@ -57,3 +61,18 @@ def test_career_map_documentation_tracks_current_canonical_json_set():
     for pack_id in pack_ids:
         assert pack_id in landscape
     assert "当前 canonical source 共 10 个" in database_doc
+
+
+def test_jd_driven_directions_remain_jd_required_and_not_routable(tmp_path):
+    database_path = tmp_path / "career-map.sqlite"
+    import_packs(database_path)
+
+    with sqlite3.connect(database_path) as connection:
+        rows = connection.execute(
+            """SELECT external_key, knowledge_maturity, service_mode, runtime_status, requires_specific_jd
+               FROM career_directions ORDER BY external_key"""
+        ).fetchall()
+
+    assert len(rows) == 6
+    assert all(maturity == "research" for _, maturity, _, _, _ in rows)
+    assert all(mode == "jd_driven" and status == "not_routable" and requires_jd == 1 for _, _, mode, status, requires_jd in rows)

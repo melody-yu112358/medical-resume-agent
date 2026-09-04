@@ -106,6 +106,8 @@ Skill Lite 是供 Codex、Claude Code 等 AI 编程助手调用的提示词、�
 
 岗位边界、真实 JD 证据、成熟度和下一阶段路线图见[中国医学背景职业 Role Pack 版图](docs/CAREER_ROLE_PACK_LANDSCAPE.md)；关系型数据库的导入边界、版本与 provenance 见[医学职业地图关系型数据库 v1](docs/CAREER_MAP_DATABASE.md)。canonical 数量与语义始终以 `data/role-packs/*.json` 为准。
 
+职业地图数据库同时保留三层分类（产业生态 × 生命周期 × 职能族）和 JD-driven 方向。后者必须基于具体 JD 分析，不会被伪装成已形成的通用 Role Pack。
+
 ## 使用规则与已知限制
 
 - 候选要点只使用用户确认的事实；系统不会将“参与”改写为“主导”，也不会补充未提供的数字、方法、工具或结果。

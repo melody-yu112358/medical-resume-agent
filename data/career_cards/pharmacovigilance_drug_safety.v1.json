@@ -1,0 +1,37 @@
+{
+  "schema_version": "medical-career-card-v1",
+  "career_card_id": "pharmacovigilance_drug_safety",
+  "role_pack": "pharmacovigilance_drug_safety_v1",
+  "version": "v1",
+  "summary": "药物警戒 / 药物安全支持方向：在已确认范围内，以受监督的安全信息记录、资料核对、质量与协调支持为主。",
+  "scope_note": "不将支持性经历升级为独立信号检测、获益风险、QPPV/PSMF、法规沟通、最终报告或法规策略责任。",
+  "stable_responsibilities": [
+    "受监管的安全个案接收、处理与随访支持",
+    "安全文档、文献与对账支持",
+    "按 GVP/SOP 执行的质量与检查准备支持",
+    "在已分配范围内开展跨团队安全信息协调",
+    "在直接分配的范围内开展受控报告支持"
+  ],
+  "typical_deliverables": [
+    "受控安全资料、AE 记录或随访支持记录",
+    "文献、质量核对或 AE 对账支持材料",
+    "按分配范围形成的报告支持材料"
+  ],
+  "entry_requirements": [
+    "具体岗位对经验年限、GVP/ICSR 和报告要求须以当期 JD 核验"
+  ],
+  "transferability": {
+    "direct": ["受控安全资料、AE 记录/随访协助和流程培训可映射为受监督的 PV 支持"],
+    "transferable": ["医学文献与严谨记录可支持安全文档意识，不替代 GVP/ICSR 经验"],
+    "partial": ["临床轮转或病历记录提供临床语境，不构成药物警戒工作"],
+    "gaps": ["安全报告提交、信号/获益风险、PSMF/QPPV、法规沟通、风险管理和团队管理需要直接证据"]
+  },
+  "jd_dependent_scope": [
+    "安全策略", "信号检测或获益风险所有权", "QPPV/PSMF 所有权", "法规机构沟通", "IND/NDA 或 RMP 所有权", "PV 团队管理", "超出直接支持证据的医学判断"
+  ],
+  "validation_actions": ["投递或匹配前核验具体 JD 是否要求独立安全报告、信号检测、法规沟通或管理责任"],
+  "jd_evidence": {
+    "source_file": "docs/research/role-validation/pharmacovigilance/candidate-evidence-v1.json",
+    "snapshot_ids": ["pv-01", "pv-02", "pv-03", "pv-04", "pv-05", "pv-06", "pv-07", "pv-08", "pv-09", "pv-10"]
+  }
+}

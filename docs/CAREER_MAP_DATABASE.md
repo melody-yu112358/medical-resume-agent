@@ -16,7 +16,8 @@
 - `role_skills`、`role_requirements`、`negative_mappings`、`role_expression_policies`、`role_pack_evaluation_cases`：当前 JSON 中的能力优先级、证据门槛、职责边界、表达规则和测试定义。
 - `ecosystems`、`lifecycle_stages`、`function_families` 及其关系表：产业生态 × 生命周期 × 职能族的机器可读地图。`data/career-map/directions-v1.json` 是该地图的人工维护种子；它不反向修改 Role Pack。
 - `career_directions` 及其三维关联表：未形成 Canonical Pack 的方向。`JD-driven` 方向被明确标记为 `research + jd_driven + not_routable`，必须附具体 JD；未来 Beta/Candidate 方向可登记为 `beta/candidate + explore_only + not_routable`，不会被误当作 Canonical。
-- `role_deliverables`、`jd_evidence`、`role_jd_evidence`：为经核验的交付物和 JD 证据预留；现有 Role Pack JSON 不含可直接导入的逐条 JD 快照，因此 v1 不伪造记录。
+- `career_cards`、`career_card_claims` 及关联表：职业卡的版本、职责/交付物/可迁移性/缺口/JD-dependent 范围与逐条 JD 证据关系。职业卡只解释已有关联 Role Pack，不能生成新 Role Pack 或改变其职责边界。
+- `jd_evidence`、`jd_evidence_snapshots`、`role_jd_evidence`：公开 JD 来源、不可变的保留摘录、来源链接、采集日期、声明摘要与实际摘录摘要。若历史证据的声明摘要与保留摘录不一致，两个值都会保留并显式标记，绝不静默改写来源。
 - `validation_runs`：保存实际 schema、domain、cross-model 或 regression 运行结果；`evaluation_cases` 只是测试定义，绝不被当作已通过的运行。
 - `career_profiles`、`transition_cases`、`profile_role_matches`：只预留未来关系，v1 不导入 synthetic profile，也不处理个人或案例数据。
 
@@ -31,6 +32,12 @@ python scripts/import_role_packs_to_career_map.py --database .local/career-map.s
 导入器先以 `schemas/role-pack.schema.json` 校验全部 JSON。其后使用 `external_key + content_sha256` 去重：相同文件重复导入不会增加 Role Pack 版本或规则行；内容变更会创建新的不可变版本、把前一版本标记为非当前版本，并保留原始工件。不会覆盖或删除旧职业语义。
 
 职业地图种子还登记了 6 个长期 JD-driven 方向：市场准入、医疗产品、医疗咨询、商业/业务分析、医疗/项目运营、医学销售/商业。它们是可探索的职业方向，不是泛化的 Role Pack；数据库会保留其所需 JD 语境和边界提示。
+
+## 职业卡与 JD 证据试点
+
+本阶段只将三张**已有冻结候选证据**的职业卡导入：药物警戒 / 药物安全、法规医学写作、临床研究协调 / CRA 支持。卡片文件位于 `data/career_cards/*.json`，分别链接对应的 `docs/research/role-validation/**/candidate-evidence-v1.json`。这些卡片是可重建的 SQL 投影，不替代 `data/careers/` 中仍标为 draft 的探索卡，也不把 Candidate evidence 升级为新的 Canonical 状态。
+
+每个卡片均保留：稳定职责、典型交付物、岗位特定要求提示、直接/可迁移/部分可迁移事实、显性缺口、JD-dependent 范围及投递前核验动作。首轮不会抓取实时 JD，也不会自动产生匹配分数。
 
 ## 最小查询示例
 
@@ -53,6 +60,22 @@ ORDER BY n.mapping_kind, n.mapping_text;
 SELECT external_key, label, knowledge_maturity, service_mode, requires_specific_jd
 FROM career_map_entries
 ORDER BY service_mode, external_key;
+
+-- 读取一张职业卡及其关联的 Role Pack；不改变 Role Pack 的 Canonical 状态。
+SELECT c.career_card_id, c.summary, v.external_key AS role_pack, c.scope_note
+FROM career_cards c
+JOIN role_pack_versions v ON v.role_pack_version_id = c.role_pack_version_id
+WHERE c.is_current = 1
+ORDER BY c.career_card_id;
+
+-- 查某职业卡的“岗位特定”原始 JD 摘录和证据状态。
+SELECT s.employer, s.job_title, s.retrieved_at, s.status, s.source_snapshot
+FROM jd_evidence_snapshots s
+JOIN role_jd_evidence r ON r.jd_evidence_id = s.jd_evidence_id
+JOIN role_pack_versions v ON v.role_pack_version_id = r.role_pack_version_id
+WHERE v.external_key = 'clinical_research_associate_v1'
+  AND v.is_current = 1 AND r.evidence_scope = 'jd_dependent'
+ORDER BY s.retrieved_at DESC, s.external_snapshot_id;
 ```
 
 ## 暂不实现

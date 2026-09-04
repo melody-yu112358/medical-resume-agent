@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/career-card.schema.json",
+  "title": "Medical Career Card Configuration",
+  "description": "A source-controlled explanatory card linked to one Canonical Role Pack.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "career_card_id", "role_pack", "version", "summary", "scope_note",
+    "stable_responsibilities", "typical_deliverables", "entry_requirements", "transferability",
+    "jd_dependent_scope", "validation_actions", "jd_evidence"
+  ],
+  "properties": {
+    "schema_version": { "const": "medical-career-card-v1" },
+    "career_card_id": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$" },
+    "role_pack": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*_v[0-9]+$" },
+    "version": { "type": "string", "pattern": "^v[0-9]+$" },
+    "summary": { "type": "string", "minLength": 1 },
+    "scope_note": { "type": "string", "minLength": 1 },
+    "stable_responsibilities": { "$ref": "#/$defs/textArray" },
+    "typical_deliverables": { "$ref": "#/$defs/textArray" },
+    "entry_requirements": { "$ref": "#/$defs/textArray" },
+    "transferability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direct", "transferable", "partial", "gaps"],
+      "properties": {
+        "direct": { "$ref": "#/$defs/textArray" },
+        "transferable": { "$ref": "#/$defs/textArray" },
+        "partial": { "$ref": "#/$defs/textArray" },
+        "gaps": { "$ref": "#/$defs/textArray" }
+      }
+    },
+    "jd_dependent_scope": { "$ref": "#/$defs/textArray" },
+    "validation_actions": { "$ref": "#/$defs/textArray" },
+    "jd_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_file", "snapshot_ids"],
+      "properties": {
+        "source_file": { "type": "string", "pattern": "^docs/research/role-validation/.+candidate-evidence-v1\\.json$" },
+        "snapshot_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "textArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

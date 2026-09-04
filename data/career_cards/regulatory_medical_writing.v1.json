@@ -1,0 +1,37 @@
+{
+  "schema_version": "medical-career-card-v1",
+  "career_card_id": "regulatory_medical_writing",
+  "role_pack": "regulatory_medical_writing_v1",
+  "version": "v1",
+  "summary": "法规医学写作支持方向：在已确认范围内，围绕受控临床文件的撰写、审阅、证据综合、版本与交付协调开展支持。",
+  "scope_note": "不将写作或文档支持升级为提交所有权、法规机构沟通、文件策略、客户/项目管理或最终质量责任。",
+  "stable_responsibilities": [
+    "在确认范围内开展 protocol、CSR、临床总结或相关受控临床文件的起草/审阅",
+    "为受支持的文件章节开展文献与临床数据综合",
+    "开展模板、体例、SOP、GCP/ICH 和文档质量支持",
+    "开展跨团队审阅意见、版本与交付协调",
+    "开展临床或法规申报支持文件工作，不主张最终申报所有权"
+  ],
+  "typical_deliverables": [
+    "已确认范围内的 protocol、CSR、IB 或临床总结草案/审阅意见",
+    "文献与临床数据综合材料",
+    "版本、评论与交付协调记录"
+  ],
+  "entry_requirements": [
+    "具体岗位对中英文写作、临床文件、GCP/ICH 和申报经验的要求须以当期 JD 核验"
+  ],
+  "transferability": {
+    "direct": ["已确认的临床文件草案、版本核对、审阅意见或受控资料支持事实可保守映射为受监督的临床文档支持"],
+    "transferable": ["中英文文献综合、医学摘要和严谨编辑可映射为写作基础，不替代 protocol、CSR、GCP 或申报文件经验"],
+    "partial": ["临床研究归档、CRF 维护或监督下方案暴露只构成部分匹配，须保留未具作者/提交责任的缺口"],
+    "gaps": ["CSR/protocol/IB 独立作者、CTD/IND/NDA 提交、法规沟通、文件策略、客户和项目管理需要直接证据"]
+  },
+  "jd_dependent_scope": [
+    "文件或项目写作策略所有权", "法规提交所有权或法规机构沟通", "复杂 protocol/CSR 主笔及独立时间线谈判", "客户、供应商、预算或项目所有权", "模板/SOP 所有权、带教、团队管理或最终质量责任"
+  ],
+  "validation_actions": ["投递或匹配前核验 JD 对文件类型、独立作者责任、申报与客户/项目责任的具体要求"],
+  "jd_evidence": {
+    "source_file": "docs/research/role-validation/regulatory-medical-writing/candidate-evidence-v1.json",
+    "snapshot_ids": ["rmw-01", "rmw-02", "rmw-03", "rmw-04", "rmw-05", "rmw-06", "rmw-07", "rmw-08", "rmw-09", "rmw-10"]
+  }
+}

@@ -25,7 +25,9 @@ PACK_DIR = ROOT / "data" / "role-packs"
 SCHEMA_PATH = ROOT / "schemas" / "role-pack.schema.json"
 DDL_PATH = ROOT / "database" / "career_map_schema.sql"
 CAREER_MAP_DIRECTIONS_PATH = ROOT / "data" / "career-map" / "directions-v1.json"
-IMPORTER_VERSION = "career-map-import-v1"
+CAREER_CARD_DIR = ROOT / "data" / "career_cards"
+CAREER_CARD_SCHEMA_PATH = ROOT / "schemas" / "career-card.schema.json"
+IMPORTER_VERSION = "career-map-import-v2"
 UUID_NAMESPACE = uuid.UUID("b2c09a52-74c0-4e80-9ea5-bf5f4a54ec56")
 ROLE_PACK_PATTERN = re.compile(r"^(?P<name>[a-z_][a-z0-9_]*)_(?P<version>v[0-9]+)$")
 
@@ -66,6 +68,24 @@ def validate_pack(pack: dict[str, Any], schema: dict[str, Any]) -> None:
         raise ValueError(f"Invalid Role Pack identifier: {pack['role_pack']}")
 
 
+def validate_career_card(card: dict[str, Any], schema: dict[str, Any]) -> None:
+    try:
+        from jsonschema import validate
+    except ImportError as error:  # pragma: no cover - documented runtime guard
+        raise RuntimeError(
+            "Schema validation requires jsonschema. Install the schema_validation extra."
+        ) from error
+    validate(instance=card, schema=schema)
+
+
+def load_career_cards(career_card_dir: Path = CAREER_CARD_DIR) -> list[tuple[Path, bytes, dict[str, Any]]]:
+    cards: list[tuple[Path, bytes, dict[str, Any]]] = []
+    for path in sorted(career_card_dir.glob("*.json")):
+        raw = path.read_bytes()
+        cards.append((path, raw, json.loads(raw.decode("utf-8"))))
+    return cards
+
+
 def source_digest(packs: list[tuple[Path, bytes, dict[str, Any]]], pack_dir: Path) -> str:
     hasher = hashlib.sha256()
     for path, raw, _ in packs:
@@ -98,12 +118,17 @@ def import_packs(
     database_path: Path,
     pack_dir: Path = PACK_DIR,
     directions_path: Path = CAREER_MAP_DIRECTIONS_PATH,
+    career_card_dir: Path = CAREER_CARD_DIR,
 ) -> dict[str, int]:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    career_card_schema = json.loads(CAREER_CARD_SCHEMA_PATH.read_text(encoding="utf-8"))
     packs = load_packs(pack_dir)
     for _, _, pack in packs:
         validate_pack(pack, schema)
     directions_raw, directions = load_direction_registry(directions_path)
+    career_cards = load_career_cards(career_card_dir)
+    for _, _, card in career_cards:
+        validate_career_card(card, career_card_schema)
     canonical_keys = {pack["role_pack"] for _, _, pack in packs}
     taxonomy_keys = {item["role_pack"] for item in directions["canonical_role_pack_taxonomy"]}
     if canonical_keys != taxonomy_keys:
@@ -210,13 +235,223 @@ def import_packs(
             )
 
         _import_direction_registry(connection, directions_raw, directions, now, directions_path)
+        _import_career_cards(connection, career_cards, now)
 
     return {
         "role_packs": len(packs),
         "jd_driven_directions": len(directions["jd_driven_directions"]),
+        "career_cards": len(career_cards),
         "new_versions": imported_versions,
         "source_digest": digest,
     }
+
+
+def _import_career_cards(
+    connection: sqlite3.Connection,
+    career_cards: list[tuple[Path, bytes, dict[str, Any]]],
+    now: str,
+) -> None:
+    for card_path, card_raw, card in career_cards:
+        relative_card_path = card_path.relative_to(ROOT).as_posix()
+        card_hash = sha256(card_raw)
+        card_artifact_id = stable_id("artifact", relative_card_path, card_hash)
+        insert_or_ignore(
+            connection,
+            """INSERT OR IGNORE INTO source_artifacts
+               (artifact_id, relative_path, content_sha256, raw_content, imported_at)
+               VALUES (?, ?, ?, ?, ?)""",
+            (card_artifact_id, relative_card_path, card_hash, card_raw.decode("utf-8"), now),
+        )
+        role_row = connection.execute(
+            "SELECT role_pack_version_id FROM role_pack_versions WHERE external_key = ? AND is_current = 1",
+            (card["role_pack"],),
+        ).fetchone()
+        if role_row is None:
+            raise ValueError(f"Career card {card['career_card_id']} references no current Role Pack: {card['role_pack']}")
+
+        candidate_path = (ROOT / card["jd_evidence"]["source_file"]).resolve()
+        if not candidate_path.is_relative_to(ROOT.resolve()):
+            raise ValueError(f"Career card evidence path escapes repository: {card['jd_evidence']['source_file']}")
+        if not candidate_path.is_file():
+            raise ValueError(f"Career card evidence file does not exist: {card['jd_evidence']['source_file']}")
+        candidate_raw = candidate_path.read_bytes()
+        candidate = json.loads(candidate_raw.decode("utf-8"))
+        if candidate.get("career_id") != card["career_card_id"]:
+            raise ValueError(f"Career card {card['career_card_id']} does not match evidence career_id")
+        snapshots = {snapshot["id"]: snapshot for snapshot in candidate.get("jd_snapshots", [])}
+        selected_ids = card["jd_evidence"]["snapshot_ids"]
+        unknown_ids = set(selected_ids) - snapshots.keys()
+        if unknown_ids:
+            raise ValueError(f"Career card {card['career_card_id']} references unknown JD snapshots: {sorted(unknown_ids)}")
+
+        relative_candidate_path = candidate_path.relative_to(ROOT).as_posix()
+        candidate_hash = sha256(candidate_raw)
+        candidate_artifact_id = stable_id("artifact", relative_candidate_path, candidate_hash)
+        insert_or_ignore(
+            connection,
+            """INSERT OR IGNORE INTO source_artifacts
+               (artifact_id, relative_path, content_sha256, raw_content, imported_at)
+               VALUES (?, ?, ?, ?, ?)""",
+            (candidate_artifact_id, relative_candidate_path, candidate_hash, candidate_raw.decode("utf-8"), now),
+        )
+
+        evidence_ids = _import_jd_snapshots(
+            connection,
+            role_row[0],
+            snapshots,
+            selected_ids,
+            candidate_artifact_id,
+            now,
+        )
+        card_version_id = stable_id("career-card-version", card["career_card_id"], card_hash)
+        existing = connection.execute(
+            "SELECT career_card_version_id FROM career_cards WHERE career_card_id = ? AND content_sha256 = ?",
+            (card["career_card_id"], card_hash),
+        ).fetchone()
+        if existing is None:
+            connection.execute(
+                "UPDATE career_cards SET is_current = 0, superseded_by_version_id = ? "
+                "WHERE career_card_id = ? AND is_current = 1",
+                (card_version_id, card["career_card_id"]),
+            )
+            connection.execute(
+                """INSERT INTO career_cards
+                   (career_card_version_id, role_pack_version_id, career_card_id, version_label, summary,
+                    scope_note, content_sha256, artifact_id, is_current, imported_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
+                (
+                    card_version_id,
+                    role_row[0],
+                    card["career_card_id"],
+                    card["version"],
+                    card["summary"],
+                    card["scope_note"],
+                    card_hash,
+                    card_artifact_id,
+                    now,
+                ),
+            )
+        else:
+            card_version_id = existing[0]
+            connection.execute("UPDATE career_cards SET is_current = 0 WHERE career_card_id = ?", (card["career_card_id"],))
+            connection.execute("UPDATE career_cards SET is_current = 1 WHERE career_card_version_id = ?", (card_version_id,))
+        _insert_career_card_claims(connection, card_version_id, card, evidence_ids)
+
+
+def _import_jd_snapshots(
+    connection: sqlite3.Connection,
+    role_pack_version_id: str,
+    snapshots: dict[str, dict[str, Any]],
+    selected_ids: list[str],
+    source_artifact_id: str,
+    now: str,
+) -> list[str]:
+    evidence_ids: list[str] = []
+    for snapshot_id in selected_ids:
+        snapshot = snapshots[snapshot_id]
+        source_snapshot = snapshot.get("source_snapshot")
+        source_digest = snapshot.get("source_digest")
+        required = ("employer", "title", "url", "retrieved_at", "status", "source_type")
+        missing = [key for key in required if not snapshot.get(key)]
+        if missing or not source_snapshot or not source_digest:
+            raise ValueError(f"JD snapshot {snapshot_id} is incomplete; missing={missing}")
+        actual_digest = sha256(source_snapshot.encode("utf-8"))
+        # Older frozen evidence may define source_digest over a broader retained
+        # capture than the visible excerpt. Preserve both values rather than
+        # silently replacing the declared provenance or discarding the record.
+        evidence_id = stable_id("jd-evidence", snapshot["url"], actual_digest)
+        evidence_ids.append(evidence_id)
+        connection.execute(
+            """INSERT OR IGNORE INTO jd_evidence
+               (jd_evidence_id, source_title, source_url, publisher, published_at, accessed_at, market,
+                snapshot_sha256, source_status, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, 'China', ?, 'reviewed', ?)""",
+            (
+                evidence_id,
+                f"{snapshot['employer']} — {snapshot['title']}",
+                snapshot["url"],
+                snapshot["employer"],
+                snapshot.get("published_at"),
+                snapshot["retrieved_at"],
+                actual_digest,
+                now,
+            ),
+        )
+        snapshot_row_id = stable_id("jd-evidence-snapshot", evidence_id, snapshot_id, actual_digest)
+        qualifying = snapshot.get("qualifying")
+        connection.execute(
+            """INSERT OR IGNORE INTO jd_evidence_snapshots
+               (jd_evidence_snapshot_id, jd_evidence_id, external_snapshot_id, employer, job_title, location,
+                retrieved_at, status, source_type, snapshot_completeness, qualifying, source_snapshot,
+                source_digest_sha256, declared_source_digest_sha256, source_digest_matches, source_artifact_id, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                snapshot_row_id,
+                evidence_id,
+                snapshot_id,
+                snapshot["employer"],
+                snapshot["title"],
+                snapshot.get("location"),
+                snapshot["retrieved_at"],
+                snapshot["status"],
+                snapshot["source_type"],
+                snapshot.get("snapshot_completeness"),
+                None if qualifying is None else int(bool(qualifying)),
+                source_snapshot,
+                actual_digest,
+                source_digest,
+                int(actual_digest == source_digest),
+                source_artifact_id,
+                now,
+            ),
+        )
+        connection.execute(
+            """INSERT OR IGNORE INTO role_jd_evidence
+               (role_pack_version_id, jd_evidence_id, evidence_scope, provenance_note)
+               VALUES (?, ?, 'jd_dependent', ?)""",
+            (role_pack_version_id, evidence_id, f"{snapshot_id} from retained candidate evidence"),
+        )
+    return evidence_ids
+
+
+def _insert_career_card_claims(
+    connection: sqlite3.Connection,
+    card_version_id: str,
+    card: dict[str, Any],
+    evidence_ids: list[str],
+) -> None:
+    claim_groups = {
+        "stable_responsibility": ("stable_responsibilities", card["stable_responsibilities"]),
+        "typical_deliverable": ("typical_deliverables", card["typical_deliverables"]),
+        "entry_requirement": ("entry_requirements", card["entry_requirements"]),
+        "transferable_direct": ("transferability/direct", card["transferability"]["direct"]),
+        "transferable": ("transferability/transferable", card["transferability"]["transferable"]),
+        "transferable_partial": ("transferability/partial", card["transferability"]["partial"]),
+        "explicit_gap": ("transferability/gaps", card["transferability"]["gaps"]),
+        "jd_dependent_scope": ("jd_dependent_scope", card["jd_dependent_scope"]),
+        "validation_action": ("validation_actions", card["validation_actions"]),
+    }
+    for claim_kind, (json_path, texts) in claim_groups.items():
+        for ordinal, claim_text in enumerate(texts):
+            claim_id = stable_id("career-card-claim", card_version_id, claim_kind, claim_text)
+            connection.execute(
+                """INSERT OR IGNORE INTO career_card_claims
+                   (career_card_claim_id, career_card_version_id, claim_kind, claim_text, provenance_path)
+                   VALUES (?, ?, ?, ?, ?)""",
+                (
+                    claim_id,
+                    card_version_id,
+                    claim_kind,
+                    claim_text,
+                    f"data/career_cards/{card['career_card_id']}.{card['version']}.json#/{json_path}/{ordinal}",
+                ),
+            )
+            for evidence_id in evidence_ids:
+                connection.execute(
+                    """INSERT OR IGNORE INTO career_card_claim_jd_evidence
+                       (career_card_claim_id, jd_evidence_id) VALUES (?, ?)""",
+                    (claim_id, evidence_id),
+                )
 
 
 def _import_direction_registry(

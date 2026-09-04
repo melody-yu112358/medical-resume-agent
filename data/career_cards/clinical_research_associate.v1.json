@@ -1,0 +1,37 @@
+{
+  "schema_version": "medical-career-card-v1",
+  "career_card_id": "clinical_research_associate",
+  "role_pack": "clinical_research_associate_v1",
+  "version": "v1",
+  "summary": "临床研究协调 / CRA 支持方向：在初级至中级、已分配范围内，围绕研究执行、资料与数据质量、中心协调和问题升级开展支持。",
+  "scope_note": "不将资料准备、CRF 维护、数据跟进或内部协调升级为独立中心监查、中心生命周期、招募、预算、项目所有权或外部沟通所有权。",
+  "stable_responsibilities": [
+    "按 protocol/SOP/GCP 开展研究中心与研究执行支持",
+    "开展研究文档与访视/状态报告支持",
+    "开展数据、CRF 与 query 跟进",
+    "在已分配范围内开展面向研究中心的协调",
+    "升级质量或合规问题"
+  ],
+  "typical_deliverables": [
+    "CRF、研究资料或研究文件维护记录",
+    "缺失数据或 query 跟进记录",
+    "访视/状态报告或质量问题升级支持材料"
+  ],
+  "entry_requirements": [
+    "具体岗位对 GCP、中心监查、研究阶段和差旅要求须以当期 JD 核验"
+  ],
+  "transferability": {
+    "direct": ["CRF 维护、源数据核对、研究资料归档、GCP 培训可映射为研究执行、资料与数据质量支持"],
+    "transferable": ["医学文献检索和严谨记录可映射为受控文档与证据意识，不能替代 GCP 或中心监查经历"],
+    "partial": ["研究团队时间节点协调可映射为协调支持，不是中心或项目所有权"],
+    "gaps": ["独立监查访视、site lifecycle、受试者招募、预算、研究中心财务和项目领导均需要直接证据"]
+  },
+  "jd_dependent_scope": [
+    "独立中心生命周期所有权", "中心财务管理", "招募计划所有权", "项目/项目群领导", "研究中心人员培训授权", "管理责任"
+  ],
+  "validation_actions": ["投递或匹配前核验 JD 对独立监查、中心启动/关闭、招募、财务、差旅和项目责任的要求"],
+  "jd_evidence": {
+    "source_file": "docs/research/role-validation/cra/candidate-evidence-v1.json",
+    "snapshot_ids": ["cra-04", "cra-05", "cra-06", "cra-07", "cra-08", "cra-02", "cra-09", "cra-10"]
+  }
+}

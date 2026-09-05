@@ -34,10 +34,17 @@ CAREER_CARD_DIR = ROOT / "data" / "career_cards"
 CAREER_CARD_SCHEMA_PATH = ROOT / "schemas" / "career-card.schema.json"
 CAREER_CARD_MATCH_RULES_PATH = ROOT / "data" / "career-map" / "career-card-match-rules-v1.json"
 CAREER_CARD_MATCH_RULES_SCHEMA_PATH = ROOT / "schemas" / "career-card-match-rules.schema.json"
-IMPORTER_VERSION = "career-map-import-v3"
+IMPORTER_VERSION = "career-map-import-v4"
 INTERPRETER_PATH = ROOT / "src" / "medical_career_agent" / "services" / "career_card_explanation.py"
 sys.path.insert(0, str(ROOT / "src"))
-from medical_career_agent.services.career_card_explanation import QUERY_VERSION  # noqa: E402
+from medical_career_agent.services.career_explanation_contract import (  # noqa: E402
+    QUERY_VERSION, interpreter_fingerprint, validate_rule, validate_schema,
+)
+CONTRACT_PATHS = {
+    "profile_schema": ROOT / "schemas/career-card-explanation-profile.schema.json",
+    "rule_schema": CAREER_CARD_MATCH_RULES_SCHEMA_PATH,
+    "jd_context_schema": ROOT / "schemas/career-card-jd-context.schema.json",
+}
 UUID_NAMESPACE = uuid.UUID("b2c09a52-74c0-4e80-9ea5-bf5f4a54ec56")
 ROLE_PACK_PATTERN = re.compile(r"^(?P<name>[a-z_][a-z0-9_]*)_(?P<version>v[0-9]+)$")
 
@@ -139,9 +146,23 @@ def import_packs(
     directions_raw, directions = load_direction_registry(directions_path)
     career_cards = load_career_cards(career_card_dir)
     for _, _, card in career_cards:
-        validate_career_card(card, career_card_schema)
+        validate_schema(card, career_card_schema, "career card")
     match_rules_raw, match_rules = load_career_card_match_rules(career_card_match_rules_path)
     validate_career_card(match_rules, career_card_match_rules_schema)
+    contract_sources = {name: (path.relative_to(Path(__file__).resolve().parents[1]).as_posix(), path.read_bytes())
+                        for name, path in CONTRACT_PATHS.items()}
+    capabilities_path = directions_path.with_name("capabilities-v1.json")
+    capability_raw = capabilities_path.read_bytes()
+    capabilities = json.loads(capability_raw)
+    contract_sources["capabilities"] = (capabilities_path.relative_to(ROOT).as_posix(), capability_raw)
+    if capabilities.get("schema_version") != "career-map-capabilities-v1":
+        raise ValueError("invalid capability registry version")
+    for key in ("capability_codes", "scopes"):
+        values = capabilities.get(key)
+        if not isinstance(values, list) or not values or any(not isinstance(value, str) for value in values) or len(set(values)) != len(values):
+            raise ValueError(f"invalid capability registry {key}")
+    for rule in match_rules["rules"]:
+        validate_rule(rule, capabilities)
     canonical_keys = {pack["role_pack"] for _, _, pack in packs}
     taxonomy_keys = {item["role_pack"] for item in directions["canonical_role_pack_taxonomy"]}
     if canonical_keys != taxonomy_keys:
@@ -159,6 +180,7 @@ def import_packs(
     sources += list(candidates.items())
     source_records = [{"path": path.relative_to(ROOT).as_posix(), "content_sha256": sha256(raw)}
                       for path, raw in sources]
+    source_records += [{"path": path, "content_sha256": sha256(raw)} for path, raw in contract_sources.values()]
     source_records = list({item["path"]: item for item in source_records}.values())
     for items, key in (([pack for _, _, pack in packs], "role_pack"),
                        ([card for _, _, card in career_cards], "career_card_id")):
@@ -179,6 +201,13 @@ def import_packs(
         connection.execute("BEGIN IMMEDIATE")
         upgrade = needs_legacy_upgrade(connection)
         apply_schema(connection, DDL_PATH.read_text(encoding="utf-8"), upgrade=upgrade)
+        contract_artifacts = {}
+        for name, (path, raw) in contract_sources.items():
+            artifact_id = stable_id("artifact", path, sha256(raw))
+            connection.execute("""INSERT OR IGNORE INTO source_artifacts
+                (artifact_id, relative_path, content_sha256, raw_content, imported_at) VALUES (?, ?, ?, ?, ?)""",
+                (artifact_id, path, sha256(raw), raw.decode("utf-8"), now))
+            contract_artifacts[name] = artifact_id
         selected_packs = {}
         imported_versions = 0
         for path, raw, pack in packs:
@@ -263,8 +292,8 @@ def import_packs(
             connection, sources=source_records,
             taxonomy_artifact_id=stable_id("artifact", directions_path.relative_to(ROOT).as_posix(), sha256(directions_raw)),
             rule_artifact_id=stable_id("artifact", career_card_match_rules_path.relative_to(ROOT).as_posix(), sha256(match_rules_raw)),
-            interpreter={"version": QUERY_VERSION, "source_sha256": sha256(INTERPRETER_PATH.read_bytes().replace(b"\r\n", b"\n"))},
-            importer_version=IMPORTER_VERSION, now=now, rule_changes=rule_changes,
+            interpreter={"version": QUERY_VERSION, "source_sha256": interpreter_fingerprint()},
+            importer_version=IMPORTER_VERSION, contracts=contract_artifacts, now=now, rule_changes=rule_changes,
         )
         connection.execute(
             """INSERT OR IGNORE INTO import_batches
@@ -361,6 +390,7 @@ def _import_career_cards(
         _insert_career_card_claims(connection, card_version_id, card, evidence_ids)
         for snapshot_id in snapshot_ids:
             connection.execute("INSERT OR IGNORE INTO career_card_jd_snapshots VALUES (?, ?)", (card_version_id, snapshot_id))
+        _import_claim_snapshot_links(connection, card_version_id, card, dict(zip(selected_ids, snapshot_ids)))
     activate_versions(connection, "career_cards", "career_card_version_id", "career_card_id", selected_cards, now)
 
 
@@ -395,14 +425,16 @@ def _import_jd_snapshots(
         # silently replacing the declared provenance or discarding the record.
         evidence_id = stable_id("jd-evidence", snapshot["url"], actual_digest)
         evidence_ids.append(evidence_id)
+        source_status = snapshot.get("source_status", "deprecated" if snapshot["status"].lower() in {"deprecated", "withdrawn", "expired", "retired"} else "reviewed")
         connection.execute(
             """INSERT INTO jd_evidence
                (jd_evidence_id, source_title, source_url, publisher, published_at, accessed_at, market,
-                snapshot_sha256, source_status, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, 'China', ?, 'reviewed', ?)
+                snapshot_sha256, source_status, created_at, deprecated_at)
+               VALUES (?, ?, ?, ?, ?, ?, 'China', ?, ?, ?, ?)
                ON CONFLICT(source_url, snapshot_sha256) DO UPDATE SET
                    source_title = excluded.source_title, publisher = excluded.publisher,
-                   published_at = excluded.published_at, accessed_at = excluded.accessed_at""",
+                   published_at = excluded.published_at, accessed_at = excluded.accessed_at,
+                   source_status = excluded.source_status, deprecated_at = excluded.deprecated_at""",
             (
                 evidence_id,
                 f"{snapshot['employer']} — {snapshot['title']}",
@@ -411,7 +443,9 @@ def _import_jd_snapshots(
                 snapshot.get("published_at"),
                 snapshot["retrieved_at"],
                 actual_digest,
+                source_status,
                 now,
+                snapshot.get("deprecated_at"),
             ),
         )
         revision_hash = content_digest(snapshot)
@@ -486,12 +520,31 @@ def _insert_career_card_claims(
                     f"data/career_cards/{card['career_card_id']}.{card['version']}.json#/{json_path}/{ordinal}",
                 ),
             )
-            for evidence_id in evidence_ids:
-                connection.execute(
-                    """INSERT OR IGNORE INTO career_card_claim_jd_evidence
-                       (career_card_claim_id, jd_evidence_id) VALUES (?, ?)""",
-                    (claim_id, evidence_id),
-                )
+
+
+def _import_claim_snapshot_links(connection, card_version_id, card, snapshots):
+    claims = connection.execute("SELECT career_card_claim_id, claim_kind, claim_text FROM career_card_claims WHERE career_card_version_id = ?", (card_version_id,)).fetchall()
+    by_claim = {(kind, text): identifier for identifier, kind, text in claims}
+    for claim_id, _, _ in claims:
+        for snapshot_id in snapshots.values():
+            connection.execute("""INSERT OR IGNORE INTO career_card_claim_snapshot_evidence
+                (career_card_claim_id, jd_evidence_snapshot_id, relation_kind) VALUES (?, ?, 'research_background')""", (claim_id, snapshot_id))
+    support_pairs = set()
+    for support in card["jd_evidence"].get("claim_support", []):
+        claim_id = by_claim.get((support["claim"]["kind"], support["claim"]["text"]))
+        if claim_id is None or set(support["snapshot_ids"]) - snapshots.keys():
+            raise ValueError("claim support references an unknown claim or snapshot")
+        # An explicit record is required; this is never generated from prose similarity.
+        for external_id in support["snapshot_ids"]:
+            pair = (claim_id, snapshots[external_id])
+            if pair in support_pairs:
+                raise ValueError("duplicate claim support annotation")
+            support_pairs.add(pair)
+            connection.execute("""INSERT INTO career_card_claim_snapshot_evidence
+                (career_card_claim_id, jd_evidence_snapshot_id, relation_kind, reviewed_by, reviewed_at, review_note)
+                VALUES (?, ?, 'claim_support', ?, ?, ?)
+                ON CONFLICT(career_card_claim_id, jd_evidence_snapshot_id, relation_kind) DO NOTHING""",
+                (claim_id, snapshots[external_id], support["reviewed_by"], support["reviewed_at"], support["review_note"]))
 
 
 def _import_career_card_match_rules(
@@ -501,7 +554,7 @@ def _import_career_card_match_rules(
     now: str,
     source_path: Path,
 ) -> list[tuple[str, str]]:
-    if registry.get("schema_version") != "career-card-match-rules-v1":
+    if registry.get("schema_version") != "career-card-match-rules-v2":
         raise ValueError("Invalid career-card match-rules schema version")
     relative_path = source_path.relative_to(ROOT).as_posix()
     content_hash = sha256(raw)

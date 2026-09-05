@@ -19,7 +19,7 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
 
     assert first["role_packs"] == 10
     assert first["career_cards"] == 5
-    assert first["career_card_match_rules"] == 10
+    assert first["career_card_match_rules"] == 11
     assert first["new_versions"] == 10
     assert second["role_packs"] == 10
     assert second["new_versions"] == 0
@@ -27,7 +27,7 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
     with sqlite3.connect(database_path) as connection:
         assert connection.execute("SELECT COUNT(*) FROM roles").fetchone()[0] == 10
         assert connection.execute("SELECT COUNT(*) FROM role_pack_versions WHERE is_current = 1").fetchone()[0] == 10
-        assert connection.execute("SELECT COUNT(*) FROM source_artifacts").fetchone()[0] == 22
+        assert connection.execute("SELECT COUNT(*) FROM source_artifacts").fetchone()[0] == 26
         assert connection.execute("SELECT COUNT(*) FROM role_status_history WHERE maturity_status = 'canonical_v1'").fetchone()[0] == 10
         assert connection.execute("SELECT COUNT(*) FROM career_directions WHERE service_mode = 'jd_driven'").fetchone()[0] == 6
         assert connection.execute("SELECT COUNT(*) FROM career_map_entries").fetchone()[0] == 16
@@ -35,12 +35,12 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
         assert connection.execute("SELECT COUNT(*) FROM role_function_families").fetchone()[0] >= 10
         assert connection.execute("SELECT COUNT(*) FROM role_deliverables").fetchone()[0] == 0
         assert connection.execute("SELECT COUNT(*) FROM career_cards WHERE is_current = 1").fetchone()[0] == 5
-        assert connection.execute("SELECT COUNT(*) FROM career_card_claims").fetchone()[0] == 103
+        assert connection.execute("SELECT COUNT(*) FROM career_card_claims").fetchone()[0] == 104
         assert connection.execute("SELECT COUNT(*) FROM jd_evidence").fetchone()[0] == 44
         assert connection.execute("SELECT COUNT(*) FROM jd_evidence_snapshots").fetchone()[0] == 44
         assert connection.execute("SELECT COUNT(*) FROM role_jd_evidence WHERE evidence_scope = 'jd_dependent'").fetchone()[0] == 44
-        assert connection.execute("SELECT COUNT(*) FROM career_card_claim_jd_evidence").fetchone()[0] == 904
-        assert connection.execute("SELECT COUNT(*) FROM career_card_match_rules").fetchone()[0] == 10
+        assert connection.execute("SELECT COUNT(*) FROM career_card_claim_jd_evidence").fetchone()[0] == 0
+        assert connection.execute("SELECT COUNT(*) FROM career_card_match_rules").fetchone()[0] == 11
         assert connection.execute("SELECT COUNT(*) FROM jd_evidence_snapshots WHERE source_digest_matches = 0").fetchone()[0] == 9
 
         card_role_pairs = connection.execute(

@@ -16,7 +16,7 @@
 - `role_skills`、`role_requirements`、`negative_mappings`、`role_expression_policies`、`role_pack_evaluation_cases`：当前 JSON 中的能力优先级、证据门槛、职责边界、表达规则和测试定义。
 - `ecosystems`、`lifecycle_stages`、`function_families` 及其关系表：产业生态 × 生命周期 × 职能族的机器可读地图。`data/career-map/directions-v1.json` 是该地图的人工维护种子；它不反向修改 Role Pack。
 - `career_directions` 及其三维关联表：未形成 Canonical Pack 的方向。`JD-driven` 方向被明确标记为 `research + jd_driven + not_routable`，必须附具体 JD；未来 Beta/Candidate 方向可登记为 `beta/candidate + explore_only + not_routable`，不会被误当作 Canonical。
-- `career_cards`、`career_card_claims` 及关联表：职业卡的版本、职责/交付物/可迁移性/缺口/JD-dependent 范围与逐条 JD 证据关系。职业卡只解释已有关联 Role Pack，不能生成新 Role Pack 或改变其职责边界。
+- `career_cards`、`career_card_claims` 及关联表：职业卡的版本、职责/交付物/可迁移性/缺口/JD-dependent 范围与带来源粒度的 JD snapshot 关系。职业卡只解释已有关联 Role Pack，不能生成新 Role Pack 或改变其职责边界。
 - `jd_evidence`、`jd_evidence_snapshots`、`role_jd_evidence`：公开 JD 来源、不可变的保留摘录、来源链接、采集日期、声明摘要与实际摘录摘要。若历史证据的声明摘要与保留摘录不一致，两个值都会保留并显式标记，绝不静默改写来源。
 - `validation_runs`：保存实际 schema、domain、cross-model 或 regression 运行结果；`evaluation_cases` 只是测试定义，绝不被当作已通过的运行。
 - `career_profiles`、`transition_cases`、`profile_role_matches`：只预留未来关系，v1 不导入 synthetic profile，也不处理个人或案例数据。
@@ -31,7 +31,7 @@ python scripts/import_role_packs_to_career_map.py --database .local/career-map.s
 
 导入器先以 `schemas/role-pack.schema.json` 校验全部 JSON。其后使用 `external_key + content_sha256` 去重：相同文件重复导入不会增加 Role Pack 版本或规则行；内容变更会创建新的不可变版本、把前一版本标记为非当前版本，并保留原始工件。不会覆盖或删除旧职业语义。
 
-### 增量投影与 revision（importer v3）
+### 增量投影与 revision（importer v4）
 
 Source of truth 不变：Pack、Card、规则 registry、taxonomy registry 与 JD evidence 文件分别拥有其原有职责；SQL 和 manifest 都是生成投影。无需修改 Canonical Pack 或 Career Card JSON 来升级已有数据库。
 
@@ -54,9 +54,9 @@ Source of truth 不变：Pack、Card、规则 registry、taxonomy registry 与 J
 
 ```json
 {
-  "schema_version": "career-map-knowledge-snapshot-v1",
-  "importer_version": "career-map-import-v3",
-  "explanation_interpreter": {"version": "career-card-explanation-v1", "source_sha256": "..."},
+  "schema_version": "career-map-knowledge-snapshot-v2",
+  "importer_version": "career-map-import-v4",
+  "explanation_interpreter": {"version": "career-card-explanation-v2", "source_sha256": "..."},
   "sources": [{"path": "data/role-packs/....json", "content_sha256": "..."}],
   "taxonomy_revision": "source artifact ID",
   "match_rule_registry_artifact_id": "source artifact ID",
@@ -67,7 +67,7 @@ Source of truth 不变：Pack、Card、规则 registry、taxonomy registry 与 J
 }
 ```
 
-manifest 排除本机绝对目录和导入时间，并固定全部当前依赖。历史 manifest 可以按 ID 从 SQL 读取，但本 PR **没有新增历史解释 API**，也不保存 Profile。解释服务保持五类判定、文字和返回结构，只在同一只读事务内读取 current rule 和 Card 绑定的 JD revisions，避免一次查询混入两次导入的数据。
+manifest 排除本机绝对目录和导入时间，并固定全部当前依赖。v2 另记录 explanation_contracts、claim_evidence_links 和来源状态。Python service / CLI 可按 knowledge_snapshot_id 回放兼容快照；不保存 Profile，不新增 HTTP API。内部三个语义维度和非互斥五类投影见 [解释契约 v2](CAREER_EXPLANATION_CONTRACT.md)。
 
 ### 已有数据库升级
 
@@ -100,7 +100,7 @@ FROM source_artifacts WHERE artifact_id = :taxonomy_revision;
 
 ## Synthetic 解释查询 MVP
 
-`career_card_match_rules` 只记录人工维护的匹配规则，绝不从职业卡自然语言猜测能力对应关系。`CareerCardExplanationService` 以一个 synthetic、逐条 `confirmed` 的 profile 和一个指定 Role Pack 为输入，统一返回 `direct`、`transferable`、`partial`、`gap`、`unsupported` 五类解释；每条均保留 profile evidence、Career Card claim、Role Pack 边界和 JD snapshot provenance。它不输出百分比分数、不排序、不写入 profile，也不改变既有 `/api/career-comparisons` 百分比接口。首版规则只覆盖本批的 CDM 支持与医疗器械临床 / 应用支持；其余职业卡在具备独立规则与回归用例前不会被该服务查询。
+`career_card_match_rules` 只记录人工维护的匹配规则，绝不从职业卡自然语言猜测能力对应关系。`CareerCardExplanationService` 以一个 synthetic、逐条 `confirmed` 的 profile 和一个指定 Role Pack 为输入，输出三个独立语义维度及 `direct`、`transferable`、`partial`、`gap`、`unsupported` 五个非互斥展示分组；每条保留 profile evidence、Career Card claim、适用的 Role Pack 边界和 JD snapshot provenance；默认 JD 引用仅为 background research source。它不输出百分比分数、不排序、不写入 profile，也不改变既有 `/api/career-comparisons` 百分比接口。首版规则只覆盖本批的 CDM 支持与医疗器械临床 / 应用支持；其余职业卡在具备独立规则与回归用例前不会被该服务查询。
 
 ```powershell
 python scripts/import_role_packs_to_career_map.py --database .local/career-map.sqlite

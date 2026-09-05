@@ -106,7 +106,7 @@ def test_fresh_repeated_import_has_one_manifest_and_no_duplicate_events(source_t
     snapshot = manifest(db)
     assert len(snapshot["role_pack_revisions"]) == 10
     assert len(snapshot["career_card_revisions"]) == 5
-    assert len(snapshot["match_rule_revisions"]) == 10
+    assert len(snapshot["match_rule_revisions"]) == 11
     assert len(snapshot["jd_snapshot_revisions"]) == 44
     assert snapshot["taxonomy_revision"] and snapshot["explanation_interpreter"]["version"]
     assert first["source_digest"] == content_digest(snapshot)
@@ -148,7 +148,7 @@ def test_rule_revision_is_independent_immutable_and_reactivated(source_tree, tmp
     new_ids = current_ids(db)
     assert old_ids[:2] == new_ids[:2] and old_ids[2] != new_ids[2]
     assert explain(db)["explanations"]["direct"][0]["explanation"] == "Synthetic revised explanation"
-    assert rows(db, "SELECT COUNT(*) FROM career_card_match_rules")[0][0] == 11
+    assert rows(db, "SELECT COUNT(*) FROM career_card_match_rules")[0][0] == 12
     with sqlite3.connect(db) as connection, pytest.raises(sqlite3.IntegrityError, match="immutable"):
         connection.execute("UPDATE career_card_match_rules SET explanation = 'mutated' WHERE career_card_match_rule_id = ?", (old_ids[2],))
     path.write_bytes(original_bytes)
@@ -172,7 +172,7 @@ def test_rule_removal_revokes_and_readdition_records_history(source_tree, tmp_pa
     write_json(path, data)
     build(source_tree, db)
     assert rows(db, "SELECT lifecycle_status FROM career_card_match_rules WHERE career_card_match_rule_id = ?", (old_rule,)) == [("revoked",)]
-    assert rows(db, "SELECT COUNT(*) FROM career_card_match_rules WHERE lifecycle_status = 'current'")[0][0] == (0 if remove_all else 9)
+    assert rows(db, "SELECT COUNT(*) FROM career_card_match_rules WHERE lifecycle_status = 'current'")[0][0] == (0 if remove_all else 10)
     if remove_all:
         with pytest.raises(LookupError, match="no explanation match rules"):
             explain(db)
@@ -181,7 +181,7 @@ def test_rule_removal_revokes_and_readdition_records_history(source_tree, tmp_pa
     path.write_bytes(original)
     build(source_tree, db)
     assert current_ids(db)[2] == old_rule
-    assert rows(db, "SELECT COUNT(*) FROM career_card_match_rules")[0][0] == 10
+    assert rows(db, "SELECT COUNT(*) FROM career_card_match_rules")[0][0] == 11
     assert sorted(row[0] for row in rows(db, "SELECT lifecycle_status FROM career_card_match_rule_events WHERE career_card_match_rule_id = ?", (old_rule,))) == ["current", "current", "revoked"]
 
 

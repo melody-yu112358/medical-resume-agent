@@ -26,6 +26,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--profile-id", required=True, help="Synthetic profile ID from the profile set")
     parser.add_argument("--role-pack", required=True, help="Current Canonical Role Pack key")
     parser.add_argument("--profile-set", type=Path, default=DEFAULT_PROFILE_SET)
+    parser.add_argument("--knowledge-snapshot-id", help="Replay a compatible retained knowledge snapshot")
+    parser.add_argument("--jd-context", type=Path, help="Confirmed synthetic-query JD applicability context JSON")
     args = parser.parse_args(argv)
 
     profile_set = json.loads(args.profile_set.read_text(encoding="utf-8"))
@@ -35,7 +37,8 @@ def main(argv: list[str] | None = None) -> int:
     except KeyError as error:
         raise SystemExit(f"Unknown synthetic profile: {args.profile_id}") from error
     result = CareerCardExplanationService(args.database).explain(
-        profile=profile, role_pack=args.role_pack
+        profile=profile, role_pack=args.role_pack, knowledge_snapshot_id=args.knowledge_snapshot_id,
+        jd_context=json.loads(args.jd_context.read_text(encoding="utf-8")) if args.jd_context else None
     )
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     return 0

@@ -51,9 +51,9 @@ def test_cdm_explanation_uses_all_five_classes_and_traceable_provenance(explanat
     assert tuple(result["explanations"]) == EXPLANATION_CLASSES
     assert {key: len(value) for key, value in result["explanations"].items()} == {
         "direct": 1,
-        "transferable": 1,
-        "partial": 1,
-        "gap": 1,
+        "transferable": 3,
+        "partial": 2,
+        "gap": 0,
         "unsupported": 1,
     }
     assert "evidence_coverage_percent" not in json.dumps(result)
@@ -73,7 +73,8 @@ def test_device_and_quantitative_profiles_keep_boundaries_visible(explanation_se
         profile=profiles["synthetic-device-application-002"],
         role_pack="medical_device_clinical_application_specialist_v1",
     )
-    assert all(device["explanations"][classification] for classification in EXPLANATION_CLASSES)
+    assert all(device["explanations"][classification] for classification in EXPLANATION_CLASSES if classification != "gap")
+    assert not device["explanations"]["gap"]
     assert device["explanations"]["unsupported"][0]["provenance"]["role_pack_negative_mapping"]["text"] == "临床决策或患者照护所有权"
 
     quantitative = explanation_service.explain(
@@ -82,7 +83,7 @@ def test_device_and_quantitative_profiles_keep_boundaries_visible(explanation_se
     )
     assert not quantitative["explanations"]["direct"]
     assert quantitative["explanations"]["transferable"]
-    assert not quantitative["explanations"]["partial"]
+    assert quantitative["explanations"]["partial"]
     assert quantitative["explanations"]["gap"]
     assert quantitative["explanations"]["unsupported"]
 
@@ -90,7 +91,7 @@ def test_device_and_quantitative_profiles_keep_boundaries_visible(explanation_se
 def test_explanation_rejects_non_synthetic_profiles(explanation_service):
     profile = _profiles_by_id()["synthetic-cdm-support-001"].copy()
     profile["profile_type"] = "user_confirmed"
-    with pytest.raises(ValueError, match="synthetic profiles only"):
+    with pytest.raises(ValueError, match="profile_type"):
         explanation_service.explain(profile=profile, role_pack="clinical_data_management_v1")
 
 

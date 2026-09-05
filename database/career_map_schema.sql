@@ -292,6 +292,26 @@ CREATE TABLE IF NOT EXISTS career_card_claim_jd_evidence (
     PRIMARY KEY (career_card_claim_id, jd_evidence_id)
 );
 
+-- Match rules are an explicit, versioned interpretation layer. They are kept
+-- separate from Career Card prose so query behavior never infers a mapping
+-- from text or alters a Canonical Role Pack's semantics.
+CREATE TABLE IF NOT EXISTS career_card_match_rules (
+    career_card_match_rule_id TEXT PRIMARY KEY,
+    career_card_version_id TEXT NOT NULL REFERENCES career_cards(career_card_version_id),
+    career_card_claim_id TEXT REFERENCES career_card_claims(career_card_claim_id),
+    rule_key TEXT NOT NULL,
+    classification TEXT NOT NULL CHECK (classification IN ('direct', 'transferable', 'partial', 'gap', 'unsupported')),
+    match_mode TEXT NOT NULL CHECK (match_mode IN ('all_capabilities_present', 'any_capability_present', 'all_capabilities_absent')),
+    required_capability_codes_json TEXT NOT NULL,
+    allowed_scopes_json TEXT NOT NULL,
+    negative_mapping_text TEXT,
+    explanation TEXT NOT NULL,
+    artifact_id TEXT NOT NULL REFERENCES source_artifacts(artifact_id),
+    imported_at TEXT NOT NULL,
+    deprecated_at TEXT,
+    UNIQUE (career_card_version_id, rule_key)
+);
+
 CREATE TABLE IF NOT EXISTS validation_runs (
     validation_run_id TEXT PRIMARY KEY,
     role_pack_version_id TEXT NOT NULL REFERENCES role_pack_versions(role_pack_version_id),
@@ -349,6 +369,8 @@ CREATE INDEX IF NOT EXISTS idx_jd_evidence_snapshots_evidence
     ON jd_evidence_snapshots (jd_evidence_id, retrieved_at);
 CREATE INDEX IF NOT EXISTS idx_career_cards_current
     ON career_cards (career_card_id, is_current);
+CREATE INDEX IF NOT EXISTS idx_career_card_match_rules_current
+    ON career_card_match_rules (career_card_version_id, classification);
 
 CREATE VIEW IF NOT EXISTS career_map_entries AS
 SELECT

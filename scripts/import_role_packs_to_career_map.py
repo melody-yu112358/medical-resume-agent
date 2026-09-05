@@ -27,6 +27,8 @@ DDL_PATH = ROOT / "database" / "career_map_schema.sql"
 CAREER_MAP_DIRECTIONS_PATH = ROOT / "data" / "career-map" / "directions-v1.json"
 CAREER_CARD_DIR = ROOT / "data" / "career_cards"
 CAREER_CARD_SCHEMA_PATH = ROOT / "schemas" / "career-card.schema.json"
+CAREER_CARD_MATCH_RULES_PATH = ROOT / "data" / "career-map" / "career-card-match-rules-v1.json"
+CAREER_CARD_MATCH_RULES_SCHEMA_PATH = ROOT / "schemas" / "career-card-match-rules.schema.json"
 IMPORTER_VERSION = "career-map-import-v2"
 UUID_NAMESPACE = uuid.UUID("b2c09a52-74c0-4e80-9ea5-bf5f4a54ec56")
 ROLE_PACK_PATTERN = re.compile(r"^(?P<name>[a-z_][a-z0-9_]*)_(?P<version>v[0-9]+)$")
@@ -86,6 +88,13 @@ def load_career_cards(career_card_dir: Path = CAREER_CARD_DIR) -> list[tuple[Pat
     return cards
 
 
+def load_career_card_match_rules(
+    path: Path = CAREER_CARD_MATCH_RULES_PATH,
+) -> tuple[bytes, dict[str, Any]]:
+    raw = path.read_bytes()
+    return raw, json.loads(raw.decode("utf-8"))
+
+
 def source_digest(packs: list[tuple[Path, bytes, dict[str, Any]]], pack_dir: Path) -> str:
     hasher = hashlib.sha256()
     for path, raw, _ in packs:
@@ -119,9 +128,13 @@ def import_packs(
     pack_dir: Path = PACK_DIR,
     directions_path: Path = CAREER_MAP_DIRECTIONS_PATH,
     career_card_dir: Path = CAREER_CARD_DIR,
+    career_card_match_rules_path: Path = CAREER_CARD_MATCH_RULES_PATH,
 ) -> dict[str, int]:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     career_card_schema = json.loads(CAREER_CARD_SCHEMA_PATH.read_text(encoding="utf-8"))
+    career_card_match_rules_schema = json.loads(
+        CAREER_CARD_MATCH_RULES_SCHEMA_PATH.read_text(encoding="utf-8")
+    )
     packs = load_packs(pack_dir)
     for _, _, pack in packs:
         validate_pack(pack, schema)
@@ -129,6 +142,8 @@ def import_packs(
     career_cards = load_career_cards(career_card_dir)
     for _, _, card in career_cards:
         validate_career_card(card, career_card_schema)
+    match_rules_raw, match_rules = load_career_card_match_rules(career_card_match_rules_path)
+    validate_career_card(match_rules, career_card_match_rules_schema)
     canonical_keys = {pack["role_pack"] for _, _, pack in packs}
     taxonomy_keys = {item["role_pack"] for item in directions["canonical_role_pack_taxonomy"]}
     if canonical_keys != taxonomy_keys:
@@ -236,11 +251,15 @@ def import_packs(
 
         _import_direction_registry(connection, directions_raw, directions, now, directions_path)
         _import_career_cards(connection, career_cards, now)
+        _import_career_card_match_rules(
+            connection, match_rules_raw, match_rules, now, career_card_match_rules_path
+        )
 
     return {
         "role_packs": len(packs),
         "jd_driven_directions": len(directions["jd_driven_directions"]),
         "career_cards": len(career_cards),
+        "career_card_match_rules": len(match_rules["rules"]),
         "new_versions": imported_versions,
         "source_digest": digest,
     }
@@ -351,10 +370,16 @@ def _import_jd_snapshots(
         snapshot = snapshots[snapshot_id]
         source_snapshot = snapshot.get("source_snapshot")
         source_digest = snapshot.get("source_digest")
-        required = ("employer", "title", "url", "retrieved_at", "status", "source_type")
+        required = ("employer", "title", "url", "retrieved_at", "status")
         missing = [key for key in required if not snapshot.get(key)]
         if missing or not source_snapshot or not source_digest:
             raise ValueError(f"JD snapshot {snapshot_id} is incomplete; missing={missing}")
+        source_type = (
+            snapshot.get("source_type")
+            or snapshot.get("current_retrieval_status")
+            or snapshot.get("retrieval_status")
+            or "retained_candidate_evidence"
+        )
         actual_digest = sha256(source_snapshot.encode("utf-8"))
         # Older frozen evidence may define source_digest over a broader retained
         # capture than the visible excerpt. Preserve both values rather than
@@ -394,8 +419,8 @@ def _import_jd_snapshots(
                 snapshot.get("location"),
                 snapshot["retrieved_at"],
                 snapshot["status"],
-                snapshot["source_type"],
-                snapshot.get("snapshot_completeness"),
+                source_type,
+                snapshot.get("snapshot_completeness") or snapshot.get("source_digest_scope"),
                 None if qualifying is None else int(bool(qualifying)),
                 source_snapshot,
                 actual_digest,
@@ -452,6 +477,85 @@ def _insert_career_card_claims(
                        (career_card_claim_id, jd_evidence_id) VALUES (?, ?)""",
                     (claim_id, evidence_id),
                 )
+
+
+def _import_career_card_match_rules(
+    connection: sqlite3.Connection,
+    raw: bytes,
+    registry: dict[str, Any],
+    now: str,
+    source_path: Path,
+) -> None:
+    if registry.get("schema_version") != "career-card-match-rules-v1":
+        raise ValueError("Invalid career-card match-rules schema version")
+    relative_path = source_path.relative_to(ROOT).as_posix()
+    content_hash = sha256(raw)
+    artifact_id = stable_id("artifact", relative_path, content_hash)
+    insert_or_ignore(
+        connection,
+        """INSERT OR IGNORE INTO source_artifacts
+           (artifact_id, relative_path, content_sha256, raw_content, imported_at)
+           VALUES (?, ?, ?, ?, ?)""",
+        (artifact_id, relative_path, content_hash, raw.decode("utf-8"), now),
+    )
+    for rule in registry["rules"]:
+        card_row = connection.execute(
+            """SELECT c.career_card_version_id, v.external_key
+               FROM career_cards c JOIN role_pack_versions v ON v.role_pack_version_id = c.role_pack_version_id
+               WHERE c.career_card_id = ? AND c.is_current = 1""",
+            (rule["career_card_id"],),
+        ).fetchone()
+        if card_row is None:
+            raise ValueError(f"Match rule {rule['rule_key']} references no current career card")
+        card_version_id, role_pack = card_row
+        if role_pack != rule["role_pack"]:
+            raise ValueError(f"Match rule {rule['rule_key']} Role Pack does not match its career card")
+
+        claim_id: str | None = None
+        if "claim" in rule:
+            claim_row = connection.execute(
+                """SELECT career_card_claim_id FROM career_card_claims
+                   WHERE career_card_version_id = ? AND claim_kind = ? AND claim_text = ?""",
+                (card_version_id, rule["claim"]["kind"], rule["claim"]["text"]),
+            ).fetchone()
+            if claim_row is None:
+                raise ValueError(f"Match rule {rule['rule_key']} references no matching career-card claim")
+            claim_id = claim_row[0]
+
+        negative_mapping_text = rule.get("negative_mapping_text")
+        if negative_mapping_text:
+            negative_row = connection.execute(
+                """SELECT 1 FROM negative_mappings n
+                   JOIN role_pack_versions v ON v.role_pack_version_id = n.role_pack_version_id
+                   WHERE v.external_key = ? AND v.is_current = 1
+                     AND n.mapping_kind = 'forbidden_claim' AND n.mapping_text = ?""",
+                (role_pack, negative_mapping_text),
+            ).fetchone()
+            if negative_row is None:
+                raise ValueError(f"Match rule {rule['rule_key']} references no Role Pack negative mapping")
+
+        rule_id = stable_id("career-card-match-rule", card_version_id, rule["rule_key"])
+        connection.execute(
+            """INSERT OR IGNORE INTO career_card_match_rules
+               (career_card_match_rule_id, career_card_version_id, career_card_claim_id, rule_key,
+                classification, match_mode, required_capability_codes_json, allowed_scopes_json,
+                negative_mapping_text, explanation, artifact_id, imported_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                rule_id,
+                card_version_id,
+                claim_id,
+                rule["rule_key"],
+                rule["classification"],
+                rule["match_mode"],
+                json.dumps(rule["required_capability_codes"], ensure_ascii=False, sort_keys=True),
+                json.dumps(rule["allowed_scopes"], ensure_ascii=False, sort_keys=True),
+                negative_mapping_text,
+                rule["explanation"],
+                artifact_id,
+                now,
+            ),
+        )
 
 
 def _import_direction_registry(

@@ -170,7 +170,7 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 
 ### 3.8 医疗器械临床 / 应用支持
 
-- **英文 / proposed ID：** Clinical Application Specialist、IVD Application Specialist、Clinical Support Specialist；`medical_device_clinical_application_specialist_v1`（proposed，尚非 canonical source）。
+- **英文 / Role Pack ID：** Clinical Application Specialist、IVD Application Specialist、Clinical Support Specialist；`medical_device_clinical_application_specialist_v1`。
 - **范围：** 初中级的产品/应用培训、受限产品范围内的现场技术与工作流支持、用户反馈传递、内部/渠道赋能及学术活动支持。
 - **真实 qualifying JD（8 条 / 8 家 employer）：**
 

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 
+QUERY_VERSION = "career-card-explanation-v1"
 EXPLANATION_CLASSES = ("direct", "transferable", "partial", "gap", "unsupported")
 
 
@@ -30,14 +31,16 @@ class CareerCardExplanationService:
         if any(item.get("evidence_status") != "confirmed" for item in evidence):
             raise ValueError("every profile evidence item must be confirmed")
 
-        with sqlite3.connect(self.database_path) as connection:
+        with sqlite3.connect(f"{self.database_path.resolve().as_uri()}?mode=ro", uri=True) as connection:
+            # Pin all SELECTs to one committed activation while imports run.
+            connection.execute("BEGIN")
             connection.row_factory = sqlite3.Row
             context = self._load_context(connection, role_pack)
             rules = connection.execute(
                 """SELECT r.*, c.claim_kind, c.claim_text
                    FROM career_card_match_rules r
                    LEFT JOIN career_card_claims c ON c.career_card_claim_id = r.career_card_claim_id
-                   WHERE r.career_card_version_id = ? AND r.deprecated_at IS NULL
+                   WHERE r.career_card_version_id = ? AND r.lifecycle_status = 'current'
                    ORDER BY r.rule_key""",
                 (context["career_card"]["version_id"],),
             ).fetchall()
@@ -87,7 +90,7 @@ class CareerCardExplanationService:
                 )
 
         return {
-            "query_version": "career-card-explanation-v1",
+            "query_version": QUERY_VERSION,
             "profile_id": profile["profile_id"],
             "profile_type": "synthetic",
             "role_pack": context["role_pack"],
@@ -191,20 +194,24 @@ class CareerCardExplanationService:
     ) -> list[dict[str, str | None]]:
         if claim_id:
             query = """SELECT DISTINCT j.jd_evidence_id, s.external_snapshot_id, j.source_url,
-                                      j.accessed_at, s.source_digest_sha256, s.declared_source_digest_sha256
+                                      s.retrieved_at AS accessed_at, s.source_digest_sha256, s.declared_source_digest_sha256
                        FROM career_card_claim_jd_evidence cj
                        JOIN jd_evidence j ON j.jd_evidence_id = cj.jd_evidence_id
-                       JOIN jd_evidence_snapshots s ON s.jd_evidence_id = j.jd_evidence_id
+                       JOIN career_card_claims c ON c.career_card_claim_id = cj.career_card_claim_id
+                       JOIN career_card_jd_snapshots cs ON cs.career_card_version_id = c.career_card_version_id
+                       JOIN jd_evidence_snapshots s ON s.jd_evidence_snapshot_id = cs.jd_evidence_snapshot_id
+                                                   AND s.jd_evidence_id = j.jd_evidence_id
                        WHERE cj.career_card_claim_id = ?
                        ORDER BY s.external_snapshot_id"""
             values: tuple[str, ...] = (claim_id,)
         else:
             query = """SELECT DISTINCT j.jd_evidence_id, s.external_snapshot_id, j.source_url,
-                                      j.accessed_at, s.source_digest_sha256, s.declared_source_digest_sha256
-                       FROM role_jd_evidence r
-                       JOIN jd_evidence j ON j.jd_evidence_id = r.jd_evidence_id
-                       JOIN jd_evidence_snapshots s ON s.jd_evidence_id = j.jd_evidence_id
-                       WHERE r.role_pack_version_id = ?
+                                      s.retrieved_at AS accessed_at, s.source_digest_sha256, s.declared_source_digest_sha256
+                       FROM career_cards c
+                       JOIN career_card_jd_snapshots cs ON cs.career_card_version_id = c.career_card_version_id
+                       JOIN jd_evidence_snapshots s ON s.jd_evidence_snapshot_id = cs.jd_evidence_snapshot_id
+                       JOIN jd_evidence j ON j.jd_evidence_id = s.jd_evidence_id
+                       WHERE c.role_pack_version_id = ? AND c.is_current = 1
                        ORDER BY s.external_snapshot_id"""
             values = (role_pack_version_id,)
         return [dict(row) for row in connection.execute(query, values).fetchall()]

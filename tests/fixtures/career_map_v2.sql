@@ -1,7 +1,7 @@
 -- Medical career map v1.
 --
--- The relational types can be translated to PostgreSQL. The immutable-content
--- triggers below and the transactional migration adapter target SQLite. JSON is
+-- This schema intentionally uses portable SQL types so it can be executed by
+-- SQLite for local development and translated directly to PostgreSQL. JSON is
 -- stored as TEXT in v1 because JSON Role Packs remain the editable source of
 -- truth; the relational rows are a queryable, rebuildable projection.
 
@@ -252,8 +252,7 @@ CREATE TABLE IF NOT EXISTS jd_evidence_snapshots (
     source_artifact_id TEXT NOT NULL REFERENCES source_artifacts(artifact_id),
     created_at TEXT NOT NULL,
     deprecated_at TEXT,
-    revision_sha256 TEXT NOT NULL,
-    UNIQUE (source_artifact_id, external_snapshot_id, revision_sha256)
+    UNIQUE (jd_evidence_id, external_snapshot_id, source_digest_sha256)
 );
 
 -- Career cards are a source-controlled explanatory layer over a Canonical
@@ -271,9 +270,7 @@ CREATE TABLE IF NOT EXISTS career_cards (
     imported_at TEXT NOT NULL,
     deprecated_at TEXT,
     superseded_by_version_id TEXT REFERENCES career_cards(career_card_version_id),
-    revision_sha256 TEXT NOT NULL,
-    jd_artifact_id TEXT REFERENCES source_artifacts(artifact_id),
-    UNIQUE (career_card_id, revision_sha256)
+    UNIQUE (career_card_id, content_sha256)
 );
 
 CREATE TABLE IF NOT EXISTS career_card_claims (
@@ -312,12 +309,7 @@ CREATE TABLE IF NOT EXISTS career_card_match_rules (
     artifact_id TEXT NOT NULL REFERENCES source_artifacts(artifact_id),
     imported_at TEXT NOT NULL,
     deprecated_at TEXT,
-    career_card_id TEXT NOT NULL,
-    content_sha256 TEXT NOT NULL,
-    rule_json TEXT NOT NULL,
-    lifecycle_status TEXT NOT NULL CHECK (lifecycle_status IN ('current', 'superseded', 'revoked')),
-    superseded_by_rule_id TEXT REFERENCES career_card_match_rules(career_card_match_rule_id),
-    UNIQUE (career_card_version_id, rule_key, content_sha256)
+    UNIQUE (career_card_version_id, rule_key)
 );
 
 CREATE TABLE IF NOT EXISTS validation_runs (
@@ -402,61 +394,3 @@ SELECT
     d.requires_specific_jd
 FROM career_directions d
 WHERE d.deprecated_at IS NULL;
-
-
--- Content-addressed manifests exclude machine paths and import timestamps.
-CREATE TABLE IF NOT EXISTS knowledge_snapshots (
-    knowledge_snapshot_id TEXT PRIMARY KEY,
-    manifest_sha256 TEXT NOT NULL UNIQUE,
-    manifest_json TEXT NOT NULL,
-    interpreter_version TEXT NOT NULL,
-    importer_version TEXT NOT NULL,
-    is_current INTEGER NOT NULL CHECK (is_current IN (0, 1)),
-    created_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS knowledge_snapshot_activations (
-    activation_id TEXT PRIMARY KEY,
-    knowledge_snapshot_id TEXT NOT NULL REFERENCES knowledge_snapshots(knowledge_snapshot_id),
-    activated_at TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS career_card_match_rule_events (
-    event_id TEXT PRIMARY KEY,
-    career_card_match_rule_id TEXT NOT NULL REFERENCES career_card_match_rules(career_card_match_rule_id),
-    knowledge_snapshot_id TEXT NOT NULL REFERENCES knowledge_snapshots(knowledge_snapshot_id),
-    lifecycle_status TEXT NOT NULL CHECK (lifecycle_status IN ('current', 'superseded', 'revoked')),
-    recorded_at TEXT NOT NULL
-);
-
--- Exact retained snapshots used by each immutable Career Card revision.
-CREATE TABLE IF NOT EXISTS career_card_jd_snapshots (
-    career_card_version_id TEXT NOT NULL REFERENCES career_cards(career_card_version_id),
-    jd_evidence_snapshot_id TEXT NOT NULL REFERENCES jd_evidence_snapshots(jd_evidence_snapshot_id),
-    PRIMARY KEY (career_card_version_id, jd_evidence_snapshot_id)
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS uq_role_pack_current
-    ON role_pack_versions (external_key) WHERE is_current = 1;
-CREATE UNIQUE INDEX IF NOT EXISTS uq_career_card_current
-    ON career_cards (career_card_id) WHERE is_current = 1;
-CREATE UNIQUE INDEX IF NOT EXISTS uq_match_rule_current
-    ON career_card_match_rules (career_card_id, rule_key) WHERE lifecycle_status = 'current';
-CREATE UNIQUE INDEX IF NOT EXISTS uq_knowledge_snapshot_current
-    ON knowledge_snapshots (is_current) WHERE is_current = 1;
-
-CREATE TRIGGER IF NOT EXISTS immutable_match_rule_content
-BEFORE UPDATE OF career_card_match_rule_id, career_card_version_id, career_card_claim_id, rule_key,
-    classification, match_mode, required_capability_codes_json, allowed_scopes_json,
-    negative_mapping_text, explanation, artifact_id, career_card_id, content_sha256, rule_json
-ON career_card_match_rules
-BEGIN
-    SELECT RAISE(ABORT, 'match rule revision content is immutable');
-END;
-
-CREATE TRIGGER IF NOT EXISTS immutable_knowledge_manifest
-BEFORE UPDATE OF manifest_sha256, manifest_json, interpreter_version, importer_version
-ON knowledge_snapshots
-BEGIN
-    SELECT RAISE(ABORT, 'knowledge manifest is immutable');
-END;

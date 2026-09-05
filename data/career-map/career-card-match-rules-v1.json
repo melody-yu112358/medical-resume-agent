@@ -1,0 +1,115 @@
+{
+  "schema_version": "career-card-match-rules-v1",
+  "rules": [
+    {
+      "rule_key": "cdm-assigned-data-quality-support",
+      "career_card_id": "clinical_data_management",
+      "role_pack": "clinical_data_management_v1",
+      "classification": "direct",
+      "match_mode": "all_capabilities_present",
+      "required_capability_codes": ["crf_checking", "data_query_follow_up", "gcp_training"],
+      "allowed_scopes": ["assigned_support", "supervised_training"],
+      "claim": {"kind": "transferable_direct", "text": "CRF 核对、缺失数据跟进、受控资料归档和 GCP 培训可映射为临床数据质量支持"},
+      "explanation": "已确认的 CRF 核对、数据跟进和 GCP 事实可说明为已分配范围内的临床数据质量支持，不升级为数据管理所有权。"
+    },
+    {
+      "rule_key": "cdm-quantitative-transferable",
+      "career_card_id": "clinical_data_management",
+      "role_pack": "clinical_data_management_v1",
+      "classification": "transferable",
+      "match_mode": "any_capability_present",
+      "required_capability_codes": ["r_statistics", "laboratory_qc"],
+      "allowed_scopes": [],
+      "claim": {"kind": "transferable", "text": "R/统计和实验室 QC 可映射为数据严谨性，不替代临床数据管理流程"},
+      "explanation": "定量分析或实验室 QC 可作为数据严谨性的可迁移证据；它不证明临床试验数据管理、GCP 或 EDC 经历。"
+    },
+    {
+      "rule_key": "cdm-coordination-partial",
+      "career_card_id": "clinical_data_management",
+      "role_pack": "clinical_data_management_v1",
+      "classification": "partial",
+      "match_mode": "any_capability_present",
+      "required_capability_codes": ["crc_coordination", "study_team_coordination"],
+      "allowed_scopes": ["assigned_support", "supervised_training"],
+      "claim": {"kind": "transferable_partial", "text": "与 CRC 沟通问题可映射为数据问题协调支持，不是数据交付所有权"},
+      "explanation": "研究团队或 CRC 的问题沟通只构成数据问题协调支持，不能推出项目、客户或最终数据交付责任。"
+    },
+    {
+      "rule_key": "cdm-lock-gap",
+      "career_card_id": "clinical_data_management",
+      "role_pack": "clinical_data_management_v1",
+      "classification": "gap",
+      "match_mode": "all_capabilities_absent",
+      "required_capability_codes": ["database_lock_evidence", "edc_build_evidence"],
+      "allowed_scopes": [],
+      "claim": {"kind": "explicit_gap", "text": "数据库锁定、EDC 配置、DMP/DVP 负责人、预算/客户/团队管理需要直接证据"},
+      "explanation": "当前画像没有数据库锁定或 EDC 建库的直接证据；这些属于明确缺口，不能以一般数据工作补足。"
+    },
+    {
+      "rule_key": "cdm-data-cleaning-boundary",
+      "career_card_id": "clinical_data_management",
+      "role_pack": "clinical_data_management_v1",
+      "classification": "unsupported",
+      "match_mode": "any_capability_present",
+      "required_capability_codes": ["data_cleaning", "r_statistics"],
+      "allowed_scopes": [],
+      "negative_mapping_text": "数据库锁定所有权",
+      "explanation": "一般数据清理或 R 分析不能被写成数据库锁定所有权。"
+    },
+    {
+      "rule_key": "device-supervised-application-support",
+      "career_card_id": "medical_device_clinical_application_specialist",
+      "role_pack": "medical_device_clinical_application_specialist_v1",
+      "classification": "direct",
+      "match_mode": "all_capabilities_present",
+      "required_capability_codes": ["device_training_support", "technical_issue_recording", "user_feedback_recording"],
+      "allowed_scopes": ["assigned_support", "supervised_training"],
+      "claim": {"kind": "transferable_direct", "text": "设备培训协助、技术问题记录和用户反馈可映射为受监督的应用支持"},
+      "explanation": "已确认的设备培训协助、技术问题记录和用户反馈可说明为受监督的产品应用支持。"
+    },
+    {
+      "rule_key": "device-clinical-background-transferable",
+      "career_card_id": "medical_device_clinical_application_specialist",
+      "role_pack": "medical_device_clinical_application_specialist_v1",
+      "classification": "transferable",
+      "match_mode": "any_capability_present",
+      "required_capability_codes": ["clinical_background", "laboratory_background", "imaging_background"],
+      "allowed_scopes": [],
+      "claim": {"kind": "transferable", "text": "医学/检验/影像等背景可支持产品理解，不能替代设备实操或客户培训"},
+      "explanation": "医学、检验或影像背景可支持理解产品使用语境，但不证明设备实操或客户培训经验。"
+    },
+    {
+      "rule_key": "device-communication-partial",
+      "career_card_id": "medical_device_clinical_application_specialist",
+      "role_pack": "medical_device_clinical_application_specialist_v1",
+      "classification": "partial",
+      "match_mode": "any_capability_present",
+      "required_capability_codes": ["clinical_communication", "academic_event_support"],
+      "allowed_scopes": ["assigned_support", "supervised_training"],
+      "claim": {"kind": "transferable_partial", "text": "临床沟通和学术活动组织可映射为沟通支持，不是现场应用、销售或客户所有权"},
+      "explanation": "临床沟通或学术活动组织只构成沟通支持，不等于现场应用、销售或客户所有权。"
+    },
+    {
+      "rule_key": "device-independent-support-gap",
+      "career_card_id": "medical_device_clinical_application_specialist",
+      "role_pack": "medical_device_clinical_application_specialist_v1",
+      "classification": "gap",
+      "match_mode": "all_capabilities_absent",
+      "required_capability_codes": ["independent_device_support_evidence"],
+      "allowed_scopes": [],
+      "claim": {"kind": "explicit_gap", "text": "独立设备支持、临床决策、手术责任、销售 KPI、产品路线图和人员管理均需要直接证据"},
+      "explanation": "当前画像没有独立设备支持的直接证据；不能用医学背景或活动协助填补该缺口。"
+    },
+    {
+      "rule_key": "device-training-clinical-decision-boundary",
+      "career_card_id": "medical_device_clinical_application_specialist",
+      "role_pack": "medical_device_clinical_application_specialist_v1",
+      "classification": "unsupported",
+      "match_mode": "any_capability_present",
+      "required_capability_codes": ["device_training_support", "technical_issue_recording"],
+      "allowed_scopes": [],
+      "negative_mapping_text": "临床决策或患者照护所有权",
+      "explanation": "设备培训、演示或技术支持不能被写成临床决策或患者照护所有权。"
+    }
+  ]
+}

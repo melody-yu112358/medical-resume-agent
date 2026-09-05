@@ -18,7 +18,8 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
     second = import_packs(database_path)
 
     assert first["role_packs"] == 10
-    assert first["career_cards"] == 3
+    assert first["career_cards"] == 5
+    assert first["career_card_match_rules"] == 10
     assert first["new_versions"] == 10
     assert second["role_packs"] == 10
     assert second["new_versions"] == 0
@@ -26,20 +27,21 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
     with sqlite3.connect(database_path) as connection:
         assert connection.execute("SELECT COUNT(*) FROM roles").fetchone()[0] == 10
         assert connection.execute("SELECT COUNT(*) FROM role_pack_versions WHERE is_current = 1").fetchone()[0] == 10
-        assert connection.execute("SELECT COUNT(*) FROM source_artifacts").fetchone()[0] == 17
+        assert connection.execute("SELECT COUNT(*) FROM source_artifacts").fetchone()[0] == 22
         assert connection.execute("SELECT COUNT(*) FROM role_status_history WHERE maturity_status = 'canonical_v1'").fetchone()[0] == 10
         assert connection.execute("SELECT COUNT(*) FROM career_directions WHERE service_mode = 'jd_driven'").fetchone()[0] == 6
         assert connection.execute("SELECT COUNT(*) FROM career_map_entries").fetchone()[0] == 16
         assert connection.execute("SELECT COUNT(*) FROM role_ecosystems").fetchone()[0] >= 10
         assert connection.execute("SELECT COUNT(*) FROM role_function_families").fetchone()[0] >= 10
         assert connection.execute("SELECT COUNT(*) FROM role_deliverables").fetchone()[0] == 0
-        assert connection.execute("SELECT COUNT(*) FROM career_cards WHERE is_current = 1").fetchone()[0] == 3
-        assert connection.execute("SELECT COUNT(*) FROM career_card_claims").fetchone()[0] == 60
-        assert connection.execute("SELECT COUNT(*) FROM jd_evidence").fetchone()[0] == 28
-        assert connection.execute("SELECT COUNT(*) FROM jd_evidence_snapshots").fetchone()[0] == 28
-        assert connection.execute("SELECT COUNT(*) FROM role_jd_evidence WHERE evidence_scope = 'jd_dependent'").fetchone()[0] == 28
-        assert connection.execute("SELECT COUNT(*) FROM career_card_claim_jd_evidence").fetchone()[0] == 560
-        assert connection.execute("SELECT COUNT(*) FROM jd_evidence_snapshots WHERE source_digest_matches = 0").fetchone()[0] == 1
+        assert connection.execute("SELECT COUNT(*) FROM career_cards WHERE is_current = 1").fetchone()[0] == 5
+        assert connection.execute("SELECT COUNT(*) FROM career_card_claims").fetchone()[0] == 103
+        assert connection.execute("SELECT COUNT(*) FROM jd_evidence").fetchone()[0] == 44
+        assert connection.execute("SELECT COUNT(*) FROM jd_evidence_snapshots").fetchone()[0] == 44
+        assert connection.execute("SELECT COUNT(*) FROM role_jd_evidence WHERE evidence_scope = 'jd_dependent'").fetchone()[0] == 44
+        assert connection.execute("SELECT COUNT(*) FROM career_card_claim_jd_evidence").fetchone()[0] == 904
+        assert connection.execute("SELECT COUNT(*) FROM career_card_match_rules").fetchone()[0] == 10
+        assert connection.execute("SELECT COUNT(*) FROM jd_evidence_snapshots WHERE source_digest_matches = 0").fetchone()[0] == 9
 
         card_role_pairs = connection.execute(
             """SELECT c.career_card_id, v.external_key FROM career_cards c
@@ -47,7 +49,9 @@ def test_role_pack_import_is_schema_valid_idempotent_and_traceable(tmp_path):
                WHERE c.is_current = 1 ORDER BY c.career_card_id"""
         ).fetchall()
         assert card_role_pairs == [
+            ("clinical_data_management", "clinical_data_management_v1"),
             ("clinical_research_associate", "clinical_research_associate_v1"),
+            ("medical_device_clinical_application_specialist", "medical_device_clinical_application_specialist_v1"),
             ("pharmacovigilance_drug_safety", "pharmacovigilance_drug_safety_v1"),
             ("regulatory_medical_writing", "regulatory_medical_writing_v1"),
         ]

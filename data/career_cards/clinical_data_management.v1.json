@@ -1,0 +1,37 @@
+{
+  "schema_version": "medical-career-card-v1",
+  "career_card_id": "clinical_data_management",
+  "role_pack": "clinical_data_management_v1",
+  "version": "v1",
+  "summary": "临床数据管理 / CDM 支持方向：在已分配范围内，围绕临床试验数据核对、清理、查询跟进、受控文档和数据质量支持开展工作。",
+  "scope_note": "不将数据清理、核对、CRF/EDC 支持或与 CRC/CRA 的问题沟通升级为数据库锁定、独立 EDC 建库、最终数据交付、项目/客户/供应商所有权或团队管理。",
+  "stable_responsibilities": [
+    "在已分配范围内开展临床试验数据核对、清理、query 或差异跟进及可追溯性支持",
+    "开展受控数据管理文档及符合 GCP/SOP 的保密或质量支持",
+    "在确认职责范围内开展 CRF、EDC、数据库验证或 UAT 支持",
+    "在已分配范围内与研究团队、研究中心或供应商协调数据问题",
+    "开展研究数据审阅与对账支持，所有权层级以直接证据为准"
+  ],
+  "typical_deliverables": [
+    "CRF、数据核对或 query 跟进记录",
+    "受控数据管理文档、测试记录或质量支持材料",
+    "在分配范围内的数据问题、对账或状态跟进材料"
+  ],
+  "entry_requirements": [
+    "具体岗位对 GCP、临床试验数据流程、EDC、CDISC 或编码工具的要求须以当期 JD 核验"
+  ],
+  "transferability": {
+    "direct": ["CRF 核对、缺失数据跟进、受控资料归档和 GCP 培训可映射为临床数据质量支持"],
+    "transferable": ["R/统计和实验室 QC 可映射为数据严谨性，不替代临床数据管理流程"],
+    "partial": ["与 CRC 沟通问题可映射为数据问题协调支持，不是数据交付所有权"],
+    "gaps": ["数据库锁定、EDC 配置、DMP/DVP 负责人、预算/客户/团队管理需要直接证据"]
+  },
+  "jd_dependent_scope": [
+    "数据库锁定所有权", "端到端交付、预算、投标、客户或供应商所有权", "团队管理或人员分配", "CDISC/SDTM、MedDRA/WHO Drug 或编程专长", "独立 EDC 建库授权", "项目级批准或最终质量责任"
+  ],
+  "validation_actions": ["投递或匹配前核验 JD 对临床试验流程、EDC/UAT、数据库锁定、编码工具及项目所有权的具体要求"],
+  "jd_evidence": {
+    "source_file": "docs/research/role-validation/cdm/candidate-evidence-v1.json",
+    "snapshot_ids": ["cdm-01", "cdm-02", "cdm-03", "cdm-05", "cdm-06", "cdm-07", "cdm-08", "cdm-09"]
+  }
+}

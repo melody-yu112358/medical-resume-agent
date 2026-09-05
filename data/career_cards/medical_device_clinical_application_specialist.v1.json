@@ -1,0 +1,37 @@
+{
+  "schema_version": "medical-career-card-v1",
+  "career_card_id": "medical_device_clinical_application_specialist",
+  "role_pack": "medical_device_clinical_application_specialist_v1",
+  "version": "v1",
+  "summary": "医疗器械临床 / 应用支持方向：在产品范围内，围绕临床/应用培训、现场技术与工作流支持、用户反馈传递及内部或渠道赋能开展支持。",
+  "scope_note": "不将设备培训、演示、现场技术支持或用户反馈升级为临床决策、手术/操作、患者照护、产品路线图、研发、客户/医院所有权、销售 KPI、收入或区域策略所有权。",
+  "stable_responsibilities": [
+    "开展产品特定的临床/应用培训",
+    "在产品范围内开展现场技术与工作流支持",
+    "收集并传递用户反馈",
+    "开展渠道/内部赋能及学术活动支持",
+    "遵循适用的设备与组织流程"
+  ],
+  "typical_deliverables": [
+    "产品培训、演示或使用指导支持材料",
+    "技术问题、用户反馈或现场支持记录",
+    "渠道/内部赋能或学术活动支持材料"
+  ],
+  "entry_requirements": [
+    "具体岗位对设备产品知识、现场支持、客户培训、差旅和商业协作的要求须以当期 JD 核验"
+  ],
+  "transferability": {
+    "direct": ["设备培训协助、技术问题记录和用户反馈可映射为受监督的应用支持"],
+    "transferable": ["医学/检验/影像等背景可支持产品理解，不能替代设备实操或客户培训"],
+    "partial": ["临床沟通和学术活动组织可映射为沟通支持，不是现场应用、销售或客户所有权"],
+    "gaps": ["独立设备支持、临床决策、手术责任、销售 KPI、产品路线图和人员管理均需要直接证据"]
+  },
+  "jd_dependent_scope": [
+    "产品组合或区域所有权", "销售配额/KPI 所有权", "临床决策或患者照护", "手术责任", "研发路线图/产品管理所有权", "正式人员管理", "注册申报作者责任", "区域专家网络所有权", "商业收入或市场覆盖所有权"
+  ],
+  "validation_actions": ["投递或匹配前核验 JD 对产品范围、客户培训、现场支持、差旅、销售协作及是否承担商业目标的具体要求"],
+  "jd_evidence": {
+    "source_file": "docs/research/role-validation/device-clinical-application/candidate-evidence-v1.json",
+    "snapshot_ids": ["device-02", "device-06", "device-07", "device-08", "device-09", "device-10", "device-11", "device-12"]
+  }
+}

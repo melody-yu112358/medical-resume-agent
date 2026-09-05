@@ -1,0 +1,34 @@
+{
+  "schema_version": "career-card-explanation-test-profiles-v1",
+  "profiles": [
+    {
+      "profile_id": "synthetic-cdm-support-001",
+      "profile_type": "synthetic",
+      "scenario_note": "完全虚构的 CDM 支持查询测试画像，不对应真实个人或求职结论。",
+      "evidence": [
+        {"evidence_id": "cdm-e1", "statement": "在导师监督的训练中协助 CRF 核对、跟进缺失数据，并完成 GCP 课程。", "capability_codes": ["crf_checking", "data_query_follow_up", "gcp_training"], "scope": "supervised_training", "evidence_status": "confirmed"},
+        {"evidence_id": "cdm-e2", "statement": "使用 R 清洗课程数据并记录处理规则。", "capability_codes": ["r_statistics", "data_cleaning"], "scope": "academic_exercise", "evidence_status": "confirmed"},
+        {"evidence_id": "cdm-e3", "statement": "协助研究团队向 CRC 跟进数据问题并记录回复。", "capability_codes": ["crc_coordination"], "scope": "assigned_support", "evidence_status": "confirmed"}
+      ]
+    },
+    {
+      "profile_id": "synthetic-device-application-002",
+      "profile_type": "synthetic",
+      "scenario_note": "完全虚构的器械应用支持查询测试画像，不对应真实个人或临床责任。",
+      "evidence": [
+        {"evidence_id": "device-e1", "statement": "在带教监督下协助一次设备使用培训，记录技术问题和用户反馈。", "capability_codes": ["device_training_support", "technical_issue_recording", "user_feedback_recording"], "scope": "supervised_training", "evidence_status": "confirmed"},
+        {"evidence_id": "device-e2", "statement": "完成医学检验课程并参与病例讨论。", "capability_codes": ["laboratory_background", "clinical_background"], "scope": "academic_exercise", "evidence_status": "confirmed"},
+        {"evidence_id": "device-e3", "statement": "协助组织面向同学的学术活动并整理问题。", "capability_codes": ["academic_event_support"], "scope": "assigned_support", "evidence_status": "confirmed"}
+      ]
+    },
+    {
+      "profile_id": "synthetic-cdm-quantitative-003",
+      "profile_type": "synthetic",
+      "scenario_note": "完全虚构的定量研究查询测试画像，用于验证一般数据分析不会被升级为临床数据管理经历。",
+      "evidence": [
+        {"evidence_id": "quant-e1", "statement": "在课程项目中使用 R 清洗实验数据并完成统计图表。", "capability_codes": ["r_statistics", "data_cleaning"], "scope": "academic_exercise", "evidence_status": "confirmed"},
+        {"evidence_id": "quant-e2", "statement": "在实验室维护样本记录并完成常规质量检查。", "capability_codes": ["laboratory_qc"], "scope": "assigned_support", "evidence_status": "confirmed"}
+      ]
+    }
+  ]
+}

@@ -130,13 +130,20 @@ This projection is not a new runtime repository and does not change routing,
 Claim Gate, Confirmation Gate or matching behavior. It distinguishes
 `canonical_v1` domain status from runtime enablement and Cross-model validation,
 retains the original JSON artifact and SHA-256 provenance. Three source-controlled
-pilot career cards (PV, regulatory medical writing and CRA support) additionally
+pilot career cards (PV, regulatory medical writing, CRA support, CDM support,
+and medical-device clinical/application support) additionally
 project frozen public-JD excerpts into a separate evidence layer. This layer
 records source URL, capture date, raw excerpt and digest, is not live job
 ingestion, and cannot change Role Pack semantics or runtime routing. Transition
 cases and persistent Career Profiles remain unpopulated until their source and
 consent rules are separately implemented. See
 `docs/CAREER_MAP_DATABASE.md` for the migration contract and query examples.
+
+The score-free `CareerCardExplanationService` is a separate synthetic-only
+query slice. It reads explicit Career Card match rules and returns only direct,
+transferable, partial, gap and unsupported explanations with profile, Role Pack
+and retained-JD provenance. It neither replaces nor alters the existing
+percentage-based career-comparison endpoint, and it persists no profile data.
 
 ## Acceptance for v0.1
 

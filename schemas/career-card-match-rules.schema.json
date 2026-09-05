@@ -5,20 +5,20 @@
   "additionalProperties": false,
   "required": ["schema_version", "rules"],
   "properties": {
-    "schema_version": { "const": "career-card-match-rules-v1" },
+    "schema_version": { "const": "career-card-match-rules-v2" },
     "rules": {
       "type": "array",
       "minItems": 0,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["rule_key", "career_card_id", "role_pack", "classification", "match_mode", "required_capability_codes", "allowed_scopes", "explanation"],
+        "required": ["rule_key", "career_card_id", "role_pack", "classification", "match_mode", "required_capability_codes", "allowed_scopes", "explanation", "claim", "evidence_relation", "support_ceiling", "inference_boundary", "applicability"],
         "properties": {
           "rule_key": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
           "career_card_id": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*$" },
           "role_pack": { "type": "string", "pattern": "^[a-z_][a-z0-9_]*_v[0-9]+$" },
           "classification": { "enum": ["direct", "transferable", "partial", "gap", "unsupported"] },
-          "match_mode": { "enum": ["all_capabilities_present", "any_capability_present", "all_capabilities_absent"] },
+          "match_mode": { "enum": ["all_capabilities_present", "any_capability_present"] },
           "required_capability_codes": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9_]+$" }, "minItems": 1, "uniqueItems": true },
           "allowed_scopes": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9_]+$" }, "uniqueItems": true },
           "claim": {
@@ -31,6 +31,10 @@
             }
           },
           "negative_mapping_text": { "type": "string", "minLength": 1 },
+          "evidence_relation": {"enum": ["direct", "transferable"]},
+          "support_ceiling": {"enum": ["complete", "partial"]},
+          "inference_boundary": {"enum": ["supported", "unsupported"]},
+          "applicability": {"enum": ["role_core", "evidence_mapping", "jd_dependent", "senior_only", "ownership"]},
           "explanation": { "type": "string", "minLength": 1 }
         }
       }

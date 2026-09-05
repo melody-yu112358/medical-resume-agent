@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "jd_evidence_snapshot_ids",
+    "applicable_rule_keys",
+    "confirmation_status"
+  ],
+  "properties": {
+    "jd_evidence_snapshot_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "applicable_rule_keys": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "confirmation_status": {
+      "const": "confirmed"
+    },
+    "seniority": {
+      "enum": [
+        "entry",
+        "senior"
+      ]
+    }
+  }
+}

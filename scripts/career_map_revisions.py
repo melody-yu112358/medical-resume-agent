@@ -79,7 +79,16 @@ def apply_schema(connection: sqlite3.Connection, ddl: str, *, upgrade: bool) -> 
             FROM career_card_claims c
             JOIN career_card_claim_jd_evidence j ON j.career_card_claim_id = c.career_card_claim_id
             JOIN jd_evidence_snapshots s ON s.jd_evidence_id = j.jd_evidence_id""")
-    connection.execute("PRAGMA user_version = 3")
+    # Legacy all-card links are background only; never promote them to claim support.
+    connection.execute("""INSERT OR IGNORE INTO career_card_claim_snapshot_evidence
+        (career_card_claim_id, jd_evidence_snapshot_id, relation_kind)
+        SELECT c.career_card_claim_id, cs.jd_evidence_snapshot_id, 'research_background'
+        FROM career_card_claims c
+        JOIN career_card_claim_jd_evidence j ON j.career_card_claim_id = c.career_card_claim_id
+        JOIN career_card_jd_snapshots cs ON cs.career_card_version_id = c.career_card_version_id
+        JOIN jd_evidence_snapshots s ON s.jd_evidence_snapshot_id = cs.jd_evidence_snapshot_id
+                                   AND s.jd_evidence_id = j.jd_evidence_id""")
+    connection.execute("PRAGMA user_version = 4")
 
 
 def activate_versions(connection: sqlite3.Connection, table: str, id_column: str,
@@ -125,13 +134,14 @@ def activate_rules(connection: sqlite3.Connection, selected: dict[tuple[str, str
 
 def save_snapshot(connection: sqlite3.Connection, *, sources: list[dict[str, str]],
                   taxonomy_artifact_id: str, rule_artifact_id: str, interpreter: dict[str, str],
-                  importer_version: str, now: str, rule_changes: list[tuple[str, str]]) -> tuple[str, str]:
+                  importer_version: str, contracts: dict[str, str], now: str, rule_changes: list[tuple[str, str]]) -> tuple[str, str]:
     def records(query: str) -> list[dict[str, Any]]:
         cursor = connection.execute(query)
         return [dict(zip([col[0] for col in cursor.description], row)) for row in cursor.fetchall()]
 
     manifest = {
-        "schema_version": "career-map-knowledge-snapshot-v1",
+        "schema_version": "career-map-knowledge-snapshot-v2",
+        "explanation_contracts": contracts,
         "importer_version": importer_version,
         "explanation_interpreter": interpreter,
         "sources": sorted(sources, key=lambda item: item["path"]),
@@ -147,12 +157,19 @@ def save_snapshot(connection: sqlite3.Connection, *, sources: list[dict[str, str
             WHERE lifecycle_status = 'current' ORDER BY career_card_id, rule_key"""),
         "jd_snapshot_revisions": records("""SELECT cs.career_card_version_id, s.jd_evidence_snapshot_id,
             s.jd_evidence_id, s.external_snapshot_id, s.revision_sha256, s.source_artifact_id,
-            s.source_digest_sha256, s.declared_source_digest_sha256
+            s.source_digest_sha256, s.declared_source_digest_sha256,
+            s.status AS snapshot_status, s.deprecated_at AS snapshot_deprecated_at, s.source_digest_matches,
+            j.source_status, j.deprecated_at AS source_deprecated_at
             FROM career_card_jd_snapshots cs
             JOIN career_cards c ON c.career_card_version_id = cs.career_card_version_id AND c.is_current = 1
             JOIN jd_evidence_snapshots s ON s.jd_evidence_snapshot_id = cs.jd_evidence_snapshot_id
+            JOIN jd_evidence j ON j.jd_evidence_id = s.jd_evidence_id
             ORDER BY cs.career_card_version_id, s.external_snapshot_id"""),
     }
+    manifest["claim_evidence_links"] = records("""SELECT e.* FROM career_card_claim_snapshot_evidence e
+        JOIN career_card_claims c ON c.career_card_claim_id = e.career_card_claim_id
+        JOIN career_cards v ON v.career_card_version_id = c.career_card_version_id AND v.is_current = 1
+        ORDER BY e.career_card_claim_id, e.jd_evidence_snapshot_id, e.relation_kind""")
     digest = content_digest(manifest)
     snapshot_id = f"knowledge-{digest}"
     connection.execute("""INSERT OR IGNORE INTO knowledge_snapshots

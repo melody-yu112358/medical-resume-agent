@@ -1,0 +1,30 @@
+{
+  "schema_version": "career-map-capabilities-v1",
+  "capability_codes": [
+    "academic_event_support",
+    "clinical_background",
+    "clinical_communication",
+    "crc_coordination",
+    "crf_checking",
+    "data_cleaning",
+    "data_query_follow_up",
+    "database_lock_evidence",
+    "device_training_support",
+    "edc_build_evidence",
+    "gcp_training",
+    "imaging_background",
+    "independent_device_support_evidence",
+    "laboratory_background",
+    "laboratory_qc",
+    "r_statistics",
+    "study_team_coordination",
+    "technical_issue_recording",
+    "user_feedback_recording"
+  ],
+  "scopes": [
+    "assigned_support",
+    "supervised_training",
+    "academic_exercise",
+    "independent_nonclinical"
+  ]
+}

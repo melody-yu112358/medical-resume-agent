@@ -460,3 +460,18 @@ ON knowledge_snapshots
 BEGIN
     SELECT RAISE(ABORT, 'knowledge manifest is immutable');
 END;
+
+
+-- Background references are not evidence that an individual claim is supported.
+-- claim_support is only imported from explicit, reviewed Card source annotations.
+CREATE TABLE IF NOT EXISTS career_card_claim_snapshot_evidence (
+    career_card_claim_id TEXT NOT NULL REFERENCES career_card_claims(career_card_claim_id),
+    jd_evidence_snapshot_id TEXT NOT NULL REFERENCES jd_evidence_snapshots(jd_evidence_snapshot_id),
+    relation_kind TEXT NOT NULL CHECK (relation_kind IN ('research_background', 'claim_support')),
+    reviewed_by TEXT,
+    reviewed_at TEXT,
+    review_note TEXT,
+    CHECK (relation_kind = 'research_background' OR
+           (reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL AND review_note IS NOT NULL)),
+    PRIMARY KEY (career_card_claim_id, jd_evidence_snapshot_id, relation_kind)
+);

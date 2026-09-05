@@ -19,6 +19,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from career_map_revisions import (
+    activate_rules, activate_versions, apply_schema, canonical_json, content_digest,
+    needs_legacy_upgrade, save_snapshot,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PACK_DIR = ROOT / "data" / "role-packs"
@@ -29,7 +34,10 @@ CAREER_CARD_DIR = ROOT / "data" / "career_cards"
 CAREER_CARD_SCHEMA_PATH = ROOT / "schemas" / "career-card.schema.json"
 CAREER_CARD_MATCH_RULES_PATH = ROOT / "data" / "career-map" / "career-card-match-rules-v1.json"
 CAREER_CARD_MATCH_RULES_SCHEMA_PATH = ROOT / "schemas" / "career-card-match-rules.schema.json"
-IMPORTER_VERSION = "career-map-import-v2"
+IMPORTER_VERSION = "career-map-import-v3"
+INTERPRETER_PATH = ROOT / "src" / "medical_career_agent" / "services" / "career_card_explanation.py"
+sys.path.insert(0, str(ROOT / "src"))
+from medical_career_agent.services.career_card_explanation import QUERY_VERSION  # noqa: E402
 UUID_NAMESPACE = uuid.UUID("b2c09a52-74c0-4e80-9ea5-bf5f4a54ec56")
 ROLE_PACK_PATTERN = re.compile(r"^(?P<name>[a-z_][a-z0-9_]*)_(?P<version>v[0-9]+)$")
 
@@ -95,16 +103,6 @@ def load_career_card_match_rules(
     return raw, json.loads(raw.decode("utf-8"))
 
 
-def source_digest(packs: list[tuple[Path, bytes, dict[str, Any]]], pack_dir: Path) -> str:
-    hasher = hashlib.sha256()
-    for path, raw, _ in packs:
-        hasher.update(path.relative_to(pack_dir).as_posix().encode("utf-8"))
-        hasher.update(b"\0")
-        hasher.update(raw.replace(b"\r\n", b"\n"))
-        hasher.update(b"\0")
-    return hasher.hexdigest()
-
-
 def load_direction_registry(path: Path = CAREER_MAP_DIRECTIONS_PATH) -> tuple[bytes, dict[str, Any]]:
     raw = path.read_bytes()
     registry = json.loads(raw.decode("utf-8"))
@@ -129,7 +127,7 @@ def import_packs(
     directions_path: Path = CAREER_MAP_DIRECTIONS_PATH,
     career_card_dir: Path = CAREER_CARD_DIR,
     career_card_match_rules_path: Path = CAREER_CARD_MATCH_RULES_PATH,
-) -> dict[str, int]:
+) -> dict[str, int | str]:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     career_card_schema = json.loads(CAREER_CARD_SCHEMA_PATH.read_text(encoding="utf-8"))
     career_card_match_rules_schema = json.loads(
@@ -149,23 +147,39 @@ def import_packs(
     if canonical_keys != taxonomy_keys:
         raise ValueError("Career-map taxonomy must classify exactly the current canonical Role Pack set")
 
+    # Capture dependencies once; the manifest and projection use the same bytes.
+    candidates = {}
+    for _, _, card in career_cards:
+        candidate_path = (ROOT / card["jd_evidence"]["source_file"]).resolve()
+        if not candidate_path.is_relative_to(ROOT.resolve()):
+            raise ValueError("Career card evidence path escapes repository")
+        candidates[candidate_path] = candidate_path.read_bytes()
+    sources = [(path, raw) for path, raw, _ in packs + career_cards]
+    sources += [(directions_path, directions_raw), (career_card_match_rules_path, match_rules_raw)]
+    sources += list(candidates.items())
+    source_records = [{"path": path.relative_to(ROOT).as_posix(), "content_sha256": sha256(raw)}
+                      for path, raw in sources]
+    source_records = list({item["path"]: item for item in source_records}.values())
+    for items, key in (([pack for _, _, pack in packs], "role_pack"),
+                       ([card for _, _, card in career_cards], "career_card_id")):
+        if len({item[key] for item in items}) != len(items):
+            raise ValueError(f"Duplicate source identity: {key}")
+    rule_keys = [(rule["career_card_id"], rule["rule_key"]) for rule in match_rules["rules"]]
+    if len(set(rule_keys)) != len(rule_keys):
+        raise ValueError("Duplicate match rule identity")
+
     database_path.parent.mkdir(parents=True, exist_ok=True)
     now = utc_now()
-    digest = source_digest(packs, pack_dir)
-    import_id = stable_id("import", str(pack_dir.resolve()), digest)
     schema_version = schema["x_schema_version"]
-
     with sqlite3.connect(database_path) as connection:
-        connection.execute("PRAGMA foreign_keys = ON")
-        connection.executescript(DDL_PATH.read_text(encoding="utf-8"))
-        insert_or_ignore(
-            connection,
-            """INSERT OR IGNORE INTO import_batches
-               (import_id, source_root, source_digest_sha256, imported_at, importer_version)
-               VALUES (?, ?, ?, ?, ?)""",
-            (import_id, str(pack_dir.resolve()), digest, now, IMPORTER_VERSION),
-        )
-
+        upgrade = needs_legacy_upgrade(connection)
+        # SQLite table-rebuild migrations require FK enforcement off before BEGIN.
+        # All references are checked explicitly before the single commit below.
+        connection.execute(f"PRAGMA foreign_keys = {'OFF' if upgrade else 'ON'}")
+        connection.execute("BEGIN IMMEDIATE")
+        upgrade = needs_legacy_upgrade(connection)
+        apply_schema(connection, DDL_PATH.read_text(encoding="utf-8"), upgrade=upgrade)
+        selected_packs = {}
         imported_versions = 0
         for path, raw, pack in packs:
             pack_key = pack["role_pack"]
@@ -198,15 +212,10 @@ def import_packs(
             ).fetchone()
             if existing is None:
                 connection.execute(
-                    "UPDATE role_pack_versions SET is_current = 0, superseded_by_version_id = ? "
-                    "WHERE external_key = ? AND is_current = 1",
-                    (version_id, pack_key),
-                )
-                connection.execute(
                     """INSERT INTO role_pack_versions
                        (role_pack_version_id, role_id, external_key, version_label, label, target_scope,
                         boundary_note, schema_version, content_sha256, artifact_id, is_current, imported_at)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)""",
                     (
                         version_id,
                         role_id,
@@ -225,14 +234,7 @@ def import_packs(
                 _insert_projection_rows(connection, version_id, pack)
             else:
                 version_id = existing[0]
-                connection.execute(
-                    "UPDATE role_pack_versions SET is_current = 0 WHERE external_key = ?",
-                    (pack_key,),
-                )
-                connection.execute(
-                    "UPDATE role_pack_versions SET is_current = 1 WHERE role_pack_version_id = ?",
-                    (version_id,),
-                )
+            selected_packs[pack_key] = version_id
 
             insert_or_ignore(
                 connection,
@@ -249,11 +251,30 @@ def import_packs(
                 ),
             )
 
+        activate_versions(connection, "role_pack_versions", "role_pack_version_id", "external_key", selected_packs, now)
         _import_direction_registry(connection, directions_raw, directions, now, directions_path)
-        _import_career_cards(connection, career_cards, now)
-        _import_career_card_match_rules(
+        # Role-to-JD is a current projection; exact historical links live on Card revisions.
+        connection.execute("DELETE FROM role_jd_evidence")
+        _import_career_cards(connection, career_cards, now, candidates)
+        rule_changes = _import_career_card_match_rules(
             connection, match_rules_raw, match_rules, now, career_card_match_rules_path
         )
+        snapshot_id, digest = save_snapshot(
+            connection, sources=source_records,
+            taxonomy_artifact_id=stable_id("artifact", directions_path.relative_to(ROOT).as_posix(), sha256(directions_raw)),
+            rule_artifact_id=stable_id("artifact", career_card_match_rules_path.relative_to(ROOT).as_posix(), sha256(match_rules_raw)),
+            interpreter={"version": QUERY_VERSION, "source_sha256": sha256(INTERPRETER_PATH.read_bytes().replace(b"\r\n", b"\n"))},
+            importer_version=IMPORTER_VERSION, now=now, rule_changes=rule_changes,
+        )
+        connection.execute(
+            """INSERT OR IGNORE INTO import_batches
+               (import_id, source_root, source_digest_sha256, imported_at, importer_version)
+               VALUES (?, ?, ?, ?, ?)""",
+            (stable_id("import", str(pack_dir.resolve()), digest), str(pack_dir.resolve()), digest, now, IMPORTER_VERSION),
+        )
+        violations = connection.execute("PRAGMA foreign_key_check").fetchall()
+        if violations:
+            raise sqlite3.IntegrityError(f"Career-map foreign key violations: {violations}")
 
     return {
         "role_packs": len(packs),
@@ -262,6 +283,7 @@ def import_packs(
         "career_card_match_rules": len(match_rules["rules"]),
         "new_versions": imported_versions,
         "source_digest": digest,
+        "knowledge_snapshot_id": snapshot_id,
     }
 
 
@@ -269,7 +291,9 @@ def _import_career_cards(
     connection: sqlite3.Connection,
     career_cards: list[tuple[Path, bytes, dict[str, Any]]],
     now: str,
+    candidates: dict[Path, bytes],
 ) -> None:
+    selected_cards = {}
     for card_path, card_raw, card in career_cards:
         relative_card_path = card_path.relative_to(ROOT).as_posix()
         card_hash = sha256(card_raw)
@@ -293,7 +317,7 @@ def _import_career_cards(
             raise ValueError(f"Career card evidence path escapes repository: {card['jd_evidence']['source_file']}")
         if not candidate_path.is_file():
             raise ValueError(f"Career card evidence file does not exist: {card['jd_evidence']['source_file']}")
-        candidate_raw = candidate_path.read_bytes()
+        candidate_raw = candidates[candidate_path]
         candidate = json.loads(candidate_raw.decode("utf-8"))
         if candidate.get("career_id") != card["career_card_id"]:
             raise ValueError(f"Career card {card['career_card_id']} does not match evidence career_id")
@@ -314,7 +338,7 @@ def _import_career_cards(
             (candidate_artifact_id, relative_candidate_path, candidate_hash, candidate_raw.decode("utf-8"), now),
         )
 
-        evidence_ids = _import_jd_snapshots(
+        evidence_ids, snapshot_ids = _import_jd_snapshots(
             connection,
             role_row[0],
             snapshots,
@@ -322,39 +346,23 @@ def _import_career_cards(
             candidate_artifact_id,
             now,
         )
-        card_version_id = stable_id("career-card-version", card["career_card_id"], card_hash)
-        existing = connection.execute(
-            "SELECT career_card_version_id FROM career_cards WHERE career_card_id = ? AND content_sha256 = ?",
-            (card["career_card_id"], card_hash),
-        ).fetchone()
-        if existing is None:
-            connection.execute(
-                "UPDATE career_cards SET is_current = 0, superseded_by_version_id = ? "
-                "WHERE career_card_id = ? AND is_current = 1",
-                (card_version_id, card["career_card_id"]),
-            )
-            connection.execute(
-                """INSERT INTO career_cards
-                   (career_card_version_id, role_pack_version_id, career_card_id, version_label, summary,
-                    scope_note, content_sha256, artifact_id, is_current, imported_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
-                (
-                    card_version_id,
-                    role_row[0],
-                    card["career_card_id"],
-                    card["version"],
-                    card["summary"],
-                    card["scope_note"],
-                    card_hash,
-                    card_artifact_id,
-                    now,
-                ),
-            )
-        else:
-            card_version_id = existing[0]
-            connection.execute("UPDATE career_cards SET is_current = 0 WHERE career_card_id = ?", (card["career_card_id"],))
-            connection.execute("UPDATE career_cards SET is_current = 1 WHERE career_card_version_id = ?", (card_version_id,))
+        revision_hash = content_digest({"card_content": card_hash, "role_pack_revision": role_row[0],
+                                        "jd_artifact": candidate_artifact_id})
+        card_version_id = stable_id("career-card-version", card["career_card_id"], revision_hash)
+        connection.execute(
+            """INSERT OR IGNORE INTO career_cards
+               (career_card_version_id, role_pack_version_id, career_card_id, version_label, summary,
+                scope_note, content_sha256, artifact_id, is_current, imported_at, revision_sha256, jd_artifact_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)""",
+            (card_version_id, role_row[0], card["career_card_id"], card["version"], card["summary"],
+             card["scope_note"], card_hash, card_artifact_id, now, revision_hash, candidate_artifact_id),
+        )
+        selected_cards[card["career_card_id"]] = card_version_id
         _insert_career_card_claims(connection, card_version_id, card, evidence_ids)
+        for snapshot_id in snapshot_ids:
+            connection.execute("INSERT OR IGNORE INTO career_card_jd_snapshots VALUES (?, ?)", (card_version_id, snapshot_id))
+    activate_versions(connection, "career_cards", "career_card_version_id", "career_card_id", selected_cards, now)
+
 
 
 def _import_jd_snapshots(
@@ -364,8 +372,9 @@ def _import_jd_snapshots(
     selected_ids: list[str],
     source_artifact_id: str,
     now: str,
-) -> list[str]:
+) -> tuple[list[str], list[str]]:
     evidence_ids: list[str] = []
+    snapshot_ids: list[str] = []
     for snapshot_id in selected_ids:
         snapshot = snapshots[snapshot_id]
         source_snapshot = snapshot.get("source_snapshot")
@@ -387,10 +396,13 @@ def _import_jd_snapshots(
         evidence_id = stable_id("jd-evidence", snapshot["url"], actual_digest)
         evidence_ids.append(evidence_id)
         connection.execute(
-            """INSERT OR IGNORE INTO jd_evidence
+            """INSERT INTO jd_evidence
                (jd_evidence_id, source_title, source_url, publisher, published_at, accessed_at, market,
                 snapshot_sha256, source_status, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, 'China', ?, 'reviewed', ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, 'China', ?, 'reviewed', ?)
+               ON CONFLICT(source_url, snapshot_sha256) DO UPDATE SET
+                   source_title = excluded.source_title, publisher = excluded.publisher,
+                   published_at = excluded.published_at, accessed_at = excluded.accessed_at""",
             (
                 evidence_id,
                 f"{snapshot['employer']} — {snapshot['title']}",
@@ -402,14 +414,16 @@ def _import_jd_snapshots(
                 now,
             ),
         )
-        snapshot_row_id = stable_id("jd-evidence-snapshot", evidence_id, snapshot_id, actual_digest)
+        revision_hash = content_digest(snapshot)
+        snapshot_row_id = stable_id("jd-evidence-snapshot", source_artifact_id, snapshot_id, revision_hash)
+        snapshot_ids.append(snapshot_row_id)
         qualifying = snapshot.get("qualifying")
         connection.execute(
             """INSERT OR IGNORE INTO jd_evidence_snapshots
                (jd_evidence_snapshot_id, jd_evidence_id, external_snapshot_id, employer, job_title, location,
                 retrieved_at, status, source_type, snapshot_completeness, qualifying, source_snapshot,
-                source_digest_sha256, declared_source_digest_sha256, source_digest_matches, source_artifact_id, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                source_digest_sha256, declared_source_digest_sha256, source_digest_matches, source_artifact_id, created_at, revision_sha256)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 snapshot_row_id,
                 evidence_id,
@@ -428,6 +442,7 @@ def _import_jd_snapshots(
                 int(actual_digest == source_digest),
                 source_artifact_id,
                 now,
+                revision_hash,
             ),
         )
         connection.execute(
@@ -436,7 +451,7 @@ def _import_jd_snapshots(
                VALUES (?, ?, 'jd_dependent', ?)""",
             (role_pack_version_id, evidence_id, f"{snapshot_id} from retained candidate evidence"),
         )
-    return evidence_ids
+    return evidence_ids, snapshot_ids
 
 
 def _insert_career_card_claims(
@@ -485,7 +500,7 @@ def _import_career_card_match_rules(
     registry: dict[str, Any],
     now: str,
     source_path: Path,
-) -> None:
+) -> list[tuple[str, str]]:
     if registry.get("schema_version") != "career-card-match-rules-v1":
         raise ValueError("Invalid career-card match-rules schema version")
     relative_path = source_path.relative_to(ROOT).as_posix()
@@ -498,11 +513,12 @@ def _import_career_card_match_rules(
            VALUES (?, ?, ?, ?, ?)""",
         (artifact_id, relative_path, content_hash, raw.decode("utf-8"), now),
     )
+    selected_rules = {}
     for rule in registry["rules"]:
         card_row = connection.execute(
             """SELECT c.career_card_version_id, v.external_key
                FROM career_cards c JOIN role_pack_versions v ON v.role_pack_version_id = c.role_pack_version_id
-               WHERE c.career_card_id = ? AND c.is_current = 1""",
+               WHERE c.career_card_id = ? AND c.is_current = 1 AND v.is_current = 1""",
             (rule["career_card_id"],),
         ).fetchone()
         if card_row is None:
@@ -534,13 +550,16 @@ def _import_career_card_match_rules(
             if negative_row is None:
                 raise ValueError(f"Match rule {rule['rule_key']} references no Role Pack negative mapping")
 
-        rule_id = stable_id("career-card-match-rule", card_version_id, rule["rule_key"])
+        rule_hash = content_digest(rule)
+        rule_id = stable_id("career-card-match-rule", card_version_id, rule["rule_key"], rule_hash)
+        selected_rules[(rule["career_card_id"], rule["rule_key"])] = rule_id
         connection.execute(
             """INSERT OR IGNORE INTO career_card_match_rules
                (career_card_match_rule_id, career_card_version_id, career_card_claim_id, rule_key,
                 classification, match_mode, required_capability_codes_json, allowed_scopes_json,
-                negative_mapping_text, explanation, artifact_id, imported_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                negative_mapping_text, explanation, artifact_id, imported_at,
+                career_card_id, content_sha256, rule_json, lifecycle_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'superseded')""",
             (
                 rule_id,
                 card_version_id,
@@ -554,8 +573,13 @@ def _import_career_card_match_rules(
                 rule["explanation"],
                 artifact_id,
                 now,
+                rule["career_card_id"],
+                rule_hash,
+                canonical_json(rule),
             ),
         )
+
+    return activate_rules(connection, selected_rules, now)
 
 
 def _import_direction_registry(
@@ -575,6 +599,15 @@ def _import_direction_registry(
            VALUES (?, ?, ?, ?, ?)""",
         (artifact_id, relative_path, content_hash, raw.decode("utf-8"), now),
     )
+
+    # These are current-only projections. Historical assignments remain in the
+    # immutable registry artifact referenced by each knowledge manifest.
+    for table in ("role_ecosystems", "role_lifecycle_stages", "role_function_families",
+                  "career_direction_ecosystems", "career_direction_lifecycle_stages", "career_direction_function_families"):
+        connection.execute(f"DELETE FROM {table}")
+    for table in ("ecosystems", "lifecycle_stages", "function_families"):
+        connection.execute(f"DELETE FROM {table}")
+    connection.execute("UPDATE career_directions SET deprecated_at = COALESCE(deprecated_at, ?), runtime_status = 'deprecated'", (now,))
 
     dimension_tables = {
         "ecosystems": ("ecosystems", "ecosystem_id"),
@@ -677,7 +710,8 @@ def _upsert_career_direction(
                knowledge_maturity = excluded.knowledge_maturity, service_mode = excluded.service_mode,
                requires_specific_jd = excluded.requires_specific_jd, summary = excluded.summary,
                boundary_note = excluded.boundary_note, source_path = excluded.source_path,
-               source_sha256 = excluded.source_sha256, updated_at = excluded.updated_at""",
+               source_sha256 = excluded.source_sha256, updated_at = excluded.updated_at,
+               deprecated_at = NULL, runtime_status = excluded.runtime_status""",
         (
             direction_id,
             direction["external_key"],

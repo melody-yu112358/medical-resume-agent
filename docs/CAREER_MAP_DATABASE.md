@@ -23,13 +23,72 @@
 
 ## 迁移与幂等性
 
-本地开发使用 SQLite；DDL 只使用 PostgreSQL 可表达的基础表、外键、唯一键和检查约束，生产迁移可用 PostgreSQL 的 `uuid`、`jsonb` 和 `timestamptz` 等等价类型替换文本存储。
+本地使用 SQLite。基础关系类型可映射到 PostgreSQL；本次增加的不可变内容触发器和表重建迁移使用 SQLite 语法，未来迁移 PostgreSQL 时需要适配，不宣称 DDL 可直接跨库执行。
 
 ```powershell
 python scripts/import_role_packs_to_career_map.py --database .local/career-map.sqlite
 ```
 
 导入器先以 `schemas/role-pack.schema.json` 校验全部 JSON。其后使用 `external_key + content_sha256` 去重：相同文件重复导入不会增加 Role Pack 版本或规则行；内容变更会创建新的不可变版本、把前一版本标记为非当前版本，并保留原始工件。不会覆盖或删除旧职业语义。
+
+### 增量投影与 revision（importer v3）
+
+Source of truth 不变：Pack、Card、规则 registry、taxonomy registry 与 JD evidence 文件分别拥有其原有职责；SQL 和 manifest 都是生成投影。无需修改 Canonical Pack 或 Career Card JSON 来升级已有数据库。
+
+导入器把一次输入视为**完整源集合**，不是局部 patch。先捕获源文件字节并校验，再在一个 `BEGIN IMMEDIATE` 事务内完成 schema 升级、版本导入、当前关联替换和 manifest 激活。先插入新版本，再设置旧版本的 successor，避免引用尚不存在的外键。提交前执行 `foreign_key_check`；任何失败连同 schema 升级一起回滚。
+
+- Pack：继续以文件内容标识 revision；保留 `is_current`、`superseded_by_version_id` 和失效时间。
+- Card：新增 `revision_sha256` 和 `jd_artifact_id`。revision 由 **Card 原文 hash + Role Pack revision ID + JD artifact ID** 决定，`role_pack_version_id` 是该 revision 的明确绑定。即使 Card 文本没变，Pack 或 JD artifact 更新也会产生新 Card revision。该绑定记录导入依赖，不代表自动完成新的领域语义审查。
+- Match rule：新增 `career_card_id`、独立规则内容 `content_sha256`、`rule_json`、`lifecycle_status` 和 `superseded_by_rule_id`。规则 revision ID 同时绑定 Card revision；修改单条规则不要求修改 Card，也不为其他未变规则生成 revision。数据库触发器禁止原地改写规则内容。
+- Rule 生命周期：同一身份（Card ID + rule key）的新版替代旧版时为 `superseded`；从完整输入集合消失时为 `revoked`。重新引入完全相同的规则及依赖可重新激活原 revision，状态变化保存在 `career_card_match_rule_events`。允许空规则集合，以便撤销最后一条规则。没有单独的人工 revoke API；移除源规则就是本阶段的撤销操作。
+- Taxonomy：六张关联表和三个分类词典是当前投影，事务内按完整 registry 替换，移除的关系不会残留。移除的 career direction 标记失效；历史分类和方向文本由 manifest 指向的原始 registry artifact 追踪。
+- JD：`jd_evidence_snapshots.revision_sha256` 覆盖 snapshot 的完整 JSON（含元数据）；`career_card_jd_snapshots` 固定某 Card revision 使用的准确 snapshot 集合。`jd_evidence` 是 URL/摘录标识下的来源目录，描述性元数据随当前输入更新；历史元数据保留在不可变 snapshot 和 artifact。`role_jd_evidence` 是当前关联投影，历史关联按 Card revision 查询。
+
+部分唯一索引分别约束每个 Pack、Card、rule 身份和全局 knowledge snapshot 至多一个 current；成功导入为当前源集合中的每个身份激活恰好一个 revision。不存在于输入中的对象不会继续有效。
+
+“fresh build = incremental build”指当前语义行、关系、解释和 manifest 一致；历史行数量、首次导入时间、首次捕获 artifact 和激活日志自然可能不同。重复导入不新增 revision、manifest 或生命周期事件。回退到旧源集合可重新激活旧 manifest；每次实际切换保留 activation 记录。
+
+### Knowledge snapshot / manifest
+
+`knowledge_snapshots` 保存 canonical JSON、SHA-256、解释器版本、导入器版本和 current 指针；`knowledge_snapshot_activations` 保存切换记录。manifest 内容不允许原地更新。`import_batches.source_digest_sha256` 和 CLI 的 `source_digest` 现在指整个 manifest digest，不再只是 Pack 文件集合摘要。CLI 同时返回 `knowledge_snapshot_id`。
+
+```json
+{
+  "schema_version": "career-map-knowledge-snapshot-v1",
+  "importer_version": "career-map-import-v3",
+  "explanation_interpreter": {"version": "career-card-explanation-v1", "source_sha256": "..."},
+  "sources": [{"path": "data/role-packs/....json", "content_sha256": "..."}],
+  "taxonomy_revision": "source artifact ID",
+  "match_rule_registry_artifact_id": "source artifact ID",
+  "role_pack_revisions": [{"external_key": "...", "role_pack_version_id": "...", "content_sha256": "...", "artifact_id": "..."}],
+  "career_card_revisions": [{"career_card_id": "...", "career_card_version_id": "...", "role_pack_version_id": "...", "content_sha256": "...", "revision_sha256": "...", "artifact_id": "...", "jd_artifact_id": "..."}],
+  "match_rule_revisions": [{"career_card_id": "...", "rule_key": "...", "career_card_match_rule_id": "...", "career_card_version_id": "...", "content_sha256": "..."}],
+  "jd_snapshot_revisions": [{"career_card_version_id": "...", "jd_evidence_snapshot_id": "...", "jd_evidence_id": "...", "external_snapshot_id": "...", "revision_sha256": "...", "source_artifact_id": "...", "source_digest_sha256": "...", "declared_source_digest_sha256": "..."}]
+}
+```
+
+manifest 排除本机绝对目录和导入时间，并固定全部当前依赖。历史 manifest 可以按 ID 从 SQL 读取，但本 PR **没有新增历史解释 API**，也不保存 Profile。解释服务保持五类判定、文字和返回结构，只在同一只读事务内读取 current rule 和 Card 绑定的 JD revisions，避免一次查询混入两次导入的数据。
+
+### 已有数据库升级
+
+继续运行同一导入命令即可升级。`scripts/career_map_revisions.py` 检测旧列并事务重建 `career_cards`、`jd_evidence_snapshots`、`career_card_match_rules`，保留原有主键、内容、引用与原始 artifact。新增当前 revision 与其历史并存。迁移仅在专用连接开始事务前暂时关闭即时 FK enforcement，提交前完整验证 FK；失败恢复原 schema 和数据。
+
+旧库没有 manifest，也可能已存在过去导入造成的关联累积。迁移会保存这些历史行及 legacy digest，旧 Card 的 `jd_artifact_id` 保持 NULL（未能可靠确定），不会虚构其当年的精确依赖。升级后产生完整 manifest；升级前的记录可追踪，但不能声称可精确重放。
+
+```sql
+-- 当前知识快照。
+SELECT knowledge_snapshot_id, manifest_sha256, manifest_json
+FROM knowledge_snapshots WHERE is_current = 1;
+
+-- 所有历史规则内容与生命周期。
+SELECT rule_key, career_card_match_rule_id, content_sha256, rule_json,
+       lifecycle_status, superseded_by_rule_id
+FROM career_card_match_rules WHERE career_card_id = 'clinical_data_management';
+
+-- 某次快照记录的原始 taxonomy（manifest 中取 taxonomy_revision）。
+SELECT relative_path, content_sha256, raw_content
+FROM source_artifacts WHERE artifact_id = :taxonomy_revision;
+```
 
 职业地图种子还登记了 6 个长期 JD-driven 方向：市场准入、医疗产品、医疗咨询、商业/业务分析、医疗/项目运营、医学销售/商业。它们是可探索的职业方向，不是泛化的 Role Pack；数据库会保留其所需 JD 语境和边界提示。
 

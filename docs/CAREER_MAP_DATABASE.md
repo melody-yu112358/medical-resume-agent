@@ -112,6 +112,8 @@ python scripts/query_career_card_explanation.py --database .local/career-map.sql
 
 ## 最小查询示例
 
+无需数据库 GUI 的网页试用：运行 `python scripts/serve_career_map.py`，浏览器打开 `http://127.0.0.1:8765`。职业地图、已有卡片和 synthetic 解释均只读；详细步骤见 [本地试用台](CAREER_MAP_LOCAL_VIEWER.md)。
+
 ```sql
 -- 当前 Canonical 集合与其运行时边界。
 SELECT v.external_key, v.label, s.maturity_status, s.execution_status

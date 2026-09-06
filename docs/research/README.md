@@ -5,6 +5,7 @@
 | 类别 | 入口 | 如何使用 |
 | --- | --- | --- |
 | 扩展方法 | [广度扩展方法](career-catalog-breadth-plan-v1.md) | 维护来源类别、去重、分类和 coverage 定义 |
+| 广度来源观察 | [采集记录入口](career-catalog-breadth/README.md) | 保留批次来源、范围建议和遗漏；不计为已发布职业 |
 | 研究策略 | [中国覆盖矩阵](china-career-coverage-matrix-v1.md) | 有日期的研究层级建议，不是当前库存或市场统计 |
 | 既有来源观察 | [相邻方向来源清单](adjacent-career-job-source-inventory-2026-08-17.md)、[医疗 AI 产品岗位研究](healthcare-ai-product-manager-jobs-2026-08-17.md) | 按采集日期理解；历史招聘不代表当前在招 |
 | CRA 验证 | [scorecard](role-validation/cra/scorecard.md) | 读取当时的 corpus、评价范围与限制 |

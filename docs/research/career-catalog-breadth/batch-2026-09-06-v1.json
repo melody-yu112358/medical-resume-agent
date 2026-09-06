@@ -1,0 +1,515 @@
+{
+  "record_version": "breadth-observation-v1",
+  "batch_id": "breadth-2026-09-06-01",
+  "collected_on": "2026-09-06",
+  "purpose": "Discovery observations before Beta scope review; not a released catalog or matching input.",
+  "source_snapshots": [
+    {
+      "source_id": "src-funde-001",
+      "url": "https://www.funde-ins.com/rcjm/zhaopin/493151.shtml",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "80abf95063bc5123e1b4e26d6e040f70b7635507763b76051c4cd27f81d540e6",
+      "retained_payload": {
+        "employer": "富德生命人寿",
+        "publication_date": null,
+        "date_note": "正文未见发布日期；不把页脚版权年份当发布时间。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "undated_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "专业不限",
+        "observations": [
+          {
+            "observation_id": "obs-funde-underwriting",
+            "raw_title": "核保核赔部核保员",
+            "task_summary": "授权内保单风险审核，维护承保流程，参与产品测试并分析核保指标。",
+            "entry_requirements_summary": "本科及以上；原文要求国家重点大学，专业列医学、保险、财会、法学；另有分析沟通要求。",
+            "source_locator": "核保核赔部核保员／岗位职责及要求",
+            "experience": null,
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-funde-claims",
+            "raw_title": "核保核赔部理赔员岗",
+            "task_summary": "权限内理赔审核签批，改进流程，开展培训及理赔数据分析。",
+            "entry_requirements_summary": "本科及以上；原文要求国家重点大学，专业列医学、法学、法医；另有分析沟通要求。",
+            "source_locator": "核保核赔部理赔员岗／岗位职责及要求",
+            "experience": null,
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-funde-product-project",
+            "raw_title": "产品市场部产品项目管理岗",
+            "task_summary": "协助产品立项、开发协调、上市推动及后续销售跟踪。",
+            "entry_requirements_summary": "本科及以上，专业不限；须了解保险业务，有项目管理经历优先。",
+            "source_locator": "产品市场部产品项目管理岗／岗位职责及要求",
+            "experience": null,
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-dxy-001",
+      "url": "https://endo.dxy.cn/article/516527",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "92fbef2b2eb031e5360efec4d865c6e041706108d13b2fe423dd6bc8e42a293d",
+      "retained_payload": {
+        "employer": "丁香园",
+        "publication_date": "2017-06-28",
+        "date_note": "正文明确显示日期。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "historical_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "医学或相关医学专业出身",
+        "observations": [
+          {
+            "observation_id": "obs-dxy-editor",
+            "raw_title": "医学编辑",
+            "task_summary": "面向临床医生做医学选题、文献处理和内容渠道维护。",
+            "entry_requirements_summary": "医学相关专业；需文献检索、英语读写、沟通及社交平台运营理解；未见学历层级要求。",
+            "source_locator": "工作职责／我们希望你",
+            "experience": null,
+            "location": "杭州（投递链接标签）",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-mab-001",
+      "url": "https://www.mab-works.com/join/detail/25.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "e90e96c3bc8bb8ba05617ad596a671887b98910d89e3822e4abf8deb83e5a375",
+      "retained_payload": {
+        "employer": "北京天广实生物技术股份有限公司",
+        "publication_date": "2026-09-04",
+        "date_note": "正文发布时间。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "dated_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "2年以上SAS Programmer经验",
+        "observations": [
+          {
+            "observation_id": "obs-mab-programmer",
+            "raw_title": "统计程序员",
+            "task_summary": "用 SAS 生成统计输出和分析数据，维护编程文档、数据核查及工具。",
+            "entry_requirements_summary": "本科及以上；生物统计、流行病学、公卫、数理统计等；另要求 SAS、CDISC 及临床试验规范知识。",
+            "source_locator": "岗位职责／任职资格",
+            "experience": "2年以上 SAS Programmer 经验",
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-nyfy-001",
+      "url": "https://www.nyfy.com.cn/Uploads/Picture/2026/04/20/u69e615e13a818.pdf",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "f8d17eda68b74f61197e365d2dcb97e9340aeda1cb5e1daa61669eb2e4617e8d",
+      "retained_payload": {
+        "employer": "宁夏医科大学总医院",
+        "publication_date": null,
+        "date_note": "标题为2026年招聘；未从正文确认发布日期，不把URL路径当发布日期。按第3页表格提取内容核对。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "dated_campaign_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "具有医师资格证书和住院医师规范化培训合格证书",
+        "observations": [
+          {
+            "observation_id": "obs-nyfy-education",
+            "raw_title": "医学教育管理专技岗",
+            "task_summary": "医学教育管理；岗位表未展开任务与交付物。",
+            "entry_requirements_summary": "硕士研究生、临床医学类、30周岁以下；要求医师资格及规培合格。",
+            "source_locator": "PDF第3页，B32",
+            "experience": null,
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-nyfy-record-statistics",
+            "raw_title": "病案统计专技岗",
+            "task_summary": "病案统计；未明确是否包含编码，不能据标题等同编码员。",
+            "entry_requirements_summary": "硕士研究生、30周岁以下、限应届；所需专业为劳动卫生与环境卫生学、卫生毒理学。",
+            "source_locator": "PDF第3页，B33",
+            "experience": "限应届",
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-pmph-001",
+      "url": "https://ccdas.pmphai.com/pc/login/goAbout?type=5",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "35ffa6e680a5b3ea72f502e411ddb198849e1c4c056c2bf3a95a6290722bda1e",
+      "retained_payload": {
+        "employer": "人民卫生出版社有限公司医学学术编辑中心",
+        "publication_date": null,
+        "date_note": "招聘段未见发布日期；产品上线年份和页脚年份均不作为招聘发布日期。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "undated_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "3年以上内容/社区运营经验",
+        "observations": [
+          {
+            "observation_id": "obs-pmph-content",
+            "raw_title": "内容运营",
+            "task_summary": "维护医学产品内容、作者及编辑协作，优化内容模块和用户体验。",
+            "entry_requirements_summary": "本科及以上、医药学相关专业；另有独立工作、策划与协作要求。",
+            "source_locator": "人才招聘／一、内容运营",
+            "experience": "2年以上相关经验，具有网站或移动产品运营经历",
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-pmph-community",
+            "raw_title": "用户运营",
+            "task_summary": "维护社区内容与互动、领袖用户关系，采集需求并策划专题。",
+            "entry_requirements_summary": "专科及以上、医药学相关专业；另有文字、策划及图像处理要求。",
+            "source_locator": "人才招聘／二、用户运营",
+            "experience": "3年以上内容或社区运营经验",
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-pmph-market",
+            "raw_title": "市场运营",
+            "task_summary": "执行增长与机构推广，依据数据调整运营方案。",
+            "entry_requirements_summary": "本科及以上；医疗、健康、运动领域优先，需分析、文案、协调能力并适应出差；未限定专业。",
+            "source_locator": "人才招聘／三、市场运营",
+            "experience": "2年以上互联网运营经验",
+            "location": null,
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "breadth-insurance-underwriter",
+      "proposed_label": "保险核保",
+      "observation_ids": [
+        "obs-funde-underwriting"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "保险风险审核",
+      "collection_track": "cross_industry_medical_requirement",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "医学是招聘列出的专业之一；授权核保能力仍须独立核验。",
+      "organization_type_proposal": "保险机构"
+    },
+    {
+      "candidate_id": "breadth-insurance-claims",
+      "proposed_label": "保险理赔审核",
+      "observation_ids": [
+        "obs-funde-claims"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "保险理赔",
+      "collection_track": "cross_industry_medical_requirement",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "与核保是相邻任务，不能按同部门合并；医学背景不证明签批授权。",
+      "organization_type_proposal": "保险机构"
+    },
+    {
+      "candidate_id": "breadth-insurance-product-project",
+      "proposed_label": "保险产品项目协调",
+      "observation_ids": [
+        "obs-funde-product-project"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "项目协调",
+      "collection_track": "cross_industry_general",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "专业不限仅表示该条招聘专业条件；产品知识和项目要求仍保留。",
+      "organization_type_proposal": "保险机构"
+    },
+    {
+      "candidate_id": "breadth-medical-editor",
+      "proposed_label": "医学内容编辑",
+      "observation_ids": [
+        "obs-dxy-editor"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "医学内容与传播",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "adjacent",
+        "target_keys": [
+          "regulatory_medical_writing_v1"
+        ]
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "面向临床内容，与注册文件写作不等价；与内容运营有交叉但先不合并。",
+      "organization_type_proposal": "医学出版/内容服务机构"
+    },
+    {
+      "candidate_id": "breadth-statistical-programmer",
+      "proposed_label": "临床统计编程",
+      "observation_ids": [
+        "obs-mab-programmer"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "数据与统计",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "adjacent",
+        "target_keys": [
+          "clinical_data_management_v1",
+          "health_ai_data_v1"
+        ]
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "统计输出编程不等于 CDM 或独立统计设计；经验要求不可省略。",
+      "organization_type_proposal": "医药企业"
+    },
+    {
+      "candidate_id": "breadth-medical-education-admin",
+      "proposed_label": "医院医学教育管理",
+      "observation_ids": [
+        "obs-nyfy-education"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "教育与培训管理",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "资格要求明确而任务描述很浅，须补充具体职责；不是考博申请路径。",
+      "organization_type_proposal": "医院"
+    },
+    {
+      "candidate_id": "breadth-medical-record-statistics",
+      "proposed_label": "医院病案统计",
+      "observation_ids": [
+        "obs-nyfy-record-statistics"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "医疗信息与统计",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "adjacent",
+        "target_keys": [
+          "clinical_data_management_v1"
+        ]
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "未证明病案编码职责，不与编码员或临床试验数据管理自动合并。",
+      "organization_type_proposal": "医院"
+    },
+    {
+      "candidate_id": "breadth-medical-content-operations",
+      "proposed_label": "医学产品内容运营",
+      "observation_ids": [
+        "obs-pmph-content"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "内容运营",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "adjacent",
+        "target_keys": [
+          "healthcare_project_operations_jd_driven"
+        ]
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "与医学编辑比较内容产出和流程管理边界，暂不确认别名关系。",
+      "organization_type_proposal": "医学出版/内容服务机构"
+    },
+    {
+      "candidate_id": "breadth-medical-community-operations",
+      "proposed_label": "医学产品用户运营",
+      "observation_ids": [
+        "obs-pmph-community"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "用户与社区运营",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "adjacent",
+        "target_keys": [
+          "healthcare_project_operations_jd_driven"
+        ]
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "与内容运营区分用户互动对象；机构管理不自动等于用户运营。",
+      "organization_type_proposal": "医学出版/内容服务机构"
+    },
+    {
+      "candidate_id": "breadth-medical-market-operations",
+      "proposed_label": "医学产品市场运营",
+      "observation_ids": [
+        "obs-pmph-market"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "市场与增长运营",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "adjacent",
+        "target_keys": [
+          "healthcare_project_operations_jd_driven",
+          "medical_sales_commercial_jd_driven"
+        ]
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "推广增长不直接等于销售 quota；具体雇主的资历要求仍独立。",
+      "organization_type_proposal": "医学出版/内容服务机构"
+    }
+  ],
+  "claim_support_links": [],
+  "coverage": {
+    "reference_set_version": null,
+    "percentage": null,
+    "limitation": "Convenience sample; not a national denominator, frozen internal candidate set or completed breadth survey."
+  },
+  "search_log": [
+    {
+      "query": "site.pingan.com 招聘 医学 核保 核赔 岗位职责",
+      "result": "官方具体职责转向富德招聘页；友邦仅获索引摘要。"
+    },
+    {
+      "query": "site.dxy.cn 招聘 医学编辑 职位",
+      "result": "读到历史自招页面；通用职位入口不计JD。"
+    },
+    {
+      "query": "2026 病案编码 招聘 岗位职责 site.edu.cn",
+      "result": "编码页访问未成功；补读医院官方岗位表，病案统计与编码保持未归并。"
+    },
+    {
+      "query": "统计 程序员 生物统计师 招聘 site.tigermedgrp.com",
+      "result": "行业介绍不作为JD；另核对天广实具体招聘。"
+    },
+    {
+      "query": "2026 招聘 医学 编辑 site.pmph.com",
+      "result": "找到产品官网自招正文；未确认日期，不能当2026招聘。"
+    }
+  ],
+  "leads_not_counted": [
+    {
+      "url": "https://aia.wd3.myworkdayjobs.com/ko-KR/External/job/-_JR-68778",
+      "status": "search_extract_only",
+      "reason": "打开后无可读正文，不作为第二雇主确认。"
+    },
+    {
+      "url": "https://www.znhospital.cn/reurits_detail/16941.html",
+      "status": "fetch_failed_412",
+      "reason": "编码员索引线索，未保留完整可读岗位内容。"
+    },
+    {
+      "url": "https://jy.hrbmu.edu.cn/detail/job?id=2692289",
+      "status": "fetch_failed",
+      "reason": "高校雇主发布线索，未完成正文核验。"
+    },
+    {
+      "url": "https://tigermedgrp.com/zh-hant/solutions/clinical-development/data-management-and-statistical-analysis",
+      "status": "service_description_search_extract",
+      "reason": "服务介绍不是招聘；不据此建立生物统计师JD或资格。"
+    }
+  ],
+  "unsearched_or_insufficient": [
+    "一般注册事务",
+    "RWE与HEOR",
+    "公共卫生与政府事业单位",
+    "健康管理与养老",
+    "教学培训与出版其他角色",
+    "药械质量与生产",
+    "跨行业一般岗位的多雇主样本",
+    "地区和责任层级分层",
+    "独立留出样本"
+  ]
+}

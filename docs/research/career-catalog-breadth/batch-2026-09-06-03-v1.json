@@ -1,0 +1,284 @@
+{
+  "record_version": "breadth-observation-v1",
+  "batch_id": "breadth-2026-09-06-03",
+  "collected_on": "2026-09-06",
+  "purpose": "Breadth-first discovery only; no Beta registration, Canonical promotion, claim support, matching input or runtime target.",
+  "source_snapshots": [
+    {
+      "source_id": "src-pku-transfer-003",
+      "url": "https://hr.pku.edu.cn/rczp/xzjf/ldhtzp/9668286ee618413cbb531319fe7d0395.htm",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "11872d92d2f4f78ae9fe3ddf9d38951153b4ea9d41c18e54f03480d2a295275a",
+      "retained_payload": {
+        "employer": "北京大学（科技开发部技术转移中心）",
+        "publication_date": "2023-02-21",
+        "date_note": "截止2023-03-03，已过报名期。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "historical_reference",
+        "vacancy_status": "past_application_deadline",
+        "retained_excerpt": "技术转移专员（生命科学与健康方向）",
+        "observations": [
+          {
+            "observation_id": "obs-pku-health-transfer",
+            "raw_title": "技术转移专员（生命科学与健康方向）",
+            "task_summary": "组织成果转化、项目尽调和资源对接，维护成果需求库并申报科技项目。",
+            "typical_deliverables": [
+              "转化方案",
+              "成果需求库及项目申报材料"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "原文理工科硕士以上；生命科学、化学、医学及医疗器械工程等优先；产业、孵化投资经历优先；写作办公能力。合同制，无事业编制及落户。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution",
+            "responsibility_basis": "承担技术入股实施，不推定投资审批权；成果转化与药品工艺转移不同。",
+            "source_locator": "技术转移专员（生命科学与健康方向）／职责及要求",
+            "experience": null,
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-linda-003",
+      "url": "https://www.lindapatent.com/cn/recruit/",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "d8fc61f1f4ea3283d74e92a21d07f84898f4c603d0551b1bf477d85f775d73b2",
+      "retained_payload": {
+        "employer": "林达刘（Linda Liu & Partners）",
+        "publication_date": null,
+        "date_note": "正文未见招聘日期，不采用版权年份。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "undated_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "国内专利代理师",
+        "observations": [
+          {
+            "observation_id": "obs-linda-domestic-patent",
+            "raw_title": "国内专利代理师",
+            "task_summary": "处理检索、申请撰写、审查答复及客户咨询，参与无效和侵权分析。",
+            "typical_deliverables": [
+              "申请文件",
+              "审查答复"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "材料生物医药、电学、机械相关专业；学历、年限和代理资格要求在该段未明示，不能解释为无需资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution_authorization_unverified",
+            "responsibility_basis": "专利事务执行；法律代理授权待核，不推定机构负责人。",
+            "source_locator": "国内专利代理师／职责及要求",
+            "experience": null,
+            "location": "北京／大连／苏州／上海（页面共同地点）",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-linda-foreign-patent",
+            "raw_title": "涉外专利代理师（英文或日文）",
+            "task_summary": "处理外国客户专利文件翻译技术核对、审查及咨询答复。",
+            "typical_deliverables": [
+              "译校文件",
+              "审查答复"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "材料生物医药、电学、机械相关专业；英语CET6或日语N1；学历、年限及代理资格未明示。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution_authorization_unverified",
+            "responsibility_basis": "保留涉外客户与语言要求；不因代理师同名就认定与国内业务完全相同。",
+            "source_locator": "涉外专利代理师（英文或日文）／职责及要求",
+            "experience": null,
+            "location": "北京／大连／苏州／上海（页面共同地点）",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-shcdc-003",
+      "url": "https://rsj.sh.gov.cn/tzpgg_17408/20240419/t0035_1423674.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "d00f15402495b589a0ea9b1dc4facada0693ee8f4348c99db7e6ca1710776e5d",
+      "retained_payload": {
+        "employer": "上海市疾病预防控制中心",
+        "publication_date": "2024-04-19",
+        "date_note": "截止2024-05-05，已过报名期。",
+        "content_access": "page_body_read",
+        "source_type": "government_published_employer_notice",
+        "temporal_status": "historical_reference",
+        "vacancy_status": "past_application_deadline",
+        "retained_excerpt": "公共卫生业务管理初级岗位",
+        "observations": [
+          {
+            "observation_id": "obs-shcdc-health-data",
+            "raw_title": "公共卫生业务管理初级岗位",
+            "task_summary": "分析公共卫生数据，识别趋势并评估政策和项目指标。",
+            "typical_deliverables": [
+              "归档数据资料",
+              "数据报告及改进建议"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "生物医学、公共卫生、统计学或其他适任相关专业硕士以上毕业生；外省市社会人员须满足公告居住证条件。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "junior_assigned_execution",
+            "responsibility_basis": "原文明确初级；数据报告支持决策，不能推定政策制定权。",
+            "source_locator": "公共卫生业务管理初级岗位／职责及要求",
+            "experience": null,
+            "location": "上海",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "breadth-pku-health-transfer",
+      "proposed_label": "生命健康成果转化执行",
+      "observation_ids": [
+        "obs-pku-health-transfer"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "技术转移与成果运营",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "不同于生产技术转移，先保留观察。",
+      "organization_type_proposal": "高校"
+    },
+    {
+      "candidate_id": "breadth-linda-domestic-patent",
+      "proposed_label": "国内专利申请事务",
+      "observation_ids": [
+        "obs-linda-domestic-patent"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "知识产权服务",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "原JD面向多技术领域；仅材料生物医药分支有关，不代表所有医学专业适用。",
+      "organization_type_proposal": "知识产权专业服务机构"
+    },
+    {
+      "candidate_id": "breadth-linda-foreign-patent",
+      "proposed_label": "涉外专利技术事务",
+      "observation_ids": [
+        "obs-linda-foreign-patent"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "知识产权服务",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "保留外国客户及语言边界，后续审查与国内代理是否同族不同范围。",
+      "organization_type_proposal": "知识产权专业服务机构"
+    },
+    {
+      "candidate_id": "breadth-shcdc-health-data",
+      "proposed_label": "公共卫生数据分析与评价",
+      "observation_ids": [
+        "obs-shcdc-health-data"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "公共卫生分析评价",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "管理标题实际为初级数据分析交付，不命名为部门管理者。",
+      "organization_type_proposal": "公共卫生事业单位"
+    }
+  ],
+  "claim_support_links": [],
+  "coverage": {
+    "reference_set_version": null,
+    "percentage": null,
+    "limitation": "便利样本；观察数和待审范围数均不是去重职业总数。没有冻结参考候选集，不能计算内部参考集覆盖进度或全国职业覆盖率。"
+  },
+  "search_log": [
+    {
+      "query": "技术转移 招聘 医学；专利代理 招聘 生物 医药；职业卫生评价 招聘 预防医学",
+      "result": "读取高校、雇主及政府招聘正文；仅有机构职能介绍不作JD。",
+      "query_kind": "research_topic_summary_not_exact_search_transcript"
+    }
+  ],
+  "leads_not_counted": [
+    {
+      "url": "https://www.ennovabio.com/job/",
+      "status": "fetch_failed",
+      "reason": "搜索结果显示企业知识产权岗位，但正文访问错误，未计数。"
+    },
+    {
+      "url": "https://www.ipmizar.com/career",
+      "status": "search_extract_only",
+      "reason": "打开后无可读正文，未计数。"
+    },
+    {
+      "url": "https://rsj.sh.gov.cn/tzpgg_17408/20260602/t0035_1441101.html",
+      "status": "requirements_attachment_not_reviewed",
+      "reason": "公告正文已读；逐岗职责和资格在xls附件，尚未核对附件，不将列出的六个名称计为已核对观察。"
+    },
+    {
+      "url": "https://www.niosh.org.cn/Central_Business_Department/17.html",
+      "status": "service_description_search_extract",
+      "reason": "部门职能介绍不是具体岗位JD，未计数。"
+    }
+  ],
+  "duty_review_queue": [
+    {
+      "observation_ids": [
+        "obs-linda-domestic-patent",
+        "obs-linda-foreign-patent"
+      ],
+      "proposal": "possible_shared_family_distinct_scope",
+      "reason": "专利答复有共同任务，但客户、语言和文件处理侧重不同；未完成角色归并。"
+    }
+  ],
+  "unsearched_or_insufficient": [
+    "单角色多雇主验证不足；支持／独立执行／负责人层级样本不平衡。",
+    "地区样本集中，来源可读性有偏；既非当前在招岗位清单，也非医学生普遍可进入的职业清单。",
+    "法规注册、支付与卫生经济、养老服务、客户实施及其他跨行业职能仍需继续采样。"
+  ]
+}

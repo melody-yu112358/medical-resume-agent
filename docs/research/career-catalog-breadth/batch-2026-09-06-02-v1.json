@@ -1,0 +1,474 @@
+{
+  "record_version": "breadth-observation-v1",
+  "batch_id": "breadth-2026-09-06-02",
+  "collected_on": "2026-09-06",
+  "purpose": "Breadth-first discovery only; no Beta registration, Canonical promotion, claim support, matching input or runtime target.",
+  "source_snapshots": [
+    {
+      "source_id": "src-mab-qa-002",
+      "url": "https://www.mab-works.com/join/detail/32.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "9c9679ed435059a2fec7acb16689f70110e198d0e2ef837f4ba4b9a6de037e8b",
+      "retained_payload": {
+        "employer": "北京天广实生物技术股份有限公司",
+        "publication_date": null,
+        "date_note": "详情页、列表或搜索摘要日期不一致，保留所见日期，不确认原始发布日期；不把可读页面等同仍在招。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "date_conflict_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "QA专员",
+        "observations": [
+          {
+            "observation_id": "obs-mab-qa-validation",
+            "raw_title": "QA专员",
+            "task_summary": "维护验证体系，审阅设备及系统验证文件，跟踪偏差、变更和CAPA。",
+            "typical_deliverables": [
+              "验证主计划与台账",
+              "验证方案、报告及SOP"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "生物、药学相关；页头本科以上与正文大专/本科以上不一致，学历门槛待核；验证经验3年以上；GMP、英语及办公工具能力。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution_with_review",
+            "responsibility_basis": "包括验证文件审核；未见质量负责人任命或批放行授权。原页职责/资格标题疑似对调，按段落内容转述。",
+            "source_locator": "QA专员／职责及要求",
+            "experience": "生物制药或无菌药品验证3年以上",
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ],
+        "displayed_dates": [
+          {
+            "value": "2026-09-04",
+            "label": "详情页发布时间",
+            "url": "https://www.mab-works.com/join/detail/32.html"
+          },
+          {
+            "value": "2026-09-06",
+            "label": "搜索结果日期，仅作日期不一致观察，不作JD正文证据",
+            "url": "https://www.mab-works.com/join/detail/32.html"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-mab-qc-002",
+      "url": "https://www.mab-works.com/join/detail/106.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "31b45d115baa1f257a6125ebe87bfb7048b71b6748acc937ec0b02b3ed9baf5c",
+      "retained_payload": {
+        "employer": "北京天广实生物技术股份有限公司",
+        "publication_date": null,
+        "date_note": "详情页、列表或搜索摘要日期不一致，保留所见日期，不确认原始发布日期；不把可读页面等同仍在招。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "date_conflict_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "质检工程师",
+        "observations": [
+          {
+            "observation_id": "obs-mab-qc-analysis",
+            "raw_title": "质检工程师",
+            "task_summary": "开展药品检测、分析方法转移验证、仪器维护及异常调查协助。",
+            "typical_deliverables": [
+              "检验记录",
+              "方法验证方案与报告"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "药学、化学、生物等本科以上；QC相关3年以上；HPLC等仪器能力；要求一定管理经验，未明确管理范围或执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution_management_scope_unspecified",
+            "responsibility_basis": "技术执行兼协助调查；不能由一定管理经验推出部门负责人。",
+            "source_locator": "质检工程师／职责及要求",
+            "experience": "QC相关3年以上",
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ],
+        "displayed_dates": [
+          {
+            "value": "2026-08-18",
+            "label": "详情页发布时间",
+            "url": "https://www.mab-works.com/join/detail/106.html"
+          },
+          {
+            "value": "2026-02-28",
+            "label": "招聘列表日期",
+            "url": "https://www.mab-works.com/join.html"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-mab-cell-002",
+      "url": "https://www.mab-works.com/join/detail/105.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "568ea5c18e942fc516aa17cbe722419071ad335fa32823414e6c269516ec489b",
+      "retained_payload": {
+        "employer": "北京天广实生物技术股份有限公司",
+        "publication_date": null,
+        "date_note": "详情页、列表或搜索摘要日期不一致，保留所见日期，不确认原始发布日期；不把可读页面等同仍在招。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "date_conflict_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "细胞培养生产工程师",
+        "observations": [
+          {
+            "observation_id": "obs-mab-cell-production",
+            "raw_title": "细胞培养生产工程师",
+            "task_summary": "执行细胞培养生产、规模验证和工艺转移，维护生产设备。",
+            "typical_deliverables": [
+              "批生产记录及总结",
+              "生产SOP与申报资料"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "生物技术、药品生产等专科以上；生产相关2年以上和细胞培养基础；GMP意识；生物反应器经验优先。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution",
+            "responsibility_basis": "负责分配的培养生产；参与转移不等同生产负责人。",
+            "source_locator": "细胞培养生产工程师／职责及要求",
+            "experience": "生产或相关2年以上",
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ],
+        "displayed_dates": [
+          {
+            "value": "2026-09-04",
+            "label": "详情页发布时间",
+            "url": "https://www.mab-works.com/join/detail/105.html"
+          },
+          {
+            "value": "2026-02-13",
+            "label": "招聘列表日期",
+            "url": "https://www.mab-works.com/join.html"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-mab-pur-002",
+      "url": "https://www.mab-works.com/join/detail/104.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "ee49955a0ebcd547c1221c21e3f5e2d54e07e1b7b60888afee6075b487f8b5ae",
+      "retained_payload": {
+        "employer": "北京天广实生物技术股份有限公司",
+        "publication_date": null,
+        "date_note": "详情页、列表或搜索摘要日期不一致，保留所见日期，不确认原始发布日期；不把可读页面等同仍在招。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "date_conflict_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "纯化生产工程师",
+        "observations": [
+          {
+            "observation_id": "obs-mab-purification-production",
+            "raw_title": "纯化生产工程师",
+            "task_summary": "执行临床样品纯化生产、工艺验证、规模转移及车间清洁。",
+            "typical_deliverables": [
+              "技术转移方案",
+              "批生产记录及总结"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "生物技术、药品生产等专科以上；纯化生产经历；AKTA、深层过滤和超滤；GMP意识。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution",
+            "responsibility_basis": "包含转移方案起草；不据此推出工艺开发或厂级管理所有权。",
+            "source_locator": "纯化生产工程师／职责及要求",
+            "experience": "要求纯化生产经历，年限未明示",
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ],
+        "displayed_dates": [
+          {
+            "value": "2026-08-19",
+            "label": "详情页发布时间",
+            "url": "https://www.mab-works.com/join/detail/104.html"
+          },
+          {
+            "value": "2026-02-13",
+            "label": "招聘列表日期",
+            "url": "https://www.mab-works.com/join.html"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-mab-dev-002",
+      "url": "https://www.mab-works.com/join/detail/107.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "9103d42cee66ccbbd92e3e429b7e5c39839f691b12fdc76f683b74ad3d2572c3",
+      "retained_payload": {
+        "employer": "北京天广实生物技术股份有限公司",
+        "publication_date": null,
+        "date_note": "详情页、列表或搜索摘要日期不一致，保留所见日期，不确认原始发布日期；不把可读页面等同仍在招。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "date_conflict_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "下游工艺开发研究员",
+        "observations": [
+          {
+            "observation_id": "obs-mab-downstream-development",
+            "raw_title": "下游工艺开发研究员",
+            "task_summary": "开发和优化蛋白纯化工艺，完成小试验证，配合生产转移及岗位带教。",
+            "typical_deliverables": [
+              "研究方案与开发报告",
+              "申报资料及SOP"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "生物工程、技术、制药等本科以上；纯化、AKTA、DOE能力；IND/BLA经历优先；英语和计算机能力。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution_with_training",
+            "responsibility_basis": "岗位带教不证明团队管理权限；开发研究与生产批执行分开。",
+            "source_locator": "下游工艺开发研究员／职责及要求",
+            "experience": null,
+            "location": "北京",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ],
+        "displayed_dates": [
+          {
+            "value": "2026-09-05",
+            "label": "详情页发布时间",
+            "url": "https://www.mab-works.com/join/detail/107.html"
+          },
+          {
+            "value": "2026-03-05",
+            "label": "招聘列表日期",
+            "url": "https://www.mab-works.com/join.html"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-mabwell-002",
+      "url": "https://www.mabwell.com/jobs_info/id-98.html",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "f4aa43898ef9155563302772214dcde262be9819573abdeafd4d3b6b6ca05874",
+      "retained_payload": {
+        "employer": "迈威（上海）生物科技股份有限公司",
+        "publication_date": "2022-08-01",
+        "date_note": "正文发布日期；历史招聘。雇主按官网主体记录，具体用工子公司未确认。",
+        "content_access": "page_body_read",
+        "source_type": "employer_published",
+        "temporal_status": "historical_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "生产-微生物分析工程师",
+        "observations": [
+          {
+            "observation_id": "obs-mabwell-microbiology",
+            "raw_title": "生产-微生物分析工程师",
+            "task_summary": "检测药品、水和洁净区微生物，执行验证并管理菌种、培养基和仪器。",
+            "typical_deliverables": [
+              "检测与验证数据",
+              "验证报告及检验规程"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "生物、药学类大专以上；页头经验3年以上；微生物实验和设备操作；须通过公司GMP、安全卫生培训。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution",
+            "responsibility_basis": "标题含生产但职责为检验；物料管理不等于人员管理，亦非临床检验。",
+            "source_locator": "生产-微生物分析工程师／职责及要求",
+            "experience": "页头3年以上",
+            "location": "江苏泰州",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "breadth-mab-qa-validation",
+      "proposed_label": "药品验证与确认执行",
+      "observation_ids": [
+        "obs-mab-qa-validation"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "质量保证",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "暂留独立观察，职责与层级待跨雇主统一审查；不是已确认新职业。",
+      "organization_type_proposal": "药品企业"
+    },
+    {
+      "candidate_id": "breadth-mab-qc-analysis",
+      "proposed_label": "药品分析检验执行",
+      "observation_ids": [
+        "obs-mab-qc-analysis"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "质量控制",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "暂留独立观察，职责与层级待跨雇主统一审查；不是已确认新职业。",
+      "organization_type_proposal": "药品企业"
+    },
+    {
+      "candidate_id": "breadth-mab-cell-production",
+      "proposed_label": "细胞培养生产执行",
+      "observation_ids": [
+        "obs-mab-cell-production"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "生产制造",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "暂留独立观察，职责与层级待跨雇主统一审查；不是已确认新职业。",
+      "organization_type_proposal": "药品企业"
+    },
+    {
+      "candidate_id": "breadth-mab-purification-production",
+      "proposed_label": "纯化生产执行",
+      "observation_ids": [
+        "obs-mab-purification-production"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "生产制造",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "暂留独立观察，职责与层级待跨雇主统一审查；不是已确认新职业。",
+      "organization_type_proposal": "药品企业"
+    },
+    {
+      "candidate_id": "breadth-mab-downstream-development",
+      "proposed_label": "蛋白纯化工艺开发",
+      "observation_ids": [
+        "obs-mab-downstream-development"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "工艺开发",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "暂留独立观察，职责与层级待跨雇主统一审查；不是已确认新职业。",
+      "organization_type_proposal": "药品企业"
+    },
+    {
+      "candidate_id": "breadth-mabwell-microbiology",
+      "proposed_label": "药品微生物检验执行",
+      "observation_ids": [
+        "obs-mabwell-microbiology"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "质量控制",
+      "collection_track": "healthcare_related",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "暂留独立观察，职责与层级待跨雇主统一审查；不是已确认新职业。",
+      "organization_type_proposal": "药品企业"
+    }
+  ],
+  "claim_support_links": [],
+  "coverage": {
+    "reference_set_version": null,
+    "percentage": null,
+    "limitation": "便利样本；观察数和待审范围数均不是去重职业总数。没有冻结参考候选集，不能计算内部参考集覆盖进度或全国职业覆盖率。"
+  },
+  "search_log": [
+    {
+      "query": "药品 质量 生产 招聘；天广实 QA QC 细胞培养 纯化；迈威 微生物",
+      "result": "读取雇主岗位详情，日期冲突单列；不以质量或生产标题直接归并。",
+      "query_kind": "research_topic_summary_not_exact_search_transcript"
+    }
+  ],
+  "leads_not_counted": [],
+  "duty_review_queue": [
+    {
+      "observation_ids": [
+        "obs-mab-qa-validation",
+        "obs-mab-qc-analysis",
+        "obs-mabwell-microbiology"
+      ],
+      "proposal": "compare_before_merge",
+      "reason": "验证治理、分析检验、微生物检验的对象和交付物不同；同称质量不可直接合并。"
+    },
+    {
+      "observation_ids": [
+        "obs-mab-purification-production",
+        "obs-mab-downstream-development"
+      ],
+      "proposal": "compare_before_merge",
+      "reason": "同用纯化技术，但生产批交付与开发研究不同；待审是否同族不同范围。"
+    }
+  ],
+  "unsearched_or_insufficient": [
+    "单角色多雇主验证不足；支持／独立执行／负责人层级样本不平衡。",
+    "地区样本集中，来源可读性有偏；既非当前在招岗位清单，也非医学生普遍可进入的职业清单。",
+    "法规注册、支付与卫生经济、养老服务、客户实施及其他跨行业职能仍需继续采样。"
+  ]
+}

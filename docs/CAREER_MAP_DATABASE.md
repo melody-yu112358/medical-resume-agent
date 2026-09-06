@@ -15,6 +15,10 @@
 - `roles`、`role_pack_versions`、`source_artifacts`：稳定角色标识、内容版本及原始 JSON provenance。
 - `role_skills`、`role_requirements`、`negative_mappings`、`role_expression_policies`、`role_pack_evaluation_cases`：当前 JSON 中的能力优先级、证据门槛、职责边界、表达规则和测试定义。
 - `ecosystems`、`lifecycle_stages`、`function_families` 及其关系表：产业生态 × 生命周期 × 职能族的机器可读地图。`data/career-map/directions-v1.json` 是该地图的人工维护种子；它不反向修改 Role Pack。
+
+三个维度可交叉而非层级，生命周期不是必填。`lifecycle_applicability` 及可选审核元数据保存在 taxonomy 原始 artifact，由 manifest 固定版本，不增加重复 SQL 列。详见 [筛选与适用性契约](CAREER_MAP_TAXONOMY.md)。
+
+分类仅用于知识导航，不是医学生转岗适配模型；当前目录对象粒度仍有差异。Profile 解释依据 claim、已确认事实和显式规则，不因网页筛选标签而改变结论。
 - `career_directions` 及其三维关联表：未形成 Canonical Pack 的方向。`JD-driven` 方向被明确标记为 `research + jd_driven + not_routable`，必须附具体 JD；未来 Beta/Candidate 方向可登记为 `beta/candidate + explore_only + not_routable`，不会被误当作 Canonical。
 - `career_cards`、`career_card_claims` 及关联表：职业卡的版本、职责/交付物/可迁移性/缺口/JD-dependent 范围与带来源粒度的 JD snapshot 关系。职业卡只解释已有关联 Role Pack，不能生成新 Role Pack 或改变其职责边界。
 - `jd_evidence`、`jd_evidence_snapshots`、`role_jd_evidence`：公开 JD 来源、不可变的保留摘录、来源链接、采集日期、声明摘要与实际摘录摘要。若历史证据的声明摘要与保留摘录不一致，两个值都会保留并显式标记，绝不静默改写来源。
@@ -111,6 +115,8 @@ python scripts/query_career_card_explanation.py --database .local/career-map.sql
 三条虚构 profile 位于 `data/career-map/career-card-explanation-test-profiles-v1.json`，仅用于验证直接、可迁移、部分、缺口与禁止推断边界，不能作为真实用户数据或职业结论。
 
 ## 最小查询示例
+
+无需数据库 GUI 的网页试用：运行 `python scripts/serve_career_map.py`，浏览器打开 `http://127.0.0.1:8765`。职业地图、已有卡片和 synthetic 解释均只读；详细步骤见 [本地试用台](CAREER_MAP_LOCAL_VIEWER.md)。
 
 ```sql
 -- 当前 Canonical 集合与其运行时边界。

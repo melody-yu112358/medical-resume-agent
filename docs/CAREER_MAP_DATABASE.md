@@ -8,7 +8,7 @@
 
 `data/role-packs/*.json` 是 Canonical Role Pack 的唯一可编辑真值。`skill-lite/medical-resume-skill/references/role-packs.md` 与 `role-pack-rules.json` 是生成投影，不可手改。SQL 同样是可重建投影：导入器保存每个 JSON 的原文、相对路径和 SHA-256，再把其可关系化字段写入数据库。
 
-当前 canonical source 共 10 个，数量以 `data/role-packs/*.json` 的实际文件集合为准。导入器将每一个文件记录为 `canonical_v1 + canonical_source`；此状态仅表示职业语义和执行 guardrail 是 Canonical source，**不表示**该方向已经是 runtime target 或已经通过 Cross-model validation。
+当前资产与关联只见 [生成状态页](CAREER_CATALOG_STATUS.md)，最终以其机器源为准。导入器将每一个文件记录为 `canonical_v1 + canonical_source`；此状态仅表示职业语义和执行 guardrail 是 Canonical source，**不表示**该方向已经是 runtime target 或已经通过 Cross-model validation。
 
 ## 表与关系
 
@@ -96,17 +96,17 @@ SELECT relative_path, content_sha256, raw_content
 FROM source_artifacts WHERE artifact_id = :taxonomy_revision;
 ```
 
-职业地图种子还登记了 6 个长期 JD-driven 方向：市场准入、医疗产品、医疗咨询、商业/业务分析、医疗/项目运营、医学销售/商业。它们是可探索的职业方向，不是泛化的 Role Pack；数据库会保留其所需 JD 语境和边界提示。
+职业地图种子还登记 JD-driven 方向（清单见状态页）。它们是可探索的职业方向，不是泛化的 Role Pack；数据库会保留其所需 JD 语境和边界提示。
 
 ## 职业卡与 JD 证据试点
 
-本阶段导入五张**已有冻结候选证据**的职业卡：药物警戒 / 药物安全、法规医学写作、临床研究协调 / CRA 支持、临床数据管理 / CDM 支持、医疗器械临床 / 应用支持。卡片文件位于 `data/career_cards/*.json`，分别链接对应的 `docs/research/role-validation/**/candidate-evidence-v1.json`。这些卡片是可重建的 SQL 投影，不替代 `data/careers/` 中仍标为 draft 的探索卡，也不把 Candidate evidence 升级为新的 Canonical 状态。
+导入器读取具有冻结来源引用的 Career Card。卡片文件位于 `data/career_cards/*.json`，分别链接对应的 `docs/research/role-validation/**/candidate-evidence-v1.json`。其数据库记录是可重建的 SQL 投影，不替代 `data/careers/` 中仍标为 draft 的探索卡，也不把 Candidate evidence 升级为新的 Canonical 状态。
 
 每个卡片均保留：稳定职责、典型交付物、岗位特定要求提示、直接/可迁移/部分可迁移事实、显性缺口、JD-dependent 范围及投递前核验动作。首轮不会抓取实时 JD，也不会自动产生匹配分数。
 
 ## Synthetic 解释查询 MVP
 
-`career_card_match_rules` 只记录人工维护的匹配规则，绝不从职业卡自然语言猜测能力对应关系。`CareerCardExplanationService` 以一个 synthetic、逐条 `confirmed` 的 profile 和一个指定 Role Pack 为输入，输出三个独立语义维度及 `direct`、`transferable`、`partial`、`gap`、`unsupported` 五个非互斥展示分组；每条保留 profile evidence、Career Card claim、适用的 Role Pack 边界和 JD snapshot provenance；默认 JD 引用仅为 background research source。它不输出百分比分数、不排序、不写入 profile，也不改变既有 `/api/career-comparisons` 百分比接口。首版规则只覆盖本批的 CDM 支持与医疗器械临床 / 应用支持；其余职业卡在具备独立规则与回归用例前不会被该服务查询。
+`career_card_match_rules` 只记录人工维护的匹配规则，绝不从职业卡自然语言猜测能力对应关系。`CareerCardExplanationService` 以一个 synthetic、逐条 `confirmed` 的 profile 和一个指定 Role Pack 为输入，输出三个独立语义维度及 `direct`、`transferable`、`partial`、`gap`、`unsupported` 五个非互斥展示分组；每条保留 profile evidence、Career Card claim、适用的 Role Pack 边界和 JD snapshot provenance；默认 JD 引用仅为 background research source。它不输出百分比分数、不排序、不写入 profile，也不改变既有 `/api/career-comparisons` 百分比接口。可解释方向由状态页所引规则源确定；其余职业卡在具备独立规则与回归用例前不会被该服务查询。
 
 ```powershell
 python scripts/import_role_packs_to_career_map.py --database .local/career-map.sqlite
@@ -114,7 +114,7 @@ python scripts/query_career_card_explanation.py --database .local/career-map.sql
   --profile-id synthetic-cdm-support-001 --role-pack clinical_data_management_v1
 ```
 
-三条虚构 profile 位于 `data/career-map/career-card-explanation-test-profiles-v1.json`，仅用于验证直接、可迁移、部分、缺口与禁止推断边界，不能作为真实用户数据或职业结论。
+虚构 profile 位于 `data/career-map/career-card-explanation-test-profiles-v1.json`，仅用于验证直接、可迁移、部分、缺口与禁止推断边界，不能作为真实用户数据或职业结论。
 
 ## 最小查询示例
 

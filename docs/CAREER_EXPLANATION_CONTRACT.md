@@ -1,6 +1,6 @@
 # Career Card 解释契约 v2
 
-本契约仅服务 synthetic Profile ↔ 已配置 Career Card 的确定性解释。它不改变 Canonical Role Pack、runtime target、Claim Gate、旧百分比接口或个人资料入口。当前仍只解释 CDM 与器械应用支持两张已有卡，规则 registry 在原文件路径上升级为 `career-card-match-rules-v2`。
+本契约仅服务 synthetic Profile ↔ 已配置 Career Card 的确定性解释。它不改变 Canonical Role Pack、runtime target、Claim Gate、旧百分比接口或个人资料入口。当前配置的可解释范围见 [资产状态页](CAREER_CATALOG_STATUS.md)，规则 registry 在原文件路径上升级为 `career-card-match-rules-v2`。
 
 ## 三个内部维度
 

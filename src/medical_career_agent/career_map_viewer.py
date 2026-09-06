@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlite3
 from urllib.parse import urlencode
 
-from flask import Flask, abort, render_template, request
+from flask import Flask, abort, render_template, request, send_from_directory
 
 from .services.career_card_explanation import CareerCardExplanationService
 
@@ -68,8 +68,12 @@ def create_viewer(database_path):
     def no_cache(response):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"
+        response.headers["Content-Security-Policy"] = "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"
         return response
+
+    @app.get("/assets/career-map-filters.js")
+    def filter_script():
+        return send_from_directory(Path(__file__).parent / "assets", "career_map_filters.js")
 
     @app.get("/")
     def index():

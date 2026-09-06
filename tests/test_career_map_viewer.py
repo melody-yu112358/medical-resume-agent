@@ -75,6 +75,10 @@ def test_loopback_and_method_boundaries(viewer):
     assert client.get("/", headers={"Host": "external.example"}).status_code == 403
     assert client.get("/", query_string=[("role", CDM), ("role", CDM)]).status_code == 400
     assert client.get("/api/career-comparisons").status_code == 404
+    response = client.get("/assets/career-map-filters.js")
+    assert response.status_code == 200 and b"requestSubmit" in response.data
+    assert "script-src 'self'" in response.headers["Content-Security-Policy"]
+    assert client.get("/assets/other.js").status_code == 404
 
 
 def test_missing_and_old_database_fail_without_creating_or_migrating(tmp_path):

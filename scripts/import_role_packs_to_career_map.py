@@ -121,6 +121,23 @@ def load_direction_registry(path: Path = CAREER_MAP_DIRECTIONS_PATH) -> tuple[by
         entries = registry["taxonomy"].get(dimension, [])
         if not entries or any(not item.get("code") or not item.get("label") for item in entries):
             raise ValueError(f"Invalid taxonomy dimension: {dimension}")
+    for assignment in (registry["canonical_role_pack_taxonomy"] + registry["jd_driven_directions"] + registry["beta_directions"]):
+        stages = assignment.get("lifecycle_stages", [])
+        # Legacy registries without this optional field remain interpretable.
+        applicability = assignment.get("lifecycle_applicability", "mapped" if stages else "pending")
+        if applicability not in {"mapped", "pending", "not_applicable"}:
+            raise ValueError("Invalid lifecycle_applicability")
+        if bool(stages) != (applicability == "mapped"):
+            raise ValueError("lifecycle_applicability must agree with lifecycle_stages")
+        if applicability == "not_applicable":
+            review = assignment.get("lifecycle_review", {})
+            if not isinstance(review, dict) or any(not isinstance(review.get(key), str) or not review[key].strip()
+                                                 for key in ("reviewed_by", "reviewed_at", "reason")):
+                raise ValueError("not_applicable lifecycle requires an explicit review and reason")
+            try:
+                datetime.fromisoformat(review["reviewed_at"])
+            except ValueError as error:
+                raise ValueError("Invalid lifecycle review date") from error
     return raw, registry
 
 

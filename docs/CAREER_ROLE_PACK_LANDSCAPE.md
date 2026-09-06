@@ -72,9 +72,9 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 
 不满足这些条件时，优先保留为 Validated Beta Cluster 或 JD-driven Generalist。覆盖率不是将所有职位强行做成 Deep Pack 的理由。
 
-## 4. Canonical / Candidate 岗位职业卡
+## 4. 岗位语义与边界摘要
 
-以下职业卡总结保存的 JD 与 canonical/Candidate 语义。职责中的“稳定”表示跨多份 JD 的共同信号；“JD-dependent / senior”表示不能自动套用到每一位求职者的范围。
+以下是岗位语义摘要，不是 `data/career_cards` 的库存。职责中的“稳定”表示跨多份 JD 的共同信号；“JD-dependent / senior”表示不能自动套用到每一位求职者的范围。精确边界仍以对应 Pack 为准。
 
 ### 4.1 考博 / 保研 / 学术申请
 

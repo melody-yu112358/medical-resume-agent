@@ -1,0 +1,76 @@
+{
+  "record_version": "breadth-statistics-v1",
+  "generated_on": "2026-09-06",
+  "purpose": "Research batch inventory only; never published catalog truth or a national coverage estimate.",
+  "input_files": [
+    {
+      "path": "batch-2026-09-06-02-v1.json",
+      "sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c"
+    },
+    {
+      "path": "batch-2026-09-06-03-v1.json",
+      "sha256": "41b748b24765ddf4d660152ef18fb0f2fff967e934db333b24a0324e1f020c95"
+    },
+    {
+      "path": "batch-2026-09-06-04-v1.json",
+      "sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9"
+    },
+    {
+      "path": "batch-2026-09-06-v1.json",
+      "sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc"
+    }
+  ],
+  "calculation": "Counts computed from listed JSON files; source URLs exact-deduplicated; employer labels exact-deduplicated, not independent corporate-group verification; candidate records are NOT reviewed unique occupations.",
+  "cumulative": {
+    "batches": 4,
+    "source_records": 16,
+    "distinct_source_urls": 16,
+    "employer_labels": 11,
+    "observations": 25,
+    "proposed_scope_records": 25,
+    "by_collection_track": {
+      "healthcare_related": 17,
+      "cross_industry_general": 6,
+      "cross_industry_medical_requirement": 2
+    },
+    "source_temporal_status": {
+      "date_conflict_reference": 5,
+      "historical_reference": 5,
+      "undated_reference": 3,
+      "dated_campaign_reference": 2,
+      "dated_reference": 1
+    }
+  },
+  "this_delivery": {
+    "batches": 3,
+    "source_records": 11,
+    "distinct_source_urls": 11,
+    "employer_labels": 7,
+    "observations": 15,
+    "proposed_scope_records": 15,
+    "by_collection_track": {
+      "healthcare_related": 10,
+      "cross_industry_general": 5
+    },
+    "source_temporal_status": {
+      "date_conflict_reference": 5,
+      "historical_reference": 4,
+      "undated_reference": 1,
+      "dated_campaign_reference": 1
+    }
+  },
+  "reference_set_version": null,
+  "coverage_percentage": null,
+  "reviewed_unique_role_count": null,
+  "finalized_merges_this_delivery": 0,
+  "promoted_assets_this_delivery": 0,
+  "unified_scope_and_naming_review_status": "pending_after_batches_02_04",
+  "legacy_observation_limit": "Batch 01 is preserved unchanged; it predates explicit deliverable/responsibility fields in these research observations. Do not infer complete field coverage for the cumulative inventory.",
+  "limitations": [
+    "Same employer across sources does not increase independent employer evidence.",
+    "No source is counted as a confirmed currently open vacancy.",
+    "Function-family names are research proposals, not approved taxonomy entries.",
+    "Retained-payload digests verify the saved short excerpt/paraphrase, not full-page authenticity or completeness.",
+    "Current released assets remain governed by the generated CAREER_CATALOG_STATUS page; these numbers are only a dated research inventory."
+  ]
+}

@@ -1,0 +1,306 @@
+{
+  "record_version": "breadth-observation-v1",
+  "batch_id": "breadth-2026-09-06-04",
+  "collected_on": "2026-09-06",
+  "purpose": "Breadth-first discovery only; no Beta registration, Canonical promotion, claim support, matching input or runtime target.",
+  "source_snapshots": [
+    {
+      "source_id": "src-colipu-004",
+      "url": "https://career.uibe.edu.cn/front/zpxx.jspa?tid=2095443990961766402",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "235bd0f23419b2469365997626ab642327c616f2672b47e9239baaa090b27b35",
+      "retained_payload": {
+        "employer": "科力普科技集团股份有限公司",
+        "publication_date": null,
+        "date_note": "大学转载页显示更新时间2026-09-03，非可确认的初次发布日期；2027届校招。",
+        "content_access": "page_body_read",
+        "source_type": "university_republished_employer_notice",
+        "temporal_status": "dated_campaign_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "采购/商品岗（采购部/MRO商品部）",
+        "observations": [
+          {
+            "observation_id": "obs-colipu-procurement",
+            "raw_title": "采购/商品岗（采购部/MRO商品部）",
+            "task_summary": "协助商品、供应商、采购订单和库存管理。",
+            "typical_deliverables": [
+              "采购订单",
+              "商品价格资料"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "2027届本科以上、专业不限；沟通和Office能力，相关实习或学生工作经历优先。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "support",
+            "responsibility_basis": "原文多次协助，不推定采购审批权。",
+            "source_locator": "采购/商品岗（采购部/MRO商品部）／职责及要求",
+            "experience": null,
+            "location": "上海",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-colipu-project-support",
+            "raw_title": "项目支持岗（行业线）",
+            "task_summary": "协助投标报价，执行中标项目运营、订单及售后协调。",
+            "typical_deliverables": [
+              "SOP",
+              "项目周月报"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "2027届本科以上、专业不限；沟通和Office能力，相关实习或学生工作经历优先。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "support_with_assigned_execution",
+            "responsibility_basis": "协助项目经理；没有预算和人员最终责任。",
+            "source_locator": "项目支持岗（行业线）／职责及要求",
+            "experience": null,
+            "location": "北京／上海／广州",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-colipu-b2b-operation",
+            "raw_title": "电商运营岗（销售部）",
+            "task_summary": "维护B端采购平台商品和价格，处理规则异常与投诉。",
+            "typical_deliverables": [
+              "商品报价",
+              "上下架与价格更新"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "2027届本科以上、专业不限；沟通和Office能力，相关实习或学生工作经历优先。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "assigned_execution",
+            "responsibility_basis": "平台日常运营，不推定增长策略所有权。",
+            "source_locator": "电商运营岗（销售部）／职责及要求",
+            "experience": null,
+            "location": "上海",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ],
+        "displayed_dates": [
+          {
+            "value": "2026-09-03",
+            "label": "页面更新时间"
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "src-hongke-004",
+      "url": "https://jdjyw.jlu.edu.cn/mportal/recruit/details?id=ad2d1a3099c54e40986895a874642900",
+      "collected_on": "2026-09-06",
+      "snapshot_kind": "selected_excerpt_and_observations_not_full_page",
+      "digest_scope": "retained_payload_utf8_canonical_json",
+      "retained_payload_sha256": "fde462bb4e09ff600d4bd43b7c102ff7edabc376732b7dcf9f64aa47fb5175d4",
+      "retained_payload": {
+        "employer": "广州虹科电子科技有限公司",
+        "publication_date": "2025-09-25",
+        "date_note": "大学转载页发布时间；2026届历史校招，不能据此确认当前接受投递。",
+        "content_access": "page_body_read",
+        "source_type": "university_republished_employer_notice",
+        "temporal_status": "historical_reference",
+        "vacancy_status": "not_verified_open",
+        "retained_excerpt": "商务拓展经理 Business Development Manager",
+        "observations": [
+          {
+            "observation_id": "obs-hongke-bd",
+            "raw_title": "商务拓展经理 Business Development Manager",
+            "task_summary": "开拓客户及伙伴，推进谈判订单并分析业务成果。",
+            "typical_deliverables": [
+              "业务报告",
+              "合作订单"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "本科以上、专业不限；英语、CRM学习及沟通能力，接受出差；2026届校招亦列2025届优秀毕业生。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "commercial_execution_management_scope_unspecified",
+            "responsibility_basis": "含团队指导要求但无明确直线管理权限；经理名称不自动归负责人。",
+            "source_locator": "商务拓展经理 Business Development Manager／职责及要求",
+            "experience": null,
+            "location": "全国",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          },
+          {
+            "observation_id": "obs-hongke-sales-support",
+            "raw_title": "销售助理 Sales Manager Assistant",
+            "task_summary": "协助合同订单、投标、交付售后和客户数据维护。",
+            "typical_deliverables": [
+              "合同订单材料",
+              "销售分析报表"
+            ],
+            "deliverable_basis": "researcher_paraphrase_of_task_outputs",
+            "entry_requirements_summary": "本科以上、专业不限，经管或理工优先；英语、多任务执行及短途出差；同页校招范围。未明示执业资格。",
+            "qualification_status": "only_explicit_JD_requirements_retained_not_eligibility_advice",
+            "responsibility_level": "support",
+            "responsibility_basis": "销售支持而非独立销售负责人。",
+            "source_locator": "销售助理 Sales Manager Assistant／职责及要求",
+            "experience": null,
+            "location": "全国",
+            "summary_kind": "researcher_paraphrase_not_verbatim",
+            "full_requirement_transcription": false
+          }
+        ]
+      }
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "breadth-colipu-procurement",
+      "proposed_label": "商品采购支持",
+      "observation_ids": [
+        "obs-colipu-procurement"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "供应链与采购",
+      "collection_track": "cross_industry_general",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "专业不限仅为该JD条件，不代表无门槛或医学证据可直接迁移；先保留独立观察。",
+      "organization_type_proposal": "企业"
+    },
+    {
+      "candidate_id": "breadth-colipu-project-support",
+      "proposed_label": "政企项目运营支持",
+      "observation_ids": [
+        "obs-colipu-project-support"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "项目交付支持",
+      "collection_track": "cross_industry_general",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "专业不限仅为该JD条件，不代表无门槛或医学证据可直接迁移；先保留独立观察。",
+      "organization_type_proposal": "企业"
+    },
+    {
+      "candidate_id": "breadth-colipu-b2b-operation",
+      "proposed_label": "B端采购平台运营",
+      "observation_ids": [
+        "obs-colipu-b2b-operation"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "电商运营",
+      "collection_track": "cross_industry_general",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "专业不限仅为该JD条件，不代表无门槛或医学证据可直接迁移；先保留独立观察。",
+      "organization_type_proposal": "企业"
+    },
+    {
+      "candidate_id": "breadth-hongke-bd",
+      "proposed_label": "技术企业商务拓展执行",
+      "observation_ids": [
+        "obs-hongke-bd"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "商务拓展",
+      "collection_track": "cross_industry_general",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "专业不限仅为该JD条件，不代表无门槛或医学证据可直接迁移；先保留独立观察。",
+      "organization_type_proposal": "企业"
+    },
+    {
+      "candidate_id": "breadth-hongke-sales-support",
+      "proposed_label": "销售流程支持",
+      "observation_ids": [
+        "obs-hongke-sales-support"
+      ],
+      "object_type": "proposed_role_scope",
+      "function_family_proposal": "销售运营支持",
+      "collection_track": "cross_industry_general",
+      "lifecycle_context": {
+        "status": "unreviewed",
+        "values": []
+      },
+      "existing_catalog_relation": {
+        "status": "proposal",
+        "relation": "unresolved",
+        "target_keys": []
+      },
+      "scope_review_status": "human_review_pending",
+      "review_note": "专业不限仅为该JD条件，不代表无门槛或医学证据可直接迁移；先保留独立观察。",
+      "organization_type_proposal": "企业"
+    }
+  ],
+  "claim_support_links": [],
+  "coverage": {
+    "reference_set_version": null,
+    "percentage": null,
+    "limitation": "便利样本；观察数和待审范围数均不是去重职业总数。没有冻结参考候选集，不能计算内部参考集覆盖进度或全国职业覆盖率。"
+  },
+  "search_log": [
+    {
+      "query": "2026 2027 校园招聘 专业不限 采购 项目支持 商务拓展 销售助理",
+      "result": "核对两家雇主的大学转载正文，保留支持和独立执行边界。",
+      "query_kind": "research_topic_summary_not_exact_search_transcript"
+    }
+  ],
+  "leads_not_counted": [],
+  "duty_review_queue": [
+    {
+      "observation_ids": [
+        "obs-colipu-project-support",
+        "obs-hongke-sales-support"
+      ],
+      "proposal": "possible_overlap_compare_deliverables",
+      "reason": "投标订单协调有重叠；项目SOP和运营责任与销售支持不同，不按异名直接合并。"
+    },
+    {
+      "observation_ids": [
+        "obs-hongke-bd",
+        "obs-hongke-sales-support"
+      ],
+      "proposal": "different_responsibility_levels",
+      "reason": "客户开拓成交与辅助销售分开；经理称谓不作人员负责人证据。"
+    },
+    {
+      "observation_ids": [
+        "obs-colipu-project-support",
+        "obs-colipu-b2b-operation"
+      ],
+      "proposal": "possible_overlap_compare_scope",
+      "reason": "平台操作有交集；端到端项目支持与平台商品日常操作待统一审查。"
+    }
+  ],
+  "unsearched_or_insufficient": [
+    "单角色多雇主验证不足；支持／独立执行／负责人层级样本不平衡。",
+    "地区样本集中，来源可读性有偏；既非当前在招岗位清单，也非医学生普遍可进入的职业清单。",
+    "法规注册、支付与卫生经济、养老服务、客户实施及其他跨行业职能仍需继续采样。"
+  ]
+}

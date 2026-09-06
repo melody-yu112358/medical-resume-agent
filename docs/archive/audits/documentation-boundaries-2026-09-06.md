@@ -20,7 +20,7 @@
 
 | 文件 | 阅读类别 / 处理 |
 | --- | --- |
-| [ACCEPTANCE.md](../../ACCEPTANCE.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
+| [ACCEPTANCE.md](../evaluation/ACCEPTANCE.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [AGENT_GOVERNANCE.md](../../AGENT_GOVERNANCE.md) | 政策/治理参考；本次不修改规则 |
 | [AI_SYSTEM_V2.md](../../AI_SYSTEM_V2.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [ARCHITECTURE.md](../../ARCHITECTURE.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
@@ -32,7 +32,7 @@
 | [CAREER_MAP_LOCAL_VIEWER.md](../catalog/CAREER_MAP_LOCAL_VIEWER.md) | 筛选/试用说明；不作职业覆盖统计 |
 | [CAREER_MAP_TAXONOMY.md](../catalog/CAREER_MAP_TAXONOMY.md) | 筛选/试用说明；不作职业覆盖统计 |
 | [CAREER_ROLE_PACK_LANDSCAPE.md](../../CAREER_ROLE_PACK_LANDSCAPE.md) | 重点职责核对并整理；状态页引用 |
-| [CODEX_PR_REVIEW_SETUP.md](../../CODEX_PR_REVIEW_SETUP.md) | 政策/治理参考；本次不修改规则 |
+| [CODEX_PR_REVIEW_SETUP.md](../governance/CODEX_PR_REVIEW_SETUP.md) | 政策/治理参考；本次不修改规则 |
 | [DATA_POLICY.md](../../DATA_POLICY.md) | 政策/治理参考；本次不修改规则 |
 | [DOCUMENTATION_SOURCES.md](../../DOCUMENTATION_SOURCES.md) | 政策/治理参考；本次不修改规则 |
 | [DOMAIN_MODEL_V2.md](../../DOMAIN_MODEL_V2.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
@@ -50,7 +50,7 @@
 | [ROLE_PACK_GRADUATION.md](../../ROLE_PACK_GRADUATION.md) | 政策/治理参考；本次不修改规则 |
 | [ROLE_VALIDATION_CANDIDATE_MATURITY.md](../../ROLE_VALIDATION_CANDIDATE_MATURITY.md) | 历史审查/过程记录；不作当前库存 |
 | [SCHEMA_COMPATIBILITY.md](../product/SCHEMA_COMPATIBILITY.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
-| [SYNTHETIC_EVALUATION.md](../../SYNTHETIC_EVALUATION.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
+| [SYNTHETIC_EVALUATION.md](../evaluation/SYNTHETIC_EVALUATION.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [TECHNICAL_DESIGN_V2.md](../../TECHNICAL_DESIGN_V2.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [USER_JOURNEY_V2.md](../../USER_JOURNEY_V2.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [WORKFLOW.md](../product/WORKFLOW.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
@@ -84,5 +84,5 @@
 | [research/role-validation/regulatory-medical-writing/scorecard.md](../../research/role-validation/regulatory-medical-writing/scorecard.md) | 历史来源与验证证据；保留原记录 |
 | [skill-hub/ecosystem-catalog/CONTRIBUTING.md](../../skill-hub/ecosystem-catalog/CONTRIBUTING.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [skill-hub/ecosystem-catalog/README.md](../../skill-hub/ecosystem-catalog/README.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
-| [user_flow_acceptance_checklist.md](../../user_flow_acceptance_checklist.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
+| [user_flow_acceptance_checklist.md](../evaluation/user_flow_acceptance_checklist.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |
 | [wave2_launch_templates.md](../plans/wave2_launch_templates.md) | 产品、实现、验证或版本化方案；扫描状态表述及链接，未全量复验行为 |

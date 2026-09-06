@@ -14,6 +14,8 @@
 | 审计与确认门设计 | [Action 4](audits/action4_reuse_map.md)、[Action 5](audits/action5_role_pack_gap.md)、[文档审计](audits/documentation-boundaries-2026-09-06.md)、[确认门测试设计](design/action4_confirmation_gate_tests.md) | 保存发现、负向测试设计与当时决策；当前实现见产品说明 |
 | 一次性执行模板 | [Wave 2](plans/wave2_launch_templates.md) | 不作为新任务指令；新执行记录放对应 Issue / PR |
 | 已结束来源扫描 | [相邻方向扫描](../research/archive/adjacent-career-job-source-inventory-2026-08-17.md)、[医疗 AI 产品研究](../research/archive/healthcare-ai-product-manager-jobs-2026-08-17.md) | [广度方法](../research/career-catalog-breadth-plan-v1.md)及新批次记录；原始招聘状态只代表采集时所见 |
+| 评价原方法 | [Acceptance](evaluation/ACCEPTANCE.md)、[Synthetic evaluation](evaluation/SYNTHETIC_EVALUATION.md)、[用户验收](evaluation/user_flow_acceptance_checklist.md) | [统一评价入口](../FROZEN_CASES_RELEASE_BASELINE.md)逐项承接，legacy 与当前解释分开；门槛不变 |
+| Review 配置原说明 | [PR review setup](governance/CODEX_PR_REVIEW_SETUP.md) | [治理文档的配置章节](../AGENT_GOVERNANCE.md#pr-review-integration-setup)完整承接；权限和审批不变 |
 
 ## 逻辑归档：历史证据保留原路径
 

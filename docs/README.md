@@ -34,8 +34,8 @@
 <summary>活跃方法、验证与实现参考</summary>
 
 - [研究方法](RESEARCH_METHOD.md)、[Role Pack 晋升规则](ROLE_PACK_GRADUATION.md)。
-- [冻结案例基线](FROZEN_CASES_RELEASE_BASELINE.md)、[合成评估](SYNTHETIC_EVALUATION.md)、[对话模型评估](conversation_model_eval.md)。
-- [验收说明](ACCEPTANCE.md)、[用户流程验收](user_flow_acceptance_checklist.md)、[行动质量门](action_quality_gate.md)。
+- [评价与冻结案例入口](FROZEN_CASES_RELEASE_BASELINE.md)：分别承接当前简历验收、legacy 合成评价及旧阶段门槛；[真实对话模型评价](conversation_model_eval.md)单独保留。
+- [当前解释契约](CAREER_EXPLANATION_CONTRACT.md)与 legacy 评价分开；[行动质量门](action_quality_gate.md)仍保留原有执行记录职责。
 - [数据政策](DATA_POLICY.md)、[简历 schema](RESUME_SCHEMA_V1.md)。
 - [模型集成](LLM_INTEGRATION.md)、[Meta 分析示例规范](META_ANALYSIS_EXAMPLE_SPEC.md)。
 
@@ -44,7 +44,7 @@
 <details>
 <summary>仍承担参考职责的产品设计与 v2 foundation</summary>
 
-以下文档保持活跃入口；阅读时区分计划与已实现行为，当前用户流程以产品说明为准。独有职责尚未被承接时，不因数量目标提前归档。
+以下六份 v2 foundation 依据产品手册第 9 节继续作为新 v2 工作的设计基线，保留原路径及活跃状态；其职责分工见手册中的阅读表。Draft 不等于已实现，当前用户流程仍见产品说明。Legacy 旅程仍有真实实现职责，也不归档。
 
 - [产品手册 v2](PRODUCT_HANDBOOK_V2.md)、[用户旅程 v2](USER_JOURNEY_V2.md)、[领域模型 v2](DOMAIN_MODEL_V2.md)。
 - [技术设计 v2](TECHNICAL_DESIGN_V2.md)、[AI 系统 v2](AI_SYSTEM_V2.md)、[MVP 执行计划 v2](MVP_EXECUTION_PLAN_V2.md)。
@@ -55,7 +55,7 @@
 <details>
 <summary>维护工具、协作规则与分发文档</summary>
 
-- [文档职责](DOCUMENTATION_SOURCES.md)、[Agent 治理](AGENT_GOVERNANCE.md)、[远端同步](REMOTE_SYNC_PROTOCOL.md)、[PR review 配置](CODEX_PR_REVIEW_SETUP.md)。
+- [文档职责](DOCUMENTATION_SOURCES.md)、[Agent 治理](AGENT_GOVERNANCE.md)（含 [PR review 配置](AGENT_GOVERNANCE.md#pr-review-integration-setup)）、[远端同步](REMOTE_SYNC_PROTOCOL.md)。
 - [研究编排器](research/career-track-orchestrator-v1.md)、[dispatch connector](research/github-dispatch-connector-v1.md)、[event consumer](research/github-event-consumer-codex-task-connector-v1.md)：有对应工具实现，不能仅因版本号归为历史。
 - [贡献约束](../AGENTS.md)、[Claude 入口](../CLAUDE.md)、[协作角色](../agents/)、[第三方声明](../THIRD_PARTY_NOTICES.md)、[英文首页](../README.en.md)。
 - [Skill Lite](../skill-lite/README.md)、[Skill 入口](../skill-lite/medical-resume-skill/SKILL.md)、[Skill 参考材料](../skill-lite/medical-resume-skill/references/)：保留方法、生成参考、验证与交付文档的现有职责。
@@ -67,4 +67,4 @@
 
 **历史与计划：** `BUILD_LOG`、`audits`、早期 Career Cards pilot、带阶段或版本的产品计划保留其当时语境；评分卡和 promotion record 保留当时证据及决定，不随库存更新而重写。旧计划中的阶段号、测试数和工作量不能当成当前进度。具体 PR 的实施顺序与工作量留在 PR 描述或任务记录。
 
-历史资料统一从 [归档总入口](archive/README.md) 查找；普通历史文件已移动；验证证据保留原路径并在总入口注明。当前清单保留仍有职责的专题，不把最终数量目标当成强制归档条件。具体合并与迁移另行审查，归档子目录不另设重复导航。
+历史资料统一从 [归档总入口](archive/README.md) 查找；普通历史文件已移动，验证证据保留原路径并在总入口注明。当前清单保留仍有职责的专题，不把数量目标当成强制归档条件；归档子目录不另设重复导航。

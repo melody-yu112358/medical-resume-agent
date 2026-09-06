@@ -1,3 +1,5 @@
+> **历史原件 / archived 2026-09-06。** 原路径：`docs/CODEX_PR_REVIEW_SETUP.md`；归档前最后提交日期：2026-09-05。原文版本：[Git 13eae3ac](https://github.com/melody-yu112358/medical-resume-agent/blob/13eae3accc01ff5bbb72c8264bd810c8020e1f5d/docs/CODEX_PR_REVIEW_SETUP.md)。完整有效内容已承接至 [维护入口](../../AGENT_GOVERNANCE.md#pr-review-integration-setup)；原验收条件、审批或权限要求不变。历史原件不再单独更新，不表示已经通过实际验收。
+
 # Codex pull-request review setup
 
 This repository's CI workflow can run on every pull request without a Codex integration. Codex review and `@codex` follow-up are account and repository integration features; this repository contains no GitHub App configuration, workflow token, or code-defined setting that can enable them.

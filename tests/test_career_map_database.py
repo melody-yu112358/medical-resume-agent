@@ -71,18 +71,19 @@ def test_career_map_documentation_tracks_current_canonical_json_set():
         json.loads(path.read_text(encoding="utf-8"))["role_pack"]
         for path in (ROOT / "data" / "role-packs").glob("*.json")
     }
-    assert len(pack_ids) == 10
-
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     landscape = (ROOT / "docs" / "CAREER_ROLE_PACK_LANDSCAPE.md").read_text(encoding="utf-8")
     database_doc = (ROOT / "docs" / "CAREER_MAP_DATABASE.md").read_text(encoding="utf-8")
+    status = (ROOT / "docs" / "CAREER_CATALOG_STATUS.md").read_text(encoding="utf-8")
 
-    assert "10 个" in readme
     assert "PV）保留为 Candidate" not in readme
     assert "PV，Candidate" not in landscape
     for pack_id in pack_ids:
-        assert pack_id in landscape
-    assert "当前 canonical source 共 10 个" in database_doc
+        assert f"`{pack_id}`" in status
+    assert f"| Canonical Pack 源 | {len(pack_ids)} |" in status
+    for document in (readme, landscape, database_doc):
+        assert "CAREER_CATALOG_STATUS.md" in document
+    assert "当前 canonical source 共" not in database_doc
 
 
 def test_jd_driven_directions_remain_jd_required_and_not_routable(tmp_path):

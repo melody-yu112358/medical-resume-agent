@@ -65,14 +65,20 @@ graduation decision.
   and explicit gap/ownership mapping rather than be forced into a universal
   Pack.
 
-The historical **75–85% usable coverage** range was a planning heuristic with
-no reproducible market denominator. It is not a current measured target or
-coverage claim, including when JD-driven or research paths are added. Report
-directory breadth, source-backed knowledge, resume Pack coverage, and explicit
-explanation coverage separately. A measured rate requires a defined population,
-market/time window, sampled JD set and role deduplication policy.
+The user's **75–85% coverage** is a desired future expansion goal, not a claim
+of achieved coverage. Prioritize breadth now; define the population, market/time
+window and reference role set during collection so progress can be measured.
+Do not require a complete Pack or explanation rules before capturing a sourced
+candidate role. Report directory breadth, source-backed knowledge, resume Pack
+coverage and explicit explanation coverage separately. The initial sample is
+not a representative national denominator. See the
+[breadth-first collection plan](career-catalog-breadth-plan-v1.md).
 
 ## Next candidate priority
+
+This section concerns later deep research. The immediate priority is broad
+candidate catalog collection, including new scope beyond the existing planned
+topics. Resolving only the current clusters must not consume that phase.
 
 PV and regulatory medical writing are already canonical; their remaining
 Card/rule/claim-source work is tracked separately from new-career research.

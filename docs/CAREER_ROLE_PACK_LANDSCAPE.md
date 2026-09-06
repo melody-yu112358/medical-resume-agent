@@ -279,11 +279,11 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 
 ## 8. 中国市场覆盖策略与下一阶段路线图
 
-本仓库的覆盖目标不是为每个职位制造一个 Role Pack。历史 `75–85%` 表述没有可复核的市场分母，不作为当前已达覆盖率或可验证目标。后续分别衡量目录广度、来源知识深度、简历 Pack 支持和显式解释支持；口径见 [目录清单](CAREER_CATALOG_STRUCTURE.md)。
+用户希望未来将可探索职业覆盖扩展至 `75–85%`；这是扩展目标，不是当前已达覆盖率。下一阶段优先补目录广度，在采集中建立明确的范围和参照集合，再报告进度；不要求每个候选岗位先有完整 Role Pack。目录广度、来源知识深度、简历 Pack 支持和显式解释支持分别衡量，见 [目录清单](CAREER_CATALOG_STRUCTURE.md) 与 [广度优先计划](research/career-catalog-breadth-plan-v1.md)。
 
 ### 近期
 
-先按 [目录清单的优先级](CAREER_CATALOG_STRUCTURE.md#7-下一步优先级与完成条件) 核对角色簇边界与已有资产缺口；以下 Canonical hardening 和新方向研究仍各自独立，不因清单而自动实施。
+先按 [目录清单的优先级](CAREER_CATALOG_STRUCTURE.md#7-下一步优先级与完成条件) 开展广度扫描和浅层候选收录。名称/职责去重服务于扩目录；以下 Canonical hardening 和深度研究后置，不作为广度收集的前置条件。
 
 1. 已 Canonical 的方向保持现状；Cross-model validation 保留为后续 hardening，不阻止 Canonical v1 状态。
 2. 为已 Canonical 的方向补充可复核的 Cross-model conformance 记录，但不得以模型验证结果改写 domain-validated 的职业语义。

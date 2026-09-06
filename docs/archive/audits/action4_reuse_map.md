@@ -1,3 +1,5 @@
+> **历史原件 / archived 2026-09-06。** 原路径：`docs/audits/action4_reuse_map.md`；归档前最后提交日期：2026-09-05。原文版本：[Git 85701b51](https://github.com/melody-yu112358/medical-resume-agent/blob/85701b516f5889412e9791391c4dedcb2d7b0b38/docs/audits/action4_reuse_map.md)。当前承接入口：[有效说明](../../README.md)。原有日期、数量、计划、验证与结论保留当时语境，不代表当前库存或本次重新验收；归档不改变 legacy 规则。
+
 # Action 4 Confirmation Gate 复用映射分析
 
 ## 可复用的现有功能

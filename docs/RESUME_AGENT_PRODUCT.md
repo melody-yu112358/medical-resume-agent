@@ -91,3 +91,49 @@ This slice stays on the existing Flask and vanilla JavaScript stack so it adds n
 ### Optional optimization
 
 - Multiple education records, account-based cross-device persistence and a richer host-model writing adapter are later iterations. They must reuse this contract instead of creating another resume brain.
+
+## Product principles and exploration boundary
+
+This section carries forward the reusable principles from the earlier product and workflow references. It does not add a career-exploration flow to the resume agent or change the implemented gates above. The broader transition workspace remains a [v2 design baseline](PRODUCT_HANDBOOK_V2.md).
+
+
+1. **Translate achievements into evidence, not worth.** Degrees, publications,
+   and projects may contain evidence of research, judgment, communication,
+   collaboration, or execution. They do not automatically prove those
+   capabilities.
+2. **Recommendations are hypotheses, not verdicts.** Users may correct, reject,
+   pause, or overturn every proposed direction.
+3. **Support and counter-evidence carry equal weight.** A hypothesis must show
+   why it is worth exploring, what may not fit, and what remains unknown.
+4. **Preparation must stay grounded.** Real postings, targeted resume work, and
+   interview practice must remain traceable to the JD and the user's confirmed
+   evidence.
+5. **Acknowledge uncertainty without exploiting anxiety.** The product does not
+   frame leaving medicine as the only solution, describe staying as failure,
+   or promise employment, income, or success.
+
+### Capability evidence
+
+
+A degree, publication, project, or clinical placement is not capability
+evidence by itself. A usable evidence item should record, when available:
+
+```text
+context
+  -> task or responsibility
+  -> action performed by the user
+  -> result
+  -> verifiable artifact or reference
+  -> capability supported
+  -> evidence strength and uncertainty
+```
+
+Evidence strength describes how strongly the available information supports a
+specific capability claim. It does not score the user's worth or overall
+potential.
+
+### Legacy exploration remains a separate slice
+
+The [legacy journey levels](JOURNEY_LEVELS.md) retain their input, checkpoint, shared-state and acceptance contracts. Their direction and versioned-job selection prerequisites apply to that exploration/application flow, not to the resume-agent entry above. The numeric comparison path is described in [Architecture](ARCHITECTURE.md); the current synthetic Career Card explanation path follows [its own score-free contract](CAREER_EXPLANATION_CONTRACT.md). A Career Card is not a specific JD.
+
+The [original product scope](archive/product/PRODUCT.md) preserves the intended user, scope placeholders, long-term workspace vision and excluded milestones. The [original workflow](archive/product/WORKFLOW.md) preserves all decision rules and the uncommitted DSH proposal. Archiving those originals does not implement their proposals or remove requirements from the legacy slice.

@@ -41,3 +41,9 @@ underlying evidence.
 The synthetic sample at `tests/fixtures/resume_document.sample.json` is a
 safe contract fixture. Do not place real resumes or API credentials in the
 repository.
+
+## Contract relationships
+
+The complete resume, an individually confirmed experience, a Role Pack and a Bullet Claim have different responsibilities. A Role Pack changes expression priorities and boundaries; it does not replace personal evidence. A claim links wording and audit disposition back to its experience and evidence. The current resume-agent implementation uses the v2 experience and Claim Gate described in [the product reference](RESUME_AGENT_PRODUCT.md); versioned JSON schemas remain the field-level contracts.
+
+The [archived compatibility proposal](archive/product/SCHEMA_COMPATIBILITY.md) records the earlier v1 migration plan. Its suggested embedding, browser-storage compatibility and migration sequence are historical proposals, not a declaration that all schema versions are interchangeable. In particular, the resume document `capability_profile` is an array of capability items; that field is not blanket authorization to embed an arbitrary Canonical Experience. This documentation consolidation introduces no schema conversion or migration.

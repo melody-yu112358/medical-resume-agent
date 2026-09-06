@@ -1,6 +1,8 @@
+> **历史原件 / archived 2026-09-06。** 原路径：`docs/CAREER_CARDS.md`；归档前最后提交日期：2026-09-06。原文版本：[Git 85701b51](https://github.com/melody-yu112358/medical-resume-agent/blob/85701b516f5889412e9791391c4dedcb2d7b0b38/docs/CAREER_CARDS.md)。当前承接入口：[有效说明](../../RESEARCH_METHOD.md)。原有日期、数量、计划、验证与结论保留当时语境，不代表当前库存或本次重新验收；归档不改变 legacy 规则。
+
 # Career card research guide
 
-> **历史 pilot 范围说明：** 本文记录 Career Cards 的早期五岗位研究方法，不是当前产品的职业覆盖清单，也不决定 Role Pack 成熟度。当前资产状态请看 [生成状态页](CAREER_CATALOG_STATUS.md)；canonical machine truth 以 `data/role-packs/*.json` 为准。
+> **历史 pilot 范围说明：** 本文记录 Career Cards 的早期五岗位研究方法，不是当前产品的职业覆盖清单，也不决定 Role Pack 成熟度。当前资产状态请看 [生成状态页](../../CAREER_CATALOG_STATUS.md)；canonical machine truth 以 `data/role-packs/*.json` 为准。
 
 ## Purpose
 

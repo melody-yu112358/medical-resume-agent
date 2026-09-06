@@ -1,3 +1,5 @@
+> **历史原件 / archived 2026-09-06。** 原路径：`docs/CAREER_MAP_LOCAL_VIEWER.md`；归档前最后提交日期：2026-09-06。原文版本：[Git 85701b51](https://github.com/melody-yu112358/medical-resume-agent/blob/85701b516f5889412e9791391c4dedcb2d7b0b38/docs/CAREER_MAP_LOCAL_VIEWER.md)。当前承接入口：[有效说明](../../CAREER_MAP_DATABASE.md#local-read-only-viewer)。原有日期、数量、计划、验证与结论保留当时语境，不代表当前库存或本次重新验收；归档不改变 legacy 规则。
+
 # 本地职业知识试用台
 
 复用 SQLite 与 PR2 解释器的独立只读页面，不挂载到原简历应用。不新增职业、职业卡、真实 Profile、JD 输入或 runtime target。

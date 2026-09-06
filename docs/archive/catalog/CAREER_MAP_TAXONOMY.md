@@ -1,3 +1,5 @@
+> **历史原件 / archived 2026-09-06。** 原路径：`docs/CAREER_MAP_TAXONOMY.md`；归档前最后提交日期：2026-09-06。原文版本：[Git 85701b51](https://github.com/melody-yu112358/medical-resume-agent/blob/85701b516f5889412e9791391c4dedcb2d7b0b38/docs/CAREER_MAP_TAXONOMY.md)。当前承接入口：[有效说明](../../CAREER_MAP_DATABASE.md#taxonomy-and-filtering)。原有日期、数量、计划、验证与结论保留当时语境，不代表当前库存或本次重新验收；归档不改变 legacy 规则。
+
 # 职业地图：交叉维度与适用性
 
 职能族回答“做什么”，作为浏览主轴；产业生态回答“通常在哪里”，允许多选；生命周期回答“关联产品或证据的哪个阶段”，可不适用或尚待确认。三个维度不是上下级层级，也不是必填的三层职业分类。生命周期不是个人的初级/高级职业成长阶段。

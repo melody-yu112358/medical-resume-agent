@@ -139,3 +139,19 @@ These six v2 foundation documents are the product baseline for new v2 work:
 - `MVP_EXECUTION_PLAN_V2.md`
 
 Existing documents such as `archive/product/PRODUCT.md`, `ARCHITECTURE.md`, `archive/product/WORKFLOW.md`, and `JOURNEY_LEVELS.md` remain valid records of the current implementation and earlier decisions. They are not deleted or silently rewritten in Sprint 0. When a future engineering task encounters a conflict, it must identify the conflict explicitly and either align the implementation with the v2 baseline or record a deliberate exception. Legacy documents may be migrated or marked superseded only through a separate reviewed change.
+
+
+## Foundation reading responsibilities
+
+The foundation remains active at its existing paths under section 9. This table clarifies where to read each concern; it does not change baseline precedence, sprint acceptance or the requirement to record a conflict or deliberate exception. The Draft status above remains unchanged.
+
+| Foundation | Responsibility retained |
+| --- | --- |
+| [Product handbook](PRODUCT_HANDBOOK_V2.md) | Vision, scope, principles, success measures and baseline precedence |
+| [User journey](USER_JOURNEY_V2.md) | Proposed stages, artifacts and exit criteria |
+| [Domain model](DOMAIN_MODEL_V2.md) | Proposed entities, relationships and validation rules |
+| [Technical design](TECHNICAL_DESIGN_V2.md) | Implementation seams and incremental architecture |
+| [AI system](AI_SYSTEM_V2.md) | Model responsibilities, prohibited inference and evaluation requirements |
+| [Execution plan](MVP_EXECUTION_PLAN_V2.md) | Sprint dependencies and acceptance criteria; not a report that those sprints have shipped |
+
+The implemented resume slice is described in [RESUME_AGENT_PRODUCT](RESUME_AGENT_PRODUCT.md). The current Career Card query follows [CAREER_EXPLANATION_CONTRACT](CAREER_EXPLANATION_CONTRACT.md); its three dimensions and non-exclusive display labels are not aliases for the proposed v2 EvidenceMap assessment enum. This documentation change establishes no conversion between them and does not implement a persistent Career Profile. Current occupational inventory and runtime relationships are read only from the [generated status](CAREER_CATALOG_STATUS.md).

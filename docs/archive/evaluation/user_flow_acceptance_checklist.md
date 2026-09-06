@@ -1,3 +1,5 @@
+> **历史原件 / archived 2026-09-06。** 原路径：`docs/user_flow_acceptance_checklist.md`；归档前最后提交日期：2026-09-05。原文版本：[Git 13eae3ac](https://github.com/melody-yu112358/medical-resume-agent/blob/13eae3accc01ff5bbb72c8264bd810c8020e1f5d/docs/user_flow_acceptance_checklist.md)。完整有效内容已承接至 [维护入口](../../FROZEN_CASES_RELEASE_BASELINE.md#current-resume-user-flow)；原验收条件、审批或权限要求不变。历史原件不再单独更新，不表示已经通过实际验收。
+
 ## 用户视角主流程验收清单
 
 1. 用户逐题填写并显式确认姓名、主要教育背景及可选的奖项、语言、证书和研究兴趣；未确认资料不得进入交付文件；

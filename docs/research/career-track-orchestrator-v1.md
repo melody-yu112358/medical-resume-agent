@@ -56,7 +56,9 @@ accounts. A later, separately approved connector may read `next_action` and
 it must retain the branch/PR and human-approval controls in `AGENTS.md` and the
 remote-sync protocol.
 
-## Current dry-run
+## Historical dry-run example
+
+This retained example describes the earlier Candidate-input dry-run, not current Canonical inventory or current dispatch results. Read [generated catalog status](../CAREER_CATALOG_STATUS.md) for occupational assets and regenerate the tool snapshot from its documented inputs for dispatch state. The policy and human-approval requirements above remain unchanged.
 
 CRA, CDM, Device Clinical/Application, and PV all resolve to:
 

@@ -9,9 +9,9 @@
 
 <p align="center"><a href="README.md">简体中文</a> · <b>English</b> · <a href="skill-lite/README.md">Skill Lite</a></p>
 
-A local medical experience compiler for medical students preparing academic applications and medical-sector roles.
+A local medical resume assistant for medical students preparing academic applications and medical-sector roles.
 
-The user submits one experience, reviews the extracted facts, and selects a target direction. The application then drafts editable resume bullets and shows the confirmed information that supports them.
+The current resume-agent entry guides users through fact confirmation, a representative sample, full composition, factual audit and delivery. The separate experience-compiler demo focuses on one experience and its evidence-linked resume bullets. See the [current product description](docs/RESUME_AGENT_PRODUCT.md) for the complete flow.
 
 It is useful when a broad statement such as “participated in research” or “assisted with data analysis” needs to be separated into research object, method, tool, personal role, and deliverable before deciding what belongs in a resume.
 
@@ -38,7 +38,7 @@ The two entry points share the same fact-first method but do not need to be inst
 .\start-local.ps1
 ```
 
-Then open `http://127.0.0.1:5000/demo/experience-compiler/index.html`. For a first run, load the included de-identified Meta-analysis example. See [Run locally](#run-locally) for full setup instructions.
+Then open `http://127.0.0.1:5000/` for the current resume-agent entry. See the [current product flow](docs/RESUME_AGENT_PRODUCT.md) and [Run locally](#run-locally) for setup instructions. The experience compiler remains available as a separate demo.
 
 ## Intended use
 
@@ -56,7 +56,7 @@ The project currently uses the following categories to organize medical experien
 4. **Laboratory techniques**: cell culture, qPCR, Western Blot, flow cytometry, ELISA, and animal studies.
 5. **Medical evidence and information**: PubMed, Embase, and Cochrane searching, guideline interpretation, evidence grading, and medical writing.
 
-## Workflow
+## Experience-compiler demo workflow
 
 1. Enter a real medical experience, or load the included de-identified Meta-analysis example.
 2. Review extracted candidate facts and up to three clarifying questions.
@@ -64,14 +64,7 @@ The project currently uses the following categories to organize medical experien
 4. Select a target direction and generate one to three candidate resume bullets.
 5. Review evidence links, risk notices, and audit records before copying or exporting the result.
 
-The initial release provides four focus directions:
-
-- **Academic progression and research applications** (recommendation-based admission, graduate interview, direct PhD, and doctoral applications): research question, methodological depth, and research potential.
-- **Clinical research and hospital research**: study design, clinical context, research execution, and collaboration.
-- **Medical affairs / MSL**: evidence interpretation, disease-area knowledge, and medical-information translation.
-- **Medical data and digital health**: data handling, analytical framing, and communication of findings.
-
-The project does not yet provide separate role packs for regulatory affairs, market access, pharmacovigilance, commercialization, or purely clinical practice. Those directions can be added after user testing.
+See the [generated career catalog status](docs/CAREER_CATALOG_STATUS.md) for the current Pack, Card, rule and runtime-target inventory. Canonical occupational semantics come from `data/role-packs/*.json`; having a Pack does not itself enable a runtime target. The [documentation navigation](docs/README.md) links the architecture, product, catalog and database references without duplicating their inventories.
 
 ## Rules and known limitations
 
@@ -113,7 +106,7 @@ The project does not yet provide separate role packs for regulatory affairs, mar
 3. When the server starts, open:
 
    ```text
-   http://127.0.0.1:5000/demo/experience-compiler/index.html
+   http://127.0.0.1:5000/
    ```
 
 4. Return to PowerShell and press `Ctrl + C` to stop the local service.
@@ -151,10 +144,11 @@ The shared release source includes a complete unit, API, and end-to-end test sui
 ## Repository map
 
 ```text
-demo/experience-compiler/  browser experience compiler
+demo/resume-agent/         current browser resume-agent entry
+demo/experience-compiler/  separate experience-compiler demo
 src/medical_career_agent/  extraction, confirmation, composition, Claim Gate, and ledger
 schemas/                   canonical experience, role pack, and bullet claim contracts
-data/role-packs/           four target-specific expression strategies
+data/role-packs/           canonical occupational semantics and expression strategies
 skill-lite/                lightweight workflow package for Codex/Claude users
 docs/                      architecture, boundaries, model setup, and acceptance material
 tests/                     synthetic, API, and boundary tests

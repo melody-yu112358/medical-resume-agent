@@ -16,7 +16,7 @@
 - `role_skills`、`role_requirements`、`negative_mappings`、`role_expression_policies`、`role_pack_evaluation_cases`：当前 JSON 中的能力优先级、证据门槛、职责边界、表达规则和测试定义。
 - `ecosystems`、`lifecycle_stages`、`function_families` 及其关系表：产业生态 × 生命周期 × 职能族的机器可读地图。`data/career-map/directions-v1.json` 是该地图的人工维护种子；它不反向修改 Role Pack。
 
-三个维度可交叉而非层级，生命周期不是必填。`lifecycle_applicability` 及可选审核元数据保存在 taxonomy 原始 artifact，由 manifest 固定版本，不增加重复 SQL 列。详见 [筛选与适用性契约](CAREER_MAP_TAXONOMY.md)。
+三个维度可交叉而非层级，生命周期不是必填。`lifecycle_applicability` 及可选审核元数据保存在 taxonomy 原始 artifact，由 manifest 固定版本，不增加重复 SQL 列。详见 [筛选与适用性契约](CAREER_MAP_DATABASE.md#taxonomy-and-filtering)。
 
 分类仅用于知识导航，不是医学生转岗适配模型；当前目录对象粒度仍有差异。Profile 解释依据 claim、已确认事实和显式规则，不因网页筛选标签而改变结论。
 
@@ -118,7 +118,7 @@ python scripts/query_career_card_explanation.py --database .local/career-map.sql
 
 ## 最小查询示例
 
-无需数据库 GUI 的网页试用：运行 `python scripts/serve_career_map.py`，浏览器打开 `http://127.0.0.1:8765`。职业地图、已有卡片和 synthetic 解释均只读；详细步骤见 [本地试用台](CAREER_MAP_LOCAL_VIEWER.md)。
+无需数据库 GUI 的网页试用：运行 `python scripts/serve_career_map.py`，浏览器打开 `http://127.0.0.1:8765`。职业地图、已有卡片和 synthetic 解释均只读；详细步骤见 [本地试用台](CAREER_MAP_DATABASE.md#local-read-only-viewer)。
 
 ```sql
 -- 当前 Canonical 集合与其运行时边界。
@@ -160,3 +160,66 @@ ORDER BY s.retrieved_at DESC, s.external_snapshot_id;
 ## 暂不实现
 
 不引入向量检索、真实用户档案、转型案例/导师数据、自动匹配分数或 JD 抓取。它们须在取得授权、明确数据保留规则并有对应 source/provenance 后分别实现。
+
+## Taxonomy and filtering
+
+职能族回答“做什么”，作为浏览主轴；产业生态回答“通常在哪里”，允许多选；生命周期回答“关联产品或证据的哪个阶段”，可不适用或尚待确认。三个维度不是上下级层级，也不是必填的三层职业分类。生命周期不是个人的初级/高级职业成长阶段。
+
+### 真值与投影
+
+`data/career-map/directions-v1.json` 仍是地图关联及适用性的人工维护源。Canonical Role Pack、Career Card、解释规则不随筛选逻辑改变。此修订保留原有的所有职业标签，不新增高校与上市阶段的推断关联。
+
+每个 canonical assignment / JD-driven / beta direction 可带 `lifecycle_applicability`：
+
+- `mapped`：至少一个阶段已标注，不表示标注穷尽所有适用阶段。
+- `pending`：没有阶段标注，适用性待确认。
+- `not_applicable`：没有阶段标注，且必须有 `lifecycle_review`，包含非空 `reviewed_by`、ISO 日期/时间 `reviewed_at`、`reason`。只在人工确认后使用。
+
+初始化采用保守映射：空阶段为 pending，有阶段为 mapped；这不是“不适用”人工审核。旧 registry 未带字段时仍兼容：有阶段按 mapped、无阶段按 pending；绝不自动升级为 not_applicable。
+
+SQL 的六张关联表继续投影阶段/生态/职能标签，不增加“待确认”或“不适用”伪阶段。适用性元数据由现有 `source_artifacts.raw_content` 保存，current manifest 的 `taxonomy_revision` 指向准确版本。网页只读取该已导入 artifact，不能越过导入器读取磁盘上更新的 taxonomy 文件。这一规模无需添加一套重复的元数据表；后续 SQL 场景需要适用状态索引时再做独立关系投影。
+
+导入时校验状态、阶段有无及不适用审核记录；失败不激活新快照。修改/移除元数据、替换阶段标签，仍走完整源集合导入；同一源文件下 fresh 与 incremental 的当前状态一致，旧 registry 及 manifest 保留。
+
+### 筛选契约
+
+- 同维度多选为 OR；跨维度为 AND；不选即不限。
+- 选项旁数量先忽略本维度选择，再应用其他维度条件，统计带该标签的方向数。多选数量可能重叠，不能直接相加；不是 JD 数量。
+- 勾选或取消后立即发起 GET 查询，显示更新中状态，数量与结果随页面一起刷新；脚本不可用时回退为“应用筛选”按钮。0 项仍可选择和撤销，系统不悄悄修改用户筛选。
+- 生命周期状态数量应用职能与生态条件、忽略阶段条件。选定阶段会排除 pending/not_applicable，并明确提示。
+- 空结果表达为“当前知识库没有同时标注这些条件的方向”，不表示职业不存在；提供取消阶段限制且保留其他条件的链接。
+- 方向标签的交集不证明特定“机构 × 阶段 × 职能”场景成立，也不生成匹配分数或改变 Profile 解释。
+
+例如：选择某生态和阶段后出现空结果，只能说明当前标注没有该交集；取消阶段限制后可继续浏览该生态。不能据此断言某机构没有相关工作。
+
+### 后续人工整理
+
+典型/条件关联需要逐条领域依据，当前不将旧种子批量升级为已审核关系。未来可在 taxonomy source 增加审核后的关系元数据及场景约束；待有真实需求时再投影，不提前设计大型 ontology，也不依据文本相似度生成关联。
+
+## Local read-only viewer
+
+复用 SQLite 与解释器的独立只读页面，不挂载到原简历应用。不新增职业、职业卡、真实 Profile、JD 输入或 runtime target。
+
+在仓库根目录运行：
+
+```powershell
+python -m pip install -e ".[schema_validation]"
+python scripts/import_role_packs_to_career_map.py --database .local/career-map.sqlite
+python scripts/serve_career_map.py
+```
+
+用浏览器打开 http://127.0.0.1:8765 。保持终端开启；按 Ctrl+C 停止。已安装并导入过的用户只需最后一条命令。端口占用时使用 `--port 8766`；`--database` 可指定另一个已导入的本地库。
+
+1. 先按职能族浏览，按需选择生态或生命周期；同维度多选为 OR，跨维度为 AND，不选则不限。勾选或取消立即提交只读查询，数量与结果一起刷新，保留在操作的维度附近；脚本不可用时才显示“应用筛选”按钮。
+2. 打开已有职业卡，阅读职责、交付物和边界。
+3. 在有规则的方向选择已有虚构档案，查看解释。
+4. 展开“证据与条件”，对照 all-of / any-of、缺失项、原始经历与 scope。
+5. 展开来源，区分背景研究与人工支持关系，查看摘要差异及 revision。
+
+生命周期区分已标注、待确认、不适用。选择具体阶段会排除后两者，页面显示其数量；空结果可取消生命周期限制并保留其他筛选。阶段不是每个职业的必填属性；标签交集不证明具体机构和阶段组合成立。完整规则及 taxonomy 源字段见 [筛选契约](CAREER_MAP_DATABASE.md#taxonomy-and-filtering)。
+
+解释条目只展示一次，标签可以重叠。未命中可选迁移路径与没有 JD 的条件项不会被默认为 gap。当前页面不接受 JD 上下文，也不提供历史快照选择；历史回放仍使用已有 CLI。页面选择当前快照后，显式把其 ID 传给解释器，避免后续导入改变本次查询版本。
+
+所有数据库连接均使用 SQLite `mode=ro`；目录连接另启用 query_only。页面只接受已有 synthetic profile ID，不接受档案内容或上传，也不写日志文件、缓存或数据库。访问仅限 loopback，启动器固定 127.0.0.1、关闭 debug/reloader；仅加载本机筛选增强脚本，无外部资源或第三方请求。终端可能显示常规 HTTP 请求日志（仅目录选项和虚构 ID）。这是本地开发试用台，不是公网部署入口；生产入口与真实用户隐私接入不在此试用台范围。
+
+数据库缺失或版本过旧时先导入，不由网页自动建库。解释器不兼容时页面提示重新导入；保留旧知识与用户本地数据库，不自动迁移或修改它们。

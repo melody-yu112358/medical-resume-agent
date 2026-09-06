@@ -25,7 +25,7 @@
 | 哪种方向适合何种研究深度？ | [中国覆盖矩阵](research/china-career-coverage-matrix-v1.md) | 启发式判断不是统计、库存或晋升状态 |
 | 数据如何导入、版本化和回放？ | [数据库说明](CAREER_MAP_DATABASE.md) | 不重复职业库存 |
 | 解释标签、适用性与来源如何定义？ | [解释契约](CAREER_EXPLANATION_CONTRACT.md) | 具体可解释方向读取规则源及状态页 |
-| 如何浏览与筛选？ | [本地试用台](CAREER_MAP_LOCAL_VIEWER.md)、[筛选契约](CAREER_MAP_TAXONOMY.md) | 导航标签不决定转岗适配 |
+| 如何浏览与筛选？ | [本地试用台](CAREER_MAP_DATABASE.md#local-read-only-viewer)、[筛选契约](CAREER_MAP_DATABASE.md#taxonomy-and-filtering) | 导航标签不决定转岗适配 |
 | 候选研究、JD 来源和历史验证在哪里？ | [研究导航](research/README.md) | 研究词条不自动成为运行资产 |
 
 </details>
@@ -36,7 +36,7 @@
 - [研究方法](RESEARCH_METHOD.md)、[Role Pack 晋升规则](ROLE_PACK_GRADUATION.md)。
 - [冻结案例基线](FROZEN_CASES_RELEASE_BASELINE.md)、[合成评估](SYNTHETIC_EVALUATION.md)、[对话模型评估](conversation_model_eval.md)。
 - [验收说明](ACCEPTANCE.md)、[用户流程验收](user_flow_acceptance_checklist.md)、[行动质量门](action_quality_gate.md)。
-- [数据政策](DATA_POLICY.md)、[简历 schema](RESUME_SCHEMA_V1.md)、[schema 兼容性](SCHEMA_COMPATIBILITY.md)。
+- [数据政策](DATA_POLICY.md)、[简历 schema](RESUME_SCHEMA_V1.md)。
 - [模型集成](LLM_INTEGRATION.md)、[Meta 分析示例规范](META_ANALYSIS_EXAMPLE_SPEC.md)。
 
 </details>
@@ -48,7 +48,7 @@
 
 - [产品手册 v2](PRODUCT_HANDBOOK_V2.md)、[用户旅程 v2](USER_JOURNEY_V2.md)、[领域模型 v2](DOMAIN_MODEL_V2.md)。
 - [技术设计 v2](TECHNICAL_DESIGN_V2.md)、[AI 系统 v2](AI_SYSTEM_V2.md)、[MVP 执行计划 v2](MVP_EXECUTION_PLAN_V2.md)。
-- [产品参考](PRODUCT.md)、[工作流参考](WORKFLOW.md)、[旅程层级](JOURNEY_LEVELS.md)。
+- [Legacy 旅程层级](JOURNEY_LEVELS.md)：仍承担旧入口的实现和验收参考；产品原则由当前产品说明承接。
 
 </details>
 
@@ -67,4 +67,4 @@
 
 **历史与计划：** `BUILD_LOG`、`audits`、早期 Career Cards pilot、带阶段或版本的产品计划保留其当时语境；评分卡和 promotion record 保留当时证据及决定，不随库存更新而重写。旧计划中的阶段号、测试数和工作量不能当成当前进度。具体 PR 的实施顺序与工作量留在 PR 描述或任务记录。
 
-历史资料统一从 [归档总入口](archive/README.md) 查找；它先链接原路径，本轮不移动文件。当前清单保留仍有职责的专题，不把最终数量目标当成强制归档条件。具体合并与迁移另行审查，归档子目录不另设重复导航。
+历史资料统一从 [归档总入口](archive/README.md) 查找；普通历史文件已移动；验证证据保留原路径并在总入口注明。当前清单保留仍有职责的专题，不把最终数量目标当成强制归档条件。具体合并与迁移另行审查，归档子目录不另设重复导航。

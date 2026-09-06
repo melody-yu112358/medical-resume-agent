@@ -1,0 +1,1189 @@
+{
+  "record_version": "breadth-scope-review-v1",
+  "review_id": "breadth-scope-review-2026-09-06-01",
+  "basis": "Stored observations from batches 01-04; no new external source verification or current-vacancy claim.",
+  "reviewer_kind": "assistant_researcher",
+  "human_approval_status": "pending",
+  "input_files": [
+    {
+      "path": "batch-2026-09-06-02-v1.json",
+      "sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c"
+    },
+    {
+      "path": "batch-2026-09-06-03-v1.json",
+      "sha256": "41b748b24765ddf4d660152ef18fb0f2fff967e934db333b24a0324e1f020c95"
+    },
+    {
+      "path": "batch-2026-09-06-04-v1.json",
+      "sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9"
+    },
+    {
+      "path": "batch-2026-09-06-v1.json",
+      "sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc"
+    }
+  ],
+  "historical_statistics_ref": "breadth-statistics-2026-09-06.json",
+  "historical_statistics_note": "Earlier inventory remains an immutable dated record; its pending review status describes the previous phase, not this review result.",
+  "interpretation": "Comparison groups are temporary review organization, not approved function taxonomy, equivalent roles or coverage denominator. Source observations and raw titles are unchanged.",
+  "naming_principles": [
+    "按主要任务、责任对象和交付物命名；职责不足时保留原名并暂缓。",
+    "支持、执行、授权审核、管理范围未知分别保留；不从经理或管理称谓推定所有权。",
+    "语言、客户、生产环节保留为范围限定，是否子角色或情境变体仍待核。",
+    "拟议名称不是雇主原文、国家职业名或医学可进入性结论。"
+  ],
+  "entries": [
+    {
+      "candidate_id": "breadth-insurance-underwriter",
+      "observation_ids": [
+        "obs-funde-underwriting"
+      ],
+      "original_proposed_label": "保险核保",
+      "raw_title": "核保核赔部核保员",
+      "recommended_label": "寿险核保审核（授权范围内）",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "保险审核",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "风险审核对象是承保保单，与理赔对象不同；保留授权范围。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-funde-001",
+        "url": "https://www.funde-ins.com/rcjm/zhaopin/493151.shtml",
+        "retained_payload_sha256": "80abf95063bc5123e1b4e26d6e040f70b7635507763b76051c4cd27f81d540e6",
+        "source_locator": "核保核赔部核保员／岗位职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-insurance-claims",
+      "observation_ids": [
+        "obs-funde-claims"
+      ],
+      "original_proposed_label": "保险理赔审核",
+      "raw_title": "核保核赔部理赔员岗",
+      "recommended_label": "寿险理赔审核（授权范围内）",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "保险审核",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "理赔审核签批不同于承保审核；不能归并成无边界保险管理。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-funde-001",
+        "url": "https://www.funde-ins.com/rcjm/zhaopin/493151.shtml",
+        "retained_payload_sha256": "80abf95063bc5123e1b4e26d6e040f70b7635507763b76051c4cd27f81d540e6",
+        "source_locator": "核保核赔部理赔员岗／岗位职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-insurance-product-project",
+      "observation_ids": [
+        "obs-funde-product-project"
+      ],
+      "original_proposed_label": "保险产品项目协调",
+      "raw_title": "产品市场部产品项目管理岗",
+      "recommended_label": "保险产品开发与上市协调支持",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "项目与产品运营支持",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "协助立项和开发协调不等于产品经理或项目所有者。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-funde-001",
+        "url": "https://www.funde-ins.com/rcjm/zhaopin/493151.shtml",
+        "retained_payload_sha256": "80abf95063bc5123e1b4e26d6e040f70b7635507763b76051c4cd27f81d540e6",
+        "source_locator": "产品市场部产品项目管理岗／岗位职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-medical-editor",
+      "observation_ids": [
+        "obs-dxy-editor"
+      ],
+      "original_proposed_label": "医学内容编辑",
+      "raw_title": "医学编辑",
+      "recommended_label": "面向临床医生的医学内容编辑",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "医学内容与用户运营",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "保留读者与选题、文献、渠道对象，不等同法规文件写作。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-dxy-001",
+        "url": "https://endo.dxy.cn/article/516527",
+        "retained_payload_sha256": "92fbef2b2eb031e5360efec4d865c6e041706108d13b2fe423dd6bc8e42a293d",
+        "source_locator": "工作职责／我们希望你",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "historical_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-statistical-programmer",
+      "observation_ids": [
+        "obs-mab-programmer"
+      ],
+      "original_proposed_label": "临床统计编程",
+      "raw_title": "统计程序员",
+      "recommended_label": "临床试验统计编程",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "数据分析与统计编程",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "按统计输出及分析数据命名，SAS作为技能，不把工具当职业或等同CDM。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-mab-001",
+        "url": "https://www.mab-works.com/join/detail/25.html",
+        "retained_payload_sha256": "e90e96c3bc8bb8ba05617ad596a671887b98910d89e3822e4abf8deb83e5a375",
+        "source_locator": "岗位职责／任职资格",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "dated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-medical-education-admin",
+      "observation_ids": [
+        "obs-nyfy-education"
+      ],
+      "original_proposed_label": "医院医学教育管理",
+      "raw_title": "医学教育管理专技岗",
+      "recommended_label": "医学教育管理专技岗（职责待补）",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "医院非诊疗管理",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "defer_scope_insufficient_tasks",
+      "review_note": "岗位表未展开任务交付物，保留原名；不推定教学设计或教务负责人。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-nyfy-001",
+        "url": "https://www.nyfy.com.cn/Uploads/Picture/2026/04/20/u69e615e13a818.pdf",
+        "retained_payload_sha256": "f8d17eda68b74f61197e365d2dcb97e9340aeda1cb5e1daa61669eb2e4617e8d",
+        "source_locator": "PDF第3页，B32",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "dated_campaign_reference"
+      },
+      "missing_evidence": [
+        "逐岗任务、交付物、授权及实际工作场景"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-medical-record-statistics",
+      "observation_ids": [
+        "obs-nyfy-record-statistics"
+      ],
+      "original_proposed_label": "医院病案统计",
+      "raw_title": "病案统计专技岗",
+      "recommended_label": "病案统计专技岗（职责待补）",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "医院非诊疗管理",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "defer_scope_insufficient_tasks",
+      "review_note": "未说明编码、报表或分析范围，不能归并为病案编码或公共卫生分析。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-nyfy-001",
+        "url": "https://www.nyfy.com.cn/Uploads/Picture/2026/04/20/u69e615e13a818.pdf",
+        "retained_payload_sha256": "f8d17eda68b74f61197e365d2dcb97e9340aeda1cb5e1daa61669eb2e4617e8d",
+        "source_locator": "PDF第3页，B33",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "dated_campaign_reference"
+      },
+      "missing_evidence": [
+        "逐岗任务、交付物、授权及实际工作场景"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-medical-content-operations",
+      "observation_ids": [
+        "obs-pmph-content"
+      ],
+      "original_proposed_label": "医学产品内容运营",
+      "raw_title": "内容运营",
+      "recommended_label": "医学产品内容运营",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "医学内容与用户运营",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "内容模块、作者协作与体验为主要对象，与编辑有交集但不确认等价。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-pmph-001",
+        "url": "https://ccdas.pmphai.com/pc/login/goAbout?type=5",
+        "retained_payload_sha256": "35ffa6e680a5b3ea72f502e411ddb198849e1c4c056c2bf3a95a6290722bda1e",
+        "source_locator": "人才招聘／一、内容运营",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-medical-community-operations",
+      "observation_ids": [
+        "obs-pmph-community"
+      ],
+      "original_proposed_label": "医学产品用户运营",
+      "raw_title": "用户运营",
+      "recommended_label": "医学社区用户运营",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "医学内容与用户运营",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "社区互动、用户关系和需求为对象，不等于内容编辑或医学事务。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-pmph-001",
+        "url": "https://ccdas.pmphai.com/pc/login/goAbout?type=5",
+        "retained_payload_sha256": "35ffa6e680a5b3ea72f502e411ddb198849e1c4c056c2bf3a95a6290722bda1e",
+        "source_locator": "人才招聘／二、用户运营",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-medical-market-operations",
+      "observation_ids": [
+        "obs-pmph-market"
+      ],
+      "original_proposed_label": "医学产品市场运营",
+      "raw_title": "市场运营",
+      "recommended_label": "医学产品增长与机构推广运营",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "市场与商务拓展",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "增长推广不同于社区互动；不从数据调整方案推定商业所有权。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": null,
+      "responsibility_evidence_status": "not_structured_in_batch_01_do_not_infer_seniority",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-v1.json",
+        "batch_sha256": "a5081625c37c60f7f2e7cbc535198162603ab33c5ed93a93eee5206988bcf0dc",
+        "source_id": "src-pmph-001",
+        "url": "https://ccdas.pmphai.com/pc/login/goAbout?type=5",
+        "retained_payload_sha256": "35ffa6e680a5b3ea72f502e411ddb198849e1c4c056c2bf3a95a6290722bda1e",
+        "source_locator": "人才招聘／三、市场运营",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "task_summary",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-mab-qa-validation",
+      "observation_ids": [
+        "obs-mab-qa-validation"
+      ],
+      "original_proposed_label": "药品验证与确认执行",
+      "raw_title": "QA专员",
+      "recommended_label": "药品验证与确认执行（含文件审核）",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "药品质量",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "避免把QA扩展为全部质量保证、批放行或质量负责人。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution_with_review",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-02-v1.json",
+        "batch_sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c",
+        "source_id": "src-mab-qa-002",
+        "url": "https://www.mab-works.com/join/detail/32.html",
+        "retained_payload_sha256": "9c9679ed435059a2fec7acb16689f70110e198d0e2ef837f4ba4b9a6de037e8b",
+        "source_locator": "QA专员／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "date_conflict_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-mab-qc-analysis",
+      "observation_ids": [
+        "obs-mab-qc-analysis"
+      ],
+      "original_proposed_label": "药品分析检验执行",
+      "raw_title": "质检工程师",
+      "recommended_label": "药品分析检验与方法验证",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "药品质量",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "检验记录与分析方法报告为交付；管理经验要求保留，管理权限未知。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution_management_scope_unspecified",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-02-v1.json",
+        "batch_sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c",
+        "source_id": "src-mab-qc-002",
+        "url": "https://www.mab-works.com/join/detail/106.html",
+        "retained_payload_sha256": "31b45d115baa1f257a6125ebe87bfb7048b71b6748acc937ec0b02b3ed9baf5c",
+        "source_locator": "质检工程师／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "date_conflict_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-mab-cell-production",
+      "observation_ids": [
+        "obs-mab-cell-production"
+      ],
+      "original_proposed_label": "细胞培养生产执行",
+      "raw_title": "细胞培养生产工程师",
+      "recommended_label": "细胞培养生产执行",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "生物药生产与工艺",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "保留培养环节和生产批执行；转移参与不等于厂级所有权。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-02-v1.json",
+        "batch_sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c",
+        "source_id": "src-mab-cell-002",
+        "url": "https://www.mab-works.com/join/detail/105.html",
+        "retained_payload_sha256": "568ea5c18e942fc516aa17cbe722419071ad335fa32823414e6c269516ec489b",
+        "source_locator": "细胞培养生产工程师／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "date_conflict_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-mab-purification-production",
+      "observation_ids": [
+        "obs-mab-purification-production"
+      ],
+      "original_proposed_label": "纯化生产执行",
+      "raw_title": "纯化生产工程师",
+      "recommended_label": "纯化生产执行",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "生物药生产与工艺",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "以生产规模及批记录为对象；不因AKTA技能相同并入工艺开发。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-02-v1.json",
+        "batch_sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c",
+        "source_id": "src-mab-pur-002",
+        "url": "https://www.mab-works.com/join/detail/104.html",
+        "retained_payload_sha256": "ee49955a0ebcd547c1221c21e3f5e2d54e07e1b7b60888afee6075b487f8b5ae",
+        "source_locator": "纯化生产工程师／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "date_conflict_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-mab-downstream-development",
+      "observation_ids": [
+        "obs-mab-downstream-development"
+      ],
+      "original_proposed_label": "蛋白纯化工艺开发",
+      "raw_title": "下游工艺开发研究员",
+      "recommended_label": "蛋白纯化工艺开发",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "生物药生产与工艺",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "研发方案和开发报告为交付；带教不等于直线管理。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution_with_training",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-02-v1.json",
+        "batch_sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c",
+        "source_id": "src-mab-dev-002",
+        "url": "https://www.mab-works.com/join/detail/107.html",
+        "retained_payload_sha256": "9103d42cee66ccbbd92e3e429b7e5c39839f691b12fdc76f683b74ad3d2572c3",
+        "source_locator": "下游工艺开发研究员／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "date_conflict_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-mabwell-microbiology",
+      "observation_ids": [
+        "obs-mabwell-microbiology"
+      ],
+      "original_proposed_label": "药品微生物检验执行",
+      "raw_title": "生产-微生物分析工程师",
+      "recommended_label": "药品微生物检验与环境监测",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "药品质量",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "标题含生产，职责为药品、水和洁净区检验；不命名成生产工艺岗。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-02-v1.json",
+        "batch_sha256": "a34eb19a1f4d173bd1c1b0e3de3632716851a879bc19988ef61e3451d833fb7c",
+        "source_id": "src-mabwell-002",
+        "url": "https://www.mabwell.com/jobs_info/id-98.html",
+        "retained_payload_sha256": "f4aa43898ef9155563302772214dcde262be9819573abdeafd4d3b6b6ca05874",
+        "source_locator": "生产-微生物分析工程师／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "historical_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-pku-health-transfer",
+      "observation_ids": [
+        "obs-pku-health-transfer"
+      ],
+      "original_proposed_label": "生命健康成果转化执行",
+      "raw_title": "技术转移专员（生命科学与健康方向）",
+      "recommended_label": "生命健康科技成果转化执行",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "知识产权与成果转化",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "成果库、尽调和转化方案不同于生产工艺转移；不推定投资审批权。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-03-v1.json",
+        "batch_sha256": "41b748b24765ddf4d660152ef18fb0f2fff967e934db333b24a0324e1f020c95",
+        "source_id": "src-pku-transfer-003",
+        "url": "https://hr.pku.edu.cn/rczp/xzjf/ldhtzp/9668286ee618413cbb531319fe7d0395.htm",
+        "retained_payload_sha256": "11872d92d2f4f78ae9fe3ddf9d38951153b4ea9d41c18e54f03480d2a295275a",
+        "source_locator": "技术转移专员（生命科学与健康方向）／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "historical_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-linda-domestic-patent",
+      "observation_ids": [
+        "obs-linda-domestic-patent"
+      ],
+      "original_proposed_label": "国内专利申请事务",
+      "raw_title": "国内专利代理师",
+      "recommended_label": "国内客户专利申请与答复事务",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "知识产权与成果转化",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "国内指客户范围，原名保留；不推定仅在中国申请或无需代理资格。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution_authorization_unverified",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-03-v1.json",
+        "batch_sha256": "41b748b24765ddf4d660152ef18fb0f2fff967e934db333b24a0324e1f020c95",
+        "source_id": "src-linda-003",
+        "url": "https://www.lindapatent.com/cn/recruit/",
+        "retained_payload_sha256": "d8fc61f1f4ea3283d74e92a21d07f84898f4c603d0551b1bf477d85f775d73b2",
+        "source_locator": "国内专利代理师／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-linda-foreign-patent",
+      "observation_ids": [
+        "obs-linda-foreign-patent"
+      ],
+      "original_proposed_label": "涉外专利技术事务",
+      "raw_title": "涉外专利代理师（英文或日文）",
+      "recommended_label": "涉外客户专利译校与答复事务",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "知识产权与成果转化",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "保留语言和外国客户边界；与国内业务有交集但范围待核。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution_authorization_unverified",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-03-v1.json",
+        "batch_sha256": "41b748b24765ddf4d660152ef18fb0f2fff967e934db333b24a0324e1f020c95",
+        "source_id": "src-linda-003",
+        "url": "https://www.lindapatent.com/cn/recruit/",
+        "retained_payload_sha256": "d8fc61f1f4ea3283d74e92a21d07f84898f4c603d0551b1bf477d85f775d73b2",
+        "source_locator": "涉外专利代理师（英文或日文）／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "undated_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-shcdc-health-data",
+      "observation_ids": [
+        "obs-shcdc-health-data"
+      ],
+      "original_proposed_label": "公共卫生数据分析与评价",
+      "raw_title": "公共卫生业务管理初级岗位",
+      "recommended_label": "公共卫生数据分析与项目评价（初级）",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "数据分析与统计编程",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "管理标题实际描述数据报告和评价，保留初级，不推出政策制定权。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "junior_assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-03-v1.json",
+        "batch_sha256": "41b748b24765ddf4d660152ef18fb0f2fff967e934db333b24a0324e1f020c95",
+        "source_id": "src-shcdc-003",
+        "url": "https://rsj.sh.gov.cn/tzpgg_17408/20240419/t0035_1423674.html",
+        "retained_payload_sha256": "d00f15402495b589a0ea9b1dc4facada0693ee8f4348c99db7e6ca1710776e5d",
+        "source_locator": "公共卫生业务管理初级岗位／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "historical_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-colipu-procurement",
+      "observation_ids": [
+        "obs-colipu-procurement"
+      ],
+      "original_proposed_label": "商品采购支持",
+      "raw_title": "采购/商品岗（采购部/MRO商品部）",
+      "recommended_label": "商品采购与供应商管理支持",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "采购支持",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "原文协助，采购和供应商决策授权未明示。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "support",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-04-v1.json",
+        "batch_sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9",
+        "source_id": "src-colipu-004",
+        "url": "https://career.uibe.edu.cn/front/zpxx.jspa?tid=2095443990961766402",
+        "retained_payload_sha256": "235bd0f23419b2469365997626ab642327c616f2672b47e9239baaa090b27b35",
+        "source_locator": "采购/商品岗（采购部/MRO商品部）／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "dated_campaign_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-colipu-project-support",
+      "observation_ids": [
+        "obs-colipu-project-support"
+      ],
+      "original_proposed_label": "政企项目运营支持",
+      "raw_title": "项目支持岗（行业线）",
+      "recommended_label": "政企采购项目运营支持",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "项目与产品运营支持",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "保留投标、平台和订单交付场景，与临床运营不同。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "support_with_assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-04-v1.json",
+        "batch_sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9",
+        "source_id": "src-colipu-004",
+        "url": "https://career.uibe.edu.cn/front/zpxx.jspa?tid=2095443990961766402",
+        "retained_payload_sha256": "235bd0f23419b2469365997626ab642327c616f2672b47e9239baaa090b27b35",
+        "source_locator": "项目支持岗（行业线）／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "dated_campaign_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-colipu-b2b-operation",
+      "observation_ids": [
+        "obs-colipu-b2b-operation"
+      ],
+      "original_proposed_label": "B端采购平台运营",
+      "raw_title": "电商运营岗（销售部）",
+      "recommended_label": "B端采购平台商品运营",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "平台商品运营",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "商品价格、上架和规则异常是交付对象，不等同社区增长运营。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "assigned_execution",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-04-v1.json",
+        "batch_sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9",
+        "source_id": "src-colipu-004",
+        "url": "https://career.uibe.edu.cn/front/zpxx.jspa?tid=2095443990961766402",
+        "retained_payload_sha256": "235bd0f23419b2469365997626ab642327c616f2672b47e9239baaa090b27b35",
+        "source_locator": "电商运营岗（销售部）／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "dated_campaign_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-hongke-bd",
+      "observation_ids": [
+        "obs-hongke-bd"
+      ],
+      "original_proposed_label": "技术企业商务拓展执行",
+      "raw_title": "商务拓展经理 Business Development Manager",
+      "recommended_label": "技术企业客户与伙伴拓展",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "市场与商务拓展",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "原经理名称保留；执行商务谈判和成交不自动证明人员管理。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "commercial_execution_management_scope_unspecified",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-04-v1.json",
+        "batch_sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9",
+        "source_id": "src-hongke-004",
+        "url": "https://jdjyw.jlu.edu.cn/mportal/recruit/details?id=ad2d1a3099c54e40986895a874642900",
+        "retained_payload_sha256": "fde462bb4e09ff600d4bd43b7c102ff7edabc376732b7dcf9f64aa47fb5175d4",
+        "source_locator": "商务拓展经理 Business Development Manager／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "historical_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    },
+    {
+      "candidate_id": "breadth-hongke-sales-support",
+      "observation_ids": [
+        "obs-hongke-sales-support"
+      ],
+      "original_proposed_label": "销售流程支持",
+      "raw_title": "销售助理 Sales Manager Assistant",
+      "recommended_label": "销售流程与订单支持",
+      "object_type": "proposed_role_scope",
+      "comparison_group": "销售支持",
+      "comparison_group_status": "research_navigation_only_not_taxonomy_or_role_equivalence",
+      "review_outcome": "retain_separate_provisional_scope",
+      "review_note": "合同、数据和订单协助不同于独立客户开拓成交。",
+      "scope_review_status": "human_review_pending",
+      "responsibility_level": "support",
+      "responsibility_evidence_status": "retained_observation_field",
+      "evidence_ref": {
+        "batch_file": "batch-2026-09-06-04-v1.json",
+        "batch_sha256": "691f56d4e59845a6917555591abe660aab88ba3561c8a9ec4b41dcd97bcc03e9",
+        "source_id": "src-hongke-004",
+        "url": "https://jdjyw.jlu.edu.cn/mportal/recruit/details?id=ad2d1a3099c54e40986895a874642900",
+        "retained_payload_sha256": "fde462bb4e09ff600d4bd43b7c102ff7edabc376732b7dcf9f64aa47fb5175d4",
+        "source_locator": "销售助理 Sales Manager Assistant／职责及要求",
+        "qualification_field": "entry_requirements_summary",
+        "responsibility_field": "responsibility_basis",
+        "temporal_status": "historical_reference"
+      },
+      "missing_evidence": [
+        "更多雇主同范围JD，含交付物与责任授权对照"
+      ],
+      "medical_transferability_assessed": false
+    }
+  ],
+  "comparisons": [
+    {
+      "comparison_id": "comparison-01",
+      "observation_ids": [
+        "obs-funde-underwriting",
+        "obs-funde-claims"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "保险审核、流程及指标分析",
+      "distinguishing_evidence": "承保风险与理赔事件的审核对象、签批范围不同。",
+      "evidence_needed": "授权矩阵及其他保险雇主JD。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-02",
+      "observation_ids": [
+        "obs-dxy-editor",
+        "obs-pmph-content"
+      ],
+      "relation_proposal": "unresolved",
+      "decision": "possible_equivalent_or_adjacent_do_not_merge",
+      "shared_tasks_or_objects": "医学内容与渠道/产品内容维护",
+      "distinguishing_evidence": "编辑侧重选题文献与医生读者；运营侧重作者协作、内容模块和体验。",
+      "evidence_needed": "逐项交付物占比、编辑审校与产品运营授权，以及另一独立雇主。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-03",
+      "observation_ids": [
+        "obs-pmph-content",
+        "obs-pmph-community",
+        "obs-pmph-market"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "医学产品运营",
+      "distinguishing_evidence": "内容模块、社区关系、增长推广的责任对象不同，经验门槛亦不同。",
+      "evidence_needed": "跨雇主验证各范围；同页三岗不算三个独立雇主。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-04",
+      "observation_ids": [
+        "obs-pmph-content",
+        "obs-colipu-b2b-operation"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "均有平台内容维护表象",
+      "distinguishing_evidence": "医学内容/作者与商品价格/采购规则不同，不能统称运营而抹掉对象。",
+      "evidence_needed": "其他内容运营与商品运营岗位。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-05",
+      "observation_ids": [
+        "obs-mab-qa-validation",
+        "obs-mab-qc-analysis",
+        "obs-mabwell-microbiology"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "质量活动和验证报告",
+      "distinguishing_evidence": "QA验证体系/审核、理化分析检验、微生物和洁净环境检测的对象与方法不同。",
+      "evidence_needed": "不同雇主QA验证及两类QC，明确审核、执行、最终放行权限。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-06",
+      "observation_ids": [
+        "obs-mab-cell-production",
+        "obs-mab-purification-production"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "生产批执行与规模转移",
+      "distinguishing_evidence": "培养与纯化所处生产环节和操作系统不同；可以同族，不确认同角色。",
+      "evidence_needed": "其他雇主是否将两环节作为可互换职责或独立招聘范围。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-07",
+      "observation_ids": [
+        "obs-mab-purification-production",
+        "obs-mab-downstream-development"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "纯化技术与工艺转移",
+      "distinguishing_evidence": "批记录/生产规模执行与研究方案/开发报告不同。",
+      "evidence_needed": "生产及研发各自授权和交付验收口径。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-08",
+      "observation_ids": [
+        "obs-pku-health-transfer",
+        "obs-mab-purification-production"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "均出现技术转移字样",
+      "distinguishing_evidence": "成果交易/尽调/资源配置，与生产工艺规模转移不同。",
+      "evidence_needed": "成果转化另一雇主；不建立技术转移通用别名。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-09",
+      "observation_ids": [
+        "obs-linda-domestic-patent",
+        "obs-linda-foreign-patent"
+      ],
+      "relation_proposal": "unresolved",
+      "decision": "possible_shared_role_with_context_variants_do_not_merge",
+      "shared_tasks_or_objects": "专利审查答复及咨询",
+      "distinguishing_evidence": "客户、语言、译校与申请撰写侧重不同，资格未明示。",
+      "evidence_needed": "其他机构JD及任务可替换性；资格另外核验，不从缺失推出无门槛。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-10",
+      "observation_ids": [
+        "obs-mab-programmer",
+        "obs-shcdc-health-data"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "数据分析及报告",
+      "distinguishing_evidence": "临床试验编程输出/CDISC与公卫指标政策项目评价不同。",
+      "evidence_needed": "独立统计编程和公卫分析来源；统计师与程序员另比较。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-11",
+      "observation_ids": [
+        "obs-nyfy-record-statistics",
+        "obs-shcdc-health-data"
+      ],
+      "relation_proposal": "unresolved",
+      "decision": "defer_insufficient_evidence",
+      "shared_tasks_or_objects": "名称涉及卫生数据",
+      "distinguishing_evidence": "病案统计来源缺少具体职责，不可判定是编码、统计上报或分析。",
+      "evidence_needed": "病案统计逐岗任务、交付物、责任层级。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-12",
+      "observation_ids": [
+        "obs-funde-product-project",
+        "obs-colipu-project-support",
+        "obs-hongke-sales-support"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "协调与流程支持",
+      "distinguishing_evidence": "保险产品开发上市、政企采购项目交付、销售订单辅助的对象及SOP责任不同。",
+      "evidence_needed": "对应业务对象、授权和交付物的跨雇主对照。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-13",
+      "observation_ids": [
+        "obs-colipu-project-support",
+        "obs-colipu-b2b-operation"
+      ],
+      "relation_proposal": "unresolved",
+      "decision": "overlap_possible_narrower_scope_do_not_merge",
+      "shared_tasks_or_objects": "平台上架定价及异常处理",
+      "distinguishing_evidence": "项目支持还含投标和交付闭环；不能仅按摘要确认完整包含关系。",
+      "evidence_needed": "两岗位完整任务范围及分工；若narrower成立须注明方向。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-14",
+      "observation_ids": [
+        "obs-hongke-bd",
+        "obs-hongke-sales-support"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "客户订单沟通",
+      "distinguishing_evidence": "主动开拓谈判成交与销售辅助不同；支持与执行不可混合。",
+      "evidence_needed": "独立雇主商务执行JD，管理授权另核验。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-15",
+      "observation_ids": [
+        "obs-pmph-market",
+        "obs-hongke-bd"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "市场增长与外部机构接触",
+      "distinguishing_evidence": "运营方案和推广与伙伴开发、谈判订单的输出不同。",
+      "evidence_needed": "营销/BD职责是否重合的第二雇主材料。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    },
+    {
+      "comparison_id": "comparison-16",
+      "observation_ids": [
+        "obs-colipu-procurement",
+        "obs-colipu-b2b-operation"
+      ],
+      "relation_proposal": "adjacent",
+      "decision": "keep_separate",
+      "shared_tasks_or_objects": "商品价格资料",
+      "distinguishing_evidence": "供应商/采购支持与B端平台日常商品运营的流程位置不同。",
+      "evidence_needed": "采购审批及平台运营的分工说明。",
+      "status": "researcher_proposal_human_review_pending",
+      "equivalence_confirmed": false
+    }
+  ],
+  "existing_catalog_comparisons": [
+    {
+      "observation_ids": [
+        "obs-dxy-editor",
+        "obs-pmph-content"
+      ],
+      "target_key": "regulatory_medical_writing_v1",
+      "relation_proposal": "adjacent",
+      "reason": "临床内容/产品运营摘要不证明法规文件写作职责，不能继承Pack边界或成熟度。",
+      "target_source": {
+        "path": "data/role-packs/regulatory_medical_writing_v1.json",
+        "sha256": "bab3c550d5fae2713807cdd80e293ffabbc5c74656c36ce059aa5d02d0ccdfb3",
+        "field": "forbidden_claims"
+      },
+      "status": "researcher_proposal_human_review_pending"
+    },
+    {
+      "observation_ids": [
+        "obs-mab-programmer"
+      ],
+      "target_key": "clinical_data_management_v1",
+      "relation_proposal": "adjacent",
+      "reason": "统计编程不等同CDM支持；Pack禁止从支持事实推出CDISC/编程专长。",
+      "target_source": {
+        "path": "data/role-packs/clinical_data_management_v1.json",
+        "sha256": "83311ad6827c1666f253671d102cbcddd4e7ae861ec86ea530152dd0bb21b97b",
+        "field": "forbidden_claims"
+      },
+      "status": "researcher_proposal_human_review_pending"
+    },
+    {
+      "observation_ids": [
+        "obs-shcdc-health-data"
+      ],
+      "target_key": "health_ai_data_v1",
+      "relation_proposal": "unresolved",
+      "reason": "宽方向与具体公卫分析岗位粒度不同，不自动认定已覆盖或narrower。",
+      "target_source": {
+        "path": "data/role-packs/health_ai_data_v1.json",
+        "sha256": "644a45e8387039974b5a60babb0aa076066c186b82afc5db2207d6d299eead87",
+        "field": "forbidden_claims"
+      },
+      "status": "researcher_proposal_human_review_pending"
+    },
+    {
+      "observation_ids": [
+        "obs-colipu-project-support",
+        "obs-funde-product-project"
+      ],
+      "target_key": "clinical_operations_v1",
+      "relation_proposal": "adjacent",
+      "reason": "共同协调动作不能消除采购、保险与临床试验的责任对象差异。",
+      "target_source": {
+        "path": "data/role-packs/clinical_operations_v1.json",
+        "sha256": "61b9a2ccf142223744b44a52a11e7c0e4083b188f3ca80938aba07594d12f420",
+        "field": "forbidden_claims"
+      },
+      "status": "researcher_proposal_human_review_pending"
+    },
+    {
+      "observation_ids": [
+        "obs-pmph-community"
+      ],
+      "target_key": "medical_affairs_v1",
+      "relation_proposal": "adjacent",
+      "reason": "社区用户关系不是医学事务职责证据，不能由领袖用户推出KOL所有权。",
+      "target_source": {
+        "path": "data/role-packs/medical_affairs_v1.json",
+        "sha256": "02ebf2a8b08c0dadd00ee2a2153c6d0a4a2ea5615733169e9811318c653c9e8a",
+        "field": "forbidden_claims"
+      },
+      "status": "researcher_proposal_human_review_pending"
+    },
+    {
+      "observation_ids": [
+        "obs-hongke-bd"
+      ],
+      "target_key": "medical_device_clinical_application_specialist_v1",
+      "relation_proposal": "adjacent",
+      "reason": "技术企业商务拓展不等于器械临床应用支持；不得继承其入口或适配结论。",
+      "target_source": {
+        "path": "data/role-packs/medical_device_clinical_application_specialist_v1.json",
+        "sha256": "20699cb0958c68306310db241d703d44caa470aace5f8f344b0ccb9c98bf78b1",
+        "field": "forbidden_claims"
+      },
+      "status": "researcher_proposal_human_review_pending"
+    }
+  ],
+  "summary": {
+    "observations_reviewed": 25,
+    "task_described_provisional_scopes": 23,
+    "insufficient_task_scopes": 2,
+    "comparison_sets": 16,
+    "confirmed_equivalent_merges": 0,
+    "human_approved_roles": 0,
+    "promotions": 0,
+    "reviewed_unique_role_count": null,
+    "coverage_percentage": null
+  },
+  "next_collection_priorities": [
+    {
+      "scope": "药品质量与生产",
+      "reason": "当前QA、理化QC、培养、纯化及开发集中于同一雇主；用不同雇主补职责对照，暂不做Pack深审。"
+    },
+    {
+      "scope": "一般法规注册、支付/卫生经济、职业卫生、养老服务、跨行业客户实施",
+      "reason": "继续开放式检索缺失职能；未读到附件的来源不得按岗位名称计入完成。"
+    },
+    {
+      "scope": "编辑/内容运营、国内/涉外专利、项目支持/平台运营",
+      "reason": "定点补任务交付物和分工，以后再判equivalent或有方向的narrower。"
+    },
+    {
+      "scope": "医院教育管理与病案统计",
+      "reason": "补逐岗职责；原学历、专业、年龄和资格要求不因暂缓而丢弃。"
+    }
+  ],
+  "changes_authorized": "Research annotations only; no schema, taxonomy, SQL, code, runtime, Pack, Card, rule or Markdown change.",
+  "trigger_assessment": {
+    "new_object_type_required": false,
+    "structural_taxonomy_change_required": false,
+    "substantive_duty_conflict_detected": false,
+    "note": "已见差异可保留为各JD范围或未决关系；资料不足不虚构职责。QA学历不一致仍待核，不作放宽或选取单一门槛。"
+  }
+}

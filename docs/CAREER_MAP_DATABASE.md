@@ -19,6 +19,8 @@
 三个维度可交叉而非层级，生命周期不是必填。`lifecycle_applicability` 及可选审核元数据保存在 taxonomy 原始 artifact，由 manifest 固定版本，不增加重复 SQL 列。详见 [筛选与适用性契约](CAREER_MAP_TAXONOMY.md)。
 
 分类仅用于知识导航，不是医学生转岗适配模型；当前目录对象粒度仍有差异。Profile 解释依据 claim、已确认事实和显式规则，不因网页筛选标签而改变结论。
+
+逐项对象类型与资产关联见 [职业目录结构和覆盖清单](CAREER_CATALOG_STRUCTURE.md)。清单中的类型为整理建议，尚未写入 taxonomy 或 SQL，不是新的 source of truth。
 - `career_directions` 及其三维关联表：未形成 Canonical Pack 的方向。`JD-driven` 方向被明确标记为 `research + jd_driven + not_routable`，必须附具体 JD；未来 Beta/Candidate 方向可登记为 `beta/candidate + explore_only + not_routable`，不会被误当作 Canonical。
 - `career_cards`、`career_card_claims` 及关联表：职业卡的版本、职责/交付物/可迁移性/缺口/JD-dependent 范围与带来源粒度的 JD snapshot 关系。职业卡只解释已有关联 Role Pack，不能生成新 Role Pack 或改变其职责边界。
 - `jd_evidence`、`jd_evidence_snapshots`、`role_jd_evidence`：公开 JD 来源、不可变的保留摘录、来源链接、采集日期、声明摘要与实际摘录摘要。若历史证据的声明摘要与保留摘录不一致，两个值都会保留并显式标记，绝不静默改写来源。

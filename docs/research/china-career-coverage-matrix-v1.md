@@ -7,6 +7,11 @@ available without the applicable runtime support.
 
 ## Method and limits
 
+Reconciled with repository sources on 2026-09-06. The structural inventory and
+independent Pack/Card/rule/runtime counts are recorded in
+[Career catalog structure](../CAREER_CATALOG_STRUCTURE.md). Demand/fit columns
+below remain unmeasured planning judgments, not individual eligibility findings.
+
 The matrix synthesizes the completed career-coverage research into stable
 responsibilities, ownership boundaries, and an appropriate product tier. Its
 `high`, `medium`, and `low` demand signals are transparent planning heuristics
@@ -25,11 +30,12 @@ graduation decision.
 | Health Data / AI | high | medium-high | medium / medium-high | analysis, data preparation, clinical-domain interpretation | academic analysis is not production-model or product ownership | A — Deep | high | established |
 | Clinical Operations / trial coordination | high | high | medium-high / high | documentation, data-quality follow-up, coordination support, SOP execution | support is not operations, KPI, vendor, patient, or team ownership | A — Deep | high | established |
 | Clinical Data Management / CDM | high | high | high / high | CRF/data review, query follow-up, data-quality documentation | support is not database lock, data-management plan, or vendor ownership | A — Deep | high | established |
-| Pharmacovigilance / Drug Safety | high | high | high / high | case processing support, safety literature, quality/compliance documentation | support is not case-signoff, signal ownership, or QPPV responsibility | B — Candidate | high | multi-JD Candidate corpus |
+| Pharmacovigilance / Drug Safety | high | high | high / high | case processing support, safety literature, quality/compliance documentation | support is not case-signoff, signal ownership, or QPPV responsibility | A — Deep / Canonical source | high | canonical Pack and retained JD corpus; runtime is separate |
+| Regulatory Medical Writing support | not separately measured | scope-dependent | bounded clinical/regulatory writing scope | confirmed drafting, evidence synthesis, version/QC support | not document sign-off, regulatory strategy, author or submission ownership | A — Deep / Canonical source | see domain review | canonical Pack and retained JD corpus; distinct from general RA and scientific communications |
 | Medical Writing / Scientific Communications | high | high | medium-high / high | evidence synthesis, scientific narrative, structured drafting and QC | drafting is not publication strategy, author/KOL, vendor, or regulatory ownership | B — Candidate pipeline | high | multi-JD |
 | Regulatory Affairs | high | medium-high | medium / high | document support, standards reading, submission preparation | support is not submission sign-off, regional strategy, or lifecycle ownership | B — research priority | medium | multi-JD research, no dedicated Candidate corpus recorded |
-| RWE | medium | medium-high | medium / high | evidence synthesis, observational-study support, analysis and reporting | research analysis is not claims/EHR access, causal-design, or RWE strategy ownership | B — Validated Beta Cluster | medium | multi-JD |
-| HEOR | medium | medium | medium / high | literature, evidence framing, analysis and scientific communication | not economic-model, payer, pricing, reimbursement, or value-dossier ownership | B — Validated Beta Cluster | medium | multi-JD |
+| RWE | medium | medium-high | medium / high | evidence synthesis, observational-study support, analysis and reporting | research analysis is not claims/EHR access, causal-design, or RWE strategy ownership | B — proposed research / Beta path, not a validated status | medium | multi-JD planning signals; independent evaluation still required |
+| HEOR | medium | medium | medium / high | literature, evidence framing, analysis and scientific communication | not economic-model, payer, pricing, reimbursement, or value-dossier ownership | B — proposed research / Beta path, not a validated status | medium | multi-JD planning signals; independent evaluation still required |
 | Market Access | medium | medium | low-medium / high | scientific evidence interpretation and structured communication | not payer engagement, pricing, reimbursement, or access-strategy ownership | C — JD-driven Generalist | high | multi-JD |
 | Medical-device Clinical / Application Specialist | medium | high | medium / medium-high | clinical explanation, training support, workflow understanding | not device registration, sales quota, procedure ownership, or KOL management | A — Deep | high | established canonical source |
 | Healthcare Product | high | medium | low / medium | clinical workflow insight, research, data interpretation | not product discovery, roadmap, commercial, or delivery ownership | C — JD-driven Generalist | high | multi-JD |
@@ -43,11 +49,13 @@ graduation decision.
 - **Deep / Canonical now:** the canonical directions currently represented by
   `data/role-packs/*.json`: Academic / PhD, Clinical Research, Medical Affairs
   / MSL, Health Data / AI, Clinical Operations, CRA support, CDM support, and
-  medical-device clinical/application support. Canonical status does not by
+  medical-device clinical/application support, PV support, and regulatory medical
+  writing support. Academic/PhD is an application target, not an occupation.
+  Canonical status does not by
   itself promise a routing target.
-- **Candidate path:** PV remains a dedicated Candidate corpus. It is not
-  canonical until a separately scoped promotion PR, required tests, and
-  traceable human approval exist.
+- **Completed promotion:** PV and regulatory medical writing support already
+  have canonical sources. Historical candidate-evidence filenames do not undo
+  those promotions. Do not repeat promotion work because this matrix was stale.
 - **Research / Beta path:** Medical Writing, Regulatory Affairs, RWE, and HEOR
   remain planning or research directions unless a dedicated Candidate corpus is
   recorded. They must not be presented as executable Packs merely because they
@@ -57,22 +65,24 @@ graduation decision.
   and explicit gap/ownership mapping rather than be forced into a universal
   Pack.
 
-The planning estimate is **75–85% usable coverage** of common
-medical-background transition demand only when the current canonical directions
-are presented alongside the Generalist JD-driven route and bounded,
-JD-required Candidate/research paths. It is a heuristic range, not a measured
-market-share result. Canonical-only coverage is materially lower and must not
-be advertised as this range.
+The historical **75–85% usable coverage** range was a planning heuristic with
+no reproducible market denominator. It is not a current measured target or
+coverage claim, including when JD-driven or research paths are added. Report
+directory breadth, source-backed knowledge, resume Pack coverage, and explicit
+explanation coverage separately. A measured rate requires a defined population,
+market/time window, sampled JD set and role deduplication policy.
 
 ## Next candidate priority
 
-1. Pharmacovigilance / Drug Safety — prepare a separately scoped promotion
-   only after its current Candidate evidence passes the required promotion gate.
-2. Medical Writing / Scientific Communications, then Regulatory Affairs. JD
+PV and regulatory medical writing are already canonical; their remaining
+Card/rule/claim-source work is tracked separately from new-career research.
+
+1. Medical Writing / Scientific Communications, then Regulatory Affairs. JD
    evidence must decide whether Drug RA and Medical Device RA need separate
    Candidate corpora rather than assuming one universal RA Pack.
-3. Biostatistics / SAS evaluation.
-4. RWE and HEOR evaluation as separate career families.
+2. Biostatistics / SAS evaluation. SAS is a technology cue, not an occupational
+   identity; statistical and programming responsibilities need scope review.
+3. RWE and HEOR evaluation as separate career families.
 
 RWE and HEOR require separate evaluation. No recommendation here authorizes
 canonicalization, runtime routing, or automatic implementation.

@@ -8,6 +8,8 @@
 
 **数据库分类规则：** `data/career-map/directions-v1.json` 将本页的“产业生态 × 生命周期 × 职能族”登记为可查询的地图种子。该分类服务于浏览和解释，不反向修改任何 Role Pack 的职责边界、Canonical 状态或 runtime routing。
 
+**目录结构与覆盖清单：** [医学背景职业目录结构审查](CAREER_CATALOG_STRUCTURE.md) 逐项核对当前目录的对象类型、职能、Pack/Card/规则/入口关联、旧探索卡与规划缺口。它是参考性审查，不修改现有机器契约。
+
 ## 2. 当前岗位版图总览
 
 | 成熟度池 | 当前方向 | 说明 |
@@ -277,9 +279,11 @@ Research、Clinical Development/Operations、Data/Statistics、Safety、Regulato
 
 ## 8. 中国市场覆盖策略与下一阶段路线图
 
-本仓库的覆盖目标不是为每个职位制造一个 Role Pack。当前的 `75–85%` 覆盖表述是产品规划 heuristic，不是市场份额、职位空缺量或录用概率。
+本仓库的覆盖目标不是为每个职位制造一个 Role Pack。历史 `75–85%` 表述没有可复核的市场分母，不作为当前已达覆盖率或可验证目标。后续分别衡量目录广度、来源知识深度、简历 Pack 支持和显式解释支持；口径见 [目录清单](CAREER_CATALOG_STRUCTURE.md)。
 
 ### 近期
+
+先按 [目录清单的优先级](CAREER_CATALOG_STRUCTURE.md#7-下一步优先级与完成条件) 核对角色簇边界与已有资产缺口；以下 Canonical hardening 和新方向研究仍各自独立，不因清单而自动实施。
 
 1. 已 Canonical 的方向保持现状；Cross-model validation 保留为后续 hardening，不阻止 Canonical v1 状态。
 2. 为已 Canonical 的方向补充可复核的 Cross-model conformance 记录，但不得以模型验证结果改写 domain-validated 的职业语义。
